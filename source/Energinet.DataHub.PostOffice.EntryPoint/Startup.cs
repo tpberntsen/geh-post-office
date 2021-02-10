@@ -20,7 +20,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint
 {
-    #pragma warning disable CA1812
     internal class Startup : FunctionsStartup
     {
         public override void Configure(IFunctionsHostBuilder builder)
@@ -28,5 +27,4 @@ namespace Energinet.DataHub.PostOffice.EntryPoint
             // Register services
         }
     }
-    #pragma warning restore CA1812
 }
