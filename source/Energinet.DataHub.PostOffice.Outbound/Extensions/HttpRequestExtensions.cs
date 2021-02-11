@@ -16,7 +16,7 @@ using System;
 using Energinet.DataHub.PostOffice.Application;
 using Microsoft.AspNetCore.Http;
 
-namespace Energinet.DataHub.PostOffice.EntryPoint.Extensions
+namespace Energinet.DataHub.PostOffice.Outbound.Extensions
 {
     public static class HttpRequestExtensions
     {

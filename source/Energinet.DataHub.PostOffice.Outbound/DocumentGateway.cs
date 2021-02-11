@@ -16,14 +16,14 @@ using System;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.EntryPoint.Extensions;
+using Energinet.DataHub.PostOffice.Outbound.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Energinet.DataHub.PostOffice.EntryPoint
+namespace Energinet.DataHub.PostOffice.Outbound
 {
     public class DocumentGateway
     {
