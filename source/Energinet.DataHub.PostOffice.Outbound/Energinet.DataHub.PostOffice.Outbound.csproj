@@ -21,11 +21,14 @@ limitations under the License.
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Energinet.DataHub.PostOffice.EntryPoint</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.16.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.CosmosDB" Version="3.0.9" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.3" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.11" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
@@ -35,5 +38,10 @@ limitations under the License.
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Energinet.DataHub.PostOffice.Application\Energinet.DataHub.PostOffice.Application.csproj" />
+    <ProjectReference Include="..\Energinet.DataHub.PostOffice.Domain\Energinet.DataHub.PostOffice.Domain.csproj" />
+    <ProjectReference Include="..\Energinet.DataHub.PostOffice.Infrastructure\Energinet.DataHub.PostOffice.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

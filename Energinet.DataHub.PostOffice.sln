@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hosts", "Hosts", "{832447E5
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{05DE980B-A2A7-4235-AE53-3167E94699DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Energinet.DataHub.PostOffice.EntryPoint", "source\Energinet.DataHub.PostOffice.EntryPoint\Energinet.DataHub.PostOffice.EntryPoint.csproj", "{02B328BB-2665-4933-81D1-AC4DCDDF5745}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Energinet.DataHub.PostOffice.Outbound", "source\Energinet.DataHub.PostOffice.Outbound\Energinet.DataHub.PostOffice.Outbound.csproj", "{02B328BB-2665-4933-81D1-AC4DCDDF5745}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -11,20 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-using System;
-using Energinet.DataHub.PostOffice.EntryPoint;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection;
 
-[assembly: FunctionsStartup(typeof(Startup))]
+using NodaTime;
 
-namespace Energinet.DataHub.PostOffice.EntryPoint
+namespace Energinet.DataHub.PostOffice.Domain
 {
-    internal class Startup : FunctionsStartup
+    public class Document
     {
-        public override void Configure(IFunctionsHostBuilder builder)
-        {
-            // Register services
-        }
+        public string? Id { get; set; }
+
+        public Instant? EffectuationDate { get; set; }
+
+        public object? Content { get; set; }
     }
 }

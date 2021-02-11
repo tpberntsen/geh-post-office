@@ -12,23 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
-namespace Energinet.DataHub.PostOffice.EntryPoint
+namespace Energinet.DataHub.PostOffice.Infrastructure
 {
-    public static class DocumentGateway
+    public class CosmosConfig
     {
-        [FunctionName("DocumentGateway")]
-        public static IActionResult Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest request,
-            ILogger logger)
+        public CosmosConfig()
         {
-            logger.LogInformation($"processing query: {request?.Query}");
-            return new OkResult();
+            DatabaseId = string.Empty;
+            TypeToContainerIdMap = new Dictionary<string, string>();
         }
+
+        public string DatabaseId { get; set; }
+
+#pragma warning disable CA2227
+        public Dictionary<string, string> TypeToContainerIdMap { get; set; }
+#pragma warning restore CA2227
+
+        public bool IsConfigured => !string.IsNullOrEmpty(DatabaseId)
+                                    && TypeToContainerIdMap.Count > 0;
     }
 }

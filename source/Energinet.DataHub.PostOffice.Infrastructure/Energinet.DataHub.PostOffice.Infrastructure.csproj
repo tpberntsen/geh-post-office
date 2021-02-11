@@ -28,4 +28,8 @@ limitations under the License.
       <ProjectReference Include="..\Energinet.DataHub.PostOffice.Domain\Energinet.DataHub.PostOffice.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.16.0" />
+    </ItemGroup>
+
 </Project>
