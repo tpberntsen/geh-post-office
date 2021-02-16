@@ -2,19 +2,14 @@ variable "resource_group_name" {
   type = string
 }
 
-variable "streaming_container_name" {
-  type = string
-  default = "messagedata"
-}
-
-variable "aggregation_container_name"{
-  type = string
-  default = "aggregations"
-}
-
 variable "environment" {
   type          = string
   description   = "Enviroment that the infrastructure code is deployed into"
+}
+
+variable "project" {
+  type          = string
+  description   = "Project that is running the infrastructure code"
 }
 
 variable "organisation" {

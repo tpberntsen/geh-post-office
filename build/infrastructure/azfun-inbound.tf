@@ -1,6 +1,6 @@
 module "azfun_inbound" {
   source                                    = "../modules/function-app"
-  name                                      = "azfun-inbound-${var.organisation}-${var.environment}"
+  name                                      = "azfun-inbound-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name                       = data.azurerm_resource_group.postoffice.name
   location                                  = data.azurerm_resource_group.postoffice.location
   storage_account_access_key                = module.azfun_inbound_stor.primary_access_key
@@ -20,7 +20,7 @@ module "azfun_inbound" {
 
 module "azfun_inbound_plan" {
   source              = "../modules/app-service-plan"
-  name                = "asp-inbound-${var.organisation}-${var.environment}"
+  name                = "asp-inbound-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name = data.azurerm_resource_group.postoffice.name
   location            = data.azurerm_resource_group.postoffice.location
   kind                = "FunctionApp"
@@ -33,7 +33,7 @@ module "azfun_inbound_plan" {
 
 module "azfun_inbound_stor" {
   source                    = "../modules/storage-account"
-  name                      = "stor${random_string.inbound.result}${var.organisation}${lower(var.environment)}"
+  name                      = "stor${random_string.inbound.result}"
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   location                  = data.azurerm_resource_group.postoffice.location
   account_replication_type  = "LRS"
@@ -44,7 +44,7 @@ module "azfun_inbound_stor" {
 
 # Since all functions need a storage connected we just generate a random name
 resource "random_string" "inbound" {
-  length  = 5
+  length  = 10
   special = false
   upper   = false
 }

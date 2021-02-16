@@ -33,7 +33,7 @@ module "azfun_outbound_plan" {
 
 module "azfun_outbound_stor" {
   source                    = "../modules/storage-account"
-  name                      = "stor${random_string.outbound.result}${var.organisation}${lower(var.environment)}"
+  name                      = "stor${random_string.outbound.result}"
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   location                  = data.azurerm_resource_group.postoffice.location
   account_replication_type  = "LRS"
@@ -44,7 +44,7 @@ module "azfun_outbound_stor" {
 
 # Since all functions need a storage connected we just generate a random name
 resource "random_string" "outbound" {
-  length  = 5
+  length  = 10
   special = false
   upper   = false
 }
