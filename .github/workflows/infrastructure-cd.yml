@@ -2,7 +2,7 @@ name: Infrastructure CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ renetnielsen/added-iac ]
     paths:
       - build/infrastructure/**
       - build/modules/**
