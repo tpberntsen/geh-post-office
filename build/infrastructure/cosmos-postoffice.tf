@@ -1,5 +1,5 @@
 resource "azurerm_cosmosdb_account" "postoffice" {
-  name                = "cosmos-postoffice-${var.project}-${var.organisation}-${var.environment}"
+  name                = "cosmos-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name = data.azurerm_resource_group.postoffice.name
   location            = data.azurerm_resource_group.postoffice.location
   offer_type          = "Standard"
