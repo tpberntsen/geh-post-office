@@ -1,5 +1,5 @@
 module "azfun_inbound" {
-  source                                    = "../modules/function-app"
+  source                                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/function-app?ref=1.0.0"
   name                                      = "azfun-inbound-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name                       = data.azurerm_resource_group.postoffice.name
   location                                  = data.azurerm_resource_group.postoffice.location
@@ -19,7 +19,7 @@ module "azfun_inbound" {
 }
 
 module "azfun_inbound_plan" {
-  source              = "../modules/app-service-plan"
+  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/app-service-plan?ref=1.0.0"
   name                = "asp-inbound-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name = data.azurerm_resource_group.postoffice.name
   location            = data.azurerm_resource_group.postoffice.location
@@ -32,7 +32,7 @@ module "azfun_inbound_plan" {
 }
 
 module "azfun_inbound_stor" {
-  source                    = "../modules/storage-account"
+  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/storage-account?ref=1.0.0"
   name                      = "stor${random_string.inbound.result}"
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   location                  = data.azurerm_resource_group.postoffice.location
