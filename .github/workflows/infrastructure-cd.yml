@@ -67,6 +67,14 @@ jobs:
 
       - name: Azure CLI Install and Login
         uses: ./.github/actions/azure-cli-install-login
+
+
+      - name: Install SSH
+        run: |
+          mkdir "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          echo "${ secrets.SSH_KEY }" > "$HOME/.ssh/id_rsa"
+          chmod 400 "$HOME/.ssh/id_rsa"
       
       - name: Check If Terraform State Storage exists
         id: state-storage-exists
@@ -113,7 +121,6 @@ jobs:
         run: terraform plan
 
       - name: Terraform Apply
-        id: terraform-apply
         working-directory: ./build/infrastructure
         run: terraform apply -no-color -auto-approve
         continue-on-error: false
