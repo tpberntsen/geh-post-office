@@ -16,7 +16,7 @@ module "sbq_inbound" {
 }
 
 module "sbnar_inbound_listener" {
-  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-auth-rule?ref=1.0.0"
+  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-queue-auth-rule?ref=1.0.0"
   name                      = "sbnar-inbound-listener"
   namespace_name            = module.sbn_inbound.name
   queue_name                = module.sbq_inbound.name
@@ -26,7 +26,7 @@ module "sbnar_inbound_listener" {
 }
 
 module "sbnar_inbound_sender" {
-  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-auth-rule?ref=1.0.0"
+  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-queue-auth-rule?ref=1.0.0"
   name                      = "sbnar-inbound-sender"
   namespace_name            = module.sbn_inbound.name
   queue_name                = module.sbq_inbound.name
