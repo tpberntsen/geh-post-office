@@ -73,7 +73,7 @@ jobs:
         run: |
           mkdir "$HOME/.ssh"
           chmod 700 "$HOME/.ssh"
-          echo "${ secrets.SSH_KEY }" > "$HOME/.ssh/id_rsa"
+          echo "${{ secrets.SSH_KEY }}" > "$HOME/.ssh/id_rsa"
           chmod 400 "$HOME/.ssh/id_rsa"
       
       - name: Check If Terraform State Storage exists
