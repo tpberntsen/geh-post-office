@@ -9,6 +9,7 @@ on:
       - .github/workflows/infrastructure-cd.yml
 env:
   ORGANISATION_NAME: endk
+  PROJECT_NAME: postoffice
 
 jobs:
   infra_deploy:
@@ -91,6 +92,7 @@ jobs:
           echo "TF_VAR_current_tenant_id=${{ secrets.TENANT_ID }}" >> $GITHUB_ENV
           echo "TF_VAR_environment=${{ matrix.environment.short }}" >> $GITHUB_ENV
           echo "TF_VAR_organisation=${{ env.ORGANISATION_NAME }}" >> $GITHUB_ENV
+          echo "TF_VAR_project=${{ env.PROJECT_NAME }}" >> $GITHUB_ENV
           echo "TF_VAR_resource_group_name=${{ matrix.environment.long }}" >> $GITHUB_ENV
           echo "TF_VAR_current_subscription_id=${{ secrets.SPN_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
 
