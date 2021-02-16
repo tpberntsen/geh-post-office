@@ -1,7 +1,7 @@
 resource "azurerm_cosmosdb_account" "postoffice" {
   name                = "cosmos-postoffice-${var.organisation}-${var.environment}"
-  resource_group_name = data.azurerm_resource_group.datahub.name
-  location            = data.azurerm_resource_group.datahub.location
+  resource_group_name = data.azurerm_resource_group.postoffice.name
+  location            = data.azurerm_resource_group.postoffice.location
   offer_type          = "Standard"
   kind                = "GlobalDocumentDB"
   # To enable global failover change to true and uncomment second geo_location
@@ -12,16 +12,16 @@ resource "azurerm_cosmosdb_account" "postoffice" {
   }
   
   geo_location {
-    location          = data.azurerm_resource_group.datahub.location
+    location          = data.azurerm_resource_group.postoffice.location
     failover_priority = 0
   }
 
-  tags                = data.azurerm_resource_group.datahub.tags
+  tags                = data.azurerm_resource_group.postoffice.tags
 }
 
 resource "azurerm_cosmosdb_sql_database" "db" {
   name                = "messages"
-  resource_group_name = data.azurerm_resource_group.datahub.name
+  resource_group_name = data.azurerm_resource_group.postoffice.name
   account_name        = azurerm_cosmosdb_account.postoffice.name
 }
 
