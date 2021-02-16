@@ -1,6 +1,6 @@
 module "azfun_outbound" {
   source                                    = "../modules/function-app"
-  name                                      = "azfun-outbound-${var.organisation}-${var.environment}"
+  name                                      = "azfun-outbound-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name                       = data.azurerm_resource_group.postoffice.name
   location                                  = data.azurerm_resource_group.postoffice.location
   storage_account_access_key                = module.azfun_outbound_stor.primary_access_key
@@ -20,7 +20,7 @@ module "azfun_outbound" {
 
 module "azfun_outbound_plan" {
   source              = "../modules/app-service-plan"
-  name                = "asp-outbound-${var.organisation}-${var.environment}"
+  name                = "asp-outbound-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name = data.azurerm_resource_group.postoffice.name
   location            = data.azurerm_resource_group.postoffice.location
   kind                = "FunctionApp"
