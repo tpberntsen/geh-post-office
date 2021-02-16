@@ -1,11 +1,11 @@
-module "azfun_outboundapi" {
+module "azfun_outbound" {
   source                                    = "../modules/function-app"
-  name                                      = "azfun-outboundapi-${var.organisation}-${var.environment}"
+  name                                      = "azfun-outbound-${var.organisation}-${var.environment}"
   resource_group_name                       = data.azurerm_resource_group.postoffice.name
   location                                  = data.azurerm_resource_group.postoffice.location
-  storage_account_access_key                = module.azfun_outboundapi_stor.primary_access_key
-  storage_account_name                      = module.azfun_outboundapi_stor.name
-  app_service_plan_id                       = module.azfun_outboundapi_plan.id
+  storage_account_access_key                = module.azfun_outbound_stor.primary_access_key
+  storage_account_name                      = module.azfun_outbound_stor.name
+  app_service_plan_id                       = module.azfun_outbound_plan.id
   application_insights_instrumentation_key  = module.appi_postoffice.instrumentation_key
   tags                                      = data.azurerm_resource_group.postoffice.tags
   app_settings                              = {
@@ -13,14 +13,14 @@ module "azfun_outboundapi" {
     POSTOFFICE_DB_KEY               = azurerm_cosmosdb_account.postoffice.primary_key
   }
   dependencies                              = [
-    module.azfun_outboundapi_plan.dependent_on,
-    module.azfun_outboundapi_stor.dependent_on,
+    module.azfun_outbound_plan.dependent_on,
+    module.azfun_outbound_stor.dependent_on,
   ]
 }
 
-module "azfun_outboundapi_plan" {
+module "azfun_outbound_plan" {
   source              = "../modules/app-service-plan"
-  name                = "asp-outboundapi-${var.organisation}-${var.environment}"
+  name                = "asp-outbound-${var.organisation}-${var.environment}"
   resource_group_name = data.azurerm_resource_group.postoffice.name
   location            = data.azurerm_resource_group.postoffice.location
   kind                = "FunctionApp"
@@ -31,9 +31,9 @@ module "azfun_outboundapi_plan" {
   tags                = data.azurerm_resource_group.postoffice.tags
 }
 
-module "azfun_outboundapi_stor" {
+module "azfun_outbound_stor" {
   source                    = "../modules/storage-account"
-  name                      = "stor${random_string.outboundapi.result}${var.organisation}${lower(var.environment)}"
+  name                      = "stor${random_string.outbound.result}${var.organisation}${lower(var.environment)}"
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   location                  = data.azurerm_resource_group.postoffice.location
   account_replication_type  = "LRS"
@@ -43,7 +43,7 @@ module "azfun_outboundapi_stor" {
 }
 
 # Since all functions need a storage connected we just generate a random name
-resource "random_string" "outboundapi" {
+resource "random_string" "outbound" {
   length  = 5
   special = false
   upper   = false

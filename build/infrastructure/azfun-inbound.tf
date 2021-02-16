@@ -1,11 +1,11 @@
-module "azfun_dequeuer" {
+module "azfun_inbound" {
   source                                    = "../modules/function-app"
-  name                                      = "azfun-dequeuer-${var.organisation}-${var.environment}"
+  name                                      = "azfun-inbound-${var.organisation}-${var.environment}"
   resource_group_name                       = data.azurerm_resource_group.postoffice.name
   location                                  = data.azurerm_resource_group.postoffice.location
-  storage_account_access_key                = module.azfun_dequeuer_stor.primary_access_key
-  storage_account_name                      = module.azfun_dequeuer_stor.name
-  app_service_plan_id                       = module.azfun_dequeuer_plan.id
+  storage_account_access_key                = module.azfun_inbound_stor.primary_access_key
+  storage_account_name                      = module.azfun_inbound_stor.name
+  app_service_plan_id                       = module.azfun_inbound_plan.id
   application_insights_instrumentation_key  = module.appi_postoffice.instrumentation_key
   tags                                      = data.azurerm_resource_group.postoffice.tags
   app_settings                              = {
@@ -13,14 +13,14 @@ module "azfun_dequeuer" {
     POSTOFFICE_DB_KEY               = azurerm_cosmosdb_account.postoffice.primary_key
   }
   dependencies                              = [
-    module.azfun_dequeuer_plan.dependent_on,
-    module.azfun_dequeuer_stor.dependent_on,
+    module.azfun_inbound_plan.dependent_on,
+    module.azfun_inbound_stor.dependent_on,
   ]
 }
 
-module "azfun_dequeuer_plan" {
+module "azfun_inbound_plan" {
   source              = "../modules/app-service-plan"
-  name                = "asp-dequeuer-${var.organisation}-${var.environment}"
+  name                = "asp-inbound-${var.organisation}-${var.environment}"
   resource_group_name = data.azurerm_resource_group.postoffice.name
   location            = data.azurerm_resource_group.postoffice.location
   kind                = "FunctionApp"
@@ -31,9 +31,9 @@ module "azfun_dequeuer_plan" {
   tags                = data.azurerm_resource_group.postoffice.tags
 }
 
-module "azfun_dequeuer_stor" {
+module "azfun_inbound_stor" {
   source                    = "../modules/storage-account"
-  name                      = "stor${random_string.dequeuer.result}${var.organisation}${lower(var.environment)}"
+  name                      = "stor${random_string.inbound.result}${var.organisation}${lower(var.environment)}"
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   location                  = data.azurerm_resource_group.postoffice.location
   account_replication_type  = "LRS"
@@ -43,7 +43,7 @@ module "azfun_dequeuer_stor" {
 }
 
 # Since all functions need a storage connected we just generate a random name
-resource "random_string" "dequeuer" {
+resource "random_string" "inbound" {
   length  = 5
   special = false
   upper   = false
