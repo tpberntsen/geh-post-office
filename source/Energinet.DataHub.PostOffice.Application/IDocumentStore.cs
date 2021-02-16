@@ -29,5 +29,11 @@ namespace Energinet.DataHub.PostOffice.Application
         /// <param name="documentQuery">The documentQuery to get documents by</param>
         /// <returns>A list of documents matching the documentQuery parameters</returns>
         Task<IList<Document>> GetDocumentsAsync(DocumentQuery documentQuery);
+
+        /// <summary>
+        /// Save a document
+        /// </summary>
+        /// <param name="document">The document to save</param>
+        Task SaveDocumentAsync(Document document);
     }
 }

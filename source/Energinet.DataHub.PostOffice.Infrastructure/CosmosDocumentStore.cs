@@ -14,9 +14,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Domain;
+using GreenEnergyHub.Json;
 using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure
@@ -33,20 +35,23 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
         private readonly CosmosClient _cosmosClient;
         private readonly CosmosConfig _cosmosConfig;
+        private readonly IJsonSerializer _serializer;
 
         public CosmosDocumentStore(
             CosmosClient cosmosClient,
-            CosmosConfig cosmosConfig)
+            CosmosConfig cosmosConfig,
+            IJsonSerializer serializer)
         {
             _cosmosClient = cosmosClient;
             _cosmosConfig = cosmosConfig;
+            _serializer = serializer;
         }
 
         public async Task<IList<Document>> GetDocumentsAsync(DocumentQuery documentQuery)
         {
             if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
 
-            var container = _cosmosClient.GetContainer(_cosmosConfig.DatabaseId, _cosmosConfig.TypeToContainerIdMap[documentQuery.Type]);
+            var container = GetContainer(documentQuery.Type);
 
             // Querying with an equality filter on the partition key will create a partitioned documentQuery, per:
             // https://docs.microsoft.com/en-us/azure/cosmos-db/how-to-documentQuery-container#in-partition-documentQuery
@@ -56,13 +61,37 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                 .WithParameter("@pageSize", documentQuery.PageSize);
 
             var documents = new List<Document>();
-            var query = container.GetItemQueryIterator<Document>(queryDefinition);
+            var query = container.GetItemQueryIterator<CosmosDocument>(queryDefinition);
             foreach (var document in await query.ReadNextAsync().ConfigureAwait(false))
             {
-                documents.Add(document);
+                documents.Add(CosmosDocumentMapper.Convert(document));
             }
 
             return documents;
+        }
+
+        public async Task SaveDocumentAsync(Document document)
+        {
+            if (document == null) throw new ArgumentNullException(nameof(document));
+
+            // TODO: add error handling and fix type nullability?
+            var container = GetContainer(document.Type!);
+
+            var cosmosDocument = CosmosDocumentMapper.Convert(document);
+
+            var response = await container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
+            if (response.StatusCode != HttpStatusCode.Created)
+            {
+                throw new InvalidOperationException("Could not create document in cosmos");
+            }
+        }
+
+        private Container GetContainer(string type)
+        {
+            var container = _cosmosClient.GetContainer(
+                _cosmosConfig.DatabaseId,
+                _cosmosConfig.TypeToContainerIdMap[type]);
+            return container;
         }
     }
 }

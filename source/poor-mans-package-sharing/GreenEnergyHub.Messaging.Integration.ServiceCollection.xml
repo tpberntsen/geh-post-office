@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GreenEnergyHub.Messaging.Integration.ServiceCollection</name>
+    </assembly>
+    <members>
+        <member name="T:GreenEnergyHub.Messaging.HandlerExtensions">
+            <summary>
+            Static class which allows the Azure Functions runtime IServiceCollection
+            to discover and register classes needed to run the Green Energy Hub
+            project.
+            </summary>
+        </member>
+        <member name="M:GreenEnergyHub.Messaging.HandlerExtensions.AddGreenEnergyHub(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Reflection.Assembly[])">
+            <summary>
+            Searches the provided assemblies, as well as the common assemblies,
+            to find the HubRequestHandlers, HubCommandHandlers, IHubMessages,
+            IRuleEngines, the rules (represented as a list of
+            Types), the IEndpointResolver, and the IHubMessageTypeMap, and to
+            automatically register and provide this instances on function
+            startup.
+            </summary>
+            <param name="services">The IServiceCollection services provided by
+            the Azure Functions runtime to register our interfaces with.</param>
+            <param name="customerAssemblies">A list of assemblies to search for
+            interfaces to automatically register.</param>
+        </member>
+    </members>
+</doc>

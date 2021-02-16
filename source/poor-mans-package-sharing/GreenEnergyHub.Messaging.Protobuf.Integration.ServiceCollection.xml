@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GreenEnergyHub.Messaging.Protobuf.Integration.ServiceCollection</name>
+    </assembly>
+    <members>
+        <member name="T:GreenEnergyHub.Messaging.Protobuf.OneOfConfiguration`1">
+            <summary>
+            Configuration of proto buf
+            </summary>
+            <typeparam name="TOneOf">Class that is generated from protoc</typeparam>
+        </member>
+        <member name="M:GreenEnergyHub.Messaging.Protobuf.OneOfConfiguration`1.WithParser(System.Func{Google.Protobuf.MessageParser})">
+            <summary>
+            Assign a parser
+            </summary>
+            <param name="parser">Func that returns a parser</param>
+        </member>
+        <member name="M:GreenEnergyHub.Messaging.Protobuf.OneOfConfiguration`1.FromOneOf(System.Func{`0,System.Enum})">
+            <summary>
+            Identifies the OneOf property from an envelope
+            </summary>
+            <param name="oneOfCase">Func used to return the value of the message type</param>
+            <exception cref="T:System.InvalidOperationException">If <c>FromOneOf</c> has already been assigned</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="oneOfCase"/> is <c>null</c></exception>
+        </member>
+        <member name="M:GreenEnergyHub.Messaging.Protobuf.OneOfConfiguration`1.GetParser">
+            <summary>
+            Configure a proto buf parser
+            </summary>
+            <returns><see cref="T:GreenEnergyHub.Messaging.Protobuf.ProtobufParser"/> from the configuration</returns>
+        </member>
+        <member name="M:GreenEnergyHub.Messaging.Protobuf.OneOfConfiguration`1.GetMessageParserFromReflection">
+            <summary>
+            Locate a default parser based on convention
+            </summary>
+            <exception cref="T:System.InvalidOperationException">No property found with name 'Parser' or the property is not of type <see cref="T:Google.Protobuf.MessageParser"/></exception>
+        </member>
+        <member name="T:GreenEnergyHub.Messaging.Protobuf.OneOfConfiguration`1.ConfigParser">
+            <summary>
+            ProtobufParser implemented from configuration
+            </summary>
+        </member>
+        <member name="M:GreenEnergyHub.Messaging.Protobuf.OneOfConfiguration`1.ConfigParser.#ctor(Google.Protobuf.MessageParser,System.Func{`0,System.Enum})">
+            <summary>
+            Create a parser
+            </summary>
+            <param name="parser">Protobuf parser to use</param>
+            <param name="getMessageType"></param>
+        </member>
+        <member name="M:GreenEnergyHub.Messaging.Protobuf.OneOfConfiguration`1.ConfigParser.Parse(System.Byte[])">
+            <summary>
+            Convert a payload to <see cref="T:Google.Protobuf.IMessage"/>
+            </summary>
+            <param name="data">data to parser</param>
+            <summary>
+            Parse a byte array to an <see cref="T:Google.Protobuf.IMessage"/>
+            <exception cref="T:System.InvalidOperationException"> is returned if
+            Data is not of the correct type - 'Invalid data'
+            or
+            A property is not located with a matching name - 'Invalid contract'
+            or
+            The property does not exists on the contract
+            </exception>
+            </summary>
+        </member>
+        <member name="M:GreenEnergyHub.Messaging.Protobuf.ServiceCollectionReceiveProtobuf.ReceiveProtobuf``1(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{GreenEnergyHub.Messaging.Protobuf.OneOfConfiguration{``0}})">
+            <summary>
+            Configure the <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to handle proto buf
+            </summary>
+            <param name="services">service collection</param>
+            <param name="configuration">Configuration of the parser</param>
+            <typeparam name="TProtoContract">Protobuf contract</typeparam>
+            <exception cref="T:System.ArgumentNullException"><paramref name="services"/> or <paramref name="configuration"/> is <c>null</c></exception>
+        </member>
+        <member name="M:GreenEnergyHub.Messaging.Protobuf.ServiceCollectionReceiveProtobuf.ScanForMappers(System.Reflection.Assembly)">
+            <summary>
+            Scan for mappers
+            </summary>
+            <param name="targetAssembly">Assembly to check</param>
+        </member>
+        <member name="M:GreenEnergyHub.Messaging.Protobuf.ServiceCollectionSendProtobuf.SendProtobuf``1(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Add protobuf as format for sending data
+            </summary>
+            <param name="services">service collection</param>
+            <typeparam name="TProtoContract">Protobuf contract</typeparam>
+            <exception cref="T:System.ArgumentNullException">if <paramref name="services"/> is <c>null</c></exception>
+        </member>
+        <member name="M:GreenEnergyHub.Messaging.Protobuf.ServiceCollectionSendProtobuf.ScanForMappers(System.Reflection.Assembly)">
+            <summary>
+            Scan for mappers
+            </summary>
+            <param name="targetAssembly">Assembly to scan</param>
+        </member>
+    </members>
+</doc>

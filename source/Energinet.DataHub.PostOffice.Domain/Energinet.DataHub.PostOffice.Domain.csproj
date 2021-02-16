@@ -26,5 +26,11 @@ limitations under the License.
     <ItemGroup>
       <PackageReference Include="NodaTime" Version="3.0.5" />
     </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="GreenEnergyHub.Messaging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\poor-mans-package-sharing\GreenEnergyHub.Messaging.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
 </Project>
