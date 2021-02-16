@@ -69,12 +69,10 @@ jobs:
         uses: ./.github/actions/azure-cli-install-login
 
 
-      - name: Install SSH
+      - name: Setup Authorization to pull TF modules
         run: |
-          mkdir "$HOME/.ssh"
-          chmod 700 "$HOME/.ssh"
-          echo "${{ secrets.SSH_KEY }}" > "$HOME/.ssh/id_rsa"
-          chmod 400 "$HOME/.ssh/id_rsa"
+          git config --local --remove-section http."https://github.com/"
+          git config --global url."https://foo:${{ secrets.PAT_TOKEN }}@github.com/Energinet-DataHub/green-energy-hub-core".insteadOf "https://github.com/Energinet-DataHub/green-energy-hub-core"
       
       - name: Check If Terraform State Storage exists
         id: state-storage-exists
