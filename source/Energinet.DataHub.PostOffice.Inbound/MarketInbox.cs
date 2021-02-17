@@ -41,7 +41,7 @@ namespace Energinet.DataHub.PostOffice.Inbound
             [ServiceBusTrigger(
                 "%INBOUND_QUEUE_MARKETDATA_TOPIC_NAME%",
                 "%INBOUND_QUEUE_MARKETDATA_SUBSCRIPTION_NAME%",
-                Connection = "INBOUND_QUEUE_MARKETDATA_CONNECTION_STRING")] Message message,
+                Connection = "INBOUND_QUEUE_CONNECTION_STRING")] Message message,
             ILogger logger)
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
