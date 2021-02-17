@@ -8,15 +8,15 @@ module "sbn_inbound" {
 }
 
 module "sbt_marketdata" {
-  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic?ref=1.0.0"
+  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic?ref=renetnielsen/add-service-bus-topic"
   name                = "marketdata"
   namespace_name      = module.sbn_inbound.name
   resource_group_name = data.azurerm_resource_group.postoffice.name
   dependencies        = [module.sbn_inbound]
 }
 
-module "sbnar_inbound_listener" {
-  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic-auth-rule?ref=1.0.0"
+module "sbnar_marketdata_listener" {
+  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic-auth-rule?ref=renetnielsen/add-service-bus-topic"
   name                      = "sbnar-inbound-listener"
   namespace_name            = module.sbn_inbound.name
   topic_name                = module.sbt_marketdata.name
@@ -25,8 +25,8 @@ module "sbnar_inbound_listener" {
   dependencies              = [module.sbt_marketdata]
 }
 
-module "sbnar_inbound_sender" {
-  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic-auth-rule?ref=1.0.0"
+module "sbnar_marketdata_sender" {
+  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic-auth-rule?ref=renetnielsen/add-service-bus-topic"
   name                      = "sbnar-inbound-sender"
   namespace_name            = module.sbn_inbound.name
   topic_name                = module.sbt_marketdata.name
