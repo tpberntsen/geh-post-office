@@ -24,7 +24,6 @@ runs:
     - name: Build project
       shell: bash
       run: |
-        mv .editorconfig.ci .editorconfig
         dotnet build ${{ inputs.csproj_file_path }} --configuration Release --output ${{ inputs.output_path }}
     - name: test and publish report
       shell: bash

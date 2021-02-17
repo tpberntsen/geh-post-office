@@ -9,7 +9,6 @@ on:
       - .github/workflows/outbound-cd.yml
       - .github/actions/dotnet-build-and-test
       - Energinet.DataHub.PostOffice.sln
-      - .editorconfig.ci
   workflow_dispatch: {}
 
 env:
