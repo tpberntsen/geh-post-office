@@ -13,6 +13,7 @@ on:
 
 env:
   CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Inbound/Energinet.DataHub.PostOffice.Inbound.csproj'
+  SOLUTION_FILE_PATH: 'Energinet.DataHub.PostOffice.sln'
   DOTNET_VERSION: '3.1'
   ORGANISATION_NAME: 'endk'
   AZURE_FUNCTIONAPP_NAME: 'azfun-inbound'
@@ -35,6 +36,7 @@ jobs:
         uses: ./.github/actions/dotnet-build-and-test
         with:
           CSPROJ_FILE_PATH: ${{ env.CSPROJ_FILE_PATH }}
+          SOLUTION_FILE_PATH: ${{ env.SOLUTION_FILE_PATH }}
           OUTPUT_PATH: '${{ github.workspace }}/output'
 
       - name: Publish artifact
