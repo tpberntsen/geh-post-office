@@ -38,6 +38,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
         [JsonProperty(PropertyName = "content")]
         public dynamic Content { get; set; }
+
+        [JsonProperty(PropertyName = "bundle")]
+        public string Bundle { get; set; }
     }
     #nullable restore
 }
