@@ -27,7 +27,6 @@ module "azfun_inbound" {
     module.appi_postoffice.dependent_on,
     module.azfun_inbound_plan.dependent_on,
     module.azfun_inbound_stor.dependent_on,
-    module.azurerm_cosmosdb_account.dependent_on,
     module.sbt_marketdata.dependent_on,
     module.sbtaur_marketdata_subscription.dependent_on,
     module.sbtaur_marketdata_listener.dependent_on,
