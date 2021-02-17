@@ -11,20 +11,26 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-using System;
-using Energinet.DataHub.PostOffice.EntryPoint;
+
+using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Common;
+using Energinet.DataHub.PostOffice.Inbound;
+using Energinet.DataHub.PostOffice.Infrastructure;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
-namespace Energinet.DataHub.PostOffice.EntryPoint
+namespace Energinet.DataHub.PostOffice.Inbound
 {
     internal class Startup : FunctionsStartup
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            // Register services
+            builder.Services.AddScoped<IDocumentStore, CosmosDocumentStore>();
+            builder.Services.AddScoped<InputParser>();
+            builder.Services.AddSingleton<IMapper<Contracts.Document, Domain.Document>, DocumentMapper>();
+            builder.Services.AddCosmosConfiguration();
         }
     }
 }
