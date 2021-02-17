@@ -1,0 +1,38 @@
+name: Inbound CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+env:
+  CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Inbound/Energinet.DataHub.PostOffice.Inbound.csproj'
+  SOLUTION_FILE_PATH: 'Energinet.DataHub.PostOffice.sln'
+  DOTNET_VERSION: '3.1'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }} environment
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build and test project
+        uses: ./.github/actions/dotnet-build-and-test
+        with:
+          CSPROJ_FILE_PATH: ${{ env.CSPROJ_FILE_PATH }}
+          SOLUTION_FILE_PATH: ${{ env.SOLUTION_FILE_PATH }}
+          OUTPUT_PATH: '${{ github.workspace }}/output'
+
+      - name: Publish artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: drop
+          path: '${{ github.workspace }}/output'
