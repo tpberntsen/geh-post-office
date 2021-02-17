@@ -1,0 +1,107 @@
+name: Outbound CD
+
+on:
+  push:
+    branches:
+      - renetnielsen/init
+    paths:
+      - source/Energinet.DataHub.PostOffice.EntryPoint/**
+      - .github/workflows/inbound-cd.yml
+      - .github/actions/dotnet-build-and-test
+      - Energinet.DataHub.PostOffice.sln
+      - .editorconfig.ci
+  workflow_dispatch: {}
+
+env:
+  SOLUTION_FILE_PATH: './Energinet.DataHub.PostOffice.sln'
+  DOTNET_VERSION: '3.1'
+  ORGANISATION_NAME: 'endk'
+  AZURE_FUNCTIONAPP_NAME: 'azfun-outbound'
+  PROJECT_NAME: postoffice
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }} environment
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build and test project
+        uses: ./.github/actions/dotnet-build-and-test
+        with:
+          SOLUTION_FILE_PATH: ${{ env.SOLUTION_FILE_PATH }}
+          OUTPUT_PATH: '${{ github.workspace }}/output'
+
+      - name: Publish artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: drop
+          path: '${{ github.workspace }}/output'
+    
+  deploy:
+    name: Deploy function to ${{ matrix.environment.name }} - ${{ matrix.environment.long }}
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [
+          {
+            long: rg-DataHub-ValidationReports-D,
+            rg: rg-DataHub-D,
+            short: d,
+            name: Development
+          },
+          {
+            long: rg-DataHub-ValidationReports-T,
+            rg: rg-DataHub-T,
+            short: t,
+            name: Test
+          },
+          {
+            long: rg-DataHub-ValidationReports-B,
+            rg: rg-DataHub-B,
+            short: b,
+            name: Preprod
+          },
+          {
+            long: rg-DataHub-ValidationReports-P,
+            rg: rg-DataHub-P,
+            short: p,
+            name: Prod
+          }
+        ]
+    environment:
+      name: ${{ matrix.environment.long }}
+    steps:
+      - name: Download artifact 
+        uses: actions/download-artifact@v2
+        with:
+          name: drop
+          path: drop
+
+      - name: Setup Azure CLI
+        shell: bash
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb
+          sudo bash
+          az login --service-principal --username ${{ secrets.SPN_ID }} --password ${{ secrets.SPN_SECRET }} --tenant ${{ secrets.TENANT_ID }}
+          az account set --subscription ${{ secrets.SPN_SUBSCRIPTION_ID }}
+
+      - name: Get function publish profile
+        id: get-publish-profile
+        run: |
+          publish_profile=$(az webapp deployment list-publishing-profiles --name ${{ env.AZURE_FUNCTIONAPP_NAME }}-${{ env.PROJECT }}-${{ env.ORGANISATION_NAME }}-${{ matrix.environment.short }} --resource-group ${{ matrix.environment.long }} --subscription ${{ secrets.SPN_SUBSCRIPTION_ID }} --xml)
+          echo "::set-output name=publish-profile::${publish_profile}"
+
+      - name: Deploy function
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ github.workspace }}/drop
+          publish-profile: ${{ steps.get-publish-profile.outputs.publish-profile }}

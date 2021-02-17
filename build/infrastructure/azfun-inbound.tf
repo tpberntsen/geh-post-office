@@ -9,10 +9,17 @@ module "azfun_inbound" {
   application_insights_instrumentation_key  = module.appi_postoffice.instrumentation_key
   tags                                      = data.azurerm_resource_group.postoffice.tags
   app_settings                              = {
-    POSTOFFICE_DB_CONNECTION_STRING             = azurerm_cosmosdb_account.postoffice.endpoint,
-    POSTOFFICE_DB_KEY                           = azurerm_cosmosdb_account.postoffice.primary_key
-    INBOUND_QUEUE_MARKETDATA_TOPIC_NAME         = module.sbt_marketdata.name
-    INBOUND_QUEUE_MARKETDATA_SUBSCRIPTION_NAME  = module.sbt_marketdata.name
+    MESSAGES_DB_CONNECTION_STRING                 = azurerm_cosmosdb_account.messages.endpoint,
+    MESSAGES_DB_NAME                              = azurerm_cosmosdb_account.messages.name,
+    INBOUND_QUEUE_MARKETDATA_TOPIC_NAME           = module.sbt_marketdata.name
+    INBOUND_QUEUE_MARKETDATA_SUBSCRIPTION_NAME    = module.sbtaur_marketdata_subscription.name
+    INBOUND_QUEUE_MARKETDATA_CONNECTION_STRING    = module.sbtaur_marketdata_listener
+    INBOUND_QUEUE_AGGREGATIONS_TOPIC_NAME         = module.sbt_aggregations.name
+    INBOUND_QUEUE_AGGREGATIONS_SUBSCRIPTION_NAME  = module.sbtaur_aggregations_subscription.name
+    INBOUND_QUEUE_AGGREGATIONS_CONNECTION_STRING  = module.sbtaur_aggregations_listener
+    INBOUND_QUEUE_TIMESERIES_TOPIC_NAME           = module.sbt_timeseries.name
+    INBOUND_QUEUE_TIMESERIES_SUBSCRIPTION_NAME    = module.sbtaur_timeseries_subscription.name
+    INBOUND_QUEUE_TIMESERIES_CONNECTION_STRING    = module.sbtaur_timeseries_listener
   }
   dependencies                              = [
     module.azfun_inbound_plan.dependent_on,

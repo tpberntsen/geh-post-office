@@ -8,7 +8,7 @@ module "sbt_timeseries" {
 
 module "sbtaur_timeseries_listener" {
   source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic-auth-rule?ref=renetnielsen/add-service-bus-topic"
-  name                      = "sbtaur-inbound-listener"
+  name                      = "sbtaur-timeseries-listener"
   namespace_name            = module.sbn_inbound.name
   topic_name                = module.sbt_timeseries.name
   resource_group_name       = data.azurerm_resource_group.postoffice.name
@@ -18,7 +18,7 @@ module "sbtaur_timeseries_listener" {
 
 module "sbtaur_timeseries_sender" {
   source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic-auth-rule?ref=renetnielsen/add-service-bus-topic"
-  name                      = "sbtaur-inbound-sender"
+  name                      = "sbtaur-timeseries-sender"
   namespace_name            = module.sbn_inbound.name
   topic_name                = module.sbt_timeseries.name
   resource_group_name       = data.azurerm_resource_group.postoffice.name

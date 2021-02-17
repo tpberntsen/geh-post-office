@@ -8,7 +8,7 @@ module "sbt_marketdata" {
 
 module "sbtaur_marketdata_listener" {
   source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic-auth-rule?ref=renetnielsen/add-service-bus-topic"
-  name                      = "sbtaur-inbound-listener"
+  name                      = "sbtaur-marketdata-listener"
   namespace_name            = module.sbn_inbound.name
   topic_name                = module.sbt_marketdata.name
   resource_group_name       = data.azurerm_resource_group.postoffice.name
@@ -18,7 +18,7 @@ module "sbtaur_marketdata_listener" {
 
 module "sbtaur_marketdata_sender" {
   source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic-auth-rule?ref=renetnielsen/add-service-bus-topic"
-  name                      = "sbtaur-inbound-sender"
+  name                      = "sbtaur-marketdata-sender"
   namespace_name            = module.sbn_inbound.name
   topic_name                = module.sbt_marketdata.name
   resource_group_name       = data.azurerm_resource_group.postoffice.name
