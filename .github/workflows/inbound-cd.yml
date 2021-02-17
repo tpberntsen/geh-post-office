@@ -3,9 +3,9 @@ name: Inbound CD
 on:
   push:
     branches:
-      - renetnielsen/init
+      - main
     paths:
-      - source/Energinet.DataHub.PostOffice.EntryPoint/**
+      - source/**
       - .github/workflows/inbound-cd.yml
       - .github/actions/dotnet-build-and-test
       - Energinet.DataHub.PostOffice.sln
@@ -13,7 +13,7 @@ on:
   workflow_dispatch: {}
 
 env:
-  SOLUTION_FILE_PATH: './Energinet.DataHub.PostOffice.sln'
+  CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Inbound/Energinet.DataHub.PostOffice.Inbound.csproj'
   DOTNET_VERSION: '3.1'
   ORGANISATION_NAME: 'endk'
   AZURE_FUNCTIONAPP_NAME: 'azfun-inbound'
@@ -35,7 +35,7 @@ jobs:
       - name: Build and test project
         uses: ./.github/actions/dotnet-build-and-test
         with:
-          SOLUTION_FILE_PATH: ${{ env.SOLUTION_FILE_PATH }}
+          CSPROJ_FILE_PATH: ${{ env.CSPROJ_FILE_PATH }}
           OUTPUT_PATH: '${{ github.workspace }}/output'
 
       - name: Publish artifact
