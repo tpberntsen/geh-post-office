@@ -20,22 +20,26 @@ jobs:
       matrix:
         environment: [
           {
-            long: rg-DataHub-D,
+            long: rg-DataHub-PostOffice-D,
+            rg: rg-DataHub-D,
             short: d,
             name: Dev
           },
           {
-            long: rg-DataHub-T,
+            long: rg-DataHub-PostOffice-T,
+            rg: rg-DataHub-T,
             short: t,
             name: Test
           },
           {
-            long: rg-DataHub-B,
+            long: rg-DataHub-PostOffice-B,
+            rg: rg-DataHub-B,
             short: b,
             name: Preprod
           },
           {
-            long: rg-DataHub-P,
+            long: rg-DataHub-PostOffice-P,
+            rg: rg-DataHub-P,
             short: p,
             name: Prod
           }
@@ -85,8 +89,8 @@ jobs:
       - name: Create Terraform State Storage
         run: |
           storage_name="tfstatepostoffice${{ matrix.environment.short }}"
-          az storage account create --resource-group ${{ matrix.environment.long }} --name $storage_name --sku Standard_LRS --encryption-services blob
-          account_key=$(az storage account keys list --resource-group ${{ matrix.environment.long }} --account-name $storage_name --query '[0].value' -o tsv)
+          az storage account create --resource-group ${{ matrix.environment.rg }} --name $storage_name --sku Standard_LRS --encryption-services blob
+          account_key=$(az storage account keys list --resource-group ${{ matrix.environment.rg }} --account-name $storage_name --query '[0].value' -o tsv)
           az storage container create --name tfstate --account-name $storage_name --account-key $account_key
         if: steps.state-storage-exists.outputs.state-storage-exists == 'False'
 
@@ -101,14 +105,14 @@ jobs:
           echo "TF_VAR_environment=${{ matrix.environment.short }}" >> $GITHUB_ENV
           echo "TF_VAR_organisation=${{ env.ORGANISATION_NAME }}" >> $GITHUB_ENV
           echo "TF_VAR_project=${{ env.PROJECT_NAME }}" >> $GITHUB_ENV
-          echo "TF_VAR_resource_group_name=${{ matrix.environment.long }}" >> $GITHUB_ENV
+          echo "TF_VAR_resource_group_name=${{ matrix.environment.rg }}" >> $GITHUB_ENV
           echo "TF_VAR_current_subscription_id=${{ secrets.SPN_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
 
       - name: Configure Terraform Backend
         uses: ./.github/actions/configure-terraform-backend
         with:
           backend-file-path: "./build/infrastructure/backend.tf"
-          resource-group-name: "${{ matrix.environment.long }}"
+          resource-group-name: "${{ matrix.environment.rg }}"
           storage-account-name: "tfstatepostoffice${{ matrix.environment.short }}"
 
       - name: Terraform Init

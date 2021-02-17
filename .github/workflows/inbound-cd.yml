@@ -53,25 +53,25 @@ jobs:
       matrix:
         environment: [
           {
-            long: rg-DataHub-ValidationReports-D,
+            long: rg-DataHub-PostOffice-D,
             rg: rg-DataHub-D,
             short: d,
             name: Development
           },
           {
-            long: rg-DataHub-ValidationReports-T,
+            long: rg-DataHub-PostOffice-T,
             rg: rg-DataHub-T,
             short: t,
             name: Test
           },
           {
-            long: rg-DataHub-ValidationReports-B,
+            long: rg-DataHub-PostOffice-B,
             rg: rg-DataHub-B,
             short: b,
             name: Preprod
           },
           {
-            long: rg-DataHub-ValidationReports-P,
+            long: rg-DataHub-PostOffice-P,
             rg: rg-DataHub-P,
             short: p,
             name: Prod
