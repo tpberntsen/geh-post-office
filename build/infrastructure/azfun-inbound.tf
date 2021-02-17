@@ -20,8 +20,8 @@ module "azfun_inbound" {
     INBOUND_QUEUE_TIMESERIES_TOPIC_NAME               = module.sbt_timeseries.name
     INBOUND_QUEUE_TIMESERIES_SUBSCRIPTION_NAME        = module.sbtaur_timeseries_subscription.name
     INBOUND_QUEUE_TIMESERIES_CONNECTION_STRING        = module.sbtaur_timeseries_listener.primary_connection_string
-    "MESSAGES_DB_TYPE_CONTAINER_MAP:changeofsupplier" = module.collection_marketdata.name
-    "MESSAGES_DB_TYPE_CONTAINER_MAP:timeseries"       = module.collection_timeseries.name
+    "MESSAGES_DB_TYPE_CONTAINER_MAP:changeofsupplier" = azurerm_cosmosdb_sql_container.collection_marketdata.name
+    "MESSAGES_DB_TYPE_CONTAINER_MAP:timeseries"       = azurerm_cosmosdb_sql_container.collection_timeseries.name
   }
   dependencies                              = [
     module.appi_postoffice.dependent_on,
