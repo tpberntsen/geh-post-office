@@ -1,5 +1,5 @@
 module "azfun_inbound" {
-  source                                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/function-app?ref=1.0.0"
+  source                                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/function-app?ref=1.2.0"
   name                                      = "azfun-inbound-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name                       = data.azurerm_resource_group.postoffice.name
   location                                  = data.azurerm_resource_group.postoffice.location
@@ -29,18 +29,15 @@ module "azfun_inbound" {
     module.azfun_inbound_stor.dependent_on,
     module.sbt_marketdata.dependent_on,
     module.sbtaur_marketdata_subscription.dependent_on,
-    module.sbtaur_marketdata_listener.dependent_on,
     module.sbt_aggregations.dependent_on,
     module.sbtaur_aggregations_subscription.dependent_on,
-    module.sbtaur_aggregations_listener.dependent_on,
     module.sbt_timeseries.dependent_on,
     module.sbtaur_timeseries_subscription.dependent_on,
-    module.sbtaur_timeseries_listener.dependent_on,
   ]
 }
 
 module "azfun_inbound_plan" {
-  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/app-service-plan?ref=1.0.0"
+  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/app-service-plan?ref=1.2.0"
   name                = "asp-inbound-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name = data.azurerm_resource_group.postoffice.name
   location            = data.azurerm_resource_group.postoffice.location
@@ -53,7 +50,7 @@ module "azfun_inbound_plan" {
 }
 
 module "azfun_inbound_stor" {
-  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/storage-account?ref=1.0.0"
+  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/storage-account?ref=1.2.0"
   name                      = "stor${random_string.inbound.result}"
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   location                  = data.azurerm_resource_group.postoffice.location
