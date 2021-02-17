@@ -7,30 +7,30 @@ module "sbn_inbound" {
   tags                = data.azurerm_resource_group.postoffice.tags
 }
 
-module "sbq_inbound" {
-  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-queue?ref=1.0.0"
-  name                = "sbq-inbound"
+module "sbt_marketdata" {
+  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic?ref=1.0.0"
+  name                = "marketdata"
   namespace_name      = module.sbn_inbound.name
   resource_group_name = data.azurerm_resource_group.postoffice.name
   dependencies        = [module.sbn_inbound]
 }
 
 module "sbnar_inbound_listener" {
-  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-queue-auth-rule?ref=1.0.0"
+  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic-auth-rule?ref=1.0.0"
   name                      = "sbnar-inbound-listener"
   namespace_name            = module.sbn_inbound.name
-  queue_name                = module.sbq_inbound.name
+  topic_name                = module.sbt_marketdata.name
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   listen                    = true
-  dependencies              = [module.sbq_inbound]
+  dependencies              = [module.sbt_marketdata]
 }
 
 module "sbnar_inbound_sender" {
-  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-queue-auth-rule?ref=1.0.0"
+  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic-auth-rule?ref=1.0.0"
   name                      = "sbnar-inbound-sender"
   namespace_name            = module.sbn_inbound.name
-  queue_name                = module.sbq_inbound.name
+  topic_name                = module.sbt_marketdata.name
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   send                      = true
-  dependencies              = [module.sbq_inbound]
+  dependencies              = [module.sbt_marketdata]
 }
