@@ -24,23 +24,23 @@ namespace Energinet.DataHub.PostOffice.Tests
 {
     public class ManualTests
     {
-        [Fact]
-        public async Task Foo()
-        {
-            const string topicName = "marketdata";
-            var faker = new Faker();
-            await using (ServiceBusClient client = new ServiceBusClient("Endpoint=sb://sbn-inbound-postoffice-endk-d.servicebus.windows.net/;SharedAccessKeyName=sbtaur-inbound-sender;SharedAccessKey=G+l7o/v0TExTuPmOqkpca8pE0TcKnkCVdI/6Yn/qMr8=;EntityPath=marketdata"))
-            {
-                var document = new Energinet.DataHub.PostOffice.Contracts.Document
-                {
-                    EffectuationDate = Timestamp.FromDateTimeOffset(DateTimeOffset.UtcNow.AddDays(1)),
-                    Recipient = "me",
-                    Type = "changeofsupplier",
-                    Content = "{\"document\":\"" + faker.Rant.Review() + "\"}",
-                };
-                ServiceBusSender sender = client.CreateSender(topicName);
-                await sender.SendMessageAsync(new ServiceBusMessage(document.ToByteArray())).ConfigureAwait(false);
-            }
-        }
+        // [Fact]
+        // public async Task Foo()
+        // {
+        //     const string topicName = "marketdata";
+        //     var faker = new Faker();
+        //     await using (ServiceBusClient client = new ServiceBusClient("Endpoint=sb://sbn-inbound-postoffice-endk-d.servicebus.windows.net/;SharedAccessKeyName=sbtaur-inbound-sender;SharedAccessKey=G+l7o/v0TExTuPmOqkpca8pE0TcKnkCVdI/6Yn/qMr8=;EntityPath=marketdata"))
+        //     {
+        //         var document = new Energinet.DataHub.PostOffice.Contracts.Document
+        //         {
+        //             EffectuationDate = Timestamp.FromDateTimeOffset(DateTimeOffset.UtcNow.AddDays(1)),
+        //             Recipient = "me",
+        //             Type = "changeofsupplier",
+        //             Content = "{\"document\":\"" + faker.Rant.Review() + "\"}",
+        //         };
+        //         ServiceBusSender sender = client.CreateSender(topicName);
+        //         await sender.SendMessageAsync(new ServiceBusMessage(document.ToByteArray())).ConfigureAwait(false);
+        //     }
+        // }
     }
 }
