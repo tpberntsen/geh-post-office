@@ -9,8 +9,9 @@ module "azfun_inbound" {
   application_insights_instrumentation_key  = module.appi_postoffice.instrumentation_key
   tags                                      = data.azurerm_resource_group.postoffice.tags
   app_settings                              = {
-    POSTOFFICE_DB_CONNECTION_STRING = azurerm_cosmosdb_account.postoffice.endpoint,
-    POSTOFFICE_DB_KEY               = azurerm_cosmosdb_account.postoffice.primary_key
+    POSTOFFICE_DB_CONNECTION_STRING     = azurerm_cosmosdb_account.postoffice.endpoint,
+    POSTOFFICE_DB_KEY                   = azurerm_cosmosdb_account.postoffice.primary_key
+    INBOUND_QUEUE_MARKETDATA_TOPIC_NAME = module.sbt_marketdata.name
   }
   dependencies                              = [
     module.azfun_inbound_plan.dependent_on,
