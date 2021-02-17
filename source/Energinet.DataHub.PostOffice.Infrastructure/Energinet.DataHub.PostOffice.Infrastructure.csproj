@@ -36,7 +36,7 @@ limitations under the License.
     </ItemGroup>
 
     <ItemGroup>
-      <Protobuf Include="Contracts\*.proto">
+      <Protobuf Include="..\**\*.proto">
         <GrpcServices>None</GrpcServices>
         <Access>Public</Access>
         <ProtoCompile>True</ProtoCompile>

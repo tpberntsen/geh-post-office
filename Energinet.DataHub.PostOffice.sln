@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Energinet.DataHub.PostOffic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Energinet.DataHub.PostOffice.Inbound", "source\Energinet.DataHub.PostOffice.Inbound\Energinet.DataHub.PostOffice.Inbound.csproj", "{0F71324E-779C-4899-B995-B1227F8942A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Energinet.DataHub.PostOffice.ServiceContracts", "source\Energinet.DataHub.PostOffice.ServiceContracts\Energinet.DataHub.PostOffice.ServiceContracts.csproj", "{BB4BCD78-1058-4D5A-90D4-82EF4BBFDCAC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,10 +48,15 @@ Global
 		{0F71324E-779C-4899-B995-B1227F8942A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F71324E-779C-4899-B995-B1227F8942A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F71324E-779C-4899-B995-B1227F8942A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB4BCD78-1058-4D5A-90D4-82EF4BBFDCAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB4BCD78-1058-4D5A-90D4-82EF4BBFDCAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB4BCD78-1058-4D5A-90D4-82EF4BBFDCAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB4BCD78-1058-4D5A-90D4-82EF4BBFDCAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{68412EBF-701D-467D-8716-74269E171F41} = {05DE980B-A2A7-4235-AE53-3167E94699DD}
 		{02B328BB-2665-4933-81D1-AC4DCDDF5745} = {832447E5-7A46-4381-817C-5D73A20510C2}
 		{0F71324E-779C-4899-B995-B1227F8942A6} = {832447E5-7A46-4381-817C-5D73A20510C2}
+		{BB4BCD78-1058-4D5A-90D4-82EF4BBFDCAC} = {832447E5-7A46-4381-817C-5D73A20510C2}
 	EndGlobalSection
 EndGlobal
