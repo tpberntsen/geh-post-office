@@ -26,7 +26,7 @@ module "sbtaur_aggregations_sender" {
   dependencies              = [module.sbt_aggregations]
 }
 
-module "sbtaur_aggregation_subscription" {
+module "sbtaur_aggregations_subscription" {
   source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-subscription?ref=renetnielsen/add-service-bus-topic"
   name                      = "default"
   namespace_name            = module.sbn_inbound.name
