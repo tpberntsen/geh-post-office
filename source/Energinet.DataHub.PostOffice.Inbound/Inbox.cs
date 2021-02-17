@@ -16,9 +16,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Domain;
 using Google.Protobuf;
-using GreenEnergyHub.Messaging.Transport;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -31,14 +29,14 @@ namespace Energinet.DataHub.PostOffice.Inbound
 {
     public class Inbox
     {
-        private readonly MessageExtractor _messageExtractor;
+        private readonly InputParser _inputParser;
         private readonly IDocumentStore _documentStore;
 
         public Inbox(
-            MessageExtractor messageExtractor,
+            InputParser inputParser,
             IDocumentStore documentStore)
         {
-            _messageExtractor = messageExtractor;
+            _inputParser = inputParser;
             _documentStore = documentStore;
         }
 
@@ -49,23 +47,26 @@ namespace Energinet.DataHub.PostOffice.Inbound
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
 
-            var document = new Contracts.Document
+            using var reader = new StreamReader(request.Body);
+            var content = await reader.ReadToEndAsync().ConfigureAwait(false);
+
+            var input = new Contracts.Document
             {
-                Content = "{ \"hello\":\"world\" }",
+                Content = content,
                 EffectuationDate = Instant.FromUtc(2021, 2, 17, 8, 0).ToTimestamp(),
                 Recipient = "me",
                 Type = "Market",
             };
+            var bytes = input.ToByteArray();
 
             logger.LogInformation("C# HTTP trigger function processed a request.");
 
-            var bytes = document.ToByteArray();
-            var message = (Document)await _messageExtractor.ExtractAsync(bytes).ConfigureAwait(false);
-            await _documentStore.SaveDocumentAsync(message).ConfigureAwait(false);
+            var document = _inputParser.Parse(bytes);
+            await _documentStore.SaveDocumentAsync(document).ConfigureAwait(false);
 
-            logger.LogInformation("Got message: {message}", message);
+            logger.LogInformation("Got document: {document}", document);
 
-            return new OkObjectResult(message);
+            return new OkObjectResult(document);
         }
     }
 }

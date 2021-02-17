@@ -13,16 +13,15 @@
 // limitations under the License.
 
 using System;
+using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Contracts;
-using GreenEnergyHub.Messaging.Protobuf;
-using GreenEnergyHub.Messaging.Transport;
 using NodaTime.Serialization.Protobuf;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure
 {
-    public class InboundDocumentMapper : ProtobufInboundMapper<Document>
+    public sealed class DocumentMapper : IMapper<Contracts.Document, Domain.Document>
     {
-        protected override IInboundMessage Convert(Document obj)
+        public Domain.Document Map(Document obj)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 

@@ -12,15 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Text.Json.Serialization;
-using GreenEnergyHub.Messaging.MessageTypes.Common;
-using GreenEnergyHub.Messaging.Transport;
 using NodaTime;
 
 namespace Energinet.DataHub.PostOffice.Domain
 {
-    // TODO: I don't know if this should depend on IInboundMessage (or anything really).
-    public class Document : IInboundMessage
+    public class Document
     {
         public string? Recipient { get; set; }
 
@@ -29,8 +25,5 @@ namespace Energinet.DataHub.PostOffice.Domain
         public Instant? EffectuationDate { get; set; }
 
         public dynamic? Content { get; set; }
-
-        // TODO: This comes from IHubMessage (via IInboundMessage), but we don't want that.
-        public Transaction Transaction { get => null!; set => _ = value; }
     }
 }

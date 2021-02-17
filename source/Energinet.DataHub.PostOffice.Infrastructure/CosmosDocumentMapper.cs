@@ -19,7 +19,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 {
     public sealed class CosmosDocumentMapper
     {
-        public static CosmosDocument Convert(Domain.Document obj)
+        public static CosmosDocument Map(Domain.Document obj)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 
@@ -34,7 +34,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             };
         }
 
-        public static Domain.Document Convert(CosmosDocument obj)
+        public static Domain.Document Map(CosmosDocument obj)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 

@@ -15,11 +15,8 @@
 using System;
 using System.Collections.Generic;
 using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Inbound;
 using Energinet.DataHub.PostOffice.Infrastructure;
-using GreenEnergyHub.Json;
-using GreenEnergyHub.Messaging.Protobuf;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -33,11 +30,9 @@ namespace Energinet.DataHub.PostOffice.Inbound
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            builder.Services.ReceiveProtobuf<Document>(sp =>
-                sp.WithParser(() => Document.Parser));
-
             builder.Services.AddScoped<IDocumentStore, CosmosDocumentStore>();
-            builder.Services.AddScoped<IJsonSerializer, JsonSerializer>();
+            builder.Services.AddScoped<InputParser>();
+            builder.Services.AddSingleton<IMapper<Contracts.Document, Domain.Document>, DocumentMapper>();
 
             // TODO: "CosmosConfiguration" is probably named different in azure
             builder.Services.AddSingleton(

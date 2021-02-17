@@ -18,33 +18,27 @@ using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Domain;
-using GreenEnergyHub.Json;
 using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure
 {
     public class CosmosDocumentStore : IDocumentStore
     {
-        // TODO: Verify query with actual database
         private const string QueryString = @"
             SELECT TOP @pageSize *
             FROM Documents d
-            WHERE d.recipient = @recipient";
-        // TODO: add order by clause
-            /* ORDER BY d.effectuationDate";*/
+            WHERE d.recipient = @recipient
+            ORDER BY d.effectuationDate";
 
         private readonly CosmosClient _cosmosClient;
         private readonly CosmosConfig _cosmosConfig;
-        private readonly IJsonSerializer _serializer;
 
         public CosmosDocumentStore(
             CosmosClient cosmosClient,
-            CosmosConfig cosmosConfig,
-            IJsonSerializer serializer)
+            CosmosConfig cosmosConfig)
         {
             _cosmosClient = cosmosClient;
             _cosmosConfig = cosmosConfig;
-            _serializer = serializer;
         }
 
         public async Task<IList<Document>> GetDocumentsAsync(DocumentQuery documentQuery)
@@ -55,7 +49,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
             // Querying with an equality filter on the partition key will create a partitioned documentQuery, per:
             // https://docs.microsoft.com/en-us/azure/cosmos-db/how-to-documentQuery-container#in-partition-documentQuery
-            // TODO: Change when actual names are available
+            // TODO: Change when actual names are available, ie. recipient_MriD?
             var queryDefinition = new QueryDefinition(QueryString)
                 .WithParameter("@recipient", documentQuery.Recipient)
                 .WithParameter("@pageSize", documentQuery.PageSize);
@@ -64,7 +58,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             var query = container.GetItemQueryIterator<CosmosDocument>(queryDefinition);
             foreach (var document in await query.ReadNextAsync().ConfigureAwait(false))
             {
-                documents.Add(CosmosDocumentMapper.Convert(document));
+                documents.Add(CosmosDocumentMapper.Map(document));
             }
 
             return documents;
@@ -77,7 +71,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             // TODO: add error handling and fix type nullability?
             var container = GetContainer(document.Type!);
 
-            var cosmosDocument = CosmosDocumentMapper.Convert(document);
+            var cosmosDocument = CosmosDocumentMapper.Map(document);
 
             var response = await container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
             if (response.StatusCode != HttpStatusCode.Created)

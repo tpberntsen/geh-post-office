@@ -15,30 +15,17 @@
 namespace Energinet.DataHub.PostOffice.Application
 {
     /// <summary>
-    /// Query for document store.
+    /// Map from one object to another.
     /// </summary>
-    public class DocumentQuery
+    /// <typeparam name="TFromType">Type to map from.</typeparam>
+    /// <typeparam name="TToType">Type to map to.</typeparam>
+    public interface IMapper<in TFromType, out TToType>
     {
-        public DocumentQuery(string recipient, string type, int pageSize = 1)
-        {
-            Recipient = recipient;
-            Type = type;
-            PageSize = pageSize;
-        }
-
         /// <summary>
-        /// Recipient.
+        /// Map from one object to another.
         /// </summary>
-        public string Recipient { get; set; }
-
-        /// <summary>
-        /// Type of the documents to fetch.
-        /// </summary>
-        public string Type { get; set; }
-
-        /// <summary>
-        /// Maximum number of items to return.
-        /// </summary>
-        public int PageSize { get; set; }
+        /// <param name="obj">object to map from.</param>
+        /// <returns>An mapped object.</returns>
+        TToType Map(TFromType obj);
     }
 }

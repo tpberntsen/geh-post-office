@@ -35,24 +35,6 @@ limitations under the License.
       <PackageReference Include="NodaTime.Serialization.Protobuf" Version="2.0.0" />
     </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="GreenEnergyHub.Json, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\poor-mans-package-sharing\GreenEnergyHub.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="GreenEnergyHub.Messaging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\poor-mans-package-sharing\GreenEnergyHub.Messaging.dll</HintPath>
-    </Reference>
-    <Reference Include="GreenEnergyHub.Messaging.Integration.ServiceCollection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\poor-mans-package-sharing\GreenEnergyHub.Messaging.Integration.ServiceCollection.dll</HintPath>
-    </Reference>
-    <Reference Include="GreenEnergyHub.Messaging.Protobuf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\poor-mans-package-sharing\GreenEnergyHub.Messaging.Protobuf.dll</HintPath>
-    </Reference>
-    <Reference Include="GreenEnergyHub.Messaging.Protobuf.Integration.ServiceCollection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\poor-mans-package-sharing\GreenEnergyHub.Messaging.Protobuf.Integration.ServiceCollection.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
     <ItemGroup>
       <Protobuf Include="Contracts\*.proto">
         <GrpcServices>None</GrpcServices>
