@@ -3,7 +3,7 @@ name: Inbound CD
 on:
   push:
     branches:
-      - main
+      - renetnielsen/added-iac
     paths:
       - source/**
       - .github/workflows/inbound-cd.yml

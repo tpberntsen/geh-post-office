@@ -3,7 +3,7 @@ name: Outbound CD
 on:
   push:
     branches:
-      - main
+      - renetnielsen/added-iac
     paths:
       - source/**
       - .github/workflows/outbound-cd.yml
