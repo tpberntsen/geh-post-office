@@ -12,23 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Logging;
 
-namespace Energinet.DataHub.PostOffice.EntryPoint
+namespace Energinet.DataHub.PostOffice.ServiceContracts
 {
-    public static class DocumentGateway
+    public static class ProtoContractServiceFactory
     {
-        [FunctionName("DocumentGateway")]
-        public static IActionResult Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest request,
-            ILogger logger)
+        public static ProtoContractService Create(ExecutionContext context)
         {
-            logger.LogInformation($"processing query: {request?.Query}");
-            return new OkResult();
+            return new ProtoContractService(context);
         }
     }
 }
