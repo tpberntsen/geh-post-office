@@ -31,9 +31,23 @@ namespace Energinet.DataHub.PostOffice.Application
         Task<IList<Document>> GetDocumentsAsync(DocumentQuery documentQuery);
 
         /// <summary>
+        /// Get documents.
+        /// </summary>
+        /// <param name="documentQuery">The documentQuery to get documents by.</param>
+        /// <returns>A list of documents matching the documentQuery parameters.</returns>
+        Task<IList<Document>> GetDocumentBundleAsync(DocumentQuery documentQuery);
+
+        /// <summary>
         /// Save a document.
         /// </summary>
         /// <param name="document">The document to save.</param>
         Task SaveDocumentAsync(Document document);
+
+        /// <summary>
+        /// Delete documents
+        /// </summary>
+        /// <param name="bundle">Id of bundle to delete</param>
+        /// <param name="recipient">TODO: Should this be here or via some other auth lookup?</param>
+        Task<bool> DeleteDocumentsAsync(string bundle, string recipient);
     }
 }

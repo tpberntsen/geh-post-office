@@ -44,6 +44,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                 EffectuationDate = obj.EffectuationDate.ToInstant(),
                 Recipient = obj.Recipient,
                 Type = obj.Type,
+                Bundle = obj.Bundle,
             };
         }
     }

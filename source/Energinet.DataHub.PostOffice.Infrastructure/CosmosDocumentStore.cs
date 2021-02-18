@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
@@ -24,12 +25,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 {
     public class CosmosDocumentStore : IDocumentStore
     {
-        private const string QueryString = @"
-            SELECT TOP @pageSize *
-            FROM Documents d
-            WHERE d.recipient = @recipient
-            ORDER BY d.effectuationDate";
-
         private readonly CosmosClient _cosmosClient;
         private readonly CosmosConfig _cosmosConfig;
 
@@ -41,9 +36,56 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             _cosmosConfig = cosmosConfig;
         }
 
+        public async Task SaveDocumentAsync(Document document)
+        {
+            if (document == null) throw new ArgumentNullException(nameof(document));
+
+            // TODO: add error handling and fix type nullability?
+            var container = GetContainer(document.Type!);
+
+            var cosmosDocument = CosmosDocumentMapper.Map(document);
+
+            var response = await container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
+            if (response.StatusCode != HttpStatusCode.Created)
+            {
+                throw new InvalidOperationException("Could not create document in cosmos");
+            }
+        }
+
+        public async Task<bool> DeleteDocumentsAsync(string bundleIdentifier, string recipient)
+        {
+            foreach (var containerTypeIdentifier in _cosmosConfig.TypeToContainerIdMap.Keys)
+            {
+                var container = GetContainer(containerTypeIdentifier);
+                var bundle = await GetBundleAsync(container, recipient).ConfigureAwait(false);
+                if (bundle.FirstOrDefault()?.Bundle == bundleIdentifier)
+                {
+                    var itemRequestOptions = new ItemRequestOptions { EnableContentResponseOnWrite = false, };
+
+                    var concurrentDeleteTasks = new List<Task>();
+                    foreach (var document in bundle)
+                    {
+                        concurrentDeleteTasks.Add(container.DeleteItemAsync<CosmosDocument>(document.Id, new PartitionKey(recipient), itemRequestOptions));
+                    }
+
+                    await Task.WhenAll(concurrentDeleteTasks).ConfigureAwait(false);
+
+                    return true; // We deleted the bundled documents
+                }
+            }
+
+            return false; // We didn't find anything to delete
+        }
+
         public async Task<IList<Document>> GetDocumentsAsync(DocumentQuery documentQuery)
         {
             if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
+
+            const string QueryString = @"
+                SELECT TOP @pageSize *
+                FROM Documents d
+                WHERE d.recipient = @recipient
+                ORDER BY d.effectuationDate";
 
             var container = GetContainer(documentQuery.Type);
 
@@ -64,20 +106,85 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             return documents;
         }
 
-        public async Task SaveDocumentAsync(Document document)
+        public async Task<IList<Document>> GetDocumentBundleAsync(DocumentQuery documentQuery)
         {
-            if (document == null) throw new ArgumentNullException(nameof(document));
+            if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
 
-            // TODO: add error handling and fix type nullability?
-            var container = GetContainer(document.Type!);
+            var container = GetContainer(documentQuery.Type);
 
-            var cosmosDocument = CosmosDocumentMapper.Map(document);
-
-            var response = await container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
-            if (response.StatusCode != HttpStatusCode.Created)
+            var existingBundle = await GetBundleAsync(container, documentQuery.Recipient).ConfigureAwait(false);
+            if (existingBundle.Any())
             {
-                throw new InvalidOperationException("Could not create document in cosmos");
+                return existingBundle
+                    .Select(CosmosDocumentMapper.Map)
+                    .ToList();
             }
+
+            var bundle = await CreateBundleAsync(container, documentQuery).ConfigureAwait(false);
+            return bundle
+                .Select(CosmosDocumentMapper.Map)
+                .ToList();
+        }
+
+        private static async Task<IList<CosmosDocument>> GetBundleAsync(Container container, string recipient)
+        {
+            var queryDefinition = new QueryDefinition(@"SELECT * FROM Documents d WHERE d.recipient = @recipient AND d.bundle != null")
+                .WithParameter("@recipient", recipient);
+
+            var documents = new List<CosmosDocument>();
+            var query = container.GetItemQueryIterator<CosmosDocument>(queryDefinition);
+            foreach (var document in await query.ReadNextAsync().ConfigureAwait(false))
+            {
+                documents.Add(document);
+            }
+
+            return documents;
+        }
+
+        private static async Task<IList<CosmosDocument>> CreateBundleAsync(Container container, DocumentQuery documentQuery)
+        {
+            var typeQueryDefinition = new QueryDefinition(@"SELECT top 1 * FROM Documents d WHERE d.recipient = @recipient ORDER BY d.effectuationDate")
+                .WithParameter("@recipient", documentQuery.Recipient);
+            var typeQuery = container.GetItemQueryIterator<CosmosDocument>(typeQueryDefinition);
+
+            // No items to bundle
+            if (!typeQuery.HasMoreResults)
+            {
+                return new List<CosmosDocument>();
+            }
+
+            var typeDocument = await typeQuery.ReadNextAsync().ConfigureAwait(false);
+            var type = typeDocument.Resource?.SingleOrDefault()?.Type;
+            if (type == null)
+            {
+                // TODO: Log error?
+                return new List<CosmosDocument>();
+            }
+
+            var queryDefinition = new QueryDefinition(@"SELECT top @pageSize * FROM Documents d WHERE d.recipient = @recipient AND d.type = @type ORDER BY d.effectuationDate")
+                .WithParameter("@recipient", documentQuery.Recipient)
+                .WithParameter("@pageSize", documentQuery.PageSize)
+                .WithParameter("@type", type);
+            var documents = new List<CosmosDocument>();
+            var query = container.GetItemQueryIterator<CosmosDocument>(queryDefinition);
+            foreach (var document in await query.ReadNextAsync().ConfigureAwait(false))
+            {
+                documents.Add(document);
+            }
+
+            var bundle = Guid.NewGuid().ToString();
+            var itemRequestOptions = new ItemRequestOptions { EnableContentResponseOnWrite = false, };
+
+            var concurrentUpdateTasks = new List<Task>();
+            foreach (var document in documents)
+            {
+                document.Bundle = bundle;
+                concurrentUpdateTasks.Add(container.UpsertItemAsync(document, new PartitionKey(documentQuery.Recipient), itemRequestOptions));
+            }
+
+            await Task.WhenAll(concurrentUpdateTasks).ConfigureAwait(false);
+
+            return documents;
         }
 
         private Container GetContainer(string type)

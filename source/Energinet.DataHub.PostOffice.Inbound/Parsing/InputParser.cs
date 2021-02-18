@@ -15,7 +15,7 @@
 using System;
 using Energinet.DataHub.PostOffice.Application;
 
-namespace Energinet.DataHub.PostOffice.Inbound
+namespace Energinet.DataHub.PostOffice.Inbound.Parsing
 {
     /// <summary>
     /// Parse and map from dto to domain document.

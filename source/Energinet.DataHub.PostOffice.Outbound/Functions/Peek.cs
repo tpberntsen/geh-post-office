@@ -23,19 +23,19 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Energinet.DataHub.PostOffice.Outbound
+namespace Energinet.DataHub.PostOffice.Outbound.Functions
 {
-    public class DocumentGateway
+    public class Peek
     {
         private readonly IDocumentStore _documentStore;
 
-        public DocumentGateway(
+        public Peek(
             IDocumentStore documentStore)
         {
             _documentStore = documentStore;
         }
 
-        [FunctionName("DocumentGateway")]
+        [FunctionName("Peek")]
         public async Task<IActionResult> RunAsync(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest request,
             ILogger logger)
@@ -49,7 +49,7 @@ namespace Energinet.DataHub.PostOffice.Outbound
             logger.LogInformation("processing document query: {documentQuery}", documentQuery);
 
             var documents = await _documentStore
-                .GetDocumentsAsync(documentQuery)
+                .GetDocumentBundleAsync(documentQuery)
                 .ConfigureAwait(false);
 
             if (documents.Count == 0) return new NoContentResult();

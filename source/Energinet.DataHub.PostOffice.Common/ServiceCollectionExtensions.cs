@@ -23,7 +23,26 @@ namespace Energinet.DataHub.PostOffice.Common
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddCosmosConfiguration(this IServiceCollection serviceCollection)
+        public static void AddCosmosClientBuilder(this IServiceCollection serviceCollection, bool useBulkExecution)
+        {
+            serviceCollection.AddScoped(serviceProvider =>
+            {
+                var configuration = serviceProvider.GetService<IConfiguration>();
+                var connectionString = configuration.GetConnectionStringOrSetting("MESSAGES_DB_CONNECTION_STRING");
+
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException(
+                        "Please specify a valid CosmosDBConnection in the appSettings.json file or your Azure Functions Settings.");
+                }
+
+                return new CosmosClientBuilder(connectionString)
+                    .WithBulkExecution(useBulkExecution)
+                    .Build();
+            });
+        }
+
+        public static void AddCosmosConfig(this IServiceCollection serviceCollection)
         {
             serviceCollection.AddSingleton(
                 serviceProvider =>
@@ -37,21 +56,6 @@ namespace Energinet.DataHub.PostOffice.Common
                         TypeToContainerIdMap = typeToContainerIdMap,
                     };
                 });
-
-            serviceCollection.AddScoped(serviceProvider =>
-            {
-                var configuration = serviceProvider.GetService<IConfiguration>();
-                var connectionString = configuration.GetConnectionStringOrSetting("MESSAGES_DB_CONNECTION_STRING");
-
-                if (string.IsNullOrEmpty(connectionString))
-                {
-                    throw new InvalidOperationException(
-                        "Please specify a valid CosmosDBConnection in the appSettings.json file or your Azure Functions Settings.");
-                }
-
-                return new CosmosClientBuilder(connectionString)
-                    .Build();
-            });
         }
     }
 }
