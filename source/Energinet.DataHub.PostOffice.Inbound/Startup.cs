@@ -15,6 +15,7 @@
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Inbound;
+using Energinet.DataHub.PostOffice.Inbound.Parsing;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;

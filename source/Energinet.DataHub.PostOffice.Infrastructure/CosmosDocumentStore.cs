@@ -52,7 +52,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             }
         }
 
-        public async Task DeleteDocumentsAsync(string bundleIdentifier, string recipient)
+        public async Task<bool> DeleteDocumentsAsync(string bundleIdentifier, string recipient)
         {
             foreach (var containerTypeIdentifier in _cosmosConfig.TypeToContainerIdMap.Keys)
             {
@@ -70,9 +70,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
                     await Task.WhenAll(concurrentDeleteTasks).ConfigureAwait(false);
 
-                    break; // No need to check other containers if we already found what we were looking for.
+                    return true; // We deleted the bundled documents
                 }
             }
+
+            return false; // We didn't find anything to delete
         }
 
         public async Task<IList<Document>> GetDocumentsAsync(DocumentQuery documentQuery)
@@ -177,7 +179,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             foreach (var document in documents)
             {
                 document.Bundle = bundle;
-                concurrentUpdateTasks.Add(container.UpsertItemAsync(document, new PartitionKey(document.Type), itemRequestOptions));
+                concurrentUpdateTasks.Add(container.UpsertItemAsync(document, new PartitionKey(documentQuery.Recipient), itemRequestOptions));
             }
 
             await Task.WhenAll(concurrentUpdateTasks).ConfigureAwait(false);

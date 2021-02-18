@@ -15,20 +15,21 @@
 using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Inbound.Parsing;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
-namespace Energinet.DataHub.PostOffice.Inbound
+namespace Energinet.DataHub.PostOffice.Inbound.Functions
 {
-    public class TimeSeriesInbox
+    public class AggregationsInbox
     {
-        private const string FunctionName = "TimeSeriesInbox";
+        private const string FunctionName = "AggregationsInbox";
 
         private readonly InputParser _inputParser;
         private readonly IDocumentStore _documentStore;
 
-        public TimeSeriesInbox(
+        public AggregationsInbox(
             InputParser inputParser,
             IDocumentStore documentStore)
         {
@@ -39,8 +40,8 @@ namespace Energinet.DataHub.PostOffice.Inbound
         [FunctionName(FunctionName)]
         public async Task RunAsync(
             [ServiceBusTrigger(
-                "%INBOUND_QUEUE_TIMESERIES_TOPIC_NAME%",
-                "%INBOUND_QUEUE_TIMESERIES_SUBSCRIPTION_NAME%",
+                "%INBOUND_QUEUE_AGGREGATIONS_TOPIC_NAME%",
+                "%INBOUND_QUEUE_AGGREGATIONS_SUBSCRIPTION_NAME%",
                 Connection = "INBOUND_QUEUE_CONNECTION_STRING")] Message message,
             ILogger logger)
         {

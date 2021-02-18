@@ -13,60 +13,47 @@
 // limitations under the License.
 
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
-using Google.Protobuf;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using NodaTime;
-using NodaTime.Serialization.Protobuf;
 
-namespace Energinet.DataHub.PostOffice.Inbound
+namespace Energinet.DataHub.PostOffice.Outbound.Functions
 {
-    public class Inbox
+    public class Dequeue
     {
-        private readonly InputParser _inputParser;
         private readonly IDocumentStore _documentStore;
 
-        public Inbox(
-            InputParser inputParser,
+        public Dequeue(
             IDocumentStore documentStore)
         {
-            _inputParser = inputParser;
             _documentStore = documentStore;
         }
 
-        [FunctionName("Inbox")]
+        [FunctionName("Dequeue")]
         public async Task<IActionResult> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest request,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest request,
             ILogger logger)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
+            if (!request.Query.ContainsKey("id")) throw new InvalidOperationException("Request must include 'id'");
+            if (!request.Query.ContainsKey("recipient")) throw new InvalidOperationException("Request must include 'recipient'");
 
-            using var reader = new StreamReader(request.Body);
-            var content = await reader.ReadToEndAsync().ConfigureAwait(false);
+            var bundle = request.Query["id"].ToString();
+            var recipient = request.Query["recipient"].ToString();
 
-            var input = new Contracts.Document
-            {
-                Content = content,
-                EffectuationDate = Instant.FromUtc(2021, 2, 17, 8, 0).ToTimestamp(),
-                Recipient = "me",
-                Type = "Market",
-            };
-            var bytes = input.ToByteArray();
+            logger.LogInformation("processing document dequeue: {id}", bundle);
 
-            logger.LogInformation("C# HTTP trigger function processed a request.");
+            var didDeleteDocuments = await _documentStore
+                .DeleteDocumentsAsync(bundle, recipient)
+                .ConfigureAwait(false);
 
-            var document = _inputParser.Parse(bytes);
-            await _documentStore.SaveDocumentAsync(document).ConfigureAwait(false);
-
-            logger.LogInformation("Got document: {document}", document);
-
-            return new OkObjectResult(document);
+            return didDeleteDocuments
+                ? (IActionResult)new OkResult()
+                : (IActionResult)new NotFoundResult();
         }
     }
 }

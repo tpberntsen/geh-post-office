@@ -23,37 +23,38 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Energinet.DataHub.PostOffice.Outbound
+namespace Energinet.DataHub.PostOffice.Outbound.Functions
 {
-    public class Dequeue
+    public class Peek
     {
         private readonly IDocumentStore _documentStore;
 
-        public Dequeue(
+        public Peek(
             IDocumentStore documentStore)
         {
             _documentStore = documentStore;
         }
 
-        [FunctionName("Dequeue")]
+        [FunctionName("Peek")]
         public async Task<IActionResult> RunAsync(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest request,
             ILogger logger)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
-            if (!request.Query.ContainsKey("id")) throw new InvalidOperationException("Request must include 'id'");
-            if (!request.Query.ContainsKey("recipient")) throw new InvalidOperationException("Request must include 'recipient'");
 
-            var bundle = request.Query["id"].ToString();
-            var recipient = request.Query["recipient"].ToString();
+            var documentQuery = request.GetDocumentQuery();
+            if (string.IsNullOrEmpty(documentQuery.Recipient)) return new BadRequestErrorMessageResult("Specify recipient");
+            if (string.IsNullOrEmpty(documentQuery.Type)) return new BadRequestErrorMessageResult("Specify type of document");
 
-            logger.LogInformation("processing document dequeue: {id}", bundle);
+            logger.LogInformation("processing document query: {documentQuery}", documentQuery);
 
-            await _documentStore
-                .DeleteDocumentsAsync(bundle, recipient)
+            var documents = await _documentStore
+                .GetDocumentBundleAsync(documentQuery)
                 .ConfigureAwait(false);
 
-            return new OkResult();
+            if (documents.Count == 0) return new NoContentResult();
+
+            return new OkObjectResult(documents);
         }
     }
 }
