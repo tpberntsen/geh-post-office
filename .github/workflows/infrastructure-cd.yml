@@ -57,7 +57,6 @@ jobs:
           echo "ARM_CLIENT_OBJECT_ID=${{ secrets.SPN_OBJECT_ID }}" >> $GITHUB_ENV
           echo "ARM_CLIENT_SECRET=${{ secrets.SPN_SECRET }}" >> $GITHUB_ENV
           echo "ARM_SUBSCRIPTION_ID=${{ secrets.SPN_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
-          echo "GITHUB_TOKEN=${{ secrets.PAT_TOKEN }}" >> $GITHUB_ENV
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1.2.1
@@ -98,15 +97,10 @@ jobs:
       # rather create duplicate ENV pipeline vatiable if needed to separate concerns
       - name: Set TF Vars
         run: |
-          echo "TF_VAR_current_spn_object_id=${{ secrets.SPN_OBJECT_ID }}" >> $GITHUB_ENV
-          echo "TF_VAR_current_spn_id=${{ secrets.SPN_ID }}" >> $GITHUB_ENV
-          echo "TF_VAR_current_spn_secret=${{ secrets.SPN_SECRET }}" >> $GITHUB_ENV
-          echo "TF_VAR_current_tenant_id=${{ secrets.TENANT_ID }}" >> $GITHUB_ENV
           echo "TF_VAR_environment=${{ matrix.environment.short }}" >> $GITHUB_ENV
           echo "TF_VAR_organisation=${{ env.ORGANISATION_NAME }}" >> $GITHUB_ENV
           echo "TF_VAR_project=${{ env.PROJECT_NAME }}" >> $GITHUB_ENV
           echo "TF_VAR_resource_group_name=${{ matrix.environment.rg }}" >> $GITHUB_ENV
-          echo "TF_VAR_current_subscription_id=${{ secrets.SPN_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
 
       - name: Configure Terraform Backend
         uses: ./.github/actions/configure-terraform-backend
