@@ -16,31 +16,47 @@ using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Bogus;
+using Energinet.DataHub.PostOffice.Tests.Tooling;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using Xunit;
 
 namespace Energinet.DataHub.PostOffice.Tests
 {
     public class ManualTests
     {
-        // [Fact]
-        // public async Task Foo()
-        // {
-        //     const string topicName = "marketdata";
-        //     var faker = new Faker();
-        //     await using (ServiceBusClient client = new ServiceBusClient("Endpoint=sb://sbn-inbound-postoffice-endk-d.servicebus.windows.net/;SharedAccessKeyName=sbtaur-inbound-sender;SharedAccessKey=G+l7o/v0TExTuPmOqkpca8pE0TcKnkCVdI/6Yn/qMr8=;EntityPath=marketdata"))
-        //     {
-        //         var document = new Energinet.DataHub.PostOffice.Contracts.Document
-        //         {
-        //             EffectuationDate = Timestamp.FromDateTimeOffset(DateTimeOffset.UtcNow.AddDays(1)),
-        //             Recipient = "me",
-        //             Type = "changeofsupplier",
-        //             Content = "{\"document\":\"" + faker.Rant.Review() + "\"}",
-        //         };
-        //         ServiceBusSender sender = client.CreateSender(topicName);
-        //         await sender.SendMessageAsync(new ServiceBusMessage(document.ToByteArray())).ConfigureAwait(false);
-        //     }
-        // }
+        private readonly Faker _faker;
+
+        public ManualTests()
+        {
+            LocalSettings.SetupEnvironment();
+            _faker = new Faker();
+        }
+
+        [RunnableInDebugOnly]
+        public async Task SendDocument()
+        {
+            const int numberOfMessages = 10;
+            const string topicName = "marketdata";
+            var connectionString = Environment.GetEnvironmentVariable("SERVICEBUS_CONNECTION_STRING");
+
+            await using ServiceBusClient client = new ServiceBusClient(connectionString);
+            ServiceBusSender sender = client.CreateSender(topicName);
+            for (int i = 0; i < numberOfMessages; i++)
+            {
+                await SendMessagesAsync(sender).ConfigureAwait(false);
+            }
+        }
+
+        private async Task SendMessagesAsync(ServiceBusSender sender)
+        {
+            var document = new Contracts.Document
+            {
+                EffectuationDate = Timestamp.FromDateTimeOffset(DateTimeOffset.UtcNow.AddDays(1)),
+                Recipient = "me",
+                Type = "changeofsupplier",
+                Content = "{\"document\":\"" + _faker.Rant.Review() + "\"}",
+            };
+            await sender.SendMessageAsync(new ServiceBusMessage(document.ToByteArray())).ConfigureAwait(false);
+        }
     }
 }
