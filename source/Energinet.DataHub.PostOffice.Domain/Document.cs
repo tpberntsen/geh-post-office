@@ -25,5 +25,7 @@ namespace Energinet.DataHub.PostOffice.Domain
         public Instant? EffectuationDate { get; set; }
 
         public dynamic? Content { get; set; }
+
+        public string? Bundle { get; set; }
     }
 }

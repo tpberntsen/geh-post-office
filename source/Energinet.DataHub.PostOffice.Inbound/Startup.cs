@@ -30,7 +30,8 @@ namespace Energinet.DataHub.PostOffice.Inbound
             builder.Services.AddScoped<IDocumentStore, CosmosDocumentStore>();
             builder.Services.AddScoped<InputParser>();
             builder.Services.AddSingleton<IMapper<Contracts.Document, Domain.Document>, DocumentMapper>();
-            builder.Services.AddCosmosConfiguration();
+            builder.Services.AddCosmosConfig();
+            builder.Services.AddCosmosClientBuilder(useBulkExecution: false);
         }
     }
 }

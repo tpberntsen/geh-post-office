@@ -25,36 +25,35 @@ using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.Outbound
 {
-    public class DocumentGateway
+    public class Dequeue
     {
         private readonly IDocumentStore _documentStore;
 
-        public DocumentGateway(
+        public Dequeue(
             IDocumentStore documentStore)
         {
             _documentStore = documentStore;
         }
 
-        [FunctionName("DocumentGateway")]
+        [FunctionName("Dequeue")]
         public async Task<IActionResult> RunAsync(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest request,
             ILogger logger)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
+            if (!request.Query.ContainsKey("id")) throw new InvalidOperationException("Request must include 'id'");
+            if (!request.Query.ContainsKey("recipient")) throw new InvalidOperationException("Request must include 'recipient'");
 
-            var documentQuery = request.GetDocumentQuery();
-            if (string.IsNullOrEmpty(documentQuery.Recipient)) return new BadRequestErrorMessageResult("Specify recipient");
-            if (string.IsNullOrEmpty(documentQuery.Type)) return new BadRequestErrorMessageResult("Specify type of document");
+            var bundle = request.Query["id"].ToString();
+            var recipient = request.Query["recipient"].ToString();
 
-            logger.LogInformation("processing document query: {documentQuery}", documentQuery);
+            logger.LogInformation("processing document dequeue: {id}", bundle);
 
-            var documents = await _documentStore
-                .GetDocumentsAsync(documentQuery)
+            await _documentStore
+                .DeleteDocumentsAsync(bundle, recipient)
                 .ConfigureAwait(false);
 
-            if (documents.Count == 0) return new NoContentResult();
-
-            return new OkObjectResult(documents);
+            return new OkResult();
         }
     }
 }
