@@ -13,7 +13,11 @@
 // limitations under the License.
 
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Contracts;
+using GreenEnergyHub.Messaging;
 
 namespace Energinet.DataHub.PostOffice.Inbound.Parsing
 {
@@ -23,19 +27,29 @@ namespace Energinet.DataHub.PostOffice.Inbound.Parsing
     public class InputParser
     {
         private readonly IMapper<Contracts.Document, Domain.Document> _mapper;
+        private readonly IRuleEngine<Contracts.Document> _ruleEngine;
 
         public InputParser(
-            IMapper<Contracts.Document, Domain.Document> mapper)
+            IMapper<Contracts.Document, Domain.Document> mapper,
+            IRuleEngine<Document> ruleEngine)
         {
             _mapper = mapper;
+            _ruleEngine = ruleEngine;
         }
 
-        public Domain.Document Parse(byte[] bytes)
+        public async Task<Domain.Document> ParseAsync(byte[] bytes)
         {
             if (bytes == null) throw new ArgumentNullException(nameof(bytes));
 
             var document = Contracts.Document.Parser.ParseFrom(bytes);
             if (document == null) throw new InvalidOperationException("Cannot parse bytes to document.");
+
+            var validationResult = await _ruleEngine.ValidateAsync(document).ConfigureAwait(false);
+            if (!validationResult.Success)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot validate document, because: {string.Join(", ", validationResult.Select(r => r.Message))}");
+            }
 
             return _mapper.Map(document);
         }
