@@ -37,42 +37,6 @@ This describes what values to use for the various values in the `localhost.tfvar
 
 It is assumed that Azure CLI for Windows and the Azure AD module for `powershell` is installed. If not, guides can be found found later in this file.
 
-### `current_spn_object_id`
-
-This variable has to be filled with the object id of the user that has access to the resource group you want to deploy to.
-
-So if you are deploying to your own resource group from your own machine, this has to be the object id of the user you use to login to the Azure Portal to see the resource group in question.
-
-If the Object ID is unknown, it can be found with using `powershell`.
-
-First, login to the Azure AD with the the account that has access to the resource group. Run the following command and supply your login information:
-
-```PowerShell
-Connect-AzureAd
-```
-
-Then, ask the Azure AD for your object ID by using the following command:
-
-```PowerShell
-Get-AzureADUser -searchstring "username@yourdomain.com"
-```
-
-The object ID should now be displayed as the first column in the result.
-
-This ID is the value you need for `current_spn_object_id` (hint: it looks like a GUID)
-
-### `current_tenant_id`
-
-The value to use can be found by running the following in `powershell` and supply login for the user that has access to the resource group:
-
-```PowerShell
-az login
-```
-
-In the result, a field will be called `tenantId`.
-
-The value is what is needed for `current_spn_object_id` (hint: it looks like a GUID)
-
 ### `environment`
 
 The value of this need to be 1-3 characters.
@@ -96,26 +60,6 @@ This value will also be used as part of the naming scheme for your Azure resourc
 ### `resource_group_name`
 
 This should be set to the name of the resource group you want to deploy into.
-
-### `current_spn_id`
-
-This value needs to be set to the application id of the service principal that has access to your resource group (hint: it looks like a GUID).
-
-You more than like received this from your administrator, through a key vault or similar.
-
-If you for some reason do not know it
-
-### `current_spn_key`
-
-This value needs to be set to the secret matching your application id (it will probably look like a password using our organisations rules for these).
-
-You have received this from your administrator or through a key vault or similar.
-
-### `current_subscription_id`
-
-This is the subscription used for your resource group.
-
-When you browse to your resource group in the portal, the value you need will be displayed in the field `Subscription ID` (hint: it will look like a GUID)
 
 ## Installing `Azure CLI`
 
