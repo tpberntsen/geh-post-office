@@ -67,27 +67,18 @@ jobs:
         environment: [
           {
             long: rg-DataHub-PostOffice-U,
-            rg: rg-DataHub-D,
             short: d,
             name: Development
           },
           {
             long: rg-DataHub-PostOffice-T,
-            rg: rg-DataHub-T,
             short: t,
             name: Test
           },
           {
             long: rg-DataHub-PostOffice-B,
-            rg: rg-DataHub-B,
             short: b,
             name: Preprod
-          },
-          {
-            long: rg-DataHub-PostOffice-P,
-            rg: rg-DataHub-P,
-            short: p,
-            name: Prod
           }
         ]
     environment:
@@ -110,7 +101,7 @@ jobs:
       - name: Get function publish profile
         id: get-publish-profile
         run: |
-          publish_profile=$(az webapp deployment list-publishing-profiles --name ${{ env.AZURE_FUNCTIONAPP_NAME }}-${{ env.PROJECT_NAME }}-${{ env.ORGANISATION_NAME }}-${{ matrix.environment.short }} --resource-group ${{ matrix.environment.rg }} --subscription ${{ secrets.SUBSCRIPTION_ID }} --xml)
+          publish_profile=$(az webapp deployment list-publishing-profiles --name ${{ env.AZURE_FUNCTIONAPP_NAME }}-${{ env.PROJECT_NAME }}-${{ env.ORGANISATION_NAME }}-${{ matrix.environment.short }} --resource-group ${{ matrix.environment.long }} --subscription ${{ secrets.SUBSCRIPTION_ID }} --xml)
           echo "::set-output name=publish-profile::${publish_profile}"
 
       - name: Deploy function
