@@ -50,7 +50,7 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
 
             try
             {
-                var document = _inputParser.Parse(message.Body);
+                var document = await _inputParser.ParseAsync(message.Body).ConfigureAwait(false);
                 await _documentStore.SaveDocumentAsync(document).ConfigureAwait(false);
 
                 logger.LogInformation("Got document: {document}", document);

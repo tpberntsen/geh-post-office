@@ -26,10 +26,12 @@ limitations under the License.
     <ItemGroup>
       <ProjectReference Include="..\Energinet.DataHub.PostOffice.Application\Energinet.DataHub.PostOffice.Application.csproj" />
       <ProjectReference Include="..\Energinet.DataHub.PostOffice.Domain\Energinet.DataHub.PostOffice.Domain.csproj" />
+      <ProjectReference Include="..\Energinet.DataHub.PostOffice.Inbound\Energinet.DataHub.PostOffice.Inbound.csproj" />
       <ProjectReference Include="..\Energinet.DataHub.PostOffice.Infrastructure\Energinet.DataHub.PostOffice.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="AutoFixture" Version="4.15.0" />
         <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.1.0" />
         <PackageReference Include="Bogus" Version="33.0.1" />
         <PackageReference Include="xunit" Version="2.4.1" />
@@ -51,5 +53,11 @@ limitations under the License.
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <CopyToPublishDirectory>Never</CopyToPublishDirectory>
       </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="GreenEnergyHub.Messaging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\poor-man-package-sharing\GreenEnergyHub.Messaging.dll</HintPath>
+      </Reference>
     </ItemGroup>
 </Project>
