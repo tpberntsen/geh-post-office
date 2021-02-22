@@ -25,8 +25,8 @@ env:
   DOTNET_VERSION: '3.1'
 
 jobs:
-  build_outbound:
-    name: Build
+  build:
+    name: Outbound CI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

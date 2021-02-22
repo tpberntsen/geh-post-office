@@ -67,7 +67,7 @@ jobs:
         environment: [
           {
             long: rg-DataHub-PostOffice-U,
-            short: d,
+            short: u,
             name: Development
           },
           {

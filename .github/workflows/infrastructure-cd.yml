@@ -35,7 +35,7 @@ jobs:
           {
             long: rg-DataHub-PostOffice-U,
             short: u,
-            name: Dev
+            name: Development
           },
           {
             long: rg-DataHub-PostOffice-T,
