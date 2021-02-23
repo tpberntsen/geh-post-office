@@ -27,5 +27,7 @@ namespace Energinet.DataHub.PostOffice.Domain
         public dynamic? Content { get; set; }
 
         public string? Bundle { get; set; }
+
+        public string? Version { get; set; }
     }
 }

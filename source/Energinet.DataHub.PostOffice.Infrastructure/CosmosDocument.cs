@@ -41,6 +41,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
         [JsonProperty(PropertyName = "bundle")]
         public string Bundle { get; set; }
+
+        [JsonProperty(PropertyName = "version")]
+        public string Version { get; set; }
     }
     #nullable restore
 }

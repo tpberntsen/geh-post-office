@@ -24,4 +24,5 @@ message Document {
   google.protobuf.Timestamp effectuationDate = 2;
   string recipient = 3;
   string content = 4;
+  string version = 5;
 }
