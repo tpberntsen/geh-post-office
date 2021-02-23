@@ -37,7 +37,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
         public System.DateTimeOffset EffectuationDate { get; set; }
 
         [JsonProperty(PropertyName = "content")]
-        public dynamic Content { get; set; }
+        public object Content { get; set; }
 
         [JsonProperty(PropertyName = "bundle")]
         public string Bundle { get; set; }

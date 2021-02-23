@@ -54,7 +54,7 @@ namespace Energinet.DataHub.PostOffice.Tests
                 EffectuationDate = Timestamp.FromDateTimeOffset(_faker.Date.Soon()),
                 Recipient = _faker.PickRandom("greenenergy", "vELkommen"),
                 Type = _faker.PickRandom("changeofsupplier"), //, "movein", "moveout"),
-                Content = "{document\":\"" + _faker.Rant.Review() + "\"}",
+                Content = "{\"document\":\"" + _faker.Rant.Review() + "\"}",
             };
             await sender.SendMessageAsync(new ServiceBusMessage(document.ToByteArray())).ConfigureAwait(false);
         }
