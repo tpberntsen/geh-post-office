@@ -46,8 +46,7 @@ namespace Energinet.DataHub.PostOffice.Application
         /// <summary>
         /// Delete documents
         /// </summary>
-        /// <param name="bundle">Id of bundle to delete</param>
-        /// <param name="recipient">TODO: Should this be here or via some other auth lookup?</param>
-        Task<bool> DeleteDocumentsAsync(string bundle, string recipient);
+        /// <param name="dequeueCommand">The documentBody to delete the documents by.</param>
+        Task<bool> DeleteDocumentsAsync(DequeueCommand dequeueCommand);
     }
 }

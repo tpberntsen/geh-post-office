@@ -52,20 +52,22 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             }
         }
 
-        public async Task<bool> DeleteDocumentsAsync(string bundleIdentifier, string recipient)
+        public async Task<bool> DeleteDocumentsAsync(DequeueCommand dequeueCommand)
         {
-            foreach (var containerTypeIdentifier in _cosmosConfig.TypeToContainerIdMap.Keys)
+            if (dequeueCommand == null) throw new ArgumentNullException(nameof(dequeueCommand));
+
+            foreach (var containerTypeIdentifier in _cosmosConfig.Maps)
             {
                 var container = GetContainer(containerTypeIdentifier);
-                var bundle = await GetBundleAsync(container, recipient).ConfigureAwait(false);
-                if (bundle.FirstOrDefault()?.Bundle == bundleIdentifier)
+                var bundle = await GetBundleAsync(container, dequeueCommand.Recipient).ConfigureAwait(false);
+                if (bundle.FirstOrDefault()?.Bundle == dequeueCommand.Bundle)
                 {
                     var itemRequestOptions = new ItemRequestOptions { EnableContentResponseOnWrite = false, };
 
                     var concurrentDeleteTasks = new List<Task>();
                     foreach (var document in bundle)
                     {
-                        concurrentDeleteTasks.Add(container.DeleteItemAsync<CosmosDocument>(document.Id, new PartitionKey(recipient), itemRequestOptions));
+                        concurrentDeleteTasks.Add(container.DeleteItemAsync<CosmosDocument>(document.Id, new PartitionKey(document.Recipient), itemRequestOptions));
                     }
 
                     await Task.WhenAll(concurrentDeleteTasks).ConfigureAwait(false);
@@ -191,7 +193,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
         {
             var container = _cosmosClient.GetContainer(
                 _cosmosConfig.DatabaseId,
-                _cosmosConfig.TypeToContainerIdMap[type]);
+                _cosmosConfig.GetMap(type));
             return container;
         }
     }

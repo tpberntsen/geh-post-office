@@ -50,11 +50,9 @@ namespace Energinet.DataHub.PostOffice.Common
                     var configuration = serviceProvider.GetService<IConfiguration>();
                     var typeToContainerIdMap = new Dictionary<string, string>();
                     configuration.GetSection("MESSAGES_DB_TYPE_CONTAINER_MAP").Bind(typeToContainerIdMap);
-                    return new CosmosConfig
-                    {
-                        DatabaseId = configuration.GetValue<string>("MESSAGES_DB_NAME"),
-                        TypeToContainerIdMap = typeToContainerIdMap,
-                    };
+                    var databaseId = configuration.GetValue<string>("MESSAGES_DB_NAME");
+
+                    return new CosmosConfig(databaseId, typeToContainerIdMap);
                 });
         }
     }

@@ -12,25 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure
 {
     public class CosmosConfig
     {
-        public CosmosConfig()
+        private readonly Dictionary<string, string> _typeToContainerIdMap;
+
+        public CosmosConfig(string databaseId, IEnumerable<KeyValuePair<string, string>> maps)
         {
-            DatabaseId = string.Empty;
-            TypeToContainerIdMap = new Dictionary<string, string>();
+            DatabaseId = databaseId ?? throw new ArgumentNullException(nameof(databaseId));
+            _typeToContainerIdMap = new Dictionary<string, string>(maps);
         }
 
-        public string DatabaseId { get; set; }
-
-#pragma warning disable CA2227
-        public Dictionary<string, string> TypeToContainerIdMap { get; set; }
-#pragma warning restore CA2227
+        public string DatabaseId { get; }
 
         public bool IsConfigured => !string.IsNullOrEmpty(DatabaseId)
-                                    && TypeToContainerIdMap.Count > 0;
+                                    && _typeToContainerIdMap.Count > 0;
+
+        public IEnumerable<string> Maps => _typeToContainerIdMap.Keys;
+
+        public bool ContainsMap(string map) => _typeToContainerIdMap.ContainsKey(map);
+
+        public string GetMap(string map)
+        {
+            if (map == null) throw new ArgumentNullException(nameof(map));
+            if (_typeToContainerIdMap.ContainsKey(map)) return _typeToContainerIdMap[map];
+
+            throw new MapNotFoundException(map);
+        }
     }
 }
