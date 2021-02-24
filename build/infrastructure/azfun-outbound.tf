@@ -31,10 +31,13 @@ module "azfun_outbound" {
     MESSAGES_DB_CONNECTION_STRING       = local.message_db_connection_string
     MESSAGES_DB_NAME                    = azurerm_cosmosdb_sql_database.db.name
     MESSAGE_DB_CONTAINERS               = "${azurerm_cosmosdb_sql_container.collection_marketdata.name},${azurerm_cosmosdb_sql_container.collection_timeseries.name},${azurerm_cosmosdb_sql_container.collection_aggregations.name}"
+    SCHEMAS_STORAGE_CONNECTION_STRING   = module.stor_schemas.primary_access_key
+    SCHEMAS_STORAGE_CONTAINER_NAME      = module.container_schemas.name
   }
   dependencies                              = [
     module.azfun_outbound_plan.dependent_on,
     module.azfun_outbound_stor.dependent_on,
+    module.stor_schemas.dependent_on,
   ]
 }
 

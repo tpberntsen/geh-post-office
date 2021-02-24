@@ -9,9 +9,9 @@ module "stor_schemas" {
   tags                      = data.azurerm_resource_group.postoffice.tags
 }
 
-module "stor_ebixschemas" {
+module "container_schemas" {
   source                = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/storage-container?ref=1.3.0"
-  container_name        = "ebix"
+  container_name        = "schemas"
   storage_account_name  = module.stor_schemas.name
   container_access_type = "private"
   dependencies          = [
