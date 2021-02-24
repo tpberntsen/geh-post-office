@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+using System.Linq;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Inbound;
@@ -19,6 +21,7 @@ using Energinet.DataHub.PostOffice.Inbound.GreenEnergyHub;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -32,8 +35,7 @@ namespace Energinet.DataHub.PostOffice.Inbound
             builder.Services.AddScoped<IDocumentStore, CosmosDocumentStore>();
             builder.Services.AddScoped<InputParser>();
             builder.Services.AddSingleton<IMapper<Contracts.Document, Domain.Document>, DocumentMapper>();
-
-            builder.Services.AddCosmosConfig();
+            builder.Services.AddDatabaseCosmosConfig();
             builder.Services.AddCosmosClientBuilder(useBulkExecution: false);
 
             builder.Services.DiscoverValidation(new[] { typeof(DocumentRules).Assembly });

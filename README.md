@@ -66,7 +66,7 @@ GET https://{{YOUR_DOMAIN_URL}}/api/Peek
 | Name | Required |  Type | Description |
 | --- | --- | --- | --- |
 | `recipient` | True | string | The id of the recipient to peek documents on |
-| `type` | True | string | The type of documents to peek |
+| `group` | True | string | The group of documents to peek, current groups is `marketdata`, `timeseries` and `aggregations` |
 | `pageSize` | False | integer | The number of documents to peek, defaults to 1. |
 
 #### Peek Responses

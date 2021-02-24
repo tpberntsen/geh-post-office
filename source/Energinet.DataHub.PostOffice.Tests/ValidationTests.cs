@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
-using Energinet.DataHub.PostOffice.Infrastructure;
 using Energinet.DataHub.PostOffice.Tests.Tooling;
 using FluentAssertions;
 using Google.Protobuf.WellKnownTypes;
@@ -50,6 +49,7 @@ namespace Energinet.DataHub.PostOffice.Tests
             var effectuationDate = _fixture.Create<Timestamp>();
             var type = _fixture.Create<string>();
             var recipient = _fixture.Create<string>();
+            var version = _fixture.Create<string>();
             var content = "{\"document\": \"Important message.\"}";
             var document = new Document
             {
@@ -57,6 +57,7 @@ namespace Energinet.DataHub.PostOffice.Tests
                 Type = type,
                 Recipient = recipient,
                 Content = content,
+                Version = version,
             };
             var ruleCollectionTester = RuleCollectionTester.Create<DocumentRules, Document>();
 

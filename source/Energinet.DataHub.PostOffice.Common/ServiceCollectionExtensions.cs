@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Configuration;
@@ -42,17 +43,32 @@ namespace Energinet.DataHub.PostOffice.Common
             });
         }
 
-        public static void AddCosmosConfig(this IServiceCollection serviceCollection)
+        public static void AddDatabaseCosmosConfig(this IServiceCollection serviceCollection)
         {
             serviceCollection.AddSingleton(
                 serviceProvider =>
                 {
                     var configuration = serviceProvider.GetService<IConfiguration>();
-                    var typeToContainerIdMap = new Dictionary<string, string>();
-                    configuration.GetSection("MESSAGES_DB_TYPE_CONTAINER_MAP").Bind(typeToContainerIdMap);
                     var databaseId = configuration.GetValue<string>("MESSAGES_DB_NAME");
 
-                    return new CosmosConfig(databaseId, typeToContainerIdMap);
+                    return new CosmosDatabaseConfig(databaseId);
+                });
+        }
+
+        public static void AddCosmosContainerConfig(this IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddSingleton(
+                serviceProvider =>
+                {
+                    var configuration = serviceProvider.GetService<IConfiguration>();
+
+                    var containersAsString = configuration.GetValue<string>("MESSAGE_DB_CONTAINERS");
+                    if (string.IsNullOrEmpty(containersAsString)) throw new InvalidOperationException("MESSAGE_DB_CONTAINERS does not contain any value");
+
+                    var containers = containersAsString.Split(',');
+                    if (!containers.Any()) throw new InvalidOperationException("No containers found in MESSAGE_DB_CONTAINERS");
+
+                    return new CosmosContainerConfig(containers);
                 });
         }
     }

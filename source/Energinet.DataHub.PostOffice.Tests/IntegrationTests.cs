@@ -140,6 +140,7 @@ namespace Energinet.DataHub.PostOffice.Tests
                     Recipient = recipient,
                     Type = type,
                     Content = "{\"document\":\"" + index + "\"}",
+                    Version = "1.0.0",
                 });
             }
 

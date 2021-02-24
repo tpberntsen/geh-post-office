@@ -44,7 +44,7 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
 
             var documentQuery = request.GetDocumentQuery();
             if (string.IsNullOrEmpty(documentQuery.Recipient)) return new BadRequestErrorMessageResult("Query parameter is missing 'recipient'");
-            if (string.IsNullOrEmpty(documentQuery.Type)) return new BadRequestErrorMessageResult("Query parameter is missing 'type'");
+            if (string.IsNullOrEmpty(documentQuery.ContainerName)) return new BadRequestErrorMessageResult("Query parameter is missing 'group'");
 
             logger.LogInformation("processing document query: {documentQuery}", documentQuery);
 

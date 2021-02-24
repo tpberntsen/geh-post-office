@@ -50,8 +50,11 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
 
             try
             {
+                var topicName = Environment.GetEnvironmentVariable("INBOUND_QUEUE_TIMESERIES_TOPIC_NAME");
+                if (string.IsNullOrEmpty(topicName)) throw new InvalidOperationException("TopicName is null");
+
                 var document = await _inputParser.ParseAsync(message.Body).ConfigureAwait(false);
-                await _documentStore.SaveDocumentAsync(document).ConfigureAwait(false);
+                await _documentStore.SaveDocumentAsync(document, topicName).ConfigureAwait(false);
 
                 logger.LogInformation("Got document: {document}", document);
             }

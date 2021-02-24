@@ -55,6 +55,7 @@ namespace Energinet.DataHub.PostOffice.Tests
                 Recipient = _faker.PickRandom("greenenergy", "vELkommen"),
                 Type = _faker.PickRandom("changeofsupplier"), //, "movein", "moveout"),
                 Content = "{\"document\":\"" + _faker.Rant.Review() + "\"}",
+                Version = "1.0.0",
             };
             await sender.SendMessageAsync(new ServiceBusMessage(document.ToByteArray())).ConfigureAwait(false);
         }

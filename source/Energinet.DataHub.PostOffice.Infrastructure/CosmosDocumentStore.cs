@@ -26,22 +26,25 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
     public class CosmosDocumentStore : IDocumentStore
     {
         private readonly CosmosClient _cosmosClient;
-        private readonly CosmosConfig _cosmosConfig;
+        private readonly CosmosDatabaseConfig _cosmosConfig;
+        private readonly CosmosContainerConfig _cosmosContainerConfig;
 
         public CosmosDocumentStore(
             CosmosClient cosmosClient,
-            CosmosConfig cosmosConfig)
+            CosmosDatabaseConfig cosmosConfig,
+            CosmosContainerConfig cosmosContainerConfig)
         {
             _cosmosClient = cosmosClient;
             _cosmosConfig = cosmosConfig;
+            _cosmosContainerConfig = cosmosContainerConfig;
         }
 
-        public async Task SaveDocumentAsync(Document document)
+        public async Task SaveDocumentAsync(Document document, string containerName)
         {
             if (document == null) throw new ArgumentNullException(nameof(document));
 
             // TODO: add error handling and fix type nullability?
-            var container = GetContainer(document.Type!);
+            var container = GetContainer(containerName);
 
             var cosmosDocument = CosmosDocumentMapper.Map(document);
 
@@ -56,7 +59,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
         {
             if (dequeueCommand == null) throw new ArgumentNullException(nameof(dequeueCommand));
 
-            foreach (var containerTypeIdentifier in _cosmosConfig.Maps)
+            foreach (var containerTypeIdentifier in _cosmosContainerConfig.Containers)
             {
                 var container = GetContainer(containerTypeIdentifier);
                 var bundle = await GetBundleAsync(container, dequeueCommand.Recipient).ConfigureAwait(false);
@@ -89,7 +92,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                 WHERE d.recipient = @recipient
                 ORDER BY d.effectuationDate";
 
-            var container = GetContainer(documentQuery.Type);
+            var container = GetContainer(documentQuery.ContainerName);
 
             // Querying with an equality filter on the partition key will create a partitioned documentQuery, per:
             // https://docs.microsoft.com/en-us/azure/cosmos-db/how-to-documentQuery-container#in-partition-documentQuery
@@ -112,7 +115,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
         {
             if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
 
-            var container = GetContainer(documentQuery.Type);
+            var container = GetContainer(documentQuery.ContainerName);
 
             var existingBundle = await GetBundleAsync(container, documentQuery.Recipient).ConfigureAwait(false);
             if (existingBundle.Any())
@@ -189,11 +192,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             return documents;
         }
 
-        private Container GetContainer(string type)
+        private Container GetContainer(string containerName)
         {
             var container = _cosmosClient.GetContainer(
                 _cosmosConfig.DatabaseId,
-                _cosmosConfig.GetMap(type));
+                containerName);
             return container;
         }
     }

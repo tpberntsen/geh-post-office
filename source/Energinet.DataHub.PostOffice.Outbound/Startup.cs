@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+using System.Linq;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using Energinet.DataHub.PostOffice.Outbound;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -28,7 +31,8 @@ namespace Energinet.DataHub.PostOffice.Outbound
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services.AddScoped<IDocumentStore, CosmosDocumentStore>();
-            builder.Services.AddCosmosConfig();
+            builder.Services.AddDatabaseCosmosConfig();
+            builder.Services.AddCosmosContainerConfig();
             builder.Services.AddCosmosClientBuilder(useBulkExecution: true);
         }
     }

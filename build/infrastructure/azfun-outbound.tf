@@ -23,15 +23,14 @@ module "azfun_outbound" {
   tags                                      = data.azurerm_resource_group.postoffice.tags
   app_settings                              = {
     # Region: Default Values
-    WEBSITE_ENABLE_SYNC_UPDATE_SITE             = true
-    WEBSITE_RUN_FROM_PACKAGE                    = 1
-    WEBSITES_ENABLE_APP_SERVICE_STORAGE         = true
-    FUNCTIONS_WORKER_RUNTIME                    = "dotnet"
+    WEBSITE_ENABLE_SYNC_UPDATE_SITE     = true
+    WEBSITE_RUN_FROM_PACKAGE            = 1
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE = true
+    FUNCTIONS_WORKER_RUNTIME            = "dotnet"
     # Endregion
-    MESSAGES_DB_CONNECTION_STRING               = local.message_db_connection_string
-    MESSAGES_DB_NAME                            = azurerm_cosmosdb_sql_database.db.name
-    "MESSAGES_DB_TYPE_CONTAINER_MAP:marketdata" = azurerm_cosmosdb_sql_container.collection_marketdata.name
-    "MESSAGES_DB_TYPE_CONTAINER_MAP:timeseries" = azurerm_cosmosdb_sql_container.collection_timeseries.name
+    MESSAGES_DB_CONNECTION_STRING       = local.message_db_connection_string
+    MESSAGES_DB_NAME                    = azurerm_cosmosdb_sql_database.db.name
+    MESSAGE_DB_CONTAINERS               = "${azurerm_cosmosdb_sql_container.collection_marketdata.name},${azurerm_cosmosdb_sql_container.collection_timeseries.name},${azurerm_cosmosdb_sql_container.collection_aggregations.name}"
   }
   dependencies                              = [
     module.azfun_outbound_plan.dependent_on,
