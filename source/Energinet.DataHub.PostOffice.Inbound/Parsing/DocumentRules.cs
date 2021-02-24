@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Domain;
 using GreenEnergyHub.Messaging.Validation;
 
 namespace Energinet.DataHub.PostOffice.Inbound.Parsing
@@ -22,6 +21,7 @@ namespace Energinet.DataHub.PostOffice.Inbound.Parsing
         public DocumentRules()
         {
             RuleFor(document => document.Type).PropertyRule<DocumentCannotHaveEmptyValue>();
+            RuleFor(document => document.Version).PropertyRule<DocumentCannotHaveEmptyValue>();
             RuleFor(document => document.Recipient).PropertyRule<DocumentCannotHaveEmptyValue>();
             RuleFor(document => document.Content).PropertyRule<DocumentMustHaveJsonSerializableContent>();
             RuleFor(document => document.EffectuationDate).PropertyRule<DocumentMustHaveEffectuationDate>();

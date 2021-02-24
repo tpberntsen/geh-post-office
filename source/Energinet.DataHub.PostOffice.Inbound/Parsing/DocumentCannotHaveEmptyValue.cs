@@ -21,6 +21,11 @@ namespace Energinet.DataHub.PostOffice.Inbound.Parsing
     {
         protected override string Code => "Empty value";
 
+        protected override string GetDefaultMessageTemplate()
+        {
+            return "'{PropertyName}' cannot be empty.";
+        }
+
         protected override bool IsValid(string propertyValue, PropertyValidatorContext context)
         {
             return !string.IsNullOrWhiteSpace(propertyValue);

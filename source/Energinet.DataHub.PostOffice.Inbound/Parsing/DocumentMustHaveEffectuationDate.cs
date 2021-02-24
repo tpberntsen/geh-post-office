@@ -23,6 +23,11 @@ namespace Energinet.DataHub.PostOffice.Inbound.Parsing
     {
         protected override string Code => "Json Serializable Content";
 
+        protected override string GetDefaultMessageTemplate()
+        {
+            return "'{PropertyName}' must be set.";
+        }
+
         protected override bool IsValid(Timestamp propertyValue, PropertyValidatorContext context)
         {
             return propertyValue != null
