@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 module "azfun_inbound" {
-  source                                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/function-app?ref=1.2.0"
+  source                                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/function-app?ref=1.3.0"
   name                                      = "azfun-inbound-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name                       = data.azurerm_resource_group.postoffice.name
   location                                  = data.azurerm_resource_group.postoffice.location
@@ -37,8 +37,6 @@ module "azfun_inbound" {
     INBOUND_QUEUE_AGGREGATIONS_SUBSCRIPTION_NAME      = module.sbtaur_aggregations_subscription.name
     INBOUND_QUEUE_TIMESERIES_TOPIC_NAME               = module.sbt_timeseries.name
     INBOUND_QUEUE_TIMESERIES_SUBSCRIPTION_NAME        = module.sbtaur_timeseries_subscription.name
-    "MESSAGES_DB_TYPE_CONTAINER_MAP:changeofsupplier" = azurerm_cosmosdb_sql_container.collection_marketdata.name
-    "MESSAGES_DB_TYPE_CONTAINER_MAP:timeseries"       = azurerm_cosmosdb_sql_container.collection_timeseries.name
   }
   dependencies                              = [
     module.appi_postoffice.dependent_on,
@@ -54,7 +52,7 @@ module "azfun_inbound" {
 }
 
 module "azfun_inbound_plan" {
-  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/app-service-plan?ref=1.2.0"
+  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/app-service-plan?ref=1.3.0"
   name                = "asp-inbound-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name = data.azurerm_resource_group.postoffice.name
   location            = data.azurerm_resource_group.postoffice.location
@@ -67,7 +65,7 @@ module "azfun_inbound_plan" {
 }
 
 module "azfun_inbound_stor" {
-  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/storage-account?ref=1.2.0"
+  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/storage-account?ref=1.3.0"
   name                      = "stor${random_string.inbound.result}"
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   location                  = data.azurerm_resource_group.postoffice.location

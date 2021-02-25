@@ -1,160 +1,123 @@
-# Synchronous Document Gateway
+# Post Office
 
-## Motivation
+- [Intro](#intro)
+- [Delivering documents to the post office](#delivering-documents-to-the-post-office)
+- [Peek and dequeue documents from the post office](#peek-and-dequeue-documents-from-the-post-office)
+- [Architecture](#architecture)
 
-Market actors must be able to retrieve documents, including acknowledgments, from the DataHub.
+## Intro
 
-It must be possible to retrieve either timeseries or market data documents via JSON HTTP endpoints. It must also be possible to retrieve either document type via SOAP to support the existing way of communicating in the Danish Electricity Market.
+The Post Office is the central place for handling outbound documents from within the Green Energy Hub.
 
-## Architecture
+This means that any domain inside the Green Energy Hub that has a document which outside actors needs to be able to peek, will have to deliver the document to the Post Office using the appropriate type.
 
-![design](design.drawio.png)
+See [Delivering documents to the post office](#delivering-documents-to-the-post-office).
 
-## Description
+Any document delivered to the Post Office will then be processed, saved in a storage and thus made available for outside market actors to peek and eventually dequeue.
 
-In our implementation we will have two different endpoints. The Green Energy Hub has a JSON (CIM) entrypoint and the Energinet specific adaptation has a SOAP entrypoint as well via the SOAP Adapter.
+The Market Actors will only be able to peek and dequeue documents that they are marked as recipients of. See [Fetching documents from the post office](#peek-and-dequeue-documents-from-the-post-office).
 
-- The Adapter can handle Peek and Dequeue via two new handlers.
-- The `Document Gateway` has three HTTP triggers:
-    - GET timeseries
-    - GET market data
-    - DELETE document
-- The `Document Gateway` has handlers corresponding to each of those triggers.
-- The documents are to be stored in a CosmosDB.
+### Architecture
 
-### EBIX messages (Adapter)
+![design](ARCHITECTURE.png)
 
-> Peek
+## Delivering documents to the post office
 
-*Request*:
+To deliver a document to the Post Office from a domain, the domain will have to insert a document into the corresponding topic of the `sbn-inbound-postoffice` service bus.
 
-```xml
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-  <SOAP-ENV:Body xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <PeekMessageRequest xmlns="urn:www:datahub:dk:b2b:v01"/>
-  </SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
+The service bus contains 3 Topics.
+
+- aggregations
+- marketdata
+- timeseries
+
+All documents inserted into each of the topics will then be processed and placed in a collection of documents corresponding to the topic.
+This means that when a domain places a document in the `timeseries` topic, this document will only be peekable using the `timeseries` type on the outbound end of the Post Office.
+
+### Format
+
+All documents inserted into the topics will have to comply with the protobuf contract exposed [here](source/Contracts/v1/Document.proto).
+
+If a document is inserted into the queue that does not comply with this contract, **IT WILL NOT** be handled.
+
+## Peek and dequeue documents from the post office
+
+### Authenticating
+
+TODO: This will have to be updated once we know more about how authentication is done throughout the system.
+
+### GET:/Peek
+
+It is possible in the Post Office to peek a given number of documents.
+
+Once a peek has been made, the system will check if a bundle of documents already exists, if that is the case then those will be returned.
+
+If no bundle exists, the system will select the number of documents requested, generate a new bundle id and return the documents.
+
+This means if a repetetive number of peek's is made, the same bundle of documents will always be returned.
+It is necessary to dequeue a bundle, before being able to get a new bundle of messages.
+
+```https
+GET https://{{YOUR_DOMAIN_URL}}/api/Peek
 ```
 
-*Response*:
+#### Peek URI Parameters
 
-```xml
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-   <SOAP-ENV:Body>
-      <ns0:PeekMessageResponse xmlns:ns0="urn:www:datahub:dk:b2b:v01">
-         <ns0:MessageContainer>
-            <ns0:MessageReference>2c8884f3578b4cf49a5f88563063e639</ns0:MessageReference>
-            <ns0:DocumentType>ConfirmChangeOfSupplier</ns0:DocumentType>
-            <ns0:MessageType>XML</ns0:MessageType>
-            <ns0:Payload>
-               <ns0:DK_ConfirmChangeOfSupplier xmlns:ns0="un:unece:260:data:EEM-DK_ConfirmChangeOfSupplier:v3">
-                  <ns0:HeaderEnergyDocument>
-                     <ns0:Identification>711bf884f1ee49ebbbaf26fe60d87725</ns0:Identification>
-                     <ns0:DocumentType listAgencyIdentifier="260">414</ns0:DocumentType>
-                     <ns0:Creation>2020-12-17T13:40:37Z</ns0:Creation>
-                     <ns0:SenderEnergyParty>
-                        <ns0:Identification schemeAgencyIdentifier="9">5790000000000</ns0:Identification>
-                     </ns0:SenderEnergyParty>
-                     <ns0:RecipientEnergyParty>
-                        <ns0:Identification schemeAgencyIdentifier="9">8100000000000</ns0:Identification>
-                     </ns0:RecipientEnergyParty>
-                  </ns0:HeaderEnergyDocument>
-                  <ns0:ProcessEnergyContext>
-                     <ns0:EnergyBusinessProcess listAgencyIdentifier="260">E03</ns0:EnergyBusinessProcess>
-                     <ns0:EnergyBusinessProcessRole listAgencyIdentifier="260" listIdentifier="DK">DDQ</ns0:EnergyBusinessProcessRole>
-                     <ns0:EnergyIndustryClassification listAgencyIdentifier="6">23</ns0:EnergyIndustryClassification>
-                  </ns0:ProcessEnergyContext>
-                  <ns0:PayloadResponseEvent>
-                     <ns0:Identification>268e50b0cdc54b2484fbe95aa4708760</ns0:Identification>
-                     <ns0:StatusType listAgencyIdentifier="6">39</ns0:StatusType>
-                     <ns0:MeteringPointDomainLocation>
-                        <ns0:Identification schemeAgencyIdentifier="9">578030100000000000</ns0:Identification>
-                     </ns0:MeteringPointDomainLocation>
-                     <ns0:OriginalBusinessDocument>TransId-2020-12-17-14-37-16.689</ns0:OriginalBusinessDocument>
-                  </ns0:PayloadResponseEvent>
-               </ns0:DK_ConfirmChangeOfSupplier>
-            </ns0:Payload>
-         </ns0:MessageContainer>
-      </ns0:PeekMessageResponse>
-   </SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
+| Name | Required |  Type | Description |
+| --- | --- | --- | --- |
+| `recipient` | True | string | The id of the recipient to peek documents on |
+| `group` | True | string | The group of documents to peek, current groups is `marketdata`, `timeseries` and `aggregations` |
+| `pageSize` | False | integer | The number of documents to peek, defaults to 1. |
+
+#### Peek Responses
+
+| Name | Type | Description |
+| --- | --- | --- |
+| 200 OK | [Peeked documents](#peeked-documents) | OK |
+| 204 No Content | [NoContentResult](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.nocontentresult?view=aspnetcore-5.0) | If no documents is available for peeking. |
+| 400 Bad Request | [BadRequestErrorMessageResult](https://docs.microsoft.com/en-us/dotnet/api/system.web.http.badrequesterrormessageresult?view=aspnetcore-2.2) | If `recipient` is missing, the following error will be outputted: _'Query parameter is missing 'recipient'_. |
+| 400 Bad Request | [BadRequestErrorMessageResult](https://docs.microsoft.com/en-us/dotnet/api/system.web.http.badrequesterrormessageresult?view=aspnetcore-2.2) | If `type` is missing, the following error will be outputted: _'Query parameter is missing 'type'_. |
+| 500 Server error | [ArgumentNullException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentnullexception?view=net-5.0) ||
+
+### POST:/Dequeue
+
+This method is used to dequeue a bundle of documents.
+
+```https
+POST https://{{YOUR_DOMAIN_URL}}/api/Dequeue
 ```
 
-> Dequeue
+#### Dequeue Request body
 
-*Request*:
+| Name | Required |  Type | Description |
+| --- | --- | --- | --- |
+| `bundle` | True | string | The id of the bundle to dequeue |
+| `recipient` | True | string | The id of the recipient to dequeue documents on |
 
-```xml
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-  <SOAP-ENV:Body xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <DequeueMessageRequest xmlns="urn:www:datahub:dk:b2b:v01">
-      <MessageId>MsgId-datahub--20120910-131338.0568</MessageId>
-    </DequeueMessageRequest>
-  </SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
+#### Dequeue Responses
+
+| Name | Type | Description |
+| --- | --- | --- |
+| 200 OK | [OkResult](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.okresult?view=aspnetcore-5.0) | OK |
+| 400 Bad Request | [BadRequestErrorMessageResult](https://docs.microsoft.com/en-us/dotnet/api/system.web.http.badrequesterrormessageresult?view=aspnetcore-2.2) | If `bundle` is missing, the following error will be outputted: _Request body is missing 'bundle'_. |
+| 400 Bad Request | [BadRequestErrorMessageResult](https://docs.microsoft.com/en-us/dotnet/api/system.web.http.badrequesterrormessageresult?view=aspnetcore-2.2) | If `recipient` is missing, the following error will be outputted: _Request body is missing 'recipient'_. |
+| 404 Not Found | [NotFoundResult](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.notfoundresult?view=aspnetcore-5.0) |
+| 500 Server error | [ArgumentNullException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentnullexception?view=net-5.0) ||
+
+## Types
+
+### Peeked documents
+
+An array of documents.
+
+```json
+[
+   {
+      "Recipient": "string",
+      "Type": "string",
+      "EffectuationDate": "Date",
+      "Content": "Dynamic",
+      "Bundle": "string"
+   }
+]
 ```
-
-*Response*:
-
-```xml
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-   <SOAP-ENV:Body>
-      <ns0:DequeueMessageResponse xmlns:ns0="urn:www:datahub:dk:b2b:v01"/>
-   </SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
-```
-
-### CIM JSON messages (Document Gateway)
-
-> Peek, both timeseries and market data
-
-*Requests*:
-
-These requests won't have a body but instead, rely on the path entirely.
-
-```HTTP
-GET /document/timeseries
-GET /document/marketdata
-```
-
-*Responses*:
-
-The body/payload will differ based on the actual document retrieved. If a document exists, it will be returned with a `200 OK`. If no document exists a `204 No Content` will be returned.
-
-> Dequeue
-
-*Request*:
-
-```HTTP
-DELETE /document/<id>
-```
-
-*Responses*:
-
-Response code `200 OK` for successful dequeues.
-
-For unsuccessful dequeues:
-
-- `400 Bad request` if the request isn't correctly formed.
-- `401 Unauthorized` if the client doesn't have authorization to dequeue the specified document.
-- `404 Not found` if the `id` is not recognized.
-
-## Related modules
-
-This module is closely related to the `DocumentGenerator`, which is again closely related to the `MessageTimerTrigger`. The `DocumentGenerator` generates and saves documents based on system events like processed actor requests or other types of (scheduled) work. The `Document Gateway` can then serve these documents for the market actor.
-
-## Setup and configuration
-
-TBD
-
-## Remaining work
-
-### Open questions
-
-- I renamed the "Message Shipper" to "Document Gateway", I think it's better, but not much. What should it be named?
-
-### Known issues/risk
-
-- Returned messages should at some point be bundled, we shouldn't make a solution that makes that impossible.
-    - For now the outbound message size limit is 50 MB for the Danish Market
-- We don't know how to do authorization. That might impact how we should implement parts of this feature.

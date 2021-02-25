@@ -28,6 +28,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                 Content = obj.Content,
                 Type = obj.Type,
                 Recipient = obj.Recipient,
+                Version = obj.Version,
 
                 // TODO: fix epoch nullable hack
                 EffectuationDate = obj.EffectuationDate?.ToDateTimeOffset() ?? DateTimeOffset.UnixEpoch,
@@ -45,6 +46,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                 Recipient = obj.Recipient,
                 Type = obj.Type,
                 Bundle = obj.Bundle,
+                Version = obj.Version,
             };
         }
     }

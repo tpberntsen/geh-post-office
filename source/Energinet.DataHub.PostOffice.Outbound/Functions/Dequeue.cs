@@ -14,7 +14,9 @@
 
 using System;
 using System.Threading.Tasks;
+using System.Web.Http;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Outbound.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -35,20 +37,19 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
 
         [FunctionName("Dequeue")]
         public async Task<IActionResult> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest request,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = null)] HttpRequest request,
             ILogger logger)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
-            if (!request.Query.ContainsKey("id")) throw new InvalidOperationException("Request must include 'id'");
-            if (!request.Query.ContainsKey("recipient")) throw new InvalidOperationException("Request must include 'recipient'");
 
-            var bundle = request.Query["id"].ToString();
-            var recipient = request.Query["recipient"].ToString();
+            var dequeueCommand = request.GetDequeueCommand();
+            if (string.IsNullOrEmpty(dequeueCommand.Recipient)) return new BadRequestErrorMessageResult("Request body is missing 'recipient'");
+            if (string.IsNullOrEmpty(dequeueCommand.Bundle)) return new BadRequestErrorMessageResult("Request body is missing 'type'");
 
-            logger.LogInformation("processing document dequeue: {id}", bundle);
+            logger.LogInformation($"processing dequeue command: {dequeueCommand}", dequeueCommand);
 
             var didDeleteDocuments = await _documentStore
-                .DeleteDocumentsAsync(bundle, recipient)
+                .DeleteDocumentsAsync(dequeueCommand)
                 .ConfigureAwait(false);
 
             return didDeleteDocuments

@@ -31,6 +31,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                 Type = obj.Type,
                 Recipient = obj.Recipient,
                 EffectuationDate = obj.EffectuationDate.ToInstant(),
+                Version = obj.Version,
             };
 
             return document;

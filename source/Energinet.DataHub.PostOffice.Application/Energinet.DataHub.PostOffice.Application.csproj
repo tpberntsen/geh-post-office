@@ -27,4 +27,26 @@ limitations under the License.
       <ProjectReference Include="..\Energinet.DataHub.PostOffice.Domain\Energinet.DataHub.PostOffice.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="GreenEnergyHub.Messaging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\poor-man-package-sharing\GreenEnergyHub.Messaging.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="9.5.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Validations\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Validations\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Validations\**" />
+    </ItemGroup>
+
 </Project>

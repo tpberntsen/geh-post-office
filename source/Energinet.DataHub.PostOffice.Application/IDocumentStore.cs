@@ -41,13 +41,13 @@ namespace Energinet.DataHub.PostOffice.Application
         /// Save a document.
         /// </summary>
         /// <param name="document">The document to save.</param>
-        Task SaveDocumentAsync(Document document);
+        /// <param name="containerName">Name of the container to save the document in.</param>
+        Task SaveDocumentAsync(Document document, string containerName);
 
         /// <summary>
         /// Delete documents
         /// </summary>
-        /// <param name="bundle">Id of bundle to delete</param>
-        /// <param name="recipient">TODO: Should this be here or via some other auth lookup?</param>
-        Task<bool> DeleteDocumentsAsync(string bundle, string recipient);
+        /// <param name="dequeueCommand">The documentBody to delete the documents by.</param>
+        Task<bool> DeleteDocumentsAsync(DequeueCommand dequeueCommand);
     }
 }

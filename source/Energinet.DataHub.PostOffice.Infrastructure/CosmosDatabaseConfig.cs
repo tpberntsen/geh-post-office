@@ -12,25 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
+using System;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure
 {
-    public class CosmosConfig
+    public class CosmosDatabaseConfig
     {
-        public CosmosConfig()
+        public CosmosDatabaseConfig(string databaseId)
         {
-            DatabaseId = string.Empty;
-            TypeToContainerIdMap = new Dictionary<string, string>();
+            DatabaseId = databaseId ?? throw new ArgumentNullException(nameof(databaseId));
         }
 
-        public string DatabaseId { get; set; }
-
-#pragma warning disable CA2227
-        public Dictionary<string, string> TypeToContainerIdMap { get; set; }
-#pragma warning restore CA2227
-
-        public bool IsConfigured => !string.IsNullOrEmpty(DatabaseId)
-                                    && TypeToContainerIdMap.Count > 0;
+        public string DatabaseId { get; }
     }
 }

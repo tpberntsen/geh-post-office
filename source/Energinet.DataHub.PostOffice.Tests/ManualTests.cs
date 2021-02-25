@@ -35,12 +35,12 @@ namespace Energinet.DataHub.PostOffice.Tests
         [RunnableInDebugOnly]
         public async Task SendDocument()
         {
-            const int numberOfMessages = 10;
+            const int numberOfMessages = 1;
             const string topicName = "marketdata";
             var connectionString = Environment.GetEnvironmentVariable("SERVICEBUS_CONNECTION_STRING");
 
             await using ServiceBusClient client = new ServiceBusClient(connectionString);
-            ServiceBusSender sender = client.CreateSender(topicName);
+            var sender = client.CreateSender(topicName);
             for (int i = 0; i < numberOfMessages; i++)
             {
                 await SendMessagesAsync(sender).ConfigureAwait(false);
@@ -51,10 +51,11 @@ namespace Energinet.DataHub.PostOffice.Tests
         {
             var document = new Contracts.Document
             {
-                EffectuationDate = Timestamp.FromDateTimeOffset(DateTimeOffset.UtcNow.AddDays(1)),
-                Recipient = "me",
-                Type = "changeofsupplier",
+                EffectuationDate = Timestamp.FromDateTimeOffset(_faker.Date.Soon()),
+                Recipient = _faker.PickRandom("greenenergy", "vELkommen"),
+                Type = _faker.PickRandom("changeofsupplier"), //, "movein", "moveout"),
                 Content = "{\"document\":\"" + _faker.Rant.Review() + "\"}",
+                Version = "1.0.0",
             };
             await sender.SendMessageAsync(new ServiceBusMessage(document.ToByteArray())).ConfigureAwait(false);
         }

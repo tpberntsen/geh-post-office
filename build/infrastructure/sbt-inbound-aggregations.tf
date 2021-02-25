@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 module "sbt_aggregations" {
-  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic?ref=1.2.0"
+  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic?ref=1.3.0"
   name                = "aggregations"
   namespace_name      = module.sbn_inbound.name
   resource_group_name = data.azurerm_resource_group.postoffice.name
@@ -20,7 +20,7 @@ module "sbt_aggregations" {
 }
 
 module "sbtaur_aggregations_subscription" {
-  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-subscription?ref=1.2.0"
+  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-subscription?ref=1.3.0"
   name                      = "default"
   namespace_name            = module.sbn_inbound.name
   topic_name                = module.sbt_aggregations.name

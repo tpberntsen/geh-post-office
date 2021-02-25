@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 module "azfun_outbound" {
-  source                                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/function-app?ref=1.2.0"
+  source                                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/function-app?ref=1.3.0"
   name                                      = "azfun-outbound-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name                       = data.azurerm_resource_group.postoffice.name
   location                                  = data.azurerm_resource_group.postoffice.location
@@ -23,24 +23,26 @@ module "azfun_outbound" {
   tags                                      = data.azurerm_resource_group.postoffice.tags
   app_settings                              = {
     # Region: Default Values
-    WEBSITE_ENABLE_SYNC_UPDATE_SITE                   = true
-    WEBSITE_RUN_FROM_PACKAGE                          = 1
-    WEBSITES_ENABLE_APP_SERVICE_STORAGE               = true
-    FUNCTIONS_WORKER_RUNTIME                          = "dotnet"
+    WEBSITE_ENABLE_SYNC_UPDATE_SITE     = true
+    WEBSITE_RUN_FROM_PACKAGE            = 1
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE = true
+    FUNCTIONS_WORKER_RUNTIME            = "dotnet"
     # Endregion
-    MESSAGES_DB_CONNECTION_STRING                     = local.message_db_connection_string
-    MESSAGES_DB_NAME                                  = azurerm_cosmosdb_sql_database.db.name
-    "MESSAGES_DB_TYPE_CONTAINER_MAP:changeofsupplier" = azurerm_cosmosdb_sql_container.collection_marketdata.name
-    "MESSAGES_DB_TYPE_CONTAINER_MAP:timeseries"       = azurerm_cosmosdb_sql_container.collection_timeseries.name
+    MESSAGES_DB_CONNECTION_STRING       = local.message_db_connection_string
+    MESSAGES_DB_NAME                    = azurerm_cosmosdb_sql_database.db.name
+    MESSAGE_DB_CONTAINERS               = "${azurerm_cosmosdb_sql_container.collection_marketdata.name},${azurerm_cosmosdb_sql_container.collection_timeseries.name},${azurerm_cosmosdb_sql_container.collection_aggregations.name}"
+    SCHEMAS_STORAGE_CONNECTION_STRING   = module.stor_schemas.primary_access_key
+    SCHEMAS_STORAGE_CONTAINER_NAME      = module.container_schemas.name
   }
   dependencies                              = [
     module.azfun_outbound_plan.dependent_on,
     module.azfun_outbound_stor.dependent_on,
+    module.stor_schemas.dependent_on,
   ]
 }
 
 module "azfun_outbound_plan" {
-  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/app-service-plan?ref=1.2.0"
+  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/app-service-plan?ref=1.3.0"
   name                = "asp-outbound-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name = data.azurerm_resource_group.postoffice.name
   location            = data.azurerm_resource_group.postoffice.location
@@ -53,7 +55,7 @@ module "azfun_outbound_plan" {
 }
 
 module "azfun_outbound_stor" {
-  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/storage-account?ref=1.2.0"
+  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/storage-account?ref=1.3.0"
   name                      = "stor${random_string.outbound.result}"
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   location                  = data.azurerm_resource_group.postoffice.location

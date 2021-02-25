@@ -19,10 +19,10 @@ namespace Energinet.DataHub.PostOffice.Application
     /// </summary>
     public class DocumentQuery
     {
-        public DocumentQuery(string recipient, string type, int pageSize = 1)
+        public DocumentQuery(string recipient, string containerName, int pageSize = 1)
         {
             Recipient = recipient;
-            Type = type;
+            ContainerName = containerName;
             PageSize = pageSize;
         }
 
@@ -32,9 +32,9 @@ namespace Energinet.DataHub.PostOffice.Application
         public string Recipient { get; set; }
 
         /// <summary>
-        /// Type of the documents to fetch.
+        /// ContainerName of the documents to fetch.
         /// </summary>
-        public string Type { get; set; }
+        public string ContainerName { get; set; }
 
         /// <summary>
         /// Maximum number of items to return.

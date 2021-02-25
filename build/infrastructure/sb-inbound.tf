@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 module "sbn_inbound" {
-  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-namespace?ref=1.2.0"
+  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-namespace?ref=1.3.0"
   name                = "sbn-inbound-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name = data.azurerm_resource_group.postoffice.name
   location            = data.azurerm_resource_group.postoffice.location
@@ -21,7 +21,7 @@ module "sbn_inbound" {
 }
 
 module "sbnar_inbound_listener" {
-  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-namespace-auth-rule?ref=1.2.0"
+  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-namespace-auth-rule?ref=1.3.0"
   name                      = "sbnar-inbound-listener"
   namespace_name            = module.sbn_inbound.name
   resource_group_name       = data.azurerm_resource_group.postoffice.name
@@ -30,7 +30,7 @@ module "sbnar_inbound_listener" {
 }
 
 module "sbnar_inbound_sender" {
-  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-namespace-auth-rule?ref=1.2.0"
+  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-namespace-auth-rule?ref=1.3.0"
   name                      = "sbnar-inbound-sender"
   namespace_name            = module.sbn_inbound.name
   resource_group_name       = data.azurerm_resource_group.postoffice.name
