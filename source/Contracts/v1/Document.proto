@@ -25,3 +25,7 @@ message Document {
   string recipient = 3;
   string content = 4;
 }
+
+message DocumentList {
+  repeated Document documents = 1;
+}
