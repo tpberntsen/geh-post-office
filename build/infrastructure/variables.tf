@@ -29,8 +29,3 @@ variable "organisation" {
   type          = string
   description   = "Organisation that is running the infrastructure code"
 }
-
-variable "current_spn_object_id" {
-  type          = string
-  description   = "Service Principal Object ID of the connection used to deploy the code"
-}
