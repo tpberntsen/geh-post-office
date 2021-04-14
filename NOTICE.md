@@ -26,5 +26,20 @@ We recommend you read their licenses, as their terms may differ from the terms d
 | `xunit`                                  | 2.4.1                                | <https://www.nuget.org/packages/xunit/2.4.1>                                 | Apache-2.0                                                                                    |
 | `xunit.runner.visualstudio`              | 2.4.3                                | <https://www.nuget.org/packages/xunit.runner.visualstudio/2.4.3>             | MIT                                                                                           |
 
+### GitHub Actions
+
+| Action                             | Url                                            | License |
+| ---------------------------------- | ---------------------------------------------- | ------- |
+| `Azure/functions-action@v1`        | <https://github.com/Azure/functions-action>    | MIT     |
+| `actions/checkout@master`          | <https://github.com/actions/checkout>          | MIT     |
+| `actions/checkout@v2`              | <https://github.com/actions/checkout>          | MIT     |
+| `actions/download-artifact@v2`     | <https://github.com/actions/download-artifact> | MIT     |
+| `actions/setup-dotnet@v1`          | <https://github.com/actions/setup-dotnet>      | MIT     |
+| `actions/setup-python@v2`          | <https://github.com/actions/setup-python>      | MIT     |
+| `actions/upload-artifact@v2`       | <https://github.com/actions/upload-artifact>   | MIT     |
+| `hashicorp/setup-terraform@v1.2.1` | <https://github.com/hashicorp/setup-terraform> | MPL-2.0 |
+
 <br/>
 Energinet and any contributors reserve all others rights, whether under their respective copyrights, patents, licenses, or trademarks, whether by implication, estoppel or otherwise.
+It is our intention to acknowledege all thirdparty product license used in this document.
+If you miss your license please contact greenenergyhub@energinet.dk, and we will take action to change the file.
