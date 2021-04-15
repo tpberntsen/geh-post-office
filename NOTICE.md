@@ -41,8 +41,3 @@ The Green Energy Hub repository relies on open source libraries and tools. We re
 | `actions/setup-python@v2`          | <https://github.com/actions/setup-python>      | MIT     |
 | `actions/upload-artifact@v2`       | <https://github.com/actions/upload-artifact>   | MIT     |
 | `hashicorp/setup-terraform@v1.2.1` | <https://github.com/hashicorp/setup-terraform> | MPL-2.0 |
-
-<br/>
-Energinet and any contributors reserve all others rights, whether under their respective copyrights, patents, licenses, or trademarks, whether by implication, estoppel or otherwise.
-It is our intention to acknowledege all thirdparty product license used in this document.
-If you miss your license please contact greenenergyhub@energinet.dk, and we will take action to change the file.
