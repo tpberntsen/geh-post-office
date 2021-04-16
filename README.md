@@ -23,7 +23,7 @@ The Market Actors will only be able to peek and dequeue documents that they are 
 
 ## Context Streams
 
-![Post Office context streams](./images/PostOfficeContextStreams.JPG "Post Office context streams")
+![Context streams](./images/PostOfficeContextStreams.JPG "Post Office context streams")
 
 ## Domain Road Map
 
