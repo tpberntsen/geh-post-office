@@ -21,6 +21,14 @@ The Market Actors will only be able to peek and dequeue documents that they are 
 
 ![design](ARCHITECTURE.png)
 
+## Context Streams
+
+![Post Office context streams](./images/PostOfficeContextStreams.JPG "Post Office context streams")
+
+## Domain Road Map
+
+No work planned in current program increment.
+
 ## Delivering documents to the post office
 
 To deliver a document to the Post Office from a domain, the domain will have to insert a document into the corresponding topic of the `sbn-inbound-postoffice` service bus.
