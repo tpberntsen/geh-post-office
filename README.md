@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/Energinet-DataHub/geh-post-office/branch/main/graph/badge.svg?token=Z6XE42U97U)](https://codecov.io/gh/Energinet-DataHub/geh-post-office)
+
 # Post Office
 
 - [Intro](#intro)

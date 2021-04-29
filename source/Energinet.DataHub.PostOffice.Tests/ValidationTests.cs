@@ -40,7 +40,7 @@ namespace Energinet.DataHub.PostOffice.Tests
 
             var result = await ruleCollectionTester.InvokeAsync(document).ConfigureAwait(false);
 
-            result.Count.Should().Be(4);
+            result.Count.Should().Be(5);
         }
 
         [Fact]
