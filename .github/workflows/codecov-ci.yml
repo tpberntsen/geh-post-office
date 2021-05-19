@@ -38,7 +38,8 @@ jobs:
           github_token: ${{ github.token }}
           paths: '[
             "source/**",
-            "Energinet.DataHub.PostOffice.sln"
+            "Energinet.DataHub.PostOffice.sln",
+            ".github/workflows/codecov-ci.yml"
           ]'
           
   collect_coverage_dotnet:
