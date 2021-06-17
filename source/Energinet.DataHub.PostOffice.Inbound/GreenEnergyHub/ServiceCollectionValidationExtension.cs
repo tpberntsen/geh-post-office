@@ -56,7 +56,7 @@ namespace Energinet.DataHub.PostOffice.Inbound.GreenEnergyHub
             }
 
             // Add our delegate as a singleton
-            serviceCollection.AddSingleton<ServiceProviderDelegate>(sp => sp.GetService);
+            serviceCollection.AddSingleton<ServiceProviderDelegate>(sp => sp.GetService<ServiceProviderDelegate>());
 
             return serviceCollection;
         }

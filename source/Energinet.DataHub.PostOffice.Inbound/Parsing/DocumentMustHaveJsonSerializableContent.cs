@@ -31,7 +31,7 @@ namespace Energinet.DataHub.PostOffice.Inbound.Parsing
         {
             try
             {
-                var serialized = JsonSerializer.Deserialize<dynamic>(propertyValue).ToString();
+                var serialized = JsonSerializer.Deserialize<dynamic>(propertyValue)?.ToString();
                 return !string.IsNullOrWhiteSpace(serialized);
             }
             catch (JsonException)
