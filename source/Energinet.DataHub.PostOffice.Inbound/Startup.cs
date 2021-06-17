@@ -33,8 +33,11 @@ namespace Energinet.DataHub.PostOffice.Inbound
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services.AddScoped<IDocumentStore, CosmosDocumentStore>();
+            builder.Services.AddScoped<ICosmosStore<Domain.DataAvailable>, CosmosDataAvailableStore>();
             builder.Services.AddScoped<InputParser>();
+            builder.Services.AddScoped<InputParserDataAvailable>();
             builder.Services.AddSingleton<IMapper<Contracts.Document, Domain.Document>, DocumentMapper>();
+            builder.Services.AddSingleton<IMapper<Contracts.DataAvailable, Domain.DataAvailable>, DataAvailableMapper>();
             builder.Services.AddDatabaseCosmosConfig();
             builder.Services.AddCosmosClientBuilder(useBulkExecution: false);
 
