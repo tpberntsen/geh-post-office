@@ -12,16 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+using FluentValidation.Validators;
 using GreenEnergyHub.Messaging.Validation;
 
 namespace Energinet.DataHub.PostOffice.Inbound.Parsing
 {
-    public class DataAvailableRules : RuleCollection<Contracts.DataAvailable>
+    public class DataAvailableMustHaveValidUuid : PropertyRule<string>
     {
-        public DataAvailableRules()
+        protected override string Code => "Json Serializable Content";
+
+        protected override string GetDefaultMessageTemplate()
         {
-            RuleFor(document => document.UUID).PropertyRule<DataAvailableMustHaveValidUuid>();
-            RuleFor(document => document.Recipient).PropertyRule<DocumentCannotHaveEmptyValue>();
+            return "'{PropertyName}' must have a valid guid.";
+        }
+
+        protected override bool IsValid(string propertyValue, PropertyValidatorContext context)
+        {
+            return Guid.TryParse(propertyValue, out _);
         }
     }
 }
