@@ -27,11 +27,11 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
         private const string FunctionName = "MarketInbox";
 
         private readonly InputParser _inputParser;
-        private readonly IDocumentStore _documentStore;
+        private readonly IDocumentStore<Domain.Document> _documentStore;
 
         public MarketInbox(
             InputParser inputParser,
-            IDocumentStore documentStore)
+            IDocumentStore<Domain.Document> documentStore)
         {
             _inputParser = inputParser;
             _documentStore = documentStore;

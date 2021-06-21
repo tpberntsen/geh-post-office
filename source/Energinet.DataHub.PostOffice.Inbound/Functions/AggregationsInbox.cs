@@ -27,11 +27,11 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
         private const string FunctionName = "AggregationsInbox";
 
         private readonly InputParser _inputParser;
-        private readonly IDocumentStore _documentStore;
+        private readonly IDocumentStore<Domain.Document> _documentStore;
 
         public AggregationsInbox(
             InputParser inputParser,
-            IDocumentStore documentStore)
+            IDocumentStore<Domain.Document> documentStore)
         {
             _inputParser = inputParser;
             _documentStore = documentStore;

@@ -27,10 +27,10 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
 {
     public class Peek
     {
-        private readonly IDocumentStore _documentStore;
+        private readonly IDocumentStore<Domain.Document> _documentStore;
 
         public Peek(
-            IDocumentStore documentStore)
+            IDocumentStore<Domain.Document> documentStore)
         {
             _documentStore = documentStore;
         }

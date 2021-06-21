@@ -22,7 +22,7 @@ using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure
 {
-    public class CosmosDataAvailableStore : ICosmosStore<Domain.DataAvailable>
+    public class CosmosDataAvailableStore : IDocumentStore<Domain.DataAvailable>
     {
         private const string ContainerName = "dataavailable";
 
@@ -37,9 +37,24 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             _cosmosConfig = cosmosConfig;
         }
 
-        public Task<IList<DataAvailable>> GetDocumentsAsync()
+        public Task<IList<DataAvailable>> GetDocumentsAsync(DocumentQuery documentQuery)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
+        }
+
+        public Task<IList<DataAvailable>> GetDocumentBundleAsync(DocumentQuery documentQuery)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SaveDocumentAsync(DataAvailable document, string containerName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteDocumentsAsync(DequeueCommand dequeueCommand)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task SaveDocumentAsync(DataAvailable document)
