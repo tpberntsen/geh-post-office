@@ -22,18 +22,18 @@ namespace Energinet.DataHub.PostOffice.Inbound.Parsing
 {
     public class InputParserDataAvailable
     {
-        private readonly IMapper<Contracts.DataAvailable, Domain.DataAvailable> _mapper;
+        private readonly IMapper<Contracts.DataAvailable, Contracts.DataAvailable> _mapper;
         private readonly IRuleEngine<Contracts.DataAvailable> _ruleEngine;
 
         public InputParserDataAvailable(
-            IMapper<Contracts.DataAvailable, Domain.DataAvailable> mapper,
+            IMapper<Contracts.DataAvailable, Contracts.DataAvailable> mapper,
             IRuleEngine<Contracts.DataAvailable> ruleEngine)
         {
             _mapper = mapper;
             _ruleEngine = ruleEngine;
         }
 
-        public async Task<Domain.DataAvailable> ParseAsync(byte[] bytes)
+        public async Task<Contracts.DataAvailable> ParseAsync(byte[] bytes)
         {
             if (bytes == null) throw new ArgumentNullException(nameof(bytes));
 

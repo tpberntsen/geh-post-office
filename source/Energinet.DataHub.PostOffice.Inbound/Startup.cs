@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Common;
+using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Inbound;
 using Energinet.DataHub.PostOffice.Inbound.GreenEnergyHub;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
@@ -33,11 +34,10 @@ namespace Energinet.DataHub.PostOffice.Inbound
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services.AddScoped<IDocumentStore<Domain.Document>, CosmosDocumentStore>();
-            builder.Services.AddScoped<IDocumentStore<Domain.DataAvailable>, CosmosDataAvailableStore>();
+            builder.Services.AddScoped<IDocumentStore<Contracts.DataAvailable>, CosmosDataAvailableStore>();
             builder.Services.AddScoped<InputParser>();
             builder.Services.AddScoped<InputParserDataAvailable>();
             builder.Services.AddSingleton<IMapper<Contracts.Document, Domain.Document>, DocumentMapper>();
-            builder.Services.AddSingleton<IMapper<Contracts.DataAvailable, Domain.DataAvailable>, DataAvailableMapper>();
             builder.Services.AddDatabaseCosmosConfig();
             builder.Services.AddCosmosClientBuilder(useBulkExecution: false);
 

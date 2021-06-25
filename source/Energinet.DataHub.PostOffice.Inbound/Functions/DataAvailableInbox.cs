@@ -27,11 +27,11 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
         private const string FunctionName = "DataAvailableInbox";
 
         private readonly InputParserDataAvailable _inputParser;
-        private readonly IDocumentStore<Domain.DataAvailable> _documentStore;
+        private readonly IDocumentStore<Contracts.DataAvailable> _documentStore;
 
         public DataAvailableInbox(
             InputParserDataAvailable inputParser,
-            IDocumentStore<Domain.DataAvailable> documentStore)
+            IDocumentStore<Contracts.DataAvailable> documentStore)
         {
             _inputParser = inputParser;
             _documentStore = documentStore;
