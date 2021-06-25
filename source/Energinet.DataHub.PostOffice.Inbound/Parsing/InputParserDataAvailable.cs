@@ -22,14 +22,10 @@ namespace Energinet.DataHub.PostOffice.Inbound.Parsing
 {
     public class InputParserDataAvailable
     {
-        private readonly IMapper<Contracts.DataAvailable, Contracts.DataAvailable> _mapper;
         private readonly IRuleEngine<Contracts.DataAvailable> _ruleEngine;
 
-        public InputParserDataAvailable(
-            IMapper<Contracts.DataAvailable, Contracts.DataAvailable> mapper,
-            IRuleEngine<Contracts.DataAvailable> ruleEngine)
+        public InputParserDataAvailable(IRuleEngine<Contracts.DataAvailable> ruleEngine)
         {
-            _mapper = mapper;
             _ruleEngine = ruleEngine;
         }
 
@@ -47,7 +43,7 @@ namespace Energinet.DataHub.PostOffice.Inbound.Parsing
                     $"Cannot validate document, because: {string.Join(", ", validationResult.Select(r => r.Message))}");
             }
 
-            return _mapper.Map(dataAvailableContract);
+            return dataAvailableContract;
         }
     }
 }
