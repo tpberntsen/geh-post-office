@@ -22,7 +22,7 @@ on:
 env:
   CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Outbound/Energinet.DataHub.PostOffice.Outbound.csproj'
   SOLUTION_FILE_PATH: 'Energinet.DataHub.PostOffice.sln'
-  DOTNET_VERSION: '5.0.202'
+  DOTNET_VERSION: '5.0'
 
 jobs:
   pre_job:
