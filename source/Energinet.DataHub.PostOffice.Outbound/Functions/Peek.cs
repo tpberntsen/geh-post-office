@@ -13,14 +13,12 @@
 // limitations under the License.
 
 using System;
+using System.Net;
 using System.Threading.Tasks;
-using System.Web.Http;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Outbound.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.Outbound.Functions
@@ -35,26 +33,38 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
             _documentStore = documentStore;
         }
 
-        [FunctionName("Peek")]
-        public async Task<IActionResult> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest request,
-            ILogger logger)
+        [Function("Peek")]
+        public async Task<HttpResponseData> RunAsync(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestData request,
+            FunctionContext context)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
 
             var documentQuery = request.GetDocumentQuery();
-            if (string.IsNullOrEmpty(documentQuery.Recipient)) return new BadRequestErrorMessageResult("Query parameter is missing 'recipient'");
-            if (string.IsNullOrEmpty(documentQuery.ContainerName)) return new BadRequestErrorMessageResult("Query parameter is missing 'group'");
+            if (string.IsNullOrEmpty(documentQuery.Recipient)) return GetHttpResponse(request, HttpStatusCode.BadRequest, "Query parameter is missing 'recipient'");
+            if (string.IsNullOrEmpty(documentQuery.ContainerName)) return GetHttpResponse(request, HttpStatusCode.BadRequest, "Query parameter is missing 'group'");
 
+            var logger = context.GetLogger(nameof(Peek));
             logger.LogInformation("processing document query: {documentQuery}", documentQuery);
 
             var documents = await _documentStore
                 .GetDocumentBundleAsync(documentQuery)
                 .ConfigureAwait(false);
 
-            if (documents.Count == 0) return new NoContentResult();
+            if (documents.Count == 0) return request.CreateResponse(HttpStatusCode.NoContent);
 
-            return new OkObjectResult(documents);
+            var response = request.CreateResponse(HttpStatusCode.OK);
+
+            await response.WriteAsJsonAsync(documents).ConfigureAwait(false);
+
+            return response;
+        }
+
+        private static HttpResponseData GetHttpResponse(HttpRequestData request, HttpStatusCode httpStatusCode, string body)
+        {
+            var response = request.CreateResponse(httpStatusCode);
+            response.WriteString(body);
+            return response;
         }
     }
 }

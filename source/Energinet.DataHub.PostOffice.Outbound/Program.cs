@@ -14,6 +14,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Infrastructure;
@@ -21,19 +22,34 @@ using Energinet.DataHub.PostOffice.Outbound;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
-[assembly: FunctionsStartup(typeof(Startup))]
+using Microsoft.Extensions.Hosting;
 
 namespace Energinet.DataHub.PostOffice.Outbound
 {
-    internal class Startup : FunctionsStartup
+    public static class Program
     {
-        public override void Configure(IFunctionsHostBuilder builder)
+        public static Task Main(string[] args)
         {
-            builder.Services.AddScoped<IDocumentStore, CosmosDocumentStore>();
-            builder.Services.AddDatabaseCosmosConfig();
-            builder.Services.AddCosmosContainerConfig();
-            builder.Services.AddCosmosClientBuilder(useBulkExecution: true);
+            var host = new HostBuilder()
+                .ConfigureAppConfiguration(configurationBuilder =>
+                {
+                    configurationBuilder.AddCommandLine(args);
+                })
+                .ConfigureFunctionsWorkerDefaults()
+                .ConfigureServices(services =>
+                {
+                    // Add Logging
+                    services.AddLogging();
+
+                    // Add Custom Services
+                    services.AddScoped<IDocumentStore, CosmosDocumentStore>();
+                    services.AddDatabaseCosmosConfig();
+                    services.AddCosmosContainerConfig();
+                    services.AddCosmosClientBuilder(useBulkExecution: true);
+                })
+                .Build();
+
+            return host.RunAsync();
         }
     }
 }
