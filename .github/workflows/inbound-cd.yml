@@ -27,7 +27,7 @@ on:
 env:
   CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Inbound/Energinet.DataHub.PostOffice.Inbound.csproj'
   SOLUTION_FILE_PATH: 'Energinet.DataHub.PostOffice.sln'
-  DOTNET_VERSION: '3.1'
+  DOTNET_VERSION: '5.0.202'
   ORGANISATION_NAME: 'endk'
   AZURE_FUNCTIONAPP_NAME: 'azfun-inbound'
   PROJECT_NAME: postoffice

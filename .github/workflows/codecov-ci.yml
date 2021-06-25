@@ -23,7 +23,7 @@ on:
   workflow_dispatch: {}
   
 env:
-  DOTNET_VERSION: '3.1'
+  DOTNET_VERSION: '5.0.202'
   
 jobs:
   pre_job:
