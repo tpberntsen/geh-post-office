@@ -23,7 +23,7 @@ using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure
 {
-    public class CosmosDocumentStore : IDocumentStore
+    public class CosmosDocumentStore : IDocumentStore<Domain.Document>
     {
         private readonly CosmosClient _cosmosClient;
         private readonly CosmosDatabaseConfig _cosmosConfig;
@@ -80,6 +80,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             }
 
             return false; // We didn't find anything to delete
+        }
+
+        public Task SaveDocumentAsync(Document document)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<IList<Document>> GetDocumentsAsync(DocumentQuery documentQuery)

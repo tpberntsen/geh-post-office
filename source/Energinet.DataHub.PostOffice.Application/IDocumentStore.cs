@@ -21,33 +21,39 @@ namespace Energinet.DataHub.PostOffice.Application
     /// <summary>
     /// Crud operations for the document data store.
     /// </summary>
-    public interface IDocumentStore
+    public interface IDocumentStore<T>
     {
         /// <summary>
         /// Get documents.
         /// </summary>
         /// <param name="documentQuery">The documentQuery to get documents by.</param>
         /// <returns>A list of documents matching the documentQuery parameters.</returns>
-        Task<IList<Document>> GetDocumentsAsync(DocumentQuery documentQuery);
+        Task<IList<T>> GetDocumentsAsync(DocumentQuery documentQuery);
 
         /// <summary>
         /// Get documents.
         /// </summary>
         /// <param name="documentQuery">The documentQuery to get documents by.</param>
         /// <returns>A list of documents matching the documentQuery parameters.</returns>
-        Task<IList<Document>> GetDocumentBundleAsync(DocumentQuery documentQuery);
+        Task<IList<T>> GetDocumentBundleAsync(DocumentQuery documentQuery);
 
         /// <summary>
         /// Save a document.
         /// </summary>
         /// <param name="document">The document to save.</param>
         /// <param name="containerName">Name of the container to save the document in.</param>
-        Task SaveDocumentAsync(Document document, string containerName);
+        Task SaveDocumentAsync(T document, string containerName);
 
         /// <summary>
         /// Delete documents
         /// </summary>
         /// <param name="dequeueCommand">The documentBody to delete the documents by.</param>
         Task<bool> DeleteDocumentsAsync(DequeueCommand dequeueCommand);
+
+        /// <summary>
+        /// Save a document.
+        /// </summary>
+        /// <param name="document">The document to save.</param>
+        Task SaveDocumentAsync(T document);
     }
 }
