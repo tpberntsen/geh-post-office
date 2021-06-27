@@ -27,10 +27,10 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
 {
     public class Dequeue
     {
-        private readonly IDocumentStore _documentStore;
+        private readonly IDocumentStore<Domain.Document> _documentStore;
 
         public Dequeue(
-            IDocumentStore documentStore)
+            IDocumentStore<Domain.Document> documentStore)
         {
             _documentStore = documentStore;
         }

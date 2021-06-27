@@ -30,7 +30,7 @@ namespace Energinet.DataHub.PostOffice.Outbound
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            builder.Services.AddScoped<IDocumentStore, CosmosDocumentStore>();
+            builder.Services.AddScoped<IDocumentStore<Domain.Document>, CosmosDocumentStore>();
             builder.Services.AddDatabaseCosmosConfig();
             builder.Services.AddCosmosContainerConfig();
             builder.Services.AddCosmosClientBuilder(useBulkExecution: true);

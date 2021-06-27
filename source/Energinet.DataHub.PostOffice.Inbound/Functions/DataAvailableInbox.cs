@@ -22,16 +22,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.Inbound.Functions
 {
-    public class MarketInbox
+    public class DataAvailableInbox
     {
-        private const string FunctionName = "MarketInbox";
+        private const string FunctionName = "DataAvailableInbox";
 
-        private readonly InputParser _inputParser;
-        private readonly IDocumentStore<Domain.Document> _documentStore;
+        private readonly InputParserDataAvailable _inputParser;
+        private readonly IDocumentStore<Contracts.DataAvailable> _documentStore;
 
-        public MarketInbox(
-            InputParser inputParser,
-            IDocumentStore<Domain.Document> documentStore)
+        public DataAvailableInbox(
+            InputParserDataAvailable inputParser,
+            IDocumentStore<Contracts.DataAvailable> documentStore)
         {
             _inputParser = inputParser;
             _documentStore = documentStore;
@@ -40,23 +40,23 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
         [FunctionName(FunctionName)]
         public async Task RunAsync(
             [ServiceBusTrigger(
-                "%INBOUND_QUEUE_MARKETDATA_TOPIC_NAME%",
-                "%INBOUND_QUEUE_MARKETDATA_SUBSCRIPTION_NAME%",
-                Connection = "INBOUND_QUEUE_CONNECTION_STRING")] Message message,
+                "%INBOUND_QUEUE_DATAAVAILABLE_TOPIC_NAME%",
+                "%INBOUND_QUEUE_DATAAVAILABLE_SUBSCRIPTION_NAME%",
+                Connection = "INBOUND_QUEUE_CONNECTION_STRING")]
+            Message message,
             ILogger logger)
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
-            logger.LogInformation($"C# ServiceBus topic trigger function processed message in {FunctionName}.");
+            logger.LogInformation($"C# ServiceBus topic trigger function processed message in {FunctionName} {message.Label}.");
 
             try
             {
-                var topicName = Environment.GetEnvironmentVariable("INBOUND_QUEUE_MARKETDATA_TOPIC_NAME");
+                var topicName = Environment.GetEnvironmentVariable("INBOUND_QUEUE_DATAAVAILABLE_TOPIC_NAME");
                 if (string.IsNullOrEmpty(topicName)) throw new InvalidOperationException("TopicName is null");
 
                 var document = await _inputParser.ParseAsync(message.Body).ConfigureAwait(false);
-                await _documentStore.SaveDocumentAsync(document, topicName).ConfigureAwait(false);
-
-                logger.LogInformation("Got document: {document}", document);
+                await _documentStore.SaveDocumentAsync(document).ConfigureAwait(false);
+                logger.LogInformation("Document saved to cosmos: {document}", document);
             }
             catch (Exception exception)
             {
