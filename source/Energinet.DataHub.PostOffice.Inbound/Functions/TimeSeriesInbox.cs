@@ -36,7 +36,6 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
             _documentStore = documentStore;
         }
 
-        [Function(FunctionName)]
         public async Task RunAsync(
             [ServiceBusTrigger(
                 "%INBOUND_QUEUE_TIMESERIES_TOPIC_NAME%",

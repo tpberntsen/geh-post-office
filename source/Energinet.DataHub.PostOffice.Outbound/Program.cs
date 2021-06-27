@@ -42,7 +42,7 @@ namespace Energinet.DataHub.PostOffice.Outbound
                     services.AddLogging();
 
                     // Add Custom Services
-                    services.AddScoped<IDocumentStore, CosmosDocumentStore>();
+                    services.AddScoped<IDocumentStore<Domain.Document>, CosmosDocumentStore>();
                     services.AddDatabaseCosmosConfig();
                     services.AddCosmosContainerConfig();
                     services.AddCosmosClientBuilder(useBulkExecution: true);

@@ -16,8 +16,8 @@ using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.ServiceBus;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.Inbound.Functions
@@ -37,16 +37,18 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
             _documentStore = documentStore;
         }
 
-        [FunctionName(FunctionName)]
+        [Function(FunctionName)]
         public async Task RunAsync(
             [ServiceBusTrigger(
                 "%INBOUND_QUEUE_DATAAVAILABLE_TOPIC_NAME%",
                 "%INBOUND_QUEUE_DATAAVAILABLE_SUBSCRIPTION_NAME%",
                 Connection = "INBOUND_QUEUE_CONNECTION_STRING")]
             Message message,
-            ILogger logger)
+            FunctionContext context)
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
+
+            var logger = context.GetLogger(nameof(DataAvailableInbox));
             logger.LogInformation($"C# ServiceBus topic trigger function processed message in {FunctionName} {message.Label}.");
 
             try

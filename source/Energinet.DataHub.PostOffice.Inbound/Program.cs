@@ -47,9 +47,10 @@ namespace Energinet.DataHub.PostOffice.Inbound
                     services.AddHttpClient();
 
                     // Add Custom Services
-                    services.AddScoped<IDocumentStore, CosmosDocumentStore>();
+                    services.AddScoped<IDocumentStore<Domain.Document>, CosmosDocumentStore>();
+                    services.AddScoped<IDocumentStore<Contracts.DataAvailable>, CosmosDataAvailableStore>();
                     services.AddScoped<InputParser>();
-                    services.AddSingleton<IMapper<Contracts.Document, Domain.Document>, DocumentMapper>();
+                    services.AddScoped<InputParserDataAvailable>();
                     services.AddDatabaseCosmosConfig();
                     services.AddCosmosClientBuilder(useBulkExecution: false);
 
