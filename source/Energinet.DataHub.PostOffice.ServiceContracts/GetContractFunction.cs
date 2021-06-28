@@ -13,40 +13,47 @@
 // limitations under the License.
 
 using System;
-using System.Globalization;
+using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.ServiceContracts
 {
     public static class GetContractFunction
     {
-        [FunctionName("GetContract")]
-        public static async Task<IActionResult> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "contracts/v{version:int}/{contractName}")] HttpRequest request,
+        [Function("GetContract")]
+        public static async Task<HttpResponseData> RunAsync(
+            [Microsoft.Azure.Functions.Worker.HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "contracts/v{version:int}/{contractName}")] HttpRequestData request,
             string version,
             string contractName,
-            ExecutionContext context,
-            ILogger logger)
+            ExecutionContext executionContext,
+            FunctionContext context)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
+            var logger = context.GetLogger(nameof(GetContractFunction));
             logger.LogInformation("GetContract {version}/{contractName}", version, contractName);
 
-            var protoContractService = ProtoContractServiceFactory.Create(context);
+            var protoContractService = ProtoContractServiceFactory.Create(executionContext);
             var protoFile = protoContractService.Get(version, contractName);
+
             if (protoFile != null)
             {
-                return new FileContentResult(protoFile, "application/text");
+                var response = request.CreateResponse(HttpStatusCode.OK);
+                response.Headers.Add("Content-Type", "application/text");
+                response.WriteBytes(protoFile);
+                return response;
             }
-
-            return await Task.FromResult(new NotFoundObjectResult($"No contracts found for {version}/{contractName}"))
-                .ConfigureAwait(false);
+            else
+            {
+                var response = request.CreateResponse(HttpStatusCode.NotFound);
+                await response.WriteStringAsync($"No contracts found for {version}/{contractName}").ConfigureAwait(false);
+                return response;
+            }
         }
     }
 }

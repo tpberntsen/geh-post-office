@@ -14,7 +14,7 @@
     "MESSAGES_DB_NAME":"",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "AzureWebJobsServiceBus": "",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "APPINSIGHTS_INSTRUMENTATIONKEY": ""
   }
 }

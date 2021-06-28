@@ -16,8 +16,8 @@ using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.ServiceBus;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.Inbound.Functions
@@ -37,24 +37,26 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
             _documentStore = documentStore;
         }
 
-        [FunctionName(FunctionName)]
+        [Function(FunctionName)]
         public async Task RunAsync(
             [ServiceBusTrigger(
                 "%INBOUND_QUEUE_DATAAVAILABLE_TOPIC_NAME%",
                 "%INBOUND_QUEUE_DATAAVAILABLE_SUBSCRIPTION_NAME%",
                 Connection = "INBOUND_QUEUE_CONNECTION_STRING")]
-            Message message,
-            ILogger logger)
+            byte[] message,
+            FunctionContext context)
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
-            logger.LogInformation($"C# ServiceBus topic trigger function processed message in {FunctionName} {message.Label}.");
+
+            var logger = context.GetLogger(nameof(DataAvailableInbox));
+            logger.LogInformation($"C# ServiceBus topic trigger function processed message in {FunctionName}");
 
             try
             {
                 var topicName = Environment.GetEnvironmentVariable("INBOUND_QUEUE_DATAAVAILABLE_TOPIC_NAME");
                 if (string.IsNullOrEmpty(topicName)) throw new InvalidOperationException("TopicName is null");
 
-                var document = await _inputParser.ParseAsync(message.Body).ConfigureAwait(false);
+                var document = await _inputParser.ParseAsync(message).ConfigureAwait(false);
                 await _documentStore.SaveDocumentAsync(document).ConfigureAwait(false);
                 logger.LogInformation("Document saved to cosmos: {document}", document);
             }

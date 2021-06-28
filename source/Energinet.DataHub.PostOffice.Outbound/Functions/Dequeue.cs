@@ -13,14 +13,12 @@
 // limitations under the License.
 
 using System;
+using System.Net;
 using System.Threading.Tasks;
-using System.Web.Http;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Outbound.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.Outbound.Functions
@@ -35,17 +33,18 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
             _documentStore = documentStore;
         }
 
-        [FunctionName("Dequeue")]
-        public async Task<IActionResult> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = null)] HttpRequest request,
-            ILogger logger)
+        [Function("Dequeue")]
+        public async Task<HttpResponseData> RunAsync(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = null)] HttpRequestData request,
+            FunctionContext context)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
 
             var dequeueCommand = request.GetDequeueCommand();
-            if (string.IsNullOrEmpty(dequeueCommand.Recipient)) return new BadRequestErrorMessageResult("Request body is missing 'recipient'");
-            if (string.IsNullOrEmpty(dequeueCommand.Bundle)) return new BadRequestErrorMessageResult("Request body is missing 'type'");
+            if (string.IsNullOrEmpty(dequeueCommand.Recipient)) return GetHttpResponse(request, HttpStatusCode.BadRequest, "Request body is missing 'recipient'");
+            if (string.IsNullOrEmpty(dequeueCommand.Bundle)) return GetHttpResponse(request, HttpStatusCode.BadRequest, "Request body is missing 'type'");
 
+            var logger = context.GetLogger(nameof(Dequeue));
             logger.LogInformation($"processing dequeue command: {dequeueCommand}", dequeueCommand);
 
             var didDeleteDocuments = await _documentStore
@@ -53,8 +52,15 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
                 .ConfigureAwait(false);
 
             return didDeleteDocuments
-                ? (IActionResult)new OkResult()
-                : (IActionResult)new NotFoundResult();
+                ? GetHttpResponse(request, HttpStatusCode.OK, string.Empty)
+                : GetHttpResponse(request, HttpStatusCode.NotFound, string.Empty);
+        }
+
+        private static HttpResponseData GetHttpResponse(HttpRequestData request, HttpStatusCode httpStatusCode, string body)
+        {
+            var response = request.CreateResponse(httpStatusCode);
+            response.WriteString(body);
+            return response;
         }
     }
 }

@@ -15,17 +15,19 @@ limitations under the License.
 -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     <Nullable>enable</Nullable>
+    <SelfContained>true</SelfContained>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Energinet.DataHub.PostOffice.ServiceContracts</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.0.3" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.12" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.3" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
