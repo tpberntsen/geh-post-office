@@ -33,7 +33,7 @@ namespace Energinet.DataHub.PostOffice.Outbound
             var host = new HostBuilder()
                 .ConfigureAppConfiguration(configurationBuilder =>
                 {
-                    configurationBuilder.AddCommandLine(args);
+                    configurationBuilder.AddEnvironmentVariables();
                 })
                 .ConfigureFunctionsWorkerDefaults()
                 .ConfigureServices(services =>
