@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Threading.Tasks;
 using AutoFixture;
 using Energinet.DataHub.PostOffice.Contracts;
@@ -63,6 +64,25 @@ namespace Energinet.DataHub.PostOffice.Tests
 
             var result = await ruleCollectionTester.InvokeAsync(document).ConfigureAwait(false);
 
+            result.Success.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task DataAvailable_request_should_be_valid()
+        {
+            // Arrange
+            var dataAvailable = new DataAvailable
+            {
+                UUID = Guid.NewGuid().ToString(),
+                Recipient = Guid.NewGuid().ToString(),
+            };
+
+            // Act
+            var ruleCollectionTester = RuleCollectionTester.Create<DataAvailableRules, DataAvailable>();
+
+            var result = await ruleCollectionTester.InvokeAsync(dataAvailable).ConfigureAwait(false);
+
+            // Assert
             result.Success.Should().BeTrue();
         }
     }
