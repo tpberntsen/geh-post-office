@@ -16,8 +16,7 @@ using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
-using Microsoft.Azure.ServiceBus;
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.Inbound.Functions
@@ -27,22 +26,21 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
         private const string FunctionName = "AggregationsInbox";
 
         private readonly InputParser _inputParser;
-        private readonly IDocumentStore _documentStore;
+        private readonly IDocumentStore<Domain.Document> _documentStore;
 
         public AggregationsInbox(
             InputParser inputParser,
-            IDocumentStore documentStore)
+            IDocumentStore<Domain.Document> documentStore)
         {
             _inputParser = inputParser;
             _documentStore = documentStore;
         }
 
-        [FunctionName(FunctionName)]
         public async Task RunAsync(
             [ServiceBusTrigger(
                 "%INBOUND_QUEUE_AGGREGATIONS_TOPIC_NAME%",
                 "%INBOUND_QUEUE_AGGREGATIONS_SUBSCRIPTION_NAME%",
-                Connection = "INBOUND_QUEUE_CONNECTION_STRING")] Message message,
+                Connection = "INBOUND_QUEUE_CONNECTION_STRING")] byte[] message,
             ILogger logger)
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
@@ -53,7 +51,7 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
                 var topicName = Environment.GetEnvironmentVariable("INBOUND_QUEUE_AGGREGATIONS_TOPIC_NAME");
                 if (string.IsNullOrEmpty(topicName)) throw new InvalidOperationException("TopicName is null");
 
-                var document = await _inputParser.ParseAsync(message.Body).ConfigureAwait(false);
+                var document = await _inputParser.ParseAsync(message).ConfigureAwait(false);
                 await _documentStore.SaveDocumentAsync(document, topicName).ConfigureAwait(false);
 
                 logger.LogInformation("Got document: {document}", document);

@@ -13,29 +13,33 @@
 // limitations under the License.
 
 using System;
+using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.ServiceContracts
 {
     public static class GetContractsFunction
     {
-        [FunctionName("GetContracts")]
-        public static async Task<IActionResult> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "contracts")] HttpRequest request,
-            ExecutionContext context,
-            ILogger logger)
+        [Function("GetContracts")]
+        public static async Task<HttpResponseData> RunAsync(
+            [Microsoft.Azure.Functions.Worker.HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "contracts")] HttpRequestData request,
+            ExecutionContext executionContext,
+            FunctionContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
+            var logger = context.GetLogger(nameof(GetContractFunction));
             logger.LogInformation("GetContracts {request}", request);
 
-            var contracts = await ProtoContractServiceFactory.Create(context).GetAllAsync().ConfigureAwait(false);
-            return await Task.FromResult(new OkObjectResult(contracts)).ConfigureAwait(false);
+            var contracts = await ProtoContractServiceFactory.Create(executionContext).GetAllAsync().ConfigureAwait(false);
+
+            var response = request.CreateResponse(HttpStatusCode.OK);
+            await response.WriteStringAsync(contracts).ConfigureAwait(false);
+            return response;
         }
     }
 }

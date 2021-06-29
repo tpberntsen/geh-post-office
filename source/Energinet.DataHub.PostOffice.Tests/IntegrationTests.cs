@@ -18,13 +18,11 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Bogus;
 using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Tests.Tooling;
 using FluentAssertions;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace Energinet.DataHub.PostOffice.Tests
@@ -107,7 +105,7 @@ namespace Energinet.DataHub.PostOffice.Tests
 
         private static HttpClient CreateHttpClient()
         {
-            var httpClient = HttpClientFactory.Create();
+            var httpClient = new HttpClient();
             var endpointUrl = Environment.GetEnvironmentVariable("OUTBOUND_URL");
             httpClient.BaseAddress = new Uri(endpointUrl!);
             return httpClient;

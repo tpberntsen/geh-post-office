@@ -39,29 +39,29 @@ namespace Energinet.DataHub.PostOffice.Inbound.GreenEnergyHub
                 // Check if the type is a ruleset and add it
                 if (TryGetRuleSetDefinition(type, out var ruleSetServiceDescriptor))
                 {
-                    serviceCollection.Add(ruleSetServiceDescriptor);
+                    serviceCollection.Add(ruleSetServiceDescriptor!);
                 }
 
                 // Check if the type is a ruleset and configure the rule engine to support it
                 if (TryGetRuleEngineServiceDescriptor(type, out var ruleEngineServiceDescriptor))
                 {
-                    serviceCollection.Add(ruleEngineServiceDescriptor);
+                    serviceCollection.Add(ruleEngineServiceDescriptor!);
                 }
 
                 // Check if the type is a property rule and add it
                 if (TryGetPropertyRuleServiceDescriptor(type, out var propertyRuleServiceDescriptor))
                 {
-                    serviceCollection.Add(propertyRuleServiceDescriptor);
+                    serviceCollection.Add(propertyRuleServiceDescriptor!);
                 }
             }
 
             // Add our delegate as a singleton
-            serviceCollection.AddSingleton<ServiceProviderDelegate>(sp => sp.GetService);
+            serviceCollection.AddSingleton<ServiceProviderDelegate>(sp => sp.GetService!);
 
             return serviceCollection;
         }
 
-        private static bool TryGetRuleSetDefinition(Type type, out ServiceDescriptor? serviceDescriptor)
+        private static bool TryGetRuleSetDefinition(Type type, out ServiceDescriptor serviceDescriptor)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
             serviceDescriptor = GetServiceDescriptor(type, _ruleSetDefinitionType, CreateSingletonGeneric);
@@ -69,7 +69,7 @@ namespace Energinet.DataHub.PostOffice.Inbound.GreenEnergyHub
             return serviceDescriptor != null;
         }
 
-        private static bool TryGetPropertyRuleServiceDescriptor(Type type, out ServiceDescriptor? serviceDescriptor)
+        private static bool TryGetPropertyRuleServiceDescriptor(Type type, out ServiceDescriptor serviceDescriptor)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
 
@@ -78,7 +78,7 @@ namespace Energinet.DataHub.PostOffice.Inbound.GreenEnergyHub
             return serviceDescriptor != null;
         }
 
-        private static bool TryGetRuleEngineServiceDescriptor(Type type, out ServiceDescriptor? serviceDescriptor)
+        private static bool TryGetRuleEngineServiceDescriptor(Type type, out ServiceDescriptor serviceDescriptor)
         {
             static ServiceDescriptor Creator(Type baseType, Type messageType, Type implementationType) =>
                 ServiceDescriptor.Singleton(typeof(IRuleEngine<>).MakeGenericType(messageType), typeof(FluentHybridRuleEngine<>).MakeGenericType(messageType));
@@ -89,7 +89,7 @@ namespace Energinet.DataHub.PostOffice.Inbound.GreenEnergyHub
             return serviceDescriptor != null;
         }
 
-        private static ServiceDescriptor? GetServiceDescriptor(Type type, Type baseType, Func<Type, Type, Type, ServiceDescriptor> creator)
+        private static ServiceDescriptor GetServiceDescriptor(Type type, Type baseType, Func<Type, Type, Type, ServiceDescriptor> creator)
         {
             var baseTypeIsGenericType = type.BaseType?.IsGenericType ?? false;
             if (!baseTypeIsGenericType) return null;
