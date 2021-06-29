@@ -20,7 +20,7 @@ namespace Energinet.DataHub.PostOffice.Inbound.Parsing
 {
     public class DataAvailableMustHaveValidUuid : PropertyRule<string>
     {
-        protected override string Code => "Json Serializable Content";
+        protected override string Code => "Uuid must be valid";
 
         protected override string GetDefaultMessageTemplate()
         {
