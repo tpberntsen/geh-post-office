@@ -15,7 +15,7 @@
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.DataAvailable;
-using Energinet.DataHub.PostOffice.Application.DataAvailable.Parsing;
+using Energinet.DataHub.PostOffice.Application.Validation;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Inbound.GreenEnergyHub;
@@ -50,7 +50,7 @@ namespace Energinet.DataHub.PostOffice.Inbound
                     services.AddHttpClient();
 
                     // Add MediatR
-                    services.AddMediatR(typeof(DataAvailableCommand));
+                    services.AddMediatR(typeof(DataAvailableHandler));
                     services.AddScoped(typeof(IRequest<bool>), typeof(DataAvailableHandler));
                     services.AddScoped(typeof(IPipelineBehavior<,>), typeof(DataAvailablePipelineValidationBehavior<,>));
                     services.AddScoped<IValidator<DataAvailableCommand>, DataAvailableRuleSet>();
@@ -64,7 +64,7 @@ namespace Energinet.DataHub.PostOffice.Inbound
                     services.AddDatabaseCosmosConfig();
                     services.AddCosmosClientBuilder(useBulkExecution: false);
 
-                    services.DiscoverValidation(new[] { typeof(DocumentRules).Assembly, typeof(Application.DataAvailable.Parsing.DataAvailableRuleSet).Assembly });
+                    services.DiscoverValidation(new[] { typeof(DocumentRules).Assembly, typeof(DataAvailableRuleSet).Assembly });
                 })
                 .Build();
 

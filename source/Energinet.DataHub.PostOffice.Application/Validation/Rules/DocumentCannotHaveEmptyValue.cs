@@ -12,16 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using FluentValidation;
+using FluentValidation.Validators;
+using GreenEnergyHub.Messaging.Validation;
 
-namespace Energinet.DataHub.PostOffice.Application.DataAvailable.Parsing
+namespace Energinet.DataHub.PostOffice.Application.Validation.Rules
 {
-    public class DataAvailableRuleSet : AbstractValidator<DataAvailableCommand>
+    public class DocumentCannotHaveEmptyValue : PropertyRule<string>
     {
-        public DataAvailableRuleSet()
+        protected override string Code => "Empty value";
+
+        protected override string GetDefaultMessageTemplate()
         {
-            RuleFor(document => document.UUID).SetValidator(new DataAvailableMustHaveValidUuid());
-            RuleFor(document => document.Recipient).SetValidator(new DocumentCannotHaveEmptyValue());
+            return "'{PropertyName}' cannot be empty.";
+        }
+
+        protected override bool IsValid(string propertyValue, PropertyValidatorContext context)
+        {
+            return !string.IsNullOrWhiteSpace(propertyValue);
         }
     }
 }

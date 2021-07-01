@@ -17,7 +17,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Energinet.DataHub.PostOffice.Application.DataAvailable;
-using Energinet.DataHub.PostOffice.Application.DataAvailable.Parsing;
+using Energinet.DataHub.PostOffice.Application.Validation;
 using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
 using Energinet.DataHub.PostOffice.Tests.Tooling;

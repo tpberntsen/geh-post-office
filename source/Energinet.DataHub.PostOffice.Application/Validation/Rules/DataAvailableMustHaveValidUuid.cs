@@ -16,7 +16,7 @@ using System;
 using FluentValidation.Validators;
 using GreenEnergyHub.Messaging.Validation;
 
-namespace Energinet.DataHub.PostOffice.Application.DataAvailable.Parsing
+namespace Energinet.DataHub.PostOffice.Application.Validation.Rules
 {
     public class DataAvailableMustHaveValidUuid : PropertyRule<string>
     {
