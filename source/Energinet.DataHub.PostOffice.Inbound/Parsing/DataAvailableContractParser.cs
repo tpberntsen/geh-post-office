@@ -13,37 +13,29 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Application.DataAvailable;
 using GreenEnergyHub.Messaging;
 
 namespace Energinet.DataHub.PostOffice.Inbound.Parsing
 {
-    public class InputParserDataAvailable
+    public class DataAvailableContractParser
     {
-        private readonly IRuleEngine<Contracts.DataAvailable> _ruleEngine;
+        private readonly IMapper<Contracts.DataAvailable, DataAvailableCommand> _mapper;
 
-        public InputParserDataAvailable(IRuleEngine<Contracts.DataAvailable> ruleEngine)
+        public DataAvailableContractParser(IMapper<Contracts.DataAvailable, DataAvailableCommand> mapper)
         {
-            _ruleEngine = ruleEngine;
+            _mapper = mapper;
         }
 
-        public async Task<Contracts.DataAvailable> ParseAsync(byte[] bytes)
+        public DataAvailableCommand Parse(byte[] bytes)
         {
             if (bytes == null) throw new ArgumentNullException(nameof(bytes));
 
             var dataAvailableContract = Contracts.DataAvailable.Parser.ParseFrom(bytes);
             if (dataAvailableContract == null) throw new InvalidOperationException("Cannot parse bytes to document.");
 
-            var validationResult = await _ruleEngine.ValidateAsync(dataAvailableContract).ConfigureAwait(false);
-            if (!validationResult.Success)
-            {
-                throw new InvalidOperationException(
-                    $"Cannot validate document, because: {string.Join(", ", validationResult.Select(r => r.Message))}");
-            }
-
-            return dataAvailableContract;
+            return _mapper.Map(dataAvailableContract);
         }
     }
 }

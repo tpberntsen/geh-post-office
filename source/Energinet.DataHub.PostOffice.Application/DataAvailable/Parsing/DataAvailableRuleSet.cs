@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using GreenEnergyHub.Messaging.Validation;
+using FluentValidation;
 
-namespace Energinet.DataHub.PostOffice.Inbound.Parsing
+namespace Energinet.DataHub.PostOffice.Application.DataAvailable.Parsing
 {
-    public class DataAvailableRules : RuleCollection<Contracts.DataAvailable>
+    public class DataAvailableRuleSet : AbstractValidator<DataAvailableCommand>
     {
-        public DataAvailableRules()
+        public DataAvailableRuleSet()
         {
-            RuleFor(document => document.UUID).PropertyRule<DataAvailableMustHaveValidUuid>();
-            RuleFor(document => document.Recipient).PropertyRule<DocumentCannotHaveEmptyValue>();
+            RuleFor(document => document.UUID).SetValidator(new DataAvailableMustHaveValidUuid());
+            RuleFor(document => document.Recipient).SetValidator(new DocumentCannotHaveEmptyValue());
         }
     }
 }

@@ -13,13 +13,17 @@
 // limitations under the License.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
+using Energinet.DataHub.PostOffice.Application.DataAvailable;
+using Energinet.DataHub.PostOffice.Application.DataAvailable.Parsing;
 using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
 using Energinet.DataHub.PostOffice.Tests.Tooling;
 using FluentAssertions;
 using Google.Protobuf.WellKnownTypes;
+using GreenEnergyHub.Messaging.Validation;
 using Xunit;
 
 namespace Energinet.DataHub.PostOffice.Tests
@@ -71,19 +75,18 @@ namespace Energinet.DataHub.PostOffice.Tests
         public async Task DataAvailable_request_should_be_valid()
         {
             // Arrange
-            var dataAvailable = new DataAvailable
-            {
-                UUID = Guid.NewGuid().ToString(),
-                Recipient = Guid.NewGuid().ToString(),
-            };
+            var dataAvailable = new DataAvailableCommand(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), "1", "1", false, 1);
 
             // Act
-            var ruleCollectionTester = RuleCollectionTester.Create<DataAvailableRules, DataAvailable>();
+            var ruleSet = new DataAvailableRuleSet();
+            var validationResult = await ruleSet.ValidateAsync(dataAvailable).ConfigureAwait(false);
 
-            var result = await ruleCollectionTester.InvokeAsync(dataAvailable).ConfigureAwait(false);
+            var result = validationResult.Errors
+                .Select(error => error.CustomState as PropertyRule)
+                .ToList();
 
             // Assert
-            result.Success.Should().BeTrue();
+            result.Should().BeEmpty();
         }
     }
 }

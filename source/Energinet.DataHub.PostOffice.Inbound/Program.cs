@@ -12,16 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Application.DataAvailable;
+using Energinet.DataHub.PostOffice.Application.DataAvailable.Parsing;
 using Energinet.DataHub.PostOffice.Common;
+using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Inbound.GreenEnergyHub;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
 using Energinet.DataHub.PostOffice.Infrastructure;
+using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
+using Energinet.DataHub.PostOffice.Infrastructure.Pipeline;
+using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -46,15 +49,22 @@ namespace Energinet.DataHub.PostOffice.Inbound
                     // Add HttpClient
                     services.AddHttpClient();
 
+                    // Add MediatR
+                    services.AddMediatR(typeof(DataAvailableCommand));
+                    services.AddScoped(typeof(IRequest<bool>), typeof(DataAvailableHandler));
+                    services.AddScoped(typeof(IPipelineBehavior<,>), typeof(DataAvailablePipelineValidationBehavior<,>));
+                    services.AddScoped<IValidator<DataAvailableCommand>, DataAvailableRuleSet>();
+
                     // Add Custom Services
+                    services.AddScoped<IMapper<DataAvailable, DataAvailableCommand>, DataAvailableMapper>();
                     services.AddScoped<IDocumentStore<Domain.Document>, CosmosDocumentStore>();
-                    services.AddScoped<IDocumentStore<Contracts.DataAvailable>, CosmosDataAvailableStore>();
+                    services.AddScoped<IDocumentStore<Domain.DataAvailable>, CosmosDataAvailableStore>();
                     services.AddScoped<InputParser>();
-                    services.AddScoped<InputParserDataAvailable>();
+                    services.AddScoped<DataAvailableContractParser>();
                     services.AddDatabaseCosmosConfig();
                     services.AddCosmosClientBuilder(useBulkExecution: false);
 
-                    services.DiscoverValidation(new[] { typeof(DocumentRules).Assembly });
+                    services.DiscoverValidation(new[] { typeof(DocumentRules).Assembly, typeof(Application.DataAvailable.Parsing.DataAvailableRuleSet).Assembly });
                 })
                 .Build();
 

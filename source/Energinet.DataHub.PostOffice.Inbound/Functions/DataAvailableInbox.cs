@@ -15,7 +15,9 @@
 using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Application.DataAvailable;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
+using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
@@ -26,15 +28,15 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
     {
         private const string FunctionName = "DataAvailableInbox";
 
-        private readonly InputParserDataAvailable _inputParser;
-        private readonly IDocumentStore<Contracts.DataAvailable> _documentStore;
+        private readonly IMediator _mediator;
+        private readonly DataAvailableContractParser _dataAvailableContractParser;
 
         public DataAvailableInbox(
-            InputParserDataAvailable inputParser,
-            IDocumentStore<Contracts.DataAvailable> documentStore)
+            IMediator mediator,
+            DataAvailableContractParser dataAvailableContractParser)
         {
-            _inputParser = inputParser;
-            _documentStore = documentStore;
+            _mediator = mediator;
+            _dataAvailableContractParser = dataAvailableContractParser;
         }
 
         [Function(FunctionName)]
@@ -48,17 +50,16 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
 
+            var topicName = Environment.GetEnvironmentVariable("INBOUND_QUEUE_DATAAVAILABLE_TOPIC_NAME");
+            if (string.IsNullOrEmpty(topicName)) throw new InvalidOperationException("TopicName is null");
+
             var logger = context.GetLogger(nameof(DataAvailableInbox));
             logger.LogInformation($"C# ServiceBus topic trigger function processed message in {FunctionName}");
 
             try
             {
-                var topicName = Environment.GetEnvironmentVariable("INBOUND_QUEUE_DATAAVAILABLE_TOPIC_NAME");
-                if (string.IsNullOrEmpty(topicName)) throw new InvalidOperationException("TopicName is null");
-
-                var document = await _inputParser.ParseAsync(message).ConfigureAwait(false);
-                await _documentStore.SaveDocumentAsync(document).ConfigureAwait(false);
-                logger.LogInformation("Document saved to cosmos: {document}", document);
+                var dataAvailableCommand = _dataAvailableContractParser.Parse(message);
+                await _mediator.Send(dataAvailableCommand).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
