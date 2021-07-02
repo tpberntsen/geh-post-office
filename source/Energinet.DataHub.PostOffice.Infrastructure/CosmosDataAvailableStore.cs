@@ -57,7 +57,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             throw new NotImplementedException();
         }
 
-        public async Task SaveDocumentAsync(DataAvailable document)
+        public async Task<bool> SaveDocumentAsync(DataAvailable document)
         {
             if (document == null) throw new ArgumentNullException(nameof(document));
 
@@ -78,6 +78,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             {
                 throw new InvalidOperationException("Could not create document in cosmos");
             }
+
+            return true;
         }
 
         private Container GetContainer(string containerName)

@@ -82,7 +82,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             return false; // We didn't find anything to delete
         }
 
-        public Task SaveDocumentAsync(Document document)
+        public Task<bool> SaveDocumentAsync(Document document)
         {
             throw new NotImplementedException();
         }

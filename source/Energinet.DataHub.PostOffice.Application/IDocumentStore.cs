@@ -14,7 +14,6 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Domain;
 
 namespace Energinet.DataHub.PostOffice.Application
 {
@@ -54,6 +53,6 @@ namespace Energinet.DataHub.PostOffice.Application
         /// Save a document.
         /// </summary>
         /// <param name="document">The document to save.</param>
-        Task SaveDocumentAsync(T document);
+        Task<bool> SaveDocumentAsync(T document);
     }
 }
