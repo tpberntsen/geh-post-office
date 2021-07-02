@@ -54,7 +54,7 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
             if (string.IsNullOrEmpty(topicName)) throw new InvalidOperationException("TopicName is null");
 
             var logger = context.GetLogger(nameof(DataAvailableInbox));
-            logger.LogInformation("C# ServiceBus topic trigger function processed message in {FunctionName}", FunctionName);
+            logger.LogInformation(message: "C# ServiceBus topic trigger function processed message in {FunctionName}", FunctionName);
 
             try
             {
