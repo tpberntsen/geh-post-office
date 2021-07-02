@@ -23,7 +23,7 @@ using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure
 {
-    public class CosmosDataAvailableStore : IDocumentStore<Contracts.DataAvailable>
+    public class CosmosDataAvailableStore : IDocumentStore<DataAvailable>
     {
         private const string ContainerName = "dataavailable";
 
@@ -38,7 +38,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             _cosmosConfig = cosmosConfig;
         }
 
-        public async Task<IList<Contracts.DataAvailable>> GetDocumentsAsync(DocumentQuery documentQuery)
+        public async Task<IList<DataAvailable>> GetDocumentsAsync(DocumentQuery documentQuery)
         {
             if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
 
@@ -65,12 +65,12 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             return documents;
         }
 
-        public Task<IList<Contracts.DataAvailable>> GetDocumentBundleAsync(DocumentQuery documentQuery)
+        public Task<IList<DataAvailable>> GetDocumentBundleAsync(DocumentQuery documentQuery)
         {
             throw new NotImplementedException();
         }
 
-        public Task SaveDocumentAsync(Contracts.DataAvailable document, string containerName)
+        public Task SaveDocumentAsync(DataAvailable document, string containerName)
         {
             throw new NotImplementedException();
         }
@@ -80,7 +80,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             throw new NotImplementedException();
         }
 
-        public async Task SaveDocumentAsync(Contracts.DataAvailable document)
+        public async Task SaveDocumentAsync(DataAvailable document)
         {
             if (document == null) throw new ArgumentNullException(nameof(document));
 
@@ -88,12 +88,12 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
             var cosmosDocument = new CosmosDataAvailable
             {
-                uuid = document.UUID,
-                recipient = document.Recipient,
-                messageType = document.MessageType,
-                origin = document.Origin,
-                supportsBundling = document.SupportsBundling,
-                relativeWeight = document.RelativeWeight,
+                uuid = document.uuid,
+                recipient = document.recipient,
+                messageType = document.messageType,
+                origin = document.origin,
+                supportsBundling = document.supportsBundling,
+                relativeWeight = document.relativeWeight,
             };
 
             var response = await container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
