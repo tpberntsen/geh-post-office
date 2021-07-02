@@ -16,8 +16,11 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Application.GetMessage;
 using Energinet.DataHub.PostOffice.Common;
+using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Infrastructure;
+using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using Energinet.DataHub.PostOffice.Outbound;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -43,6 +46,11 @@ namespace Energinet.DataHub.PostOffice.Outbound
 
                     // Add Custom Services
                     services.AddScoped<IDocumentStore<Domain.Document>, CosmosDocumentStore>();
+                    services.AddScoped<IDocumentStore<DataAvailable>, CosmosDataAvailableStore>();
+                    services.AddScoped<ICosmosService, CosmosService>();
+                    services.AddScoped<ISendMessageToServiceBus, SendMessageToServiceBus>();
+                    services.AddScoped<IGetPathToDataFromServiceBus, GetPathToDataFromServiceBus>();
+                    services.AddScoped<IBlobStorageService, BlobStorageService>();
                     services.AddDatabaseCosmosConfig();
                     services.AddCosmosContainerConfig();
                     services.AddCosmosClientBuilder(useBulkExecution: true);

@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Domain;
 using Microsoft.Azure.Cosmos;
 
@@ -37,9 +38,31 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             _cosmosConfig = cosmosConfig;
         }
 
-        public Task<IList<Contracts.DataAvailable>> GetDocumentsAsync(DocumentQuery documentQuery)
+        public async Task<IList<Contracts.DataAvailable>> GetDocumentsAsync(DocumentQuery documentQuery)
         {
-            throw new NotImplementedException();
+            if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
+
+            const string QueryString = @"
+                SELECT *
+                FROM Documents d
+                WHERE d.recipient = @recipient";
+
+            var container = GetContainer(documentQuery.ContainerName);
+
+            // Querying with an equality filter on the partition key will create a partitioned documentQuery, per:
+            // https://docs.microsoft.com/en-us/azure/cosmos-db/how-to-documentQuery-container#in-partition-documentQuery
+            // TODO: Change when actual names are available, ie. recipient_MriD?
+            var queryDefinition = new QueryDefinition(QueryString)
+                .WithParameter("@recipient", documentQuery.Recipient);
+
+            var documents = new List<Contracts.DataAvailable>();
+            var query = container.GetItemQueryIterator<CosmosDataAvailable>(queryDefinition);
+            foreach (var document in await query.ReadNextAsync().ConfigureAwait(false))
+            {
+                documents.Add(new DataAvailable() { UUID = document.uuid });
+            }
+
+            return documents;
         }
 
         public Task<IList<Contracts.DataAvailable>> GetDocumentBundleAsync(DocumentQuery documentQuery)
