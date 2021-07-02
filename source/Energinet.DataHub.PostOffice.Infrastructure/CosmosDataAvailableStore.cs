@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Domain;
 using Microsoft.Azure.Cosmos;
 
@@ -55,11 +54,17 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             var queryDefinition = new QueryDefinition(QueryString)
                 .WithParameter("@recipient", documentQuery.Recipient);
 
-            var documents = new List<Contracts.DataAvailable>();
+            var documents = new List<DataAvailable>();
             var query = container.GetItemQueryIterator<CosmosDataAvailable>(queryDefinition);
             foreach (var document in await query.ReadNextAsync().ConfigureAwait(false))
             {
-                documents.Add(new DataAvailable() { UUID = document.uuid });
+                documents.Add(new DataAvailable(
+                    document.uuid,
+                    document.recipient,
+                    document.messageType,
+                    document.origin,
+                    document.supportsBundling,
+                    document.relativeWeight));
             }
 
             return documents;

@@ -46,7 +46,7 @@ namespace Energinet.DataHub.PostOffice.Outbound
 
                     // Add Custom Services
                     services.AddScoped<IDocumentStore<Domain.Document>, CosmosDocumentStore>();
-                    services.AddScoped<IDocumentStore<DataAvailable>, CosmosDataAvailableStore>();
+                    services.AddScoped<IDocumentStore<Domain.DataAvailable>, CosmosDataAvailableStore>();
                     services.AddScoped<ICosmosService, CosmosService>();
                     services.AddScoped<ISendMessageToServiceBus, SendMessageToServiceBus>();
                     services.AddScoped<IGetPathToDataFromServiceBus, GetPathToDataFromServiceBus>();
