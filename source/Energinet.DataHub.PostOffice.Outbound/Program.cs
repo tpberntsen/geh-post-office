@@ -12,17 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.GetMessage;
 using Energinet.DataHub.PostOffice.Common;
-using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
-using Energinet.DataHub.PostOffice.Outbound;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
