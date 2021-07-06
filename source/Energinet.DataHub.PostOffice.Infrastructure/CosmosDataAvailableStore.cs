@@ -57,6 +57,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                 .WithParameter("@recipient", documentQuery.Recipient);
 
             var documents = new List<DataAvailable>();
+            // TODO add using
             var query = container.GetItemQueryIterator<CosmosDataAvailable>(queryDefinition);
             var documentsFromCosmos = await query.ReadNextAsync().ConfigureAwait(false);
             foreach (var document in documentsFromCosmos)
