@@ -30,9 +30,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             _serviceBusClient = serviceBusClient;
         }
 
-        public async Task<string> GetPathAsync(string containerName, string sessionId)
+        public async Task<string> GetPathAsync(string queueName, string sessionId)
         {
-            var receiver = await _serviceBusClient.AcceptSessionAsync(containerName, sessionId).ConfigureAwait(false);
+            var receiver = await _serviceBusClient.AcceptSessionAsync(queueName, sessionId).ConfigureAwait(false);
 
             var received = await receiver.ReceiveMessageAsync(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
 

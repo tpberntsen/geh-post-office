@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Application.GetMessage;
 using Energinet.DataHub.PostOffice.Domain;
 using Microsoft.Azure.Cosmos;
 
@@ -37,7 +38,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             _cosmosConfig = cosmosConfig;
         }
 
-        public async Task<IList<DataAvailable>> GetDocumentsAsync(DocumentQuery documentQuery)
+        public async Task<IList<DataAvailable>> GetDocumentsAsync(GetMessageQuery documentQuery)
         {
             if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
 
@@ -46,7 +47,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                 FROM Documents d
                 WHERE d.recipient = @recipient";
 
-            var container = GetContainer(documentQuery.ContainerName);
+            // How do we know which container to send requests to? "messages" is a container created locally.
+            var container = GetContainer(ContainerName);
 
             // Querying with an equality filter on the partition key will create a partitioned documentQuery, per:
             // https://docs.microsoft.com/en-us/azure/cosmos-db/how-to-documentQuery-container#in-partition-documentQuery
@@ -56,7 +58,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
             var documents = new List<DataAvailable>();
             var query = container.GetItemQueryIterator<CosmosDataAvailable>(queryDefinition);
-            foreach (var document in await query.ReadNextAsync().ConfigureAwait(false))
+            var documentsFromCosmos = await query.ReadNextAsync().ConfigureAwait(false);
+            foreach (var document in documentsFromCosmos)
             {
                 documents.Add(new DataAvailable(
                     document.uuid,
@@ -70,7 +73,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             return documents;
         }
 
-        public Task<IList<DataAvailable>> GetDocumentBundleAsync(DocumentQuery documentQuery)
+        public Task<IList<DataAvailable>> GetDocumentBundleAsync(GetMessageQuery documentQuery)
         {
             throw new NotImplementedException();
         }

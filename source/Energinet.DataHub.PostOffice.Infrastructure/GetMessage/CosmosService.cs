@@ -16,7 +16,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.GetMessage;
-using Energinet.DataHub.PostOffice.Contracts;
+using Energinet.DataHub.PostOffice.Domain;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 {
@@ -31,16 +31,16 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             _collection = new List<string>();
         }
 
-        public async Task<IList<string>> GetUuidsFromCosmosDatabaseAsync(string recipient, string containerName)
+        public async Task<IList<string>> GetUuidsFromCosmosDatabaseAsync(string recipient)
         {
-            var documents = await _cosmosDocumentStore.GetDocumentsAsync(new DocumentQuery(recipient, containerName))
+            var documents = await _cosmosDocumentStore.GetDocumentsAsync(new GetMessageQuery(recipient))
                 .ConfigureAwait(false);
 
             foreach (var document in documents)
             {
-                if (document.UUID != null)
+                if (document.uuid != null)
                 {
-                    _collection.Add(document.UUID);
+                    _collection.Add(document.uuid);
                 }
             }
 

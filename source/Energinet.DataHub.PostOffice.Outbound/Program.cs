@@ -13,11 +13,13 @@
 // limitations under the License.
 
 using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.GetMessage;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -39,13 +41,17 @@ namespace Energinet.DataHub.PostOffice.Outbound
                     // Add Logging
                     services.AddLogging();
 
+                    // Add MediatR
+                    services.AddMediatR(typeof(GetMessageHandler).Assembly);
+                    services.AddScoped(typeof(IRequest<string>), typeof(GetMessageHandler));
+
                     // Add Custom Services
-                    services.AddScoped<IDocumentStore<Domain.Document>, CosmosDocumentStore>();
                     services.AddScoped<IDocumentStore<Domain.DataAvailable>, CosmosDataAvailableStore>();
                     services.AddScoped<ICosmosService, CosmosService>();
                     services.AddScoped<ISendMessageToServiceBus, SendMessageToServiceBus>();
                     services.AddScoped<IGetPathToDataFromServiceBus, GetPathToDataFromServiceBus>();
                     services.AddScoped<IBlobStorageService, BlobStorageService>();
+                    services.AddScoped<ServiceBusClient>(t => new ServiceBusClient("Endpoint=sb://sbn-inbound-postoffice-endk-u.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=YMwhKlYdf2hXZ+ufhk/EZ42kYh6RyJzeHxTPt+Stwc0="));
                     services.AddDatabaseCosmosConfig();
                     services.AddCosmosContainerConfig();
                     services.AddCosmosClientBuilder(useBulkExecution: true);

@@ -15,8 +15,8 @@
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Application.GetMessage;
 using Energinet.DataHub.PostOffice.Outbound.Extensions;
+using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -25,23 +25,11 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
 {
     public class GetMessage
     {
-        private readonly ICosmosService _cosmosService;
-        private readonly ISendMessageToServiceBus _sendMessageToServiceBus;
-        private readonly IGetPathToDataFromServiceBus _getPathToDataFromServiceBus;
-        private readonly IBlobStorageService _blobStorageService;
-        private Guid _sessionId;
+        private readonly IMediator _mediator;
 
-        public GetMessage(
-            ICosmosService cosmosService,
-            ISendMessageToServiceBus sendMessageToServiceBus,
-            IGetPathToDataFromServiceBus getPathToDataFromServiceBus,
-            IBlobStorageService blobStorageService)
+        public GetMessage(IMediator mediator)
         {
-            _cosmosService = cosmosService;
-            _sendMessageToServiceBus = sendMessageToServiceBus;
-            _getPathToDataFromServiceBus = getPathToDataFromServiceBus;
-            _blobStorageService = blobStorageService;
-            _sessionId = Guid.NewGuid();
+            _mediator = mediator;
         }
 
         [Function("GetMessage")]
@@ -51,37 +39,17 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
         {
             try
             {
-                var documentQuery = request.GetDocumentQuery();
+                var getMessageQuery = request.GetDocumentQuery();
 
-                if (string.IsNullOrEmpty(documentQuery.Recipient))
+                if (string.IsNullOrEmpty(getMessageQuery.Recipient))
                 {
                     return GetHttpResponse(request, HttpStatusCode.BadRequest, "Query parameter is missing 'recipient'");
                 }
 
-                if (string.IsNullOrEmpty(documentQuery.ContainerName))
-                {
-                    return GetHttpResponse(request, HttpStatusCode.BadRequest, "Query parameter is missing 'group'");
-                }
-
                 var logger = context.GetLogger(nameof(GetMessage));
-                logger.LogInformation($"Processing document query: {documentQuery}.");
+                logger.LogInformation($"Processing document query: {getMessageQuery}.");
 
-                var uuids = _cosmosService.GetUuidsFromCosmosDatabaseAsync(documentQuery.Recipient, documentQuery.ContainerName);
-
-                await _sendMessageToServiceBus.SendMessageAsync(
-                    await uuids.ConfigureAwait(false),
-                    documentQuery.ContainerName,
-                    _sessionId.ToString()).ConfigureAwait(false);
-
-                var path = _getPathToDataFromServiceBus.GetPathAsync(
-                    documentQuery.ContainerName,
-                    _sessionId.ToString());
-
-                var data =
-                    await _blobStorageService.GetBlobAsync(
-                        "test-blobstorage",
-                        await path.ConfigureAwait(false)).ConfigureAwait(false);
-
+                var data = await _mediator.Send(getMessageQuery).ConfigureAwait(false);
                 var response = request.CreateResponse(HttpStatusCode.OK);
 
                 await response.WriteAsJsonAsync(data).ConfigureAwait(false);
