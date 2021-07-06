@@ -40,7 +40,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
         public async Task<IList<DataAvailable>> GetDocumentsAsync(GetMessageQuery documentQuery)
         {
-            if (documentQuery is null) throw new ArgumentNullException(nameof(documentQuery));
+            if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
 
             const string QueryString = @"
                 SELECT *
@@ -92,7 +92,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
         public async Task SaveDocumentAsync(DataAvailable document)
         {
-            if (document is null) throw new ArgumentNullException(nameof(document));
+            if (document == null) throw new ArgumentNullException(nameof(document));
 
             var container = GetContainer(ContainerName);
 
