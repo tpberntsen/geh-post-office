@@ -1,0 +1,7 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "MESSAGES_DB_CONNECTION_STRING":"",
+    "MESSAGES_DB_NAME":""
+  }
+}
