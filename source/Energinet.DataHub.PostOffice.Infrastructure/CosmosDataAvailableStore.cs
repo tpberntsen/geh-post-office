@@ -71,6 +71,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                 origin = document.origin,
                 supportsBundling = document.supportsBundling,
                 relativeWeight = document.relativeWeight,
+                priority = document.priority,
             };
 
             var response = await container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
