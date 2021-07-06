@@ -22,8 +22,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 {
     public class SendMessageToServiceBus : ISendMessageToServiceBus
     {
-        // private readonly string _serviceBusConnectionString = "Endpoint=sb://sbn-inbound-postoffice-endk-u.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=YMwhKlYdf2hXZ+ufhk/EZ42kYh6RyJzeHxTPt+Stwc0=";
-        private ServiceBusClient? _serviceBusClient;
+        private readonly ServiceBusClient? _serviceBusClient;
         private ServiceBusSender? _sender;
 
         public SendMessageToServiceBus(ServiceBusClient serviceBusClient)
@@ -31,17 +30,20 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             _serviceBusClient = serviceBusClient;
         }
 
-        public async Task SendMessageAsync(IList<string> collection, string containerName, string sessionId)
+        public async Task SendMessageAsync(IList<string> collection, string queueName, string sessionId)
         {
-            if (collection == null) throw new ArgumentNullException(nameof(collection));
-            if (_serviceBusClient != null) _sender = _serviceBusClient.CreateSender(containerName);
+            if (collection is null) throw new ArgumentNullException(nameof(collection));
+
+            // What if _serviceBusClient is null?
+            if (_serviceBusClient is not null) _sender = _serviceBusClient.CreateSender(queueName);
 
             var message = new ServiceBusMessage(collection.ToString()) { SessionId = sessionId };
 
             message.ReplyToSessionId = message.SessionId;
-            message.ReplyTo = containerName;
+            message.ReplyTo = queueName;
 
-            if (_sender != null) await _sender.SendMessageAsync(message).ConfigureAwait(false);
+            // What if _sender is null?
+            if (_sender is not null) await _sender.SendMessageAsync(message).ConfigureAwait(false);
         }
     }
 }

@@ -27,6 +27,6 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage
         /// <param name="containerName"></param>
         /// <param name="fileName"></param>
         /// <returns>A string expressing data interesting to external actor</returns>
-        public Task<string> GetBlobAsync(string containerName, string fileName);
+        public Task<string> GetBlobAsync(string? containerName, string fileName);
     }
 }

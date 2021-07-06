@@ -47,11 +47,11 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
                 }
 
                 var logger = context.GetLogger(nameof(GetMessage));
-                logger.LogInformation($"Processing document query: {getMessageQuery}.");
+                logger.LogInformation($"Processing GetMessage query: {getMessageQuery}.");
 
                 var data = await _mediator.Send(getMessageQuery).ConfigureAwait(false);
-                var response = request.CreateResponse(HttpStatusCode.OK);
 
+                var response = request.CreateResponse(HttpStatusCode.OK);
                 await response.WriteAsJsonAsync(data).ConfigureAwait(false);
 
                 return response;

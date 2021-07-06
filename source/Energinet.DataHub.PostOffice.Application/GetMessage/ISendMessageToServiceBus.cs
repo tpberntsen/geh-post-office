@@ -26,8 +26,8 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage
         /// Send message to service bus container
         /// </summary>
         /// <param name="uuids"></param>
-        /// <param name="containerName"></param>
+        /// <param name="queueName"></param>
         /// <param name="sessionId"></param>
-        public Task SendMessageAsync(IList<string> uuids, string containerName, string sessionId);
+        public Task SendMessageAsync(IList<string> uuids, string queueName, string sessionId);
     }
 }

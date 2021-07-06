@@ -31,14 +31,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             _collection = new List<string>();
         }
 
-        public async Task<IList<string>> GetUuidsFromCosmosDatabaseAsync(string recipient)
+        public async Task<IList<string>> GetDataAvailableUuidsAsync(string recipient)
         {
             var documents = await _cosmosDocumentStore.GetDocumentsAsync(new GetMessageQuery(recipient))
                 .ConfigureAwait(false);
 
             foreach (var document in documents)
             {
-                if (document.uuid != null)
+                if (document.uuid is not null)
                 {
                     _collection.Add(document.uuid);
                 }

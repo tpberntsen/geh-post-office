@@ -27,6 +27,6 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage
         /// </summary>
         /// <param name="recipient"></param>
         /// <returns>A collection with all UUIDs for the specified recipient</returns>
-        public Task<IList<string>> GetUuidsFromCosmosDatabaseAsync(string recipient);
+        public Task<IList<string>> GetDataAvailableUuidsAsync(string recipient);
     }
 }

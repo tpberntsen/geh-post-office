@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -21,6 +22,9 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage
 {
     public class GetMessageHandler : IRequestHandler<GetMessageQuery, string>
     {
+        private readonly string _queueName = "charges";
+        private readonly string _blobStorageFileName = "Test.txt";
+        private readonly string? _blobStorageContainerName = Environment.GetEnvironmentVariable("BlobStorageContainerName");
         private readonly ICosmosService _cosmosService;
         private readonly ISendMessageToServiceBus _sendMessageToServiceBus;
         private readonly IGetPathToDataFromServiceBus _getPathToDataFromServiceBus;
@@ -47,25 +51,42 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage
                 throw new ArgumentNullException(nameof(request));
             }
 
-            var uuids = await _cosmosService.GetUuidsFromCosmosDatabaseAsync(request.Recipient).ConfigureAwait(false);
+            var uuids = await _cosmosService.GetDataAvailableUuidsAsync(request.Recipient).ConfigureAwait(false);
 
-            var queueName = "charges";
+            await RequestForPathToMarketOperatorDataAsync(uuids).ConfigureAwait(false);
+
+            var path = await ReadPathToMarketOperatorDataAsync().ConfigureAwait(false);
+
+            var data = await GetMarketOperatorDataAsync(path).ConfigureAwait(false);
+
+            return data;
+        }
+
+        private async Task RequestForPathToMarketOperatorDataAsync(IList<string>? uuids)
+        {
+            if (uuids is null) throw new ArgumentNullException(nameof(uuids));
 
             await _sendMessageToServiceBus.SendMessageAsync(
                 uuids,
-                queueName,
+                _queueName,
                 _sessionId.ToString()).ConfigureAwait(false);
+        }
 
-            var path = await _getPathToDataFromServiceBus.GetPathAsync(
-                queueName,
+        private async Task<string> ReadPathToMarketOperatorDataAsync()
+        {
+            return await _getPathToDataFromServiceBus.GetPathAsync(
+                _queueName,
                 _sessionId.ToString()).ConfigureAwait(false);
+        }
 
-            var data =
-                await _blobStorageService.GetBlobAsync(
-                    "test-blobstorage",
-                    "Test.txt").ConfigureAwait(false);
+        private async Task<string> GetMarketOperatorDataAsync(string? path)
+        {
+            if (path is null) throw new ArgumentNullException(nameof(path));
 
-            return data;
+            // Todo: change '_blobStorageFileName' to 'path' when 'ReadPathToMarketOperatorDataAsync()' actually returns a path.
+            return await _blobStorageService.GetBlobAsync(
+                _blobStorageContainerName,
+                _blobStorageFileName).ConfigureAwait(false);
         }
     }
 }

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Application;
@@ -51,7 +52,7 @@ namespace Energinet.DataHub.PostOffice.Outbound
                     services.AddScoped<ISendMessageToServiceBus, SendMessageToServiceBus>();
                     services.AddScoped<IGetPathToDataFromServiceBus, GetPathToDataFromServiceBus>();
                     services.AddScoped<IBlobStorageService, BlobStorageService>();
-                    services.AddScoped<ServiceBusClient>(t => new ServiceBusClient("Endpoint=sb://sbn-inbound-postoffice-endk-u.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=YMwhKlYdf2hXZ+ufhk/EZ42kYh6RyJzeHxTPt+Stwc0="));
+                    services.AddSingleton<ServiceBusClient>(t => new ServiceBusClient(Environment.GetEnvironmentVariable("ServiceBusConnectionString")));
                     services.AddDatabaseCosmosConfig();
                     services.AddCosmosContainerConfig();
                     services.AddCosmosClientBuilder(useBulkExecution: true);

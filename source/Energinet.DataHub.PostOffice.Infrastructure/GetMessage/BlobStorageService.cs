@@ -21,7 +21,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 {
     public class BlobStorageService : IBlobStorageService
     {
-        public async Task<string> GetBlobAsync(string containerName, string fileName)
+        public async Task<string> GetBlobAsync(string? containerName, string fileName)
         {
             var connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
 

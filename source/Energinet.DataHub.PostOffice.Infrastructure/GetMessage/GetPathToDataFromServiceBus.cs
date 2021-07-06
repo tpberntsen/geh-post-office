@@ -13,17 +13,15 @@
 // limitations under the License.
 
 using System;
-using System.Net;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Application.GetMessage;
-using Microsoft.Azure.Functions.Worker.Http;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 {
     public class GetPathToDataFromServiceBus : IGetPathToDataFromServiceBus
     {
-        private ServiceBusClient _serviceBusClient;
+        private readonly ServiceBusClient _serviceBusClient;
 
         public GetPathToDataFromServiceBus(ServiceBusClient serviceBusClient)
         {

@@ -40,14 +40,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
         public async Task<IList<DataAvailable>> GetDocumentsAsync(GetMessageQuery documentQuery)
         {
-            if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
+            if (documentQuery is null) throw new ArgumentNullException(nameof(documentQuery));
 
             const string QueryString = @"
                 SELECT *
                 FROM Documents d
                 WHERE d.recipient = @recipient";
 
-            // How do we know which container to send requests to? "messages" is a container created locally.
             var container = GetContainer(ContainerName);
 
             // Querying with an equality filter on the partition key will create a partitioned documentQuery, per:
@@ -56,21 +55,24 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             var queryDefinition = new QueryDefinition(QueryString)
                 .WithParameter("@recipient", documentQuery.Recipient);
 
-            var documents = new List<DataAvailable>();
-            var query = container.GetItemQueryIterator<CosmosDataAvailable>(queryDefinition);
-            var documentsFromCosmos = await query.ReadNextAsync().ConfigureAwait(false);
-            foreach (var document in documentsFromCosmos)
+            using (FeedIterator<CosmosDataAvailable> feedIterator =
+                container.GetItemQueryIterator<CosmosDataAvailable>(queryDefinition))
             {
-                documents.Add(new DataAvailable(
-                    document.uuid,
-                    document.recipient,
-                    document.messageType,
-                    document.origin,
-                    document.supportsBundling,
-                    document.relativeWeight));
-            }
+                var documents = new List<DataAvailable>();
+                var documentsFromCosmos = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+                foreach (var document in documentsFromCosmos)
+                {
+                    documents.Add(new DataAvailable(
+                        document.uuid,
+                        document.recipient,
+                        document.messageType,
+                        document.origin,
+                        document.supportsBundling,
+                        document.relativeWeight));
+                }
 
-            return documents;
+                return documents;
+            }
         }
 
         public Task<IList<DataAvailable>> GetDocumentBundleAsync(GetMessageQuery documentQuery)
@@ -90,7 +92,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
         public async Task SaveDocumentAsync(DataAvailable document)
         {
-            if (document == null) throw new ArgumentNullException(nameof(document));
+            if (document is null) throw new ArgumentNullException(nameof(document));
 
             var container = GetContainer(ContainerName);
 
