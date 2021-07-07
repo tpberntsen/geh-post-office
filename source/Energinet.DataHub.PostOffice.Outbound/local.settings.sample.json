@@ -3,9 +3,12 @@
   "Values": {
     "MESSAGES_DB_CONNECTION_STRING":"",
     "MESSAGES_DB_NAME":"",
-    "MESSAGE_DB_CONTAINERS": "marketdata,timeseries,aggregations",
+    "MESSAGE_DB_CONTAINERS": "",
+    "BlobStorageConnectionString": "",
+    "BlobStorageContainerName": "",
+    "ServiceBusConnectionString": "",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "APPINSIGHTS_INSTRUMENTATIONKEY": ""
   }
 }
