@@ -68,7 +68,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                         document.messageType,
                         document.origin,
                         document.supportsBundling,
-                        document.relativeWeight));
+                        document.relativeWeight,
+                        document.priority));
                 }
 
                 return documents;
