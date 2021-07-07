@@ -68,7 +68,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                         document.messageType,
                         document.origin,
                         document.supportsBundling,
-                        document.relativeWeight));
+                        document.relativeWeight,
+                        document.priority));
                 }
 
                 return documents;
@@ -104,6 +105,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                 origin = document.origin,
                 supportsBundling = document.supportsBundling,
                 relativeWeight = document.relativeWeight,
+                priority = document.priority,
             };
 
             var response = await container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);

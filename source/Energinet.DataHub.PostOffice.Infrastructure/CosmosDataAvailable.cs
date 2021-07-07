@@ -46,6 +46,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
         [JsonPropertyName("relativeWeight")]
         public int relativeWeight { get; set; }
+
+        [JsonPropertyName("priority")]
+        public decimal priority { get; set; }
     }
 #nullable restore
 }
