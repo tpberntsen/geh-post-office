@@ -13,13 +13,15 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Handlers;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Infrastructure;
-using Energinet.DataHub.PostOffice.Outbound;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -41,8 +43,17 @@ namespace Energinet.DataHub.PostOffice.Outbound
                     // Add Logging
                     services.AddLogging();
 
+                    // Add MediatR
+                    services.AddMediatR(typeof(GetMessageHandler).Assembly);
+                    services.AddScoped(typeof(IRequest<string>), typeof(GetMessageHandler));
+
                     // Add Custom Services
-                    services.AddScoped<IDocumentStore<Domain.Document>, CosmosDocumentStore>();
+                    services.AddScoped<IDocumentStore<Domain.DataAvailable>, CosmosDataAvailableStore>();
+                    services.AddScoped<IDataAvailableStorageService, DataAvailableStorageService>();
+                    services.AddScoped<ISendMessageToServiceBus, SendMessageToServiceBus>();
+                    services.AddScoped<IGetPathToDataFromServiceBus, GetPathToDataFromServiceBus>();
+                    services.AddScoped<IStorageService, StorageService>();
+                    services.AddSingleton<ServiceBusClient>(t => new ServiceBusClient(Environment.GetEnvironmentVariable("ServiceBusConnectionString")));
                     services.AddDatabaseCosmosConfig();
                     services.AddCosmosContainerConfig();
                     services.AddCosmosClientBuilder(useBulkExecution: true);

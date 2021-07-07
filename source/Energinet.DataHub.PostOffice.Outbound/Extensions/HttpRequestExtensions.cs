@@ -14,30 +14,25 @@
 
 using System;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Microsoft.Azure.Functions.Worker.Http;
 
 namespace Energinet.DataHub.PostOffice.Outbound.Extensions
 {
     public static class HttpRequestExtensions
     {
-        public static DocumentQuery GetDocumentQuery(this HttpRequestData request)
+        public static GetMessageQuery GetDocumentQuery(this HttpRequestData request)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
 
             var queryDictionary = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(request.Url.Query);
-            var group = queryDictionary.ContainsKey("group") ? queryDictionary["group"].ToString() : null;
             var recipient = queryDictionary.ContainsKey("recipient") ? queryDictionary["recipient"].ToString() : null;
-            if (group == null || recipient == null)
+            if (recipient == null)
             {
-                throw new InvalidOperationException("Request must include group and recipient.");
+                throw new InvalidOperationException("Request must include recipient.");
             }
 
-            var documentQuery = new DocumentQuery(recipient!, group!);
-
-            if (queryDictionary.ContainsKey("pageSize") && int.TryParse(queryDictionary["pageSize"], out var pageSize))
-            {
-                documentQuery.PageSize = pageSize;
-            }
+            var documentQuery = new GetMessageQuery(recipient!);
 
             return documentQuery;
         }
