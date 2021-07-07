@@ -14,7 +14,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Domain;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 
 namespace Energinet.DataHub.PostOffice.Application
 {
@@ -26,16 +26,16 @@ namespace Energinet.DataHub.PostOffice.Application
         /// <summary>
         /// Get documents.
         /// </summary>
-        /// <param name="documentQuery">The documentQuery to get documents by.</param>
+        /// <param name="getMessageQuery">The documentQuery to get documents by.</param>
         /// <returns>A list of documents matching the documentQuery parameters.</returns>
-        Task<IList<T>> GetDocumentsAsync(DocumentQuery documentQuery);
+        Task<IList<T>> GetDocumentsAsync(GetMessageQuery getMessageQuery);
 
         /// <summary>
         /// Get documents.
         /// </summary>
-        /// <param name="documentQuery">The documentQuery to get documents by.</param>
+        /// <param name="getMessageQuery">The documentQuery to get documents by.</param>
         /// <returns>A list of documents matching the documentQuery parameters.</returns>
-        Task<IList<T>> GetDocumentBundleAsync(DocumentQuery documentQuery);
+        Task<IList<T>> GetDocumentBundleAsync(GetMessageQuery getMessageQuery);
 
         /// <summary>
         /// Save a document.

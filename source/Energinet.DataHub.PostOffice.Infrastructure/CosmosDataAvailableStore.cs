@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Energinet.DataHub.PostOffice.Domain;
 using Microsoft.Azure.Cosmos;
 
@@ -37,12 +38,44 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             _cosmosConfig = cosmosConfig;
         }
 
-        public Task<IList<DataAvailable>> GetDocumentsAsync(DocumentQuery documentQuery)
+        public async Task<IList<DataAvailable>> GetDocumentsAsync(GetMessageQuery documentQuery)
         {
-            throw new NotImplementedException();
+            if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
+
+            const string QueryString = @"
+                SELECT *
+                FROM Documents d
+                WHERE d.recipient = @recipient";
+
+            var container = GetContainer(ContainerName);
+
+            // Querying with an equality filter on the partition key will create a partitioned documentQuery, per:
+            // https://docs.microsoft.com/en-us/azure/cosmos-db/how-to-documentQuery-container#in-partition-documentQuery
+            // TODO: Change when actual names are available, ie. recipient_MriD?
+            var queryDefinition = new QueryDefinition(QueryString)
+                .WithParameter("@recipient", documentQuery.Recipient);
+
+            using (FeedIterator<CosmosDataAvailable> feedIterator =
+                container.GetItemQueryIterator<CosmosDataAvailable>(queryDefinition))
+            {
+                var documents = new List<DataAvailable>();
+                var documentsFromCosmos = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+                foreach (var document in documentsFromCosmos)
+                {
+                    documents.Add(new DataAvailable(
+                        document.uuid,
+                        document.recipient,
+                        document.messageType,
+                        document.origin,
+                        document.supportsBundling,
+                        document.relativeWeight));
+                }
+
+                return documents;
+            }
         }
 
-        public Task<IList<DataAvailable>> GetDocumentBundleAsync(DocumentQuery documentQuery)
+        public Task<IList<DataAvailable>> GetDocumentBundleAsync(GetMessageQuery documentQuery)
         {
             throw new NotImplementedException();
         }

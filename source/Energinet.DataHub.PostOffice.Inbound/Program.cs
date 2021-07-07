@@ -57,7 +57,6 @@ namespace Energinet.DataHub.PostOffice.Inbound
 
                     // Add Custom Services
                     services.AddScoped<IMapper<DataAvailable, DataAvailableCommand>, DataAvailableMapper>();
-                    services.AddScoped<IDocumentStore<Domain.Document>, CosmosDocumentStore>();
                     services.AddScoped<IDocumentStore<Domain.DataAvailable>, CosmosDataAvailableStore>();
                     services.AddScoped<InputParser>();
                     services.AddScoped<DataAvailableContractParser>();
