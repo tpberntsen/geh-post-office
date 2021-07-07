@@ -35,7 +35,7 @@ namespace Energinet.DataHub.PostOffice.Application.DataAvailable
             var dataAvailableDomain = new Domain.DataAvailable(request.UUID, request.Recipient, request.MessageType, request.Origin, request.SupportsBundling, request.RelativeWeight, 1M);
             await _documentStore.SaveDocumentAsync(dataAvailableDomain).ConfigureAwait(false);
 
-            return true;
+            return saveResult;
         }
     }
 }
