@@ -15,17 +15,18 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Application.GetMessage;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Energinet.DataHub.PostOffice.Domain;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 {
-    public class CosmosService : ICosmosService
+    public class DataAvailableStorageService : IDataAvailableStorageService
     {
         private readonly IDocumentStore<DataAvailable> _cosmosDocumentStore;
         private readonly IList<string> _collection;
 
-        public CosmosService(IDocumentStore<DataAvailable> cosmosDocumentStore)
+        public DataAvailableStorageService(IDocumentStore<DataAvailable> cosmosDocumentStore)
         {
             _cosmosDocumentStore = cosmosDocumentStore;
             _collection = new List<string>();

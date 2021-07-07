@@ -33,7 +33,7 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
             _documentStore = documentStore;
         }
 
-        // [Function("Dequeue")]
+        [Function("Dequeue")]
         public async Task<HttpResponseData> RunAsync(
             [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = null)] HttpRequestData request,
             FunctionContext context)

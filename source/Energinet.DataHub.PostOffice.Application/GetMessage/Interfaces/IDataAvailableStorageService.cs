@@ -15,12 +15,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Energinet.DataHub.PostOffice.Application.GetMessage
+namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
     /// <summary>
     /// Service to connect and retrieve data from Cosmos database
     /// </summary>
-    public interface ICosmosService
+    public interface IDataAvailableStorageService
     {
         /// <summary>
         /// Get UUIDs from Cosmos database

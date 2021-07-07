@@ -12,21 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Energinet.DataHub.PostOffice.Application.GetMessage
+namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
     /// <summary>
-    /// Get path to data from service bus container
+    /// Send message to service bus container
     /// </summary>
-    public interface IGetPathToDataFromServiceBus
+    public interface ISendMessageToServiceBus
     {
         /// <summary>
-        /// Get path to data from service bus container
+        /// Send message to service bus container
         /// </summary>
-        /// <param name="containerName"></param>
+        /// <param name="uuids"></param>
+        /// <param name="queueName"></param>
         /// <param name="sessionId"></param>
-        /// <returns>String containing path to data in document store</returns>
-        public Task<string> GetPathAsync(string containerName, string sessionId);
+        public Task SendMessageAsync(IList<string> uuids, string queueName, string sessionId);
     }
 }

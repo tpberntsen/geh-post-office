@@ -14,8 +14,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Application.GetMessage;
-using Energinet.DataHub.PostOffice.Domain;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 
 namespace Energinet.DataHub.PostOffice.Application
 {

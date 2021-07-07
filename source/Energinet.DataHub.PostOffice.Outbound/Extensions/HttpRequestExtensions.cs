@@ -14,7 +14,7 @@
 
 using System;
 using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Application.GetMessage;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Microsoft.Azure.Functions.Worker.Http;
 
 namespace Energinet.DataHub.PostOffice.Outbound.Extensions

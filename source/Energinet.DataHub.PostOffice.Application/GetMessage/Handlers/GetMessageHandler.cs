@@ -16,31 +16,33 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using MediatR;
 
-namespace Energinet.DataHub.PostOffice.Application.GetMessage
+namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
 {
     public class GetMessageHandler : IRequestHandler<GetMessageQuery, string>
     {
         private readonly string _queueName = "charges";
         private readonly string _blobStorageFileName = "Test.txt";
         private readonly string? _blobStorageContainerName = Environment.GetEnvironmentVariable("BlobStorageContainerName");
-        private readonly ICosmosService _cosmosService;
+        private readonly IDataAvailableStorageService _dataAvailableStorageService;
         private readonly ISendMessageToServiceBus _sendMessageToServiceBus;
         private readonly IGetPathToDataFromServiceBus _getPathToDataFromServiceBus;
-        private readonly IBlobStorageService _blobStorageService;
+        private readonly IStorageService _storageService;
         private Guid _sessionId;
 
         public GetMessageHandler(
-            ICosmosService cosmosService,
+            IDataAvailableStorageService dataAvailableStorageService,
             ISendMessageToServiceBus sendMessageToServiceBus,
             IGetPathToDataFromServiceBus getPathToDataFromServiceBus,
-            IBlobStorageService blobStorageService)
+            IStorageService storageService)
         {
-            _cosmosService = cosmosService;
+            _dataAvailableStorageService = dataAvailableStorageService;
             _sendMessageToServiceBus = sendMessageToServiceBus;
             _getPathToDataFromServiceBus = getPathToDataFromServiceBus;
-            _blobStorageService = blobStorageService;
+            _storageService = storageService;
             _sessionId = Guid.NewGuid();
         }
 
@@ -51,9 +53,9 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage
                 throw new ArgumentNullException(nameof(request));
             }
 
-            var uuids = await _cosmosService.GetDataAvailableUuidsAsync(request.Recipient).ConfigureAwait(false);
+            var uuids = await _dataAvailableStorageService.GetDataAvailableUuidsAsync(request.Recipient).ConfigureAwait(false);
 
-            await RequestForPathToMarketOperatorDataAsync(uuids).ConfigureAwait(false);
+            await RequestPathToMarketOperatorDataAsync(uuids).ConfigureAwait(false);
 
             var path = await ReadPathToMarketOperatorDataAsync().ConfigureAwait(false);
 
@@ -62,7 +64,7 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage
             return data;
         }
 
-        private async Task RequestForPathToMarketOperatorDataAsync(IList<string>? uuids)
+        private async Task RequestPathToMarketOperatorDataAsync(IList<string>? uuids)
         {
             if (uuids is null) throw new ArgumentNullException(nameof(uuids));
 
@@ -84,7 +86,7 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage
             if (path is null) throw new ArgumentNullException(nameof(path));
 
             // Todo: change '_blobStorageFileName' to 'path' when 'ReadPathToMarketOperatorDataAsync()' actually returns a path.
-            return await _blobStorageService.GetBlobAsync(
+            return await _storageService.GetStorageContentAsync(
                 _blobStorageContainerName,
                 _blobStorageFileName).ConfigureAwait(false);
         }

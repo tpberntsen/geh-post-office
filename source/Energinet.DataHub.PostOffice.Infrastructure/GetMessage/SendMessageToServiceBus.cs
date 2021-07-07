@@ -16,7 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.PostOffice.Application.GetMessage;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 {

@@ -12,22 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using MediatR;
 
-namespace Energinet.DataHub.PostOffice.Application.GetMessage
+namespace Energinet.DataHub.PostOffice.Application.GetMessage.Queries
 {
-    /// <summary>
-    /// Send message to service bus container
-    /// </summary>
-    public interface ISendMessageToServiceBus
+    public record GetMessageQuery : IRequest<string>
     {
-        /// <summary>
-        /// Send message to service bus container
-        /// </summary>
-        /// <param name="uuids"></param>
-        /// <param name="queueName"></param>
-        /// <param name="sessionId"></param>
-        public Task SendMessageAsync(IList<string> uuids, string queueName, string sessionId);
+        public GetMessageQuery(string recipient)
+        {
+            Recipient = recipient;
+        }
+
+        public string Recipient { get; }
     }
 }

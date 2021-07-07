@@ -14,12 +14,12 @@
 
 using System.Threading.Tasks;
 
-namespace Energinet.DataHub.PostOffice.Application.GetMessage
+namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
     /// <summary>
     /// Service to query Azure blob storage containing data to external actors
     /// </summary>
-    public interface IBlobStorageService
+    public interface IStorageService
     {
         /// <summary>
         /// Gets a document from the specified container with the specified filename
@@ -27,6 +27,6 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage
         /// <param name="containerName"></param>
         /// <param name="fileName"></param>
         /// <returns>A string expressing data interesting to external actor</returns>
-        public Task<string> GetBlobAsync(string? containerName, string fileName);
+        public Task<string> GetStorageContentAsync(string? containerName, string fileName);
     }
 }

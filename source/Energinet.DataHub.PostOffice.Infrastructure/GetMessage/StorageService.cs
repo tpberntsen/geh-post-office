@@ -14,14 +14,14 @@
 
 using System;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Application.GetMessage;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Microsoft.WindowsAzure.Storage;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 {
-    public class BlobStorageService : IBlobStorageService
+    public class StorageService : IStorageService
     {
-        public async Task<string> GetBlobAsync(string? containerName, string fileName)
+        public async Task<string> GetStorageContentAsync(string? containerName, string fileName)
         {
             var connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
 

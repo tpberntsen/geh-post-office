@@ -58,7 +58,7 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Something went wrong... Baaah!", e);
+                throw new Exception("Exception in GetMessage.", e);
             }
         }
 

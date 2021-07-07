@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Application.GetMessage;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Energinet.DataHub.PostOffice.Domain;
 using Microsoft.Azure.Cosmos;
 
