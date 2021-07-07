@@ -28,17 +28,20 @@ env:
   CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Inbound/Energinet.DataHub.PostOffice.Inbound.csproj'
   SOLUTION_FILE_PATH: 'Energinet.DataHub.PostOffice.sln'
   DOTNET_VERSION: '5.0'
-  ORGANISATION_NAME: 'endk'
-  AZURE_FUNCTIONAPP_NAME: 'azfun-inbound'
-  PROJECT_NAME: postoffice
+  AZURE_FUNCTIONAPP_BASE_NAME: 'azfun-inbound'
 
 jobs:
-  build:
+  build_inbound:
     name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@master
+
+      - name: Setup .NET 3.1 environment
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
 
       - name: Setup .NET ${{ env.DOTNET_VERSION }} environment
         uses: actions/setup-dotnet@v1
@@ -46,7 +49,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Build and test project
-        uses: ./.github/actions/dotnet-build-and-test
+        uses: Energinet-DataHub/.github/.github/actions/dotnet-build-and-test@1.0.1
         with:
           CSPROJ_FILE_PATH: ${{ env.CSPROJ_FILE_PATH }}
           SOLUTION_FILE_PATH: ${{ env.SOLUTION_FILE_PATH }}
@@ -57,32 +60,13 @@ jobs:
         with:
           name: drop
           path: '${{ github.workspace }}/output'
-    
-  deploy:
-    name: Deploy function to ${{ matrix.environment.name }} - ${{ matrix.environment.long }}
-    needs: build
+ 
+  deploy_inbound_development:
+    name: Deploy function to Development
+    needs: build_inbound
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        environment: [
-          {
-            long: rg-DataHub-PostOffice-U,
-            short: u,
-            name: Development
-          },
-          {
-            long: rg-DataHub-PostOffice-T,
-            short: t,
-            name: Test
-          },
-          {
-            long: rg-DataHub-PostOffice-B,
-            short: b,
-            name: Preprod
-          }
-        ]
     environment:
-      name: ${{ matrix.environment.long }}
+      name: Development
     steps:
       - name: Download artifact 
         uses: actions/download-artifact@v2
@@ -90,23 +74,145 @@ jobs:
           name: drop
           path: drop
 
+      - name: Set Environment Secrets
+        shell: bash
+        run: |  
+          echo "ENVIRONMENT_SHORT=u" >> $GITHUB_ENV
+
       - name: Setup Azure CLI
         shell: bash
         run: |
           curl -sL https://aka.ms/InstallAzureCLIDeb
           sudo bash
-          az login --service-principal --username ${{ secrets.SPN_ID }} --password ${{ secrets.SPN_SECRET }} --tenant ${{ secrets.TENANT_ID }}
-          az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
+          az login --service-principal --username ${{ secrets.AZURE_SPN_ID }} --password ${{ secrets.AZURE_SPN_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  
+      - name: Get function publish profile
+        id: get-publish-profile
+        run: |
+          publish_profile=$(az webapp deployment list-publishing-profiles --name ${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}-${{ secrets.PROJECT_NAME }}-${{ secrets.ORGANISATION_NAME }}-${{ env.ENVIRONMENT_SHORT }} --resource-group ${{ secrets.AZURE_RG_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} --xml)
+          echo "::set-output name=publish-profile::${publish_profile}"
+  
+      - name: Deploy function
+        uses: Azure/functions-action@v1
+        with:
+          app-name: "${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}"
+          package: ${{ github.workspace }}/drop
+          publish-profile: ${{ steps.get-publish-profile.outputs.publish-profile }}
+ 
+  deploy_inbound_test:
+    name: Deploy function to Test
+    needs: deploy_inbound_development
+    runs-on: ubuntu-latest
+    environment:
+      name: Test
+    steps:
+      - name: Download artifact 
+        uses: actions/download-artifact@v2
+        with:
+          name: drop
+          path: drop
+
+      - name: Set Environment Secrets
+        shell: bash
+        run: |  
+          echo "ENVIRONMENT_SHORT=t" >> $GITHUB_ENV
+
+      - name: Setup Azure CLI
+        shell: bash
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb
+          sudo bash
+          az login --service-principal --username ${{ secrets.AZURE_SPN_ID }} --password ${{ secrets.AZURE_SPN_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Get function publish profile
         id: get-publish-profile
         run: |
-          publish_profile=$(az webapp deployment list-publishing-profiles --name ${{ env.AZURE_FUNCTIONAPP_NAME }}-${{ env.PROJECT_NAME }}-${{ env.ORGANISATION_NAME }}-${{ matrix.environment.short }} --resource-group ${{ matrix.environment.long }} --subscription ${{ secrets.SUBSCRIPTION_ID }} --xml)
+          publish_profile=$(az webapp deployment list-publishing-profiles --name ${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}-${{ secrets.PROJECT_NAME }}-${{ secrets.ORGANISATION_NAME }}-${{ env.ENVIRONMENT_SHORT }} --resource-group ${{ secrets.AZURE_RG_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} --xml)
           echo "::set-output name=publish-profile::${publish_profile}"
 
       - name: Deploy function
         uses: Azure/functions-action@v1
         with:
-          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          app-name: "${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}"
+          package: ${{ github.workspace }}/drop
+          publish-profile: ${{ steps.get-publish-profile.outputs.publish-profile }}
+ 
+  deploy_inbound_preproduction:
+    name: Deploy function to Preproduction
+    needs: deploy_inbound_test
+    runs-on: ubuntu-latest
+    environment:
+      name: Preproduction
+    steps:
+      - name: Download artifact 
+        uses: actions/download-artifact@v2
+        with:
+          name: drop
+          path: drop
+
+      - name: Set Environment Secrets
+        shell: bash
+        run: |  
+          echo "ENVIRONMENT_SHORT=b" >> $GITHUB_ENV
+
+      - name: Setup Azure CLI
+        shell: bash
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb
+          sudo bash
+          az login --service-principal --username ${{ secrets.AZURE_SPN_ID }} --password ${{ secrets.AZURE_SPN_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Get function publish profile
+        id: get-publish-profile
+        run: |
+          publish_profile=$(az webapp deployment list-publishing-profiles --name ${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}-${{ secrets.PROJECT_NAME }}-${{ secrets.ORGANISATION_NAME }}-${{ env.ENVIRONMENT_SHORT }} --resource-group ${{ secrets.AZURE_RG_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} --xml)
+          echo "::set-output name=publish-profile::${publish_profile}"
+
+      - name: Deploy function
+        uses: Azure/functions-action@v1
+        with:
+          app-name: "${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}"
+          package: ${{ github.workspace }}/drop
+          publish-profile: ${{ steps.get-publish-profile.outputs.publish-profile }}
+ 
+  deploy_inbound_production:
+    name: Deploy function to Production
+    needs: deploy_inbound_preproduction
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+    steps:
+      - name: Download artifact 
+        uses: actions/download-artifact@v2
+        with:
+          name: drop
+          path: drop
+
+      - name: Set Environment Secrets
+        shell: bash
+        run: |  
+          echo "ENVIRONMENT_SHORT=p" >> $GITHUB_ENV
+
+      - name: Setup Azure CLI
+        shell: bash
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb
+          sudo bash
+          az login --service-principal --username ${{ secrets.AZURE_SPN_ID }} --password ${{ secrets.AZURE_SPN_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Get function publish profile
+        id: get-publish-profile
+        run: |
+          publish_profile=$(az webapp deployment list-publishing-profiles --name ${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}-${{ secrets.PROJECT_NAME }}-${{ secrets.ORGANISATION_NAME }}-${{ env.ENVIRONMENT_SHORT }} --resource-group ${{ secrets.AZURE_RG_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} --xml)
+          echo "::set-output name=publish-profile::${publish_profile}"
+
+      - name: Deploy function
+        uses: Azure/functions-action@v1
+        with:
+          app-name: "${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}"
           package: ${{ github.workspace }}/drop
           publish-profile: ${{ steps.get-publish-profile.outputs.publish-profile }}
