@@ -53,7 +53,7 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
                 throw new ArgumentNullException(nameof(request));
             }
 
-            var uuids = await _dataAvailableStorageService.GetDataAvailableUuidsAsync(request.Recipient).ConfigureAwait(false);
+            var uuids = await _dataAvailableStorageService.GetDataAvailableUuidsAsync(request).ConfigureAwait(false);
 
             await RequestPathToMarketOperatorDataAsync(uuids).ConfigureAwait(false);
 
