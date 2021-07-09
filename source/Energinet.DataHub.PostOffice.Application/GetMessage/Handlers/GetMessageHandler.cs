@@ -56,18 +56,15 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
 
             var requestData = await _dataAvailableStorageService.GetDataAvailableUuidsAsync(request.Recipient).ConfigureAwait(false);
 
-            if (request.Recipient is { Length: > 0 })
-            {
-                await RequestPathToMarketOperatorDataAsync(requestData).ConfigureAwait(false);
+            if (request.Recipient is not { Length: > 0 }) return string.Empty;
 
-                var path = await ReadPathToMarketOperatorDataAsync().ConfigureAwait(false);
+            await RequestPathToMarketOperatorDataAsync(requestData).ConfigureAwait(false);
 
-                var data = await GetMarketOperatorDataAsync(path).ConfigureAwait(false);
+            var path = await ReadPathToMarketOperatorDataAsync().ConfigureAwait(false);
 
-                return data;
-            }
+            var data = await GetMarketOperatorDataAsync(path).ConfigureAwait(false);
 
-            return string.Empty;
+            return data;
         }
 
         private async Task RequestPathToMarketOperatorDataAsync(RequestData requestData)
