@@ -12,23 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using FluentValidation.Validators;
 using GreenEnergyHub.Messaging.Validation;
 
-namespace Energinet.DataHub.PostOffice.Inbound.Parsing
+namespace Energinet.DataHub.PostOffice.Application.Validation.Rules
 {
-    public class DocumentCannotHaveEmptyValue : PropertyRule<string>
+    public class GetMessageMustBeValidGuidRule : PropertyRule<string>
     {
-        protected override string Code => "Empty value";
+        protected override string Code => "GUID identifier must be valid";
 
         protected override string GetDefaultMessageTemplate()
         {
-            return "'{PropertyName}' cannot be empty.";
+            return "'{PropertyName}' must have a valid guid.";
         }
 
         protected override bool IsValid(string propertyValue, PropertyValidatorContext context)
         {
-            return !string.IsNullOrWhiteSpace(propertyValue);
+            return Guid.TryParse(propertyValue, out _);
         }
     }
 }

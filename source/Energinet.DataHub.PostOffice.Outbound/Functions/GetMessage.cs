@@ -16,6 +16,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Outbound.Extensions;
+using FluentValidation;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -41,11 +42,6 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
             {
                 var getMessageQuery = request.GetDocumentQuery();
 
-                if (string.IsNullOrEmpty(getMessageQuery.Recipient))
-                {
-                    return GetHttpResponse(request, HttpStatusCode.BadRequest, "Query parameter is missing 'recipient'");
-                }
-
                 var logger = context.GetLogger(nameof(GetMessage));
                 logger.LogInformation($"Processing GetMessage query: {getMessageQuery}.");
 
@@ -54,6 +50,12 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
                 var response = request.CreateResponse(HttpStatusCode.OK);
                 await response.WriteAsJsonAsync(data).ConfigureAwait(false);
 
+                return response;
+            }
+            catch (ValidationException e)
+            {
+                var response = request.CreateResponse(HttpStatusCode.BadRequest);
+                await response.WriteStringAsync(e.Message).ConfigureAwait(false);
                 return response;
             }
             catch (Exception e)

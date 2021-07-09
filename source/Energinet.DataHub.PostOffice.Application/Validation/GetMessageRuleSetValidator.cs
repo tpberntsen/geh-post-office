@@ -12,18 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using GreenEnergyHub.Messaging.Validation;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
+using Energinet.DataHub.PostOffice.Application.Validation.Rules;
+using FluentValidation;
 
-namespace Energinet.DataHub.PostOffice.Inbound.Parsing
+namespace Energinet.DataHub.PostOffice.Application.Validation
 {
-    public class DocumentRules : RuleCollection<Contracts.Document>
+    public class GetMessageRuleSetValidator : AbstractValidator<GetMessageQuery>
     {
-        public DocumentRules()
+        public GetMessageRuleSetValidator()
         {
-            RuleFor(document => document.Type).PropertyRule<DocumentCannotHaveEmptyValue>();
-            RuleFor(document => document.Version).PropertyRule<DocumentCannotHaveEmptyValue>();
-            RuleFor(document => document.Recipient).PropertyRule<DocumentCannotHaveEmptyValue>();
-            RuleFor(document => document.EffectuationDate).PropertyRule<DocumentMustHaveEffectuationDate>();
+            RuleFor(request => request.Recipient).NotEmpty().SetValidator(new GetMessageMustBeValidGuidRule());
         }
     }
 }

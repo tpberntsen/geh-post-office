@@ -32,9 +32,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             _collection = new List<string>();
         }
 
-        public async Task<IList<string>> GetDataAvailableUuidsAsync(string recipient)
+        public async Task<IList<string>> GetDataAvailableUuidsAsync(GetMessageQuery recipient)
         {
-            var documents = await _cosmosDocumentStore.GetDocumentsAsync(new GetMessageQuery(recipient))
+            var documents = await _cosmosDocumentStore.GetDocumentsAsync(recipient)
                 .ConfigureAwait(false);
 
             foreach (var document in documents)

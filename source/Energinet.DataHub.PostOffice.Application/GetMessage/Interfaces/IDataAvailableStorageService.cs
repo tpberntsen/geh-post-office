@@ -14,6 +14,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
@@ -27,6 +28,6 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
         /// </summary>
         /// <param name="recipient"></param>
         /// <returns>A collection with all UUIDs for the specified recipient</returns>
-        public Task<IList<string>> GetDataAvailableUuidsAsync(string recipient);
+        public Task<IList<string>> GetDataAvailableUuidsAsync(GetMessageQuery recipient);
     }
 }
