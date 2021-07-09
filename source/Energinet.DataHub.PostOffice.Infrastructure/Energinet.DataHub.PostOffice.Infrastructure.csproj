@@ -47,6 +47,12 @@ limitations under the License.
         <OutputDir>obj\Debug\netcoreapp3.1\</OutputDir>
         <Generator>MSBuild:Compile</Generator>
       </Protobuf>
+      <Protobuf Update="..\Contracts\v1\Requestdata.proto">
+        <Link>v1\Requestdata.proto</Link>
+      </Protobuf>
+      <Protobuf Update="..\Contracts\v1\MessageReply.proto">
+        <Link>v1\MessageReply.proto</Link>
+      </Protobuf>
     </ItemGroup>
 
 </Project>

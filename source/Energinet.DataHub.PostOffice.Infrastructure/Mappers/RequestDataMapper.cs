@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
+using System;
+using System.Linq;
+using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Domain;
 
-namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
+namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
-    /// <summary>
-    /// Get path to data from service bus container
-    /// </summary>
-    public interface IGetPathToDataFromServiceBus
+    public sealed class RequestDataMapper : IMapper<Contracts.RequestDataset, RequestData>
     {
-        /// <summary>
-        /// Get path to data from service bus container
-        /// </summary>
-        /// <param name="containerName"></param>
-        /// <param name="sessionId"></param>
-        /// <returns>String containing path to data in document store</returns>
-        public Task<MessageReply> GetPathAsync(string containerName, string sessionId);
+        public RequestData Map(Contracts.RequestDataset obj)
+        {
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+
+            var requestData = new RequestData() { Uuids = obj.UUID.ToList() };
+
+            return requestData;
+        }
     }
 }

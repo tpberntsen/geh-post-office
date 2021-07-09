@@ -13,21 +13,11 @@
 // limitations under the License.
 
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Domain;
 
-namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
+namespace Energinet.DataHub.PostOffice.Domain
 {
-    /// <summary>
-    /// Service to connect and retrieve data from Cosmos database
-    /// </summary>
-    public interface IDataAvailableStorageService
+    public class MessageReply
     {
-        /// <summary>
-        /// Get UUIDs from Cosmos database
-        /// </summary>
-        /// <param name="recipient"></param>
-        /// <returns>A collection with all UUIDs for the specified recipient</returns>
-        public Task<RequestData> GetDataAvailableUuidsAsync(string recipient);
+        public string? DataPath { get; init; }
     }
 }

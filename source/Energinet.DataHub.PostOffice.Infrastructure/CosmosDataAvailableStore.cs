@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
@@ -43,9 +44,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
 
             const string QueryString = @"
-                SELECT *
+                SELECT TOP 1 *
                 FROM Documents d
-                WHERE d.recipient = @recipient";
+                WHERE d.recipient = @recipient
+                ORDER BY d.EffectuationDate";
 
             var container = GetContainer(ContainerName);
 
@@ -73,6 +75,45 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                 }
 
                 return documents;
+            }
+        }
+
+        public async Task<DataAvailable?> GetOldestDocumentAsync(GetMessageQuery documentQuery)
+        {
+            if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
+
+            const string QueryString = @"
+                SELECT TOP 1 *
+                FROM Documents d
+                WHERE d.recipient = @recipient
+                ORDER BY d.EffectuationDate";
+
+            var container = GetContainer(ContainerName);
+
+            // Querying with an equality filter on the partition key will create a partitioned documentQuery, per:
+            // https://docs.microsoft.com/en-us/azure/cosmos-db/how-to-documentQuery-container#in-partition-documentQuery
+            // TODO: Change when actual names are available, ie. recipient_MriD?
+            var queryDefinition = new QueryDefinition(QueryString)
+                .WithParameter("@recipient", documentQuery.Recipient);
+
+            using (FeedIterator<CosmosDataAvailable> feedIterator =
+                container.GetItemQueryIterator<CosmosDataAvailable>(queryDefinition))
+            {
+                var documents = new List<DataAvailable>();
+                var documentsFromCosmos = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+                foreach (var document in documentsFromCosmos)
+                {
+                    documents.Add(new DataAvailable(
+                        document.uuid,
+                        document.recipient,
+                        document.messageType,
+                        document.origin,
+                        document.supportsBundling,
+                        document.relativeWeight,
+                        document.priority));
+                }
+
+                return documents.FirstOrDefault();
             }
         }
 

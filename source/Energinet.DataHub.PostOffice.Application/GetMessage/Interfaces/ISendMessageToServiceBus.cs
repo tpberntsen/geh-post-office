@@ -14,6 +14,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Domain;
 
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
@@ -28,6 +29,13 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
         /// <param name="uuids"></param>
         /// <param name="queueName"></param>
         /// <param name="sessionId"></param>
-        public Task SendMessageAsync(IList<string> uuids, string queueName, string sessionId);
+        public Task SendMessageAsync(IEnumerable<RequestData> uuids, string queueName, string sessionId);
+
+        /// <summary>
+        /// Sends a message to sub domain that we need to fetch data
+        /// </summary>
+        /// <param name="requestData"></param>
+        /// <param name="sessionId"></param>
+        public Task RequestDataAsync(RequestData requestData, string sessionId);
     }
 }
