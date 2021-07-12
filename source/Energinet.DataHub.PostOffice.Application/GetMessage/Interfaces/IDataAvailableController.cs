@@ -20,7 +20,7 @@ using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
     /// <summary>
-    /// Test
+    /// DataAvailable Controller
     /// </summary>
     public interface IDataAvailableController
     {
