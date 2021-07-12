@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
@@ -24,28 +25,22 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
     public class DataAvailableStorageService : IDataAvailableStorageService
     {
         private readonly IDocumentStore<DataAvailable> _cosmosDocumentStore;
-        private readonly IList<string> _collection;
 
         public DataAvailableStorageService(IDocumentStore<DataAvailable> cosmosDocumentStore)
         {
             _cosmosDocumentStore = cosmosDocumentStore;
-            _collection = new List<string>();
         }
 
-        public async Task<IList<string>> GetDataAvailableUuidsAsync(string recipient)
+        public async Task<IEnumerable<DataAvailable>> GetDataAvailableUuidsAsync(GetMessageQuery getMessageQuery)
         {
-            var documents = await _cosmosDocumentStore.GetDocumentsAsync(new GetMessageQuery(recipient))
-                .ConfigureAwait(false);
+            if (getMessageQuery is null) throw new ArgumentNullException(nameof(getMessageQuery));
 
-            foreach (var document in documents)
-            {
-                if (document.uuid is not null)
-                {
-                    _collection.Add(document.uuid);
-                }
-            }
+            const string queryString = "SELECT * FROM c WHERE c.recipient = @recipient ORDER BY c._ts ASC OFFSET 0 LIMIT 1";
+            var parameters = new List<KeyValuePair<string, string>>() { new ("recipient", getMessageQuery.Recipient) };
 
-            return _collection;
+            var documents = await _cosmosDocumentStore.GetDocumentsAsync(queryString, parameters).ConfigureAwait(false);
+
+            return documents;
         }
     }
 }

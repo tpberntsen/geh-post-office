@@ -20,6 +20,7 @@ using Energinet.DataHub.PostOffice.Application.GetMessage.Handlers;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Infrastructure;
+using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -50,9 +51,16 @@ namespace Energinet.DataHub.PostOffice.Outbound
                     // Add Custom Services
                     services.AddScoped<IDocumentStore<Domain.DataAvailable>, CosmosDataAvailableStore>();
                     services.AddScoped<IDataAvailableStorageService, DataAvailableStorageService>();
+                    services.AddScoped<IDataAvailableController, DataAvailableController>();
+                    services.AddScoped<IMessageResponseStorage, MessageResponseStorage>();
                     services.AddScoped<ISendMessageToServiceBus, SendMessageToServiceBus>();
                     services.AddScoped<IGetPathToDataFromServiceBus, GetPathToDataFromServiceBus>();
                     services.AddScoped<IStorageService, StorageService>();
+
+                    services.AddTransient<IGetContentPathStrategy, ContentPathFromSavedResponse>();
+                    services.AddTransient<IGetContentPathStrategy, ContentPathFromSubDomain>();
+                    services.AddScoped<IGetContentPathStrategyFactory, GetContentPathStrategyFactory>();
+
                     services.AddSingleton<ServiceBusClient>(t => new ServiceBusClient(Environment.GetEnvironmentVariable("ServiceBusConnectionString")));
                     services.AddDatabaseCosmosConfig();
                     services.AddCosmosContainerConfig();

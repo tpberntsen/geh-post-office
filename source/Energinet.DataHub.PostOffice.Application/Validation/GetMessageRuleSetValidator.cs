@@ -12,22 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
+using Energinet.DataHub.PostOffice.Application.Validation.Rules;
+using FluentValidation;
 
-namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
+namespace Energinet.DataHub.PostOffice.Application.Validation
 {
-    /// <summary>
-    /// Send message to service bus container
-    /// </summary>
-    public interface ISendMessageToServiceBus
+    public class GetMessageRuleSetValidator : AbstractValidator<GetMessageQuery>
     {
-        /// <summary>
-        /// Send message to service bus container
-        /// </summary>
-        /// <param name="dataUuids"></param>
-        /// <param name="queueName"></param>
-        /// <param name="sessionId"></param>
-        public Task SendMessageAsync(IEnumerable<string?> dataUuids, string queueName, string sessionId);
+        public GetMessageRuleSetValidator()
+        {
+            RuleFor(request => request.Recipient).NotEmpty().SetValidator(new GetMessageMustBeValidGuidRule());
+        }
     }
 }

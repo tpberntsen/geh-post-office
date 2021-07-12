@@ -63,7 +63,7 @@ namespace Energinet.DataHub.PostOffice.Inbound
                     services.AddDatabaseCosmosConfig();
                     services.AddCosmosClientBuilder(useBulkExecution: false);
 
-                    services.DiscoverValidation(new[] { typeof(DocumentRules).Assembly, typeof(DataAvailableRuleSet).Assembly });
+                    services.DiscoverValidation(new[] { typeof(DataAvailableRuleSet).Assembly });
                 })
                 .Build();
 
