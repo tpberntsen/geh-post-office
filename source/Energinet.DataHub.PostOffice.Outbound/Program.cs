@@ -18,10 +18,14 @@ using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Handlers;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
+using Energinet.DataHub.PostOffice.Application.Validation;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
+using Energinet.DataHub.PostOffice.Infrastructure.Pipeline;
+using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,6 +51,8 @@ namespace Energinet.DataHub.PostOffice.Outbound
                     // Add MediatR
                     services.AddMediatR(typeof(GetMessageHandler).Assembly);
                     services.AddScoped(typeof(IRequest<string>), typeof(GetMessageHandler));
+                    services.AddScoped(typeof(IPipelineBehavior<,>), typeof(GetMessagePipelineValidationBehavior<,>));
+                    services.AddScoped(typeof(IValidator<GetMessageQuery>), typeof(GetMessageRuleSetValidator));
 
                     // Add Custom Services
                     services.AddScoped<IDocumentStore<Domain.DataAvailable>, CosmosDataAvailableStore>();
