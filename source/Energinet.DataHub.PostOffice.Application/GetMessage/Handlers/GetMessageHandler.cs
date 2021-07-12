@@ -59,15 +59,13 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
 
             var path = await ReadPathToMarketOperatorDataAsync().ConfigureAwait(false);
 
-            var data = await GetMarketOperatorDataAsync(path).ConfigureAwait(false);
+            var data = await GetMarketOperatorDataAsync().ConfigureAwait(false);
 
             return data;
         }
 
-        private async Task RequestPathToMarketOperatorDataAsync(IList<string>? uuids)
+        private async Task RequestPathToMarketOperatorDataAsync(IList<string> uuids)
         {
-            if (uuids is null) throw new ArgumentNullException(nameof(uuids));
-
             await _sendMessageToServiceBus.SendMessageAsync(
                 uuids,
                 _queueName,
@@ -81,11 +79,9 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
                 _sessionId.ToString()).ConfigureAwait(false);
         }
 
-        private async Task<string> GetMarketOperatorDataAsync(string? path)
+        private async Task<string> GetMarketOperatorDataAsync()
         {
-            if (path is null) throw new ArgumentNullException(nameof(path));
-
-            // Todo: change '_blobStorageFileName' to 'path' when 'ReadPathToMarketOperatorDataAsync()' actually returns a path.
+            // Todo: change '_blobStorageFileName' to the path provided from 'ReadPathToMarketOperatorDataAsync()' when the method actually returns a path.
             return await _storageService.GetStorageContentAsync(
                 _blobStorageContainerName,
                 _blobStorageFileName).ConfigureAwait(false);
