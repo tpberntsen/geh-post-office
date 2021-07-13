@@ -50,7 +50,7 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
 
             var contentPath = await GetContentPathAsync(availableForRecipient).ConfigureAwait(false);
 
-            var data = await GetMarketOperatorDataAsync(contentPath).ConfigureAwait(false);
+            var data = await GetMarketOperatorDataAsync().ConfigureAwait(false);
 
             await AddMessageResponseToStorageAsync(availableForRecipient, contentPath).ConfigureAwait(false);
 
@@ -77,11 +77,9 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
             return contentPath;
         }
 
-        private async Task<string> GetMarketOperatorDataAsync(string? path)
+        private async Task<string> GetMarketOperatorDataAsync()
         {
-            if (path is null) throw new ArgumentNullException(nameof(path));
-
-            // Todo: change '_blobStorageFileName' to 'path' when 'ReadPathToMarketOperatorDataAsync()' actually returns a path.
+            // Todo: change '_blobStorageFileName' to the path provided from 'ReadPathToMarketOperatorDataAsync()' when the method actually returns a path.
             return await _storageService.GetStorageContentAsync(
                 _blobStorageContainerName,
                 _blobStorageFileName).ConfigureAwait(false);

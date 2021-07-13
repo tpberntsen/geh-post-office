@@ -33,7 +33,7 @@ namespace Energinet.DataHub.PostOffice.Inbound
 {
     public class Program
     {
-        private static Task Main(string[] args)
+        private static Task Main()
         {
             var host = new HostBuilder()
                 .ConfigureAppConfiguration(configurationBuilder =>
