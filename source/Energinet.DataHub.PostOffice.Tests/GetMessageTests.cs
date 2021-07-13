@@ -13,11 +13,14 @@
 // limitations under the License.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Handlers;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Energinet.DataHub.PostOffice.Domain;
+using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
+using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using FluentAssertions;
 using Moq;
 using Xunit;
@@ -31,34 +34,45 @@ namespace Energinet.DataHub.PostOffice.Tests
         }
 
         [Fact]
-        public void GetMessageHandler_CallFromMarketOperator_ResultMustMatch()
+        public async Task GetMessageHandler_CallFromMarketOperator_ResultMustMatch()
         {
-            var dataAvailableStorageService = new Mock<IDataAvailableStorageService>();
-            dataAvailableStorageService.Setup(
-                service => service.GetDataAvailableUuidsAsync(
-                    It.IsAny<GetMessageQuery>())).ReturnsAsync(It.IsAny<List<string>>());
+            // Arrange
+            var documentStore = new Mock<IDocumentStore<DataAvailable>>();
+            GetDocumentsAsync(documentStore);
 
-            var sendMessageToServiceBusEntityMock = new Mock<ISendMessageToServiceBus>();
-            SendMessageToServiceBus(sendMessageToServiceBusEntityMock);
+            var dataAvailableStorageService = new DataAvailableStorageService(documentStore.Object);
 
-            var readMessageFromServiceBusEntityMock = new Mock<IGetPathToDataFromServiceBus>();
-            ReadMessageFromServiceBusEntity(readMessageFromServiceBusEntityMock);
+            var messageResponseStorage = new Mock<IMessageResponseStorage>();
+            messageResponseStorage
+                .Setup(e => e.GetMessageResponseAsync(It.IsAny<string>()))
+                .ReturnsAsync(It.IsAny<string>());
+
+            var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies());
+            var dataAvailableController = new DataAvailableController(dataAvailableStorageService, messageResponseStorage.Object, strategyFactory);
 
             var storageServiceMock = new Mock<IStorageService>();
             GetMarketOperatorDataFromStorageService(storageServiceMock);
 
             GetMessageQuery query = new GetMessageQuery(It.IsAny<string>());
             GetMessageHandler handler = new GetMessageHandler(
-                dataAvailableStorageService.Object,
-                sendMessageToServiceBusEntityMock.Object,
-                readMessageFromServiceBusEntityMock.Object,
+                dataAvailableController,
                 storageServiceMock.Object);
 
             // Act
-            var result = handler.Handle(query, System.Threading.CancellationToken.None).ConfigureAwait(false);
+            var result = await handler.Handle(query, System.Threading.CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            result.GetAwaiter().GetResult().Should().Be(GetStorageContentAsyncSimulatedData());
+            result.Should().Be(GetStorageContentAsyncSimulatedData());
+        }
+
+        private static IEnumerable<IGetContentPathStrategy> GetContentPathStrategies()
+        {
+            var getPathToDataFromServiceBus = new Mock<IGetPathToDataFromServiceBus>();
+            getPathToDataFromServiceBus.Setup(path => path.GetPathAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync("https://testlink.com");
+            var sendMessageToServiceBus = new Mock<ISendMessageToServiceBus>();
+
+            return new List<IGetContentPathStrategy>() { new ContentPathFromSavedResponse(), new ContentPathFromSubDomain(sendMessageToServiceBus.Object, getPathToDataFromServiceBus.Object) };
         }
 
         private static void GetMarketOperatorDataFromStorageService(Mock<IStorageService> storageService)
@@ -68,28 +82,11 @@ namespace Energinet.DataHub.PostOffice.Tests
                     It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(GetStorageContentAsyncSimulatedData());
         }
 
-        private static void ReadMessageFromServiceBusEntity(Mock<IGetPathToDataFromServiceBus> readMessageFromServiceBusEntityMock)
+        private static void GetDocumentsAsync(Mock<IDocumentStore<DataAvailable>> dataAvailableStore)
         {
-            readMessageFromServiceBusEntityMock.Setup(
-                    getPathToDataFromServiceBus => getPathToDataFromServiceBus.GetPathAsync(
-                        It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(It.IsAny<string>());
-        }
-
-        private static void SendMessageToServiceBus(Mock<ISendMessageToServiceBus> sendMessageToServiceBusEntityMock)
-        {
-            sendMessageToServiceBusEntityMock.Setup(sendMessageToServiceBus =>
-                sendMessageToServiceBus.SendMessageAsync(
-                    It.IsNotNull<List<string>>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>()));
-        }
-
-        private static void GetDocumentsAsync(Mock<IDocumentStore<DataAvailable>> storageServiceMock)
-        {
-            var result = storageServiceMock.Setup(
-                storageService => storageService.GetDocumentsAsync(
-                    It.IsAny<GetMessageQuery>())).ReturnsAsync(CreateListOfDataAvailableObjects());
+            var result = dataAvailableStore.Setup(
+                store => store.GetDocumentsAsync(
+                    It.IsAny<string>(), It.IsAny<List<KeyValuePair<string, string>>>())).ReturnsAsync(CreateListOfDataAvailableObjects());
         }
 
         private static string GetStorageContentAsyncSimulatedData()

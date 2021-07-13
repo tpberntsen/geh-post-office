@@ -50,13 +50,13 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
 
             var contentPath = await GetContentPathAsync(availableForRecipient).ConfigureAwait(false);
 
-            var data = await GetMarketOperatorDataAsync(contentPath).ConfigureAwait(false);
+            var data = await GetMarketOperatorDataAsync().ConfigureAwait(false);
 
             await AddMessageResponseToStorageAsync(availableForRecipient, contentPath).ConfigureAwait(false);
 
             return data;
         }
-        
+
         private async Task AddMessageResponseToStorageAsync(IEnumerable<Domain.DataAvailable> availableForRecipient, string? contentPath)
         {
             await _dataAvailableController

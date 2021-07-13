@@ -25,7 +25,7 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
     public interface IDataAvailableController
     {
         /// <summary>
-        /// Find current request set from recipient calculated from created time and priority
+        /// Finds current request set from recipient calculated from created time and priority
         /// </summary>
         /// <param name="getMessageQuery"></param>
         /// <returns>list of dataAvailables where data should be collected</returns>
