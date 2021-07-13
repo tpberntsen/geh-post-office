@@ -12,22 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
     /// <summary>
-    /// Send message to service bus container
+    /// Create strategy for getting content path
     /// </summary>
-    public interface ISendMessageToServiceBus
+    public interface IGetContentPathStrategyFactory
     {
         /// <summary>
-        /// Send message to service bus container
+        /// Give strategy for getting path to content
         /// </summary>
-        /// <param name="dataUuids"></param>
-        /// <param name="queueName"></param>
-        /// <param name="sessionId"></param>
-        public Task SendMessageAsync(IEnumerable<string?> dataUuids, string queueName, string sessionId);
+        /// <param name="pathToExistingContent">path to existing content if any</param>
+        /// <returns>content path strategy</returns>
+        IGetContentPathStrategy Create(string pathToExistingContent);
     }
 }
