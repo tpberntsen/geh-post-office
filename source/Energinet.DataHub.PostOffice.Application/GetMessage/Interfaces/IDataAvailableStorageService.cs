@@ -26,8 +26,8 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
         /// <summary>
         /// Get UUIDs from Cosmos database
         /// </summary>
-        /// <param name="recipient"></param>
-        /// <returns>A collection with all UUIDs for the specified recipient</returns>
-        public Task<IList<string>> GetDataAvailableUuidsAsync(GetMessageQuery recipient);
+        /// <param name="query"></param>
+        /// <returns>A collection with all UUIDs for the specified query</returns>
+        public Task<IEnumerable<Domain.DataAvailable>> GetDataAvailableUuidsAsync(GetMessageQuery query);
     }
 }

@@ -13,29 +13,32 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.PostOffice.Application.GetMessage;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 {
-    public class GetPathToDataFromServiceBus : IGetPathToDataFromServiceBus
+    public class MessageResponseStorage : IMessageResponseStorage
     {
-        private readonly ServiceBusClient _serviceBusClient;
+        private static Dictionary<string, string> _savedMessageResponses = new Dictionary<string, string>();
 
-        public GetPathToDataFromServiceBus(ServiceBusClient serviceBusClient)
+        public Task<string?> GetMessageResponseAsync(string messageKey)
         {
-            _serviceBusClient = serviceBusClient;
+            var elementExists = _savedMessageResponses.TryGetValue(messageKey, out var path);
+
+            return Task.FromResult(elementExists ? path : null);
         }
 
-        public async Task<string> GetPathAsync(string queueName, string sessionId)
+        public Task SaveMessageResponseAsync(string messageKey, Uri contentUrl)
         {
-            var receiver = await _serviceBusClient.AcceptSessionAsync(queueName, sessionId).ConfigureAwait(false);
+            if (contentUrl is null) throw new ArgumentNullException(nameof(contentUrl));
 
-            var received = await receiver.ReceiveMessageAsync(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
+            _savedMessageResponses.TryAdd(messageKey, contentUrl.AbsoluteUri);
 
-            return $"https://blob-me-test.azurefake.com/{received.MessageId}";
+            return Task.CompletedTask;
         }
     }
 }

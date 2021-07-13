@@ -14,20 +14,20 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
+using Energinet.DataHub.PostOffice.Domain;
 
-namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
+namespace Energinet.DataHub.PostOffice.Infrastructure.ContentPath
 {
-    /// <summary>
-    /// Send message to service bus container
-    /// </summary>
-    public interface ISendMessageToServiceBus
+    public class ContentPathFromSavedResponse : IGetContentPathStrategy
     {
-        /// <summary>
-        /// Send message to service bus container
-        /// </summary>
-        /// <param name="dataUuids"></param>
-        /// <param name="queueName"></param>
-        /// <param name="sessionId"></param>
-        public Task SendMessageAsync(IEnumerable<string?> dataUuids, string queueName, string sessionId);
+        public string StrategyName { get; } = nameof(ContentPathFromSavedResponse);
+
+        public string? SavedContentPath { get; set; }
+
+        public Task<string> GetContentPathAsync(IEnumerable<DataAvailable> dataAvailables)
+        {
+            return Task.FromResult(SavedContentPath ?? string.Empty);
+        }
     }
 }

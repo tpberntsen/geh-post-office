@@ -18,16 +18,26 @@ using System.Threading.Tasks;
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
     /// <summary>
-    /// Send message to service bus container
+    /// Strategy for creating content path
     /// </summary>
-    public interface ISendMessageToServiceBus
+    public interface IGetContentPathStrategy
     {
         /// <summary>
-        /// Send message to service bus container
+        /// Unique strategy name
         /// </summary>
-        /// <param name="dataUuids"></param>
-        /// <param name="queueName"></param>
-        /// <param name="sessionId"></param>
-        public Task SendMessageAsync(IEnumerable<string?> dataUuids, string queueName, string sessionId);
+        /// <returns>strategy name</returns>
+        string StrategyName { get; }
+
+        /// <summary>
+        /// Unique strategy name
+        /// </summary>
+        /// <returns>strategy name</returns>
+        string? SavedContentPath { get; set; }
+
+        /// <summary>
+        /// Return path to content
+        /// </summary>
+        /// <returns>content path</returns>
+        Task<string> GetContentPathAsync(IEnumerable<Domain.DataAvailable> dataAvailables);
     }
 }
