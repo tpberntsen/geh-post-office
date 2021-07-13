@@ -34,7 +34,7 @@ namespace Energinet.DataHub.PostOffice.Outbound
 {
     public static class Program
     {
-        public static Task Main(string[] args)
+        public static Task Main()
         {
             var host = new HostBuilder()
                 .ConfigureAppConfiguration(configurationBuilder =>

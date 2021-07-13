@@ -22,7 +22,7 @@ using FluentAssertions;
 using GreenEnergyHub.Messaging.Validation;
 using Xunit;
 
-namespace Energinet.DataHub.PostOffice.Tests
+namespace Energinet.DataHub.PostOffice.Tests.Validation
 {
     public class ValidationTests
     {

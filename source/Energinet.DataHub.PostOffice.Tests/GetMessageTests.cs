@@ -31,11 +31,8 @@ namespace Energinet.DataHub.PostOffice.Tests
         }
 
         [Fact]
-        public void Validate_GetMessage_Handler()
+        public void GetMessageHandler_CallFromMarketOperator_ResultMustMatch()
         {
-            // Arrange
-            // var documentStorageServiceMock = new Mock<IDocumentStore<DataAvailable>>();
-            // GetDocumentsAsync(documentStorageServiceMock);
             var dataAvailableStorageService = new Mock<IDataAvailableStorageService>();
             dataAvailableStorageService.Setup(
                 service => service.GetDataAvailableUuidsAsync(
@@ -61,7 +58,7 @@ namespace Energinet.DataHub.PostOffice.Tests
             var result = handler.Handle(query, System.Threading.CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            result.GetAwaiter().GetResult().Should().Be("test data");
+            result.GetAwaiter().GetResult().Should().Be(GetStorageContentAsyncSimulatedData());
         }
 
         private static void GetMarketOperatorDataFromStorageService(Mock<IStorageService> storageService)
