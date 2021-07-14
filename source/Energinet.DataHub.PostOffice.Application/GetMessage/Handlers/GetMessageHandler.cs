@@ -26,7 +26,6 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
 {
     public class GetMessageHandler : IRequestHandler<GetMessageQuery, string>
     {
-        private readonly string _blobStorageFileName = "Test.txt";
         private readonly string? _blobStorageContainerName = Environment.GetEnvironmentVariable("BlobStorageContainerName");
         private readonly IDataAvailableController _dataAvailableController;
         private readonly IStorageService _storageService;
@@ -50,7 +49,7 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
 
             var contentPath = await GetContentPathAsync(requestData).ConfigureAwait(false);
 
-            var data = await GetMarketOperatorDataAsync().ConfigureAwait(false);
+            var data = await GetMarketOperatorDataAsync(contentPath).ConfigureAwait(false);
 
             await AddMessageResponseToStorageAsync(requestData, contentPath).ConfigureAwait(false);
 
@@ -64,7 +63,7 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
                 .ConfigureAwait(false);
         }
 
-        private async Task<string?> GetContentPathAsync(RequestData requestData)
+        private async Task<string> GetContentPathAsync(RequestData requestData)
         {
             var contentPathStrategy = await _dataAvailableController
                 .GetStrategyForContentPathAsync(requestData)
@@ -77,12 +76,14 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
             return contentPath;
         }
 
-        private async Task<string> GetMarketOperatorDataAsync()
+        private async Task<string> GetMarketOperatorDataAsync(string contentPath)
         {
-            // Todo: change '_blobStorageFileName' to the path provided from 'ReadPathToMarketOperatorDataAsync()' when the method actually returns a path.
+            var contentPathUri = new Uri(contentPath);
+            var filename = contentPathUri.Segments[^1];
+
             return await _storageService.GetStorageContentAsync(
                 _blobStorageContainerName,
-                _blobStorageFileName).ConfigureAwait(false);
+                filename).ConfigureAwait(false);
         }
     }
 }
