@@ -131,14 +131,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
         /// </summary>
         private static CosmosClient BuildMoqCosmosClient()
         {
-            var mockItemResponse = new Mock<ItemResponse<Domain.DataAvailable>>();
+            var mockItemResponse = new Mock<ItemResponse<CosmosDataAvailable>>();
             mockItemResponse.Setup(x => x.StatusCode)
                 .Returns(HttpStatusCode.Created);
 
             var mockContainer = new Mock<Microsoft.Azure.Cosmos.Container>();
             mockContainer
-                .Setup(e => e.CreateItemAsync<Domain.DataAvailable>(
-                    It.IsAny<Domain.DataAvailable>(),
+                .Setup(e => e.CreateItemAsync<CosmosDataAvailable>(
+                    It.IsAny<CosmosDataAvailable>(),
                     null,
                     null,
                     default(CancellationToken)))
