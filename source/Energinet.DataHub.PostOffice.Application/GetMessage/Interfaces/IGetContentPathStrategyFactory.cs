@@ -12,30 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Domain;
-
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
     /// <summary>
-    /// Send message to service bus container
+    /// Create strategy for getting content path
     /// </summary>
-    public interface ISendMessageToServiceBus
+    public interface IGetContentPathStrategyFactory
     {
         /// <summary>
-        /// Send message to service bus container
+        /// Give strategy for getting path to content
         /// </summary>
-        /// <param name="requestData"></param>
-        /// <param name="queueName"></param>
-        /// <param name="sessionId"></param>
-        public Task SendMessageAsync(RequestData requestData, string queueName, string sessionId);
-
-        /// <summary>
-        /// Sends a message to sub domain that we need to fetch data
-        /// </summary>
-        /// <param name="requestData"></param>
-        /// <param name="sessionId"></param>
-        public Task RequestDataAsync(RequestData requestData, string sessionId);
+        /// <param name="pathToExistingContent">path to existing content if any</param>
+        /// <returns>content path strategy</returns>
+        IGetContentPathStrategy Create(string pathToExistingContent);
     }
 }

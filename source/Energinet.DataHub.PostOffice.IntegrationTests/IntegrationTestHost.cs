@@ -25,6 +25,7 @@ using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Common.MediatR;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
 using Energinet.DataHub.PostOffice.Infrastructure;
+using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using Energinet.DataHub.PostOffice.Infrastructure.Pipeline;
@@ -66,10 +67,15 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
             _container.Register<IMapper<Contracts.DataAvailable, DataAvailableCommand>, DataAvailableMapper>(Lifestyle.Scoped);
             _container.Register<IDocumentStore<Domain.DataAvailable>, CosmosDataAvailableStore>(Lifestyle.Scoped);
             _container.Register<IDataAvailableStorageService, DataAvailableStorageService>(Lifestyle.Scoped);
+            _container.Register<IDataAvailableController, DataAvailableController>(Lifestyle.Scoped);
+            _container.Register<IMessageResponseStorage, MessageResponseStorage>(Lifestyle.Scoped);
             _container.Register<DataAvailableContractParser>(Lifestyle.Scoped);
             _container.Register<ISendMessageToServiceBus, SendMessageToServiceBus>(Lifestyle.Scoped);
             _container.Register<IGetPathToDataFromServiceBus, GetPathToDataFromServiceBus>(Lifestyle.Scoped);
             _container.Register<IStorageService, StorageService>(Lifestyle.Scoped);
+
+            _container.Collection.Register<IGetContentPathStrategy>(typeof(ContentPathFromSubDomain), typeof(ContentPathFromSavedResponse));
+            _container.Register<IGetContentPathStrategyFactory, GetContentPathStrategyFactory>();
 
             _container.Register<ServiceBusClient>(() => new ServiceBusClient("Endpoint=sb://test.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test"), Lifestyle.Singleton);
             _container.Register<CosmosDatabaseConfig>(() => new CosmosDatabaseConfig("CHANGE_NAME"), Lifestyle.Singleton);
@@ -125,14 +131,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
         /// </summary>
         private static CosmosClient BuildMoqCosmosClient()
         {
-            var mockItemResponse = new Mock<ItemResponse<CosmosDataAvailable>>();
+            var mockItemResponse = new Mock<ItemResponse<Domain.DataAvailable>>();
             mockItemResponse.Setup(x => x.StatusCode)
                 .Returns(HttpStatusCode.Created);
 
             var mockContainer = new Mock<Microsoft.Azure.Cosmos.Container>();
             mockContainer
-                .Setup(e => e.CreateItemAsync<CosmosDataAvailable>(
-                    It.IsAny<CosmosDataAvailable>(),
+                .Setup(e => e.CreateItemAsync<Domain.DataAvailable>(
+                    It.IsAny<Domain.DataAvailable>(),
                     null,
                     null,
                     default(CancellationToken)))

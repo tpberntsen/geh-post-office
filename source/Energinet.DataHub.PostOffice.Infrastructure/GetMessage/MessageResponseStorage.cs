@@ -13,31 +13,32 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 {
-    public class StorageService : IStorageService
+    public class MessageResponseStorage : IMessageResponseStorage
     {
-        public async Task<string> GetStorageContentAsync(string? containerName, string fileName)
+        private static Dictionary<string, string> _savedMessageResponses = new Dictionary<string, string>();
+
+        public Task<string?> GetMessageResponseAsync(string messageKey)
         {
-            if (containerName is null) throw new ArgumentNullException(nameof(containerName));
+            var elementExists = _savedMessageResponses.TryGetValue(messageKey, out var path);
 
-            var connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
+            return Task.FromResult(elementExists ? path : null);
+        }
 
-            var storageAccount = CloudStorageAccount.Parse(connectionString);
+        public Task SaveMessageResponseAsync(string messageKey, Uri contentUrl)
+        {
+            if (contentUrl is null) throw new ArgumentNullException(nameof(contentUrl));
 
-            var serviceClient = storageAccount.CreateCloudBlobClient();
+            _savedMessageResponses.TryAdd(messageKey, contentUrl.AbsoluteUri);
 
-            var container = serviceClient.GetContainerReference(containerName);
-
-            var blob = container.GetBlockBlobReference(fileName);
-
-            var contents = await blob.DownloadTextAsync().ConfigureAwait(false);
-
-            return contents;
+            return Task.CompletedTask;
         }
     }
 }

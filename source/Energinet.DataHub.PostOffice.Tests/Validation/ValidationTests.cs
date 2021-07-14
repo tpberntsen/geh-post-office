@@ -18,15 +18,11 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Energinet.DataHub.PostOffice.Application.DataAvailable;
 using Energinet.DataHub.PostOffice.Application.Validation;
-using Energinet.DataHub.PostOffice.Contracts;
-using Energinet.DataHub.PostOffice.Inbound.Parsing;
-using Energinet.DataHub.PostOffice.Tests.Tooling;
 using FluentAssertions;
-using Google.Protobuf.WellKnownTypes;
 using GreenEnergyHub.Messaging.Validation;
 using Xunit;
 
-namespace Energinet.DataHub.PostOffice.Tests
+namespace Energinet.DataHub.PostOffice.Tests.Validation
 {
     public class ValidationTests
     {
@@ -35,40 +31,6 @@ namespace Energinet.DataHub.PostOffice.Tests
         public ValidationTests()
         {
             _fixture = new Fixture();
-        }
-
-        [Fact]
-        public async Task All_input_validations_should_fail_for_empty_document()
-        {
-            var document = new Document();
-            var ruleCollectionTester = RuleCollectionTester.Create<DocumentRules, Document>();
-
-            var result = await ruleCollectionTester.InvokeAsync(document).ConfigureAwait(false);
-
-            result.Count.Should().Be(4);
-        }
-
-        [Fact]
-        public async Task A_valid_document_should_validate()
-        {
-            var effectuationDate = _fixture.Create<Timestamp>();
-            var type = _fixture.Create<string>();
-            var recipient = _fixture.Create<string>();
-            var version = _fixture.Create<string>();
-            var content = "{\"document\": \"Important message.\"}";
-            var document = new Document
-            {
-                EffectuationDate = effectuationDate,
-                Type = type,
-                Recipient = recipient,
-                Content = content,
-                Version = version,
-            };
-            var ruleCollectionTester = RuleCollectionTester.Create<DocumentRules, Document>();
-
-            var result = await ruleCollectionTester.InvokeAsync(document).ConfigureAwait(false);
-
-            result.Success.Should().BeTrue();
         }
 
         [Fact]

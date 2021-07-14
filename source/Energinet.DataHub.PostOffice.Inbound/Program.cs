@@ -33,7 +33,7 @@ namespace Energinet.DataHub.PostOffice.Inbound
 {
     public class Program
     {
-        private static Task Main(string[] args)
+        private static Task Main()
         {
             var host = new HostBuilder()
                 .ConfigureAppConfiguration(configurationBuilder =>
@@ -63,7 +63,7 @@ namespace Energinet.DataHub.PostOffice.Inbound
                     services.AddDatabaseCosmosConfig();
                     services.AddCosmosClientBuilder(useBulkExecution: false);
 
-                    services.DiscoverValidation(new[] { typeof(DocumentRules).Assembly, typeof(DataAvailableRuleSet).Assembly });
+                    services.DiscoverValidation(new[] { typeof(DataAvailableRuleSet).Assembly });
                 })
                 .Build();
 

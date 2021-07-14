@@ -11,20 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-module "sbt_timeseries" {
-  source              = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-topic?ref=1.3.0"
-  name                = "timeseries"
+module "sbt_aggregations" {
+  source              = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-topic?ref=1.3.0"
+  name                = "aggregations"
   namespace_name      = module.sbn_inbound.name
   resource_group_name = data.azurerm_resource_group.postoffice.name
   dependencies        = [module.sbn_inbound]
 }
 
-module "sbtaur_timeseries_subscription" {
-  source                    = "git::https://github.com/Energinet-DataHub/green-energy-hub-core.git//terraform/modules/service-bus-subscription?ref=1.3.0"
+module "sbtaur_aggregations_subscription" {
+  source                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-subscription?ref=1.3.0"
   name                      = "default"
   namespace_name            = module.sbn_inbound.name
-  topic_name                = module.sbt_timeseries.name
+  topic_name                = module.sbt_aggregations.name
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   max_delivery_count        = 1
-  dependencies              = [module.sbt_timeseries]
+  dependencies              = [module.sbt_aggregations]
 }

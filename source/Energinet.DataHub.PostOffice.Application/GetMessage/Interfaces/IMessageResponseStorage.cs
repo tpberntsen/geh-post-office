@@ -12,30 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Domain;
 
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
     /// <summary>
-    /// Send message to service bus container
+    /// Interface for defining method to get saved data.
     /// </summary>
-    public interface ISendMessageToServiceBus
+    public interface IMessageResponseStorage
     {
         /// <summary>
-        /// Send message to service bus container
+        /// Getting path to saved data.
         /// </summary>
-        /// <param name="requestData"></param>
-        /// <param name="queueName"></param>
-        /// <param name="sessionId"></param>
-        public Task SendMessageAsync(RequestData requestData, string queueName, string sessionId);
+        /// <param name="messageKey"></param>
+        /// <returns>path to saved data</returns>
+        Task<string?> GetMessageResponseAsync(string messageKey);
 
         /// <summary>
-        /// Sends a message to sub domain that we need to fetch data
+        /// Saves message response to storage
         /// </summary>
-        /// <param name="requestData"></param>
-        /// <param name="sessionId"></param>
-        public Task RequestDataAsync(RequestData requestData, string sessionId);
+        /// <param name="messageKey"></param>
+        /// <param name="contentUrl"></param>
+        /// <returns>void task</returns>
+        Task SaveMessageResponseAsync(string messageKey, Uri contentUrl);
     }
 }

@@ -39,32 +39,21 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             _cosmosConfig = cosmosConfig;
         }
 
-        public async Task<IList<DataAvailable>> GetDocumentsAsync(GetMessageQuery documentQuery)
+        public async Task<IEnumerable<DataAvailable>> GetDocumentsAsync(string query, List<KeyValuePair<string, string>> parameters)
         {
-            if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
+            if (query == null) throw new ArgumentNullException(nameof(query));
+            if (parameters == null) throw new ArgumentNullException(nameof(parameters));
 
-            const string QueryString = @"
-                SELECT TOP 1 *
-                FROM Documents d
-                WHERE d.recipient = @recipient
-                ORDER BY d.EffectuationDate";
+            var documentQuery = new QueryDefinition(query);
+            parameters.ForEach(item => documentQuery.WithParameter($"@{item.Key}", item.Value));
 
             var container = GetContainer(ContainerName);
 
-            // Querying with an equality filter on the partition key will create a partitioned documentQuery, per:
-            // https://docs.microsoft.com/en-us/azure/cosmos-db/how-to-documentQuery-container#in-partition-documentQuery
-            // TODO: Change when actual names are available, ie. recipient_MriD?
-            var queryDefinition = new QueryDefinition(QueryString)
-                .WithParameter("@recipient", documentQuery.Recipient);
-
-            using (FeedIterator<CosmosDataAvailable> feedIterator =
-                container.GetItemQueryIterator<CosmosDataAvailable>(queryDefinition))
+            using (FeedIterator<CosmosDataAvailable> feedIterator = container.GetItemQueryIterator<CosmosDataAvailable>(documentQuery))
             {
-                var documents = new List<DataAvailable>();
                 var documentsFromCosmos = await feedIterator.ReadNextAsync().ConfigureAwait(false);
-                foreach (var document in documentsFromCosmos)
-                {
-                    documents.Add(new DataAvailable(
+                var documents = documentsFromCosmos
+                    .Select(document => new DataAvailable(
                         document.uuid,
                         document.recipient,
                         document.messageType,
@@ -72,9 +61,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                         document.supportsBundling,
                         document.relativeWeight,
                         document.priority));
-                }
 
-                return documents;
+                return documents.ToList();
             }
         }
 
@@ -138,18 +126,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
             var container = GetContainer(ContainerName);
 
-            var cosmosDocument = new CosmosDataAvailable
-            {
-                uuid = document.uuid,
-                recipient = document.recipient,
-                messageType = document.messageType,
-                origin = document.origin,
-                supportsBundling = document.supportsBundling,
-                relativeWeight = document.relativeWeight,
-                priority = document.priority,
-            };
-
-            var response = await container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
+            var response = await container.CreateItemAsync(document).ConfigureAwait(false);
             if (response.StatusCode != HttpStatusCode.Created)
             {
                 throw new InvalidOperationException("Could not create document in cosmos");
