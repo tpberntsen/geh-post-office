@@ -18,7 +18,7 @@ namespace Energinet.DataHub.PostOffice.Domain
 {
     public class RequestData
     {
-        public IEnumerable<string?>? Uuids { get; init; }
+        public IEnumerable<string> Uuids { get; init; } = new List<string>();
 
         public string? Origin { get; init; }
     }

@@ -14,6 +14,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Domain;
 
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
@@ -38,6 +39,6 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
         /// Return path to content
         /// </summary>
         /// <returns>content path</returns>
-        Task<string> GetContentPathAsync(IEnumerable<Domain.DataAvailable> dataAvailables);
+        Task<string> GetContentPathAsync(RequestData dataAvailables);
     }
 }

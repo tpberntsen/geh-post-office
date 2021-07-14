@@ -54,7 +54,7 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
                 .GetCurrentDataAvailableRequestSetAsync(new GetMessageQuery("recipient")).ConfigureAwait(false);
 
             // Assert
-            result.Should().NotBeNullOrEmpty();
+            result.Should().NotBeNull();
         }
     }
 }

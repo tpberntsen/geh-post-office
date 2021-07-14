@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
+using Energinet.DataHub.PostOffice.Domain;
 
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
@@ -29,14 +30,14 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
         /// </summary>
         /// <param name="getMessageQuery"></param>
         /// <returns>list of dataAvailables where data should be collected</returns>
-        Task<IEnumerable<Domain.DataAvailable>> GetCurrentDataAvailableRequestSetAsync(GetMessageQuery getMessageQuery);
+        Task<RequestData> GetCurrentDataAvailableRequestSetAsync(GetMessageQuery getMessageQuery);
 
         /// <summary>
         /// Finds data message uuids for recipient.
         /// </summary>
         /// <param name="dataAvailables"></param>
         /// <returns>list of dataAvailables where data should be collected</returns>
-        Task<IGetContentPathStrategy> GetStrategyForContentPathAsync(IEnumerable<Domain.DataAvailable> dataAvailables);
+        Task<IGetContentPathStrategy> GetStrategyForContentPathAsync(RequestData dataAvailables);
 
         /// <summary>
         /// Saves message Response
@@ -44,6 +45,6 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
         /// <param name="dataAvailables"></param>
         /// <param name="contentPath"></param>
         /// <returns>void task</returns>
-        Task AddToMessageResponseStorageAsync(IEnumerable<Domain.DataAvailable> dataAvailables, Uri contentPath);
+        Task AddToMessageResponseStorageAsync(RequestData dataAvailables, Uri contentPath);
     }
 }

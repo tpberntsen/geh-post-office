@@ -42,7 +42,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             var documents = await _cosmosDocumentStore.GetDocumentsAsync(queryString, parameters).ConfigureAwait(false);
             var document = documents.FirstOrDefault();
 
-            return document is not null ? new RequestData() { Origin = document.origin, Uuids = new List<string?>() { document.uuid } } : new RequestData();
+            return document is not null ? new RequestData() { Origin = document.origin, Uuids = new List<string>() { document.uuid! } } : new RequestData();
         }
     }
 }

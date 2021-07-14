@@ -23,7 +23,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.ContentPath
 {
     public class ContentPathFromSubDomain : IGetContentPathStrategy
     {
-        private readonly string _queueName = "charges";
+        private readonly string? _returnQueueName = Environment.GetEnvironmentVariable("ServiceBus_DataRequest_Return_Queue");
         private readonly ISendMessageToServiceBus _sendMessageToServiceBus;
         private readonly IGetPathToDataFromServiceBus _getPathToDataFromServiceBus;
         private Guid _sessionId;
@@ -41,27 +41,29 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.ContentPath
 
         public string? SavedContentPath { get; set; }
 
-        public async Task<string> GetContentPathAsync(IEnumerable<DataAvailable> dataAvailables)
+        public async Task<string> GetContentPathAsync(RequestData requestData)
         {
-            await RequestPathToMarketOperatorDataAsync(dataAvailables.Select(d => d.uuid)).ConfigureAwait(false);
-            var contentPath = await ReadPathToMarketOperatorDataAsync().ConfigureAwait(false);
-            return contentPath;
+            if (requestData == null) throw new ArgumentNullException(nameof(requestData));
+
+            await RequestPathToMarketOperatorDataAsync(requestData).ConfigureAwait(false);
+            var messageReply = await ReadPathToMarketOperatorDataAsync().ConfigureAwait(false);
+
+            return messageReply.DataPath ?? string.Empty;
         }
 
-        private async Task RequestPathToMarketOperatorDataAsync(IEnumerable<string?> uuids)
+        private async Task RequestPathToMarketOperatorDataAsync(RequestData requestData)
         {
-            if (uuids is null) throw new ArgumentNullException(nameof(uuids));
+            if (requestData is null) throw new ArgumentNullException(nameof(requestData));
 
-            await _sendMessageToServiceBus.SendMessageAsync(
-                uuids,
-                _queueName,
+            await _sendMessageToServiceBus.RequestDataAsync(
+                requestData,
                 _sessionId.ToString()).ConfigureAwait(false);
         }
 
-        private async Task<string> ReadPathToMarketOperatorDataAsync()
+        private async Task<MessageReply> ReadPathToMarketOperatorDataAsync()
         {
             return await _getPathToDataFromServiceBus.GetPathAsync(
-                _queueName,
+                _returnQueueName ?? "default",
                 _sessionId.ToString()).ConfigureAwait(false);
         }
     }

@@ -25,7 +25,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.ContentPath
 
         public string? SavedContentPath { get; set; }
 
-        public Task<string> GetContentPathAsync(IEnumerable<DataAvailable> dataAvailables)
+        public Task<string> GetContentPathAsync(RequestData requestData)
         {
             return Task.FromResult(SavedContentPath ?? string.Empty);
         }

@@ -38,30 +38,34 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             _contentPathStrategyFactory = contentPathStrategyFactory;
         }
 
-        public async Task<IEnumerable<DataAvailable>> GetCurrentDataAvailableRequestSetAsync(GetMessageQuery getMessageQuery)
+        public async Task<RequestData> GetCurrentDataAvailableRequestSetAsync(GetMessageQuery getMessageQuery)
         {
             var dataAvailablesByRecipient = await _dataAvailableStorageService.GetDataAvailableUuidsAsync(getMessageQuery).ConfigureAwait(false);
             return dataAvailablesByRecipient;
         }
 
-        public async Task<IGetContentPathStrategy> GetStrategyForContentPathAsync(IEnumerable<DataAvailable> dataAvailables)
+        public async Task<IGetContentPathStrategy> GetStrategyForContentPathAsync(RequestData requestData)
         {
-            var dataAvailableContentKey = GetContentKeyFromUuids(dataAvailables);
+            if (requestData == null) throw new ArgumentNullException(nameof(requestData));
+
+            var dataAvailableContentKey = GetContentKeyFromUuids(requestData);
             var savedContentPath = await _messageResponseStorage.GetMessageResponseAsync(dataAvailableContentKey).ConfigureAwait(false);
 
-            return _contentPathStrategyFactory.Create(savedContentPath!);
+            return _contentPathStrategyFactory.Create(savedContentPath ?? string.Empty);
         }
 
-        public async Task AddToMessageResponseStorageAsync(IEnumerable<DataAvailable> dataAvailables, Uri contentPath)
+        public async Task AddToMessageResponseStorageAsync(RequestData requestData, Uri contentPath)
         {
-            var messageContentKey = GetContentKeyFromUuids(dataAvailables);
+            if (requestData == null) throw new ArgumentNullException(nameof(requestData));
+
+            var messageContentKey = GetContentKeyFromUuids(requestData);
 
             await _messageResponseStorage.SaveMessageResponseAsync(messageContentKey, contentPath).ConfigureAwait(false);
         }
 
-        private static string GetContentKeyFromUuids(IEnumerable<DataAvailable> readyMessagesList)
+        private static string GetContentKeyFromUuids(RequestData requestData)
         {
-            return string.Join(";", readyMessagesList.Select(e => e.uuid));
+            return string.Join(";", requestData.Uuids);
         }
     }
 }

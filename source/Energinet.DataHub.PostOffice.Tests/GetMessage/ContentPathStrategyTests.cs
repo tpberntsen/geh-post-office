@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
+using Energinet.DataHub.PostOffice.Domain;
 using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using Energinet.DataHub.PostOffice.Tests.Helpers;
@@ -43,10 +44,11 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
             var dataAvailableController = new DataAvailableController(dataAvailableStorageService.Object, messageResponseStorage.Object, strategyFactory);
 
             var dataAvailables = TestData.GetRandomValidDataAvailables(5);
+            var requestData = new RequestData() { Uuids = dataAvailables.Select(data => data.uuid!), Origin = "Test" };
 
             // Act
             var strategy = await dataAvailableController
-                .GetStrategyForContentPathAsync(dataAvailables)
+                .GetStrategyForContentPathAsync(requestData)
                 .ConfigureAwait(false);
 
             // Assert
@@ -69,9 +71,11 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
             var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies());
             var dataAvailableController = new DataAvailableController(dataAvailableStorageService.Object, messageResponseStorage.Object, strategyFactory);
 
+            var requestData = new RequestData() { Uuids = dataAvailables.Select(data => data.uuid!), Origin = "Test" };
+
             // Act
             var strategy = await dataAvailableController
-                .GetStrategyForContentPathAsync(dataAvailables)
+                .GetStrategyForContentPathAsync(requestData)
                 .ConfigureAwait(false);
 
             // Assert

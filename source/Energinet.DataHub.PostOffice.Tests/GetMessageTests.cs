@@ -69,7 +69,7 @@ namespace Energinet.DataHub.PostOffice.Tests
         {
             var getPathToDataFromServiceBus = new Mock<IGetPathToDataFromServiceBus>();
             getPathToDataFromServiceBus.Setup(path => path.GetPathAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync("https://testlink.com");
+                .ReturnsAsync(new MessageReply() { DataPath = "https://testpath.com" });
             var sendMessageToServiceBus = new Mock<ISendMessageToServiceBus>();
 
             return new List<IGetContentPathStrategy>() { new ContentPathFromSavedResponse(), new ContentPathFromSubDomain(sendMessageToServiceBus.Object, getPathToDataFromServiceBus.Object) };
