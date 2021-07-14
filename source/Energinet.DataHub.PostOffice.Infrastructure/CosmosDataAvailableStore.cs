@@ -126,7 +126,18 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
             var container = GetContainer(ContainerName);
 
-            var response = await container.CreateItemAsync(document).ConfigureAwait(false);
+            var cosmosDocument = new CosmosDataAvailable
+            {
+                uuid = document.uuid,
+                recipient = document.recipient,
+                messageType = document.messageType,
+                origin = document.origin,
+                supportsBundling = document.supportsBundling,
+                relativeWeight = document.relativeWeight,
+                priority = document.priority,
+            };
+
+            var response = await container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
             if (response.StatusCode != HttpStatusCode.Created)
             {
                 throw new InvalidOperationException("Could not create document in cosmos");
