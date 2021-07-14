@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
@@ -52,9 +51,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
         {
             if (requestData == null) throw new ArgumentNullException(nameof(requestData));
 
-            // Send request to all different origins
-            // What if _serviceBusClient is null?
-            if (_serviceBusClient is not null) _sender = _serviceBusClient.CreateSender(requestData.Origin);
+            var originReceiver = FindQueueOrTopicNameFromOrigin(requestData.Origin ?? string.Empty);
+            if (_serviceBusClient is not null) _sender = _serviceBusClient.CreateSender(originReceiver);
 
             var requestDatasetMessage = new Contracts.RequestDataset() { UUID = { requestData.Uuids } };
             var message = new ServiceBusMessage(requestDatasetMessage.ToByteArray()) { SessionId = sessionId };
@@ -64,6 +62,25 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 
             // What if _sender is null?
             if (_sender is not null) await _sender.SendMessageAsync(message).ConfigureAwait(false);
+        }
+
+        private static string FindQueueOrTopicNameFromOrigin(string origin)
+        {
+            switch (origin)
+            {
+                case "charges":
+                    return "charges";
+                case "ts" or "timeseries":
+                    return "ts";
+                default:
+                    string defaultQueue;
+                    #if DEBUG
+                    defaultQueue = "charges";
+                    #else
+                    throw new NotFoundException("Unknown origin name");
+                    #endif
+                    return defaultQueue;
+            }
         }
     }
 }
