@@ -41,8 +41,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
         public async Task<IEnumerable<DataAvailable>> GetDocumentsAsync(string query, List<KeyValuePair<string, string>> parameters)
         {
-            if (query == null) throw new ArgumentNullException(nameof(query));
-            if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+            if (query is null) throw new ArgumentNullException(nameof(query));
+            if (parameters is null) throw new ArgumentNullException(nameof(parameters));
 
             var documentQuery = new QueryDefinition(query);
             parameters.ForEach(item => documentQuery.WithParameter($"@{item.Key}", item.Value));
@@ -68,7 +68,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
         public async Task<DataAvailable?> GetOldestDocumentAsync(GetMessageQuery documentQuery)
         {
-            if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
+            if (documentQuery is null) throw new ArgumentNullException(nameof(documentQuery));
 
             const string QueryString = @"
                 SELECT TOP 1 *
@@ -122,7 +122,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
         public async Task<bool> SaveDocumentAsync(DataAvailable document)
         {
-            if (document == null) throw new ArgumentNullException(nameof(document));
+            if (document is null) throw new ArgumentNullException(nameof(document));
 
             var container = GetContainer(ContainerName);
 

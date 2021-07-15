@@ -30,10 +30,10 @@ namespace Energinet.DataHub.PostOffice.Inbound.Parsing
 
         public DataAvailableCommand Parse(byte[] bytes)
         {
-            if (bytes == null) throw new ArgumentNullException(nameof(bytes));
+            if (bytes is null) throw new ArgumentNullException(nameof(bytes));
 
             var dataAvailableContract = Contracts.DataAvailable.Parser.ParseFrom(bytes);
-            if (dataAvailableContract == null) throw new InvalidOperationException("Cannot parse bytes to document.");
+            if (dataAvailableContract is null) throw new InvalidOperationException("Cannot parse bytes to document.");
 
             return _mapper.Map(dataAvailableContract);
         }

@@ -23,7 +23,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
     {
         public RequestData Map(Contracts.RequestDataset obj)
         {
-            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            if (obj is null) throw new ArgumentNullException(nameof(obj));
 
             var requestData = new RequestData() { Uuids = obj.UUID.ToList() };
 

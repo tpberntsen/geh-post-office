@@ -51,12 +51,12 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
 
             var data = await GetMarketOperatorDataAsync(messageReply.DataPath ?? string.Empty).ConfigureAwait(false);
 
-            await AddMessageReplayToStorageAsync(messageReply).ConfigureAwait(false);
+            await AddMessageReplyToStorageAsync(messageReply).ConfigureAwait(false);
 
             return data;
         }
 
-        private async Task AddMessageReplayToStorageAsync(MessageReply messageReply)
+        private async Task AddMessageReplyToStorageAsync(MessageReply messageReply)
         {
             await _dataAvailableController
                 .AddToMessageReplyStorageAsync(messageReply)

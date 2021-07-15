@@ -43,7 +43,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.ContentPath
 
         public async Task<MessageReply> GetContentPathAsync(RequestData requestData)
         {
-            if (requestData == null) throw new ArgumentNullException(nameof(requestData));
+            if (requestData is null) throw new ArgumentNullException(nameof(requestData));
 
             await RequestPathToMarketOperatorDataAsync(requestData).ConfigureAwait(false);
             var messageReply = await ReadPathToMarketOperatorDataAsync().ConfigureAwait(false);
