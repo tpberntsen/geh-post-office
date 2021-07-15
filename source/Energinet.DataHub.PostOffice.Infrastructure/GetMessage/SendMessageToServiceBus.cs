@@ -76,10 +76,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
                     string defaultQueue;
                     #if DEBUG
                     defaultQueue = "charges";
+                    return defaultQueue;
                     #else
                     throw new Exception("Unknown origin name");
                     #endif
-                    return defaultQueue;
             }
         }
     }
