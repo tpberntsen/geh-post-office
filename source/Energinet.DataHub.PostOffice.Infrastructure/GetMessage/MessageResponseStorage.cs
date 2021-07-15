@@ -32,7 +32,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             return Task.FromResult(elementExists ? path : null);
         }
 
-        public Task SaveMessageResponseAsync(string messageKey, Uri contentUrl)
+        public Task SaveMessageReplyAsync(string messageKey, Uri contentUrl)
         {
             if (contentUrl is null) throw new ArgumentNullException(nameof(contentUrl));
 

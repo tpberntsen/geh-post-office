@@ -49,7 +49,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 
         public async Task RequestDataAsync(RequestData requestData, string sessionId)
         {
-            if (requestData == null) throw new ArgumentNullException(nameof(requestData));
+            if (requestData is null) throw new ArgumentNullException(nameof(requestData));
 
             var originReceiver = FindQueueOrTopicNameFromOrigin(requestData.Origin ?? string.Empty);
             if (_serviceBusClient is not null) _sender = _serviceBusClient.CreateSender(originReceiver);

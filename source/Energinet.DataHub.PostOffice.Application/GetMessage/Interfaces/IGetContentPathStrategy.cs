@@ -39,6 +39,6 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
         /// Return path to content
         /// </summary>
         /// <returns>content path</returns>
-        Task<string> GetContentPathAsync(RequestData dataAvailables);
+        Task<MessageReply> GetContentPathAsync(RequestData dataAvailables);
     }
 }

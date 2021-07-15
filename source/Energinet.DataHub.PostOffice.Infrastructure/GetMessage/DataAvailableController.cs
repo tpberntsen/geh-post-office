@@ -46,26 +46,26 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 
         public async Task<IGetContentPathStrategy> GetStrategyForContentPathAsync(RequestData requestData)
         {
-            if (requestData == null) throw new ArgumentNullException(nameof(requestData));
+            if (requestData is null) throw new ArgumentNullException(nameof(requestData));
 
-            var dataAvailableContentKey = GetContentKeyFromUuids(requestData);
+            var dataAvailableContentKey = GetContentKeyFromUuids(requestData.Uuids);
             var savedContentPath = await _messageResponseStorage.GetMessageResponseAsync(dataAvailableContentKey).ConfigureAwait(false);
 
             return _contentPathStrategyFactory.Create(savedContentPath ?? string.Empty);
         }
 
-        public async Task AddToMessageResponseStorageAsync(RequestData requestData, Uri contentPath)
+        public async Task AddToMessageReplyStorageAsync(MessageReply messageReply)
         {
-            if (requestData == null) throw new ArgumentNullException(nameof(requestData));
+            if (messageReply is null) throw new ArgumentNullException(nameof(messageReply));
 
-            var messageContentKey = GetContentKeyFromUuids(requestData);
+            var messageContentKey = GetContentKeyFromUuids(messageReply.Uuids);
 
-            await _messageResponseStorage.SaveMessageResponseAsync(messageContentKey, contentPath).ConfigureAwait(false);
+            await _messageResponseStorage.SaveMessageReplyAsync(messageContentKey, new Uri(messageReply.DataPath!)).ConfigureAwait(false);
         }
 
-        private static string GetContentKeyFromUuids(RequestData requestData)
+        private static string GetContentKeyFromUuids(IEnumerable<string> uuids)
         {
-            return string.Join(";", requestData.Uuids);
+            return string.Join(";", uuids);
         }
     }
 }

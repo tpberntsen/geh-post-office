@@ -47,33 +47,33 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
 
             var requestData = await _dataAvailableController.GetCurrentDataAvailableRequestSetAsync(getMessagesQuery).ConfigureAwait(false);
 
-            var contentPath = await GetContentPathAsync(requestData).ConfigureAwait(false);
+            var messageReply = await GetContentPathAsync(requestData).ConfigureAwait(false);
 
-            var data = await GetMarketOperatorDataAsync(contentPath).ConfigureAwait(false);
+            var data = await GetMarketOperatorDataAsync(messageReply.DataPath ?? string.Empty).ConfigureAwait(false);
 
-            await AddMessageResponseToStorageAsync(requestData, contentPath).ConfigureAwait(false);
+            await AddMessageReplayToStorageAsync(messageReply).ConfigureAwait(false);
 
             return data;
         }
 
-        private async Task AddMessageResponseToStorageAsync(RequestData requestData, string? contentPath)
+        private async Task AddMessageReplayToStorageAsync(MessageReply messageReply)
         {
             await _dataAvailableController
-                .AddToMessageResponseStorageAsync(requestData, new Uri(contentPath!))
+                .AddToMessageReplyStorageAsync(messageReply)
                 .ConfigureAwait(false);
         }
 
-        private async Task<string> GetContentPathAsync(RequestData requestData)
+        private async Task<MessageReply> GetContentPathAsync(RequestData requestData)
         {
             var contentPathStrategy = await _dataAvailableController
                 .GetStrategyForContentPathAsync(requestData)
                 .ConfigureAwait(false);
 
-            var contentPath = await contentPathStrategy
+            var messageReply = await contentPathStrategy
                 .GetContentPathAsync(requestData)
                 .ConfigureAwait(false);
 
-            return contentPath;
+            return messageReply;
         }
 
         private async Task<string> GetMarketOperatorDataAsync(string contentPath)

@@ -19,5 +19,7 @@ namespace Energinet.DataHub.PostOffice.Domain
     public class MessageReply
     {
         public string? DataPath { get; init; }
+
+        public IEnumerable<string> Uuids { get; init; } = new List<string>();
     }
 }

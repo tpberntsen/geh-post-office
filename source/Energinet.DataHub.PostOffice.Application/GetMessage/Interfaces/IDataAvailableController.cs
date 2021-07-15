@@ -40,11 +40,10 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
         Task<IGetContentPathStrategy> GetStrategyForContentPathAsync(RequestData dataAvailables);
 
         /// <summary>
-        /// Saves message Response
+        /// Saves message reply to storage
         /// </summary>
-        /// <param name="dataAvailables"></param>
-        /// <param name="contentPath"></param>
+        /// <param name="messageReply"></param>
         /// <returns>void task</returns>
-        Task AddToMessageResponseStorageAsync(RequestData dataAvailables, Uri contentPath);
+        Task AddToMessageReplyStorageAsync(MessageReply messageReply);
     }
 }

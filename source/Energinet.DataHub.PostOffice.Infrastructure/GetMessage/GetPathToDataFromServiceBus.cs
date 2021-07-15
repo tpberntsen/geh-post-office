@@ -15,7 +15,6 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.PostOffice.Application.GetMessage;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Domain;
 
@@ -37,7 +36,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             var replyMessage = Contracts.DatasetReply.Parser.ParseFrom(received.Body.ToArray());
 
             // Todo: Add parser here to parse from contract to domain object
-            return replyMessage.Success is null ? new MessageReply() : new MessageReply() { DataPath = replyMessage.Success.Uri };
+            return replyMessage.Success is null ? new MessageReply() : new MessageReply() { DataPath = replyMessage.Success.Uri, Uuids = replyMessage.Success.UUID };
         }
     }
 }
