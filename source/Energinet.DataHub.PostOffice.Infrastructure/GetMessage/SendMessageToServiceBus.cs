@@ -73,10 +73,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
                 case "ts" or "timeseries":
                     return "ts";
                 default:
-                    string defaultQueue;
                     #if DEBUG
-                    defaultQueue = "charges";
-                    return defaultQueue;
+                    return "charges";
                     #else
                     throw new Exception("Unknown origin name");
                     #endif
