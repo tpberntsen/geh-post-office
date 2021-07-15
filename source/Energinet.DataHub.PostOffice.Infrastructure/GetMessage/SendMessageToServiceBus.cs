@@ -77,7 +77,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
                     #if DEBUG
                     defaultQueue = "charges";
                     #else
-                    throw new NotFoundException("Unknown origin name");
+                    throw new Exception("Unknown origin name");
                     #endif
                     return defaultQueue;
             }
