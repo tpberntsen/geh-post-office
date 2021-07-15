@@ -31,8 +31,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Pipeline
 
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
-            if (request == null) throw new ArgumentNullException(nameof(request));
-            if (next == null) throw new ArgumentNullException(nameof(next));
+            if (request is null) throw new ArgumentNullException(nameof(request));
+            if (next is null) throw new ArgumentNullException(nameof(next));
 
             var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
 

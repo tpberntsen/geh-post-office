@@ -23,7 +23,7 @@ namespace Energinet.DataHub.PostOffice.Outbound.Extensions
     {
         public static GetMessageQuery GetDocumentQuery(this HttpRequestData request)
         {
-            if (request == null) throw new ArgumentNullException(nameof(request));
+            if (request is null) throw new ArgumentNullException(nameof(request));
 
             var queryDictionary = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(request.Url.Query);
             var recipient = queryDictionary.ContainsKey("recipient") ? queryDictionary["recipient"].ToString() : null;

@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
@@ -31,7 +32,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             _cosmosDocumentStore = cosmosDocumentStore;
         }
 
-        public async Task<IEnumerable<DataAvailable>> GetDataAvailableUuidsAsync(GetMessageQuery getMessageQuery)
+        public async Task<RequestData> GetDataAvailableUuidsAsync(GetMessageQuery getMessageQuery)
         {
             if (getMessageQuery is null) throw new ArgumentNullException(nameof(getMessageQuery));
 
@@ -39,8 +40,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             var parameters = new List<KeyValuePair<string, string>>() { new ("recipient", getMessageQuery.Recipient) };
 
             var documents = await _cosmosDocumentStore.GetDocumentsAsync(queryString, parameters).ConfigureAwait(false);
+            var document = documents.FirstOrDefault();
 
-            return documents;
+            return document is not null ? new RequestData() { Origin = document.origin, Uuids = new List<string>() { document.uuid! } } : new RequestData();
         }
     }
 }

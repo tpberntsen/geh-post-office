@@ -15,8 +15,8 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.PostOffice.Application.GetMessage;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
+using Energinet.DataHub.PostOffice.Domain;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 {
@@ -29,13 +29,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             _serviceBusClient = serviceBusClient;
         }
 
-        public async Task<string> GetPathAsync(string queueName, string sessionId)
+        public async Task<MessageReply> GetPathAsync(string queueName, string sessionId)
         {
             var receiver = await _serviceBusClient.AcceptSessionAsync(queueName, sessionId).ConfigureAwait(false);
-
             var received = await receiver.ReceiveMessageAsync(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
+            var replyMessage = Contracts.DatasetReply.Parser.ParseFrom(received.Body.ToArray());
 
-            return $"https://blob-me-test.azurefake.com/{received.MessageId}";
+            // Todo: Add parser here to parse from contract to domain object
+            return replyMessage.Success is null ? new MessageReply() : new MessageReply() { DataPath = replyMessage.Success.Uri, Uuids = replyMessage.Success.UUID };
         }
     }
 }

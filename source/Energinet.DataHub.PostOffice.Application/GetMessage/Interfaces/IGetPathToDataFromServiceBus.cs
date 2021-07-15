@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Domain;
 
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
@@ -27,6 +28,6 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
         /// <param name="containerName"></param>
         /// <param name="sessionId"></param>
         /// <returns>String containing path to data in document store</returns>
-        public Task<string> GetPathAsync(string containerName, string sessionId);
+        public Task<MessageReply> GetPathAsync(string containerName, string sessionId);
     }
 }

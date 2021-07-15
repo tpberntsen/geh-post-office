@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Domain;
@@ -25,9 +25,12 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.ContentPath
 
         public string? SavedContentPath { get; set; }
 
-        public Task<string> GetContentPathAsync(IEnumerable<DataAvailable> dataAvailables)
+        public Task<MessageReply> GetContentPathAsync(RequestData requestData)
         {
-            return Task.FromResult(SavedContentPath ?? string.Empty);
+            if (requestData is null) throw new ArgumentNullException(nameof(requestData));
+
+            var messageReply = new MessageReply() { DataPath = SavedContentPath, Uuids = requestData.Uuids };
+            return Task.FromResult(messageReply);
         }
     }
 }

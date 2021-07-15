@@ -35,6 +35,6 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
         /// <param name="messageKey"></param>
         /// <param name="contentUrl"></param>
         /// <returns>void task</returns>
-        Task SaveMessageResponseAsync(string messageKey, Uri contentUrl);
+        Task SaveMessageReplyAsync(string messageKey, Uri contentUrl);
     }
 }

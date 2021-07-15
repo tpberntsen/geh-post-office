@@ -19,13 +19,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
+using Energinet.DataHub.PostOffice.Domain;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
 {
     public class GetMessageHandler : IRequestHandler<GetMessageQuery, string>
     {
-        private readonly string _blobStorageFileName = "Test.txt";
         private readonly string? _blobStorageContainerName = Environment.GetEnvironmentVariable("BlobStorageContainerName");
         private readonly IDataAvailableController _dataAvailableController;
         private readonly IStorageService _storageService;
@@ -45,44 +45,45 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
                 throw new ArgumentNullException(nameof(getMessagesQuery));
             }
 
-            var dataAvailableForRecipient = await _dataAvailableController.GetCurrentDataAvailableRequestSetAsync(getMessagesQuery).ConfigureAwait(false);
-            var availableForRecipient = dataAvailableForRecipient.ToList();
+            var requestData = await _dataAvailableController.GetCurrentDataAvailableRequestSetAsync(getMessagesQuery).ConfigureAwait(false);
 
-            var contentPath = await GetContentPathAsync(availableForRecipient).ConfigureAwait(false);
+            var messageReply = await GetContentPathAsync(requestData).ConfigureAwait(false);
 
-            var data = await GetMarketOperatorDataAsync().ConfigureAwait(false);
+            var data = await GetMarketOperatorDataAsync(messageReply.DataPath ?? string.Empty).ConfigureAwait(false);
 
-            await AddMessageResponseToStorageAsync(availableForRecipient, contentPath).ConfigureAwait(false);
+            await AddMessageReplyToStorageAsync(messageReply).ConfigureAwait(false);
 
             return data;
         }
 
-        private async Task AddMessageResponseToStorageAsync(IEnumerable<Domain.DataAvailable> availableForRecipient, string? contentPath)
+        private async Task AddMessageReplyToStorageAsync(MessageReply messageReply)
         {
             await _dataAvailableController
-                .AddToMessageResponseStorageAsync(availableForRecipient, new Uri(contentPath!))
+                .AddToMessageReplyStorageAsync(messageReply)
                 .ConfigureAwait(false);
         }
 
-        private async Task<string?> GetContentPathAsync(IReadOnlyCollection<Domain.DataAvailable> availableForRecipient)
+        private async Task<MessageReply> GetContentPathAsync(RequestData requestData)
         {
             var contentPathStrategy = await _dataAvailableController
-                .GetStrategyForContentPathAsync(availableForRecipient)
+                .GetStrategyForContentPathAsync(requestData)
                 .ConfigureAwait(false);
 
-            var contentPath = await contentPathStrategy
-                .GetContentPathAsync(availableForRecipient)
+            var messageReply = await contentPathStrategy
+                .GetContentPathAsync(requestData)
                 .ConfigureAwait(false);
 
-            return contentPath;
+            return messageReply;
         }
 
-        private async Task<string> GetMarketOperatorDataAsync()
+        private async Task<string> GetMarketOperatorDataAsync(string contentPath)
         {
-            // Todo: change '_blobStorageFileName' to the path provided from 'ReadPathToMarketOperatorDataAsync()' when the method actually returns a path.
+            var contentPathUri = new Uri(contentPath);
+            var filename = contentPathUri.Segments[^1];
+
             return await _storageService.GetStorageContentAsync(
                 _blobStorageContainerName,
-                _blobStorageFileName).ConfigureAwait(false);
+                filename).ConfigureAwait(false);
         }
     }
 }

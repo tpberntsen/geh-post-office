@@ -13,28 +13,21 @@
 // limitations under the License.
 
 using System;
+using System.Linq;
 using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Contracts;
-using NodaTime.Serialization.Protobuf;
+using Energinet.DataHub.PostOffice.Domain;
 
-namespace Energinet.DataHub.PostOffice.Infrastructure
+namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
-    public sealed class DocumentMapper : IMapper<Contracts.Document, Domain.Document>
+    public sealed class RequestDataMapper : IMapper<Contracts.RequestDataset, RequestData>
     {
-        public Domain.Document Map(Document obj)
+        public RequestData Map(Contracts.RequestDataset obj)
         {
             if (obj is null) throw new ArgumentNullException(nameof(obj));
 
-            var document = new Domain.Document
-            {
-                Content = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(obj.Content),
-                Type = obj.Type,
-                Recipient = obj.Recipient,
-                EffectuationDate = obj.EffectuationDate.ToInstant(),
-                Version = obj.Version,
-            };
+            var requestData = new RequestData() { Uuids = obj.UUID.ToList() };
 
-            return document;
+            return requestData;
         }
     }
 }

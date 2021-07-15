@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
+using Energinet.DataHub.PostOffice.Domain;
 
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
@@ -27,7 +27,7 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
         /// Get UUIDs from Cosmos database
         /// </summary>
         /// <param name="query"></param>
-        /// <returns>A collection with all UUIDs for the specified query</returns>
-        public Task<IEnumerable<Domain.DataAvailable>> GetDataAvailableUuidsAsync(GetMessageQuery query);
+        /// <returns>A collection with all UUIDs for the specified recipient</returns>
+        public Task<RequestData> GetDataAvailableUuidsAsync(GetMessageQuery query);
     }
 }

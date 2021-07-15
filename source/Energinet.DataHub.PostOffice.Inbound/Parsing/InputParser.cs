@@ -39,10 +39,10 @@ namespace Energinet.DataHub.PostOffice.Inbound.Parsing
 
         public async Task<Domain.Document> ParseAsync(byte[] bytes)
         {
-            if (bytes == null) throw new ArgumentNullException(nameof(bytes));
+            if (bytes is null) throw new ArgumentNullException(nameof(bytes));
 
             var document = Contracts.Document.Parser.ParseFrom(bytes);
-            if (document == null) throw new InvalidOperationException("Cannot parse bytes to document.");
+            if (document is null) throw new InvalidOperationException("Cannot parse bytes to document.");
 
             var validationResult = await _ruleEngine.ValidateAsync(document).ConfigureAwait(false);
             if (!validationResult.Success)

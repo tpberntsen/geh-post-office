@@ -26,7 +26,7 @@ namespace Energinet.DataHub.PostOffice.Common.MediatR
     {
         public static void BuildMediator(this Container container, Assembly[] applicationAssemblies, Type[] pipelineBehaviors)
         {
-            if (container == null) throw new ArgumentNullException(nameof(container));
+            if (container is null) throw new ArgumentNullException(nameof(container));
 
             var assemblies = GetMediatorAssemblies().Union(applicationAssemblies).ToArray();
             container.RegisterSingleton<IMediator, Mediator>();

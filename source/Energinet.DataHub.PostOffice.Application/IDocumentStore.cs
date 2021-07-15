@@ -56,5 +56,12 @@ namespace Energinet.DataHub.PostOffice.Application
         /// </summary>
         /// <param name="document">The document to save.</param>
         Task<bool> SaveDocumentAsync(T document);
+
+        /// <summary>
+        /// Gets the oldest document we have for this query
+        /// </summary>
+        /// <param name="documentQuery"></param>
+        /// <returns>The oldest document available or null if no data found</returns>
+        Task<T?> GetOldestDocumentAsync(GetMessageQuery documentQuery);
     }
 }
