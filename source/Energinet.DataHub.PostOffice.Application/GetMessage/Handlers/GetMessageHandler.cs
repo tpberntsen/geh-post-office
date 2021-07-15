@@ -40,27 +40,22 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
 
         public async Task<string> Handle(GetMessageQuery getMessagesQuery, CancellationToken cancellationToken)
         {
-            if (getMessagesQuery is null)
-            {
-                throw new ArgumentNullException(nameof(getMessagesQuery));
-            }
+            if (getMessagesQuery is null) { throw new ArgumentNullException(nameof(getMessagesQuery)); }
 
             var requestData = await _dataAvailableController.GetCurrentDataAvailableRequestSetAsync(getMessagesQuery).ConfigureAwait(false);
+
+            if (requestData.Uuids.Any() is false)
+            {
+                return string.Empty;
+            }
 
             var messageReply = await GetContentPathAsync(requestData).ConfigureAwait(false);
 
             var data = await GetMarketOperatorDataAsync(messageReply.DataPath ?? string.Empty).ConfigureAwait(false);
 
-            await AddMessageReplyToStorageAsync(messageReply).ConfigureAwait(false);
+            await _dataAvailableController.AddToMessageReplyStorageAsync(messageReply).ConfigureAwait(false);
 
             return data;
-        }
-
-        private async Task AddMessageReplyToStorageAsync(MessageReply messageReply)
-        {
-            await _dataAvailableController
-                .AddToMessageReplyStorageAsync(messageReply)
-                .ConfigureAwait(false);
         }
 
         private async Task<MessageReply> GetContentPathAsync(RequestData requestData)
