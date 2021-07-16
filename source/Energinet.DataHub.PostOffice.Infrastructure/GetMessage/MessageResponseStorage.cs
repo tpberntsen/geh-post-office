@@ -35,6 +35,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
         public Task SaveMessageReplyAsync(string messageKey, Uri contentUrl)
         {
             if (contentUrl is null) throw new ArgumentNullException(nameof(contentUrl));
+            if (string.IsNullOrWhiteSpace(messageKey)) throw new ArgumentNullException(nameof(messageKey));
 
             _savedMessageResponses.TryAdd(messageKey, contentUrl.AbsoluteUri);
 
