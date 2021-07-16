@@ -42,9 +42,9 @@ namespace Energinet.DataHub.PostOffice.Tests
 
             var dataAvailableStorageService = new DataAvailableStorageService(documentStore.Object);
 
-            var messageResponseStorage = new Mock<IMessageResponseStorage>();
+            var messageResponseStorage = new Mock<IMessageReplyStorage>();
             messageResponseStorage
-                .Setup(e => e.GetMessageResponseAsync(It.IsAny<string>()))
+                .Setup(e => e.GetMessageReplyAsync(It.IsAny<string>()))
                 .ReturnsAsync(It.IsAny<string>());
 
             var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies());

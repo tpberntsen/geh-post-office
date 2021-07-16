@@ -35,9 +35,9 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
         {
             // Arrange
             var dataAvailableStorageService = new Mock<IDataAvailableStorageService>();
-            var messageResponseStorage = new Mock<IMessageResponseStorage>();
+            var messageResponseStorage = new Mock<IMessageReplyStorage>();
             messageResponseStorage
-                .Setup(e => e.GetMessageResponseAsync(It.IsAny<string>()))
+                .Setup(e => e.GetMessageReplyAsync(It.IsAny<string>()))
                 .ReturnsAsync(It.IsAny<string>());
 
             var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies());
@@ -63,9 +63,9 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
             var contentKey = string.Join(";", dataAvailables.Select(e => e.uuid));
 
             var dataAvailableStorageService = new Mock<IDataAvailableStorageService>();
-            var messageResponseStorage = new Mock<IMessageResponseStorage>();
+            var messageResponseStorage = new Mock<IMessageReplyStorage>();
             messageResponseStorage
-                .Setup(e => e.GetMessageResponseAsync(It.IsAny<string>()))
+                .Setup(e => e.GetMessageReplyAsync(It.IsAny<string>()))
                 .ReturnsAsync(contentKey);
 
             var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies());
