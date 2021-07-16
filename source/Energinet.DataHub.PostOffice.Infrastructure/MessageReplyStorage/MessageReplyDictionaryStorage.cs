@@ -31,11 +31,12 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage
             return Task.FromResult(elementExists ? path : null);
         }
 
-        public Task SaveMessageReplyAsync(string messageKey, Uri contentPath)
+        public Task SaveMessageReplyAsync(string messageKey, Uri contentUri)
         {
-            if (contentPath is null) throw new ArgumentNullException(nameof(contentPath));
+            if (contentUri is null) throw new ArgumentNullException(nameof(contentUri));
+            if (string.IsNullOrWhiteSpace(messageKey)) throw new ArgumentNullException(nameof(messageKey));
 
-            _savedReplyResponses.TryAdd(messageKey, new Uri(contentPath.AbsoluteUri).AbsoluteUri);
+            _savedReplyResponses.TryAdd(messageKey, new Uri(contentUri.AbsoluteUri).AbsoluteUri);
 
             return Task.CompletedTask;
         }

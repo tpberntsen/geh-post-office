@@ -47,8 +47,7 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
 
                 var data = await _mediator.Send(getMessageQuery).ConfigureAwait(false);
 
-                var response = request.CreateResponse(HttpStatusCode.OK);
-                await response.WriteAsJsonAsync(data).ConfigureAwait(false);
+                var response = await GetHttpResponseAsync(request, HttpStatusCode.OK, string.IsNullOrWhiteSpace(data) ? null : data).ConfigureAwait(false);
 
                 return response;
             }
@@ -64,10 +63,10 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
             }
         }
 
-        private static HttpResponseData GetHttpResponse(HttpRequestData request, HttpStatusCode httpStatusCode, string body)
+        private static async Task<HttpResponseData> GetHttpResponseAsync(HttpRequestData request, HttpStatusCode httpStatusCode, string body)
         {
             var response = request.CreateResponse(httpStatusCode);
-            response.WriteString(body);
+            await response.WriteAsJsonAsync(body).ConfigureAwait(false);
             return response;
         }
     }
