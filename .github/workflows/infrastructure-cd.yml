@@ -41,7 +41,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform CD
-        uses: Energinet-DataHub/.github/.github/actions/terraform@1.0.1
+        uses: Energinet-DataHub/.github/.github/actions/terraform@1.0.2
         with:
           PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
           ORGANISATION_NAME: ${{ secrets.ORGANISATION_NAME }}
@@ -72,7 +72,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform CD
-        uses: Energinet-DataHub/.github/.github/actions/terraform@1.0.1
+        uses: Energinet-DataHub/.github/.github/actions/terraform@1.0.2
         with:
           PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
           ORGANISATION_NAME: ${{ secrets.ORGANISATION_NAME }}
@@ -103,7 +103,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform CD
-        uses: Energinet-DataHub/.github/.github/actions/terraform@1.0.1
+        uses: Energinet-DataHub/.github/.github/actions/terraform@1.0.2
         with:
           PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
           ORGANISATION_NAME: ${{ secrets.ORGANISATION_NAME }}
@@ -134,7 +134,7 @@ jobs:
           terraform_wrapper: false
       
       - name: Terraform CD
-        uses: Energinet-DataHub/.github/.github/actions/terraform@1.0.1
+        uses: Energinet-DataHub/.github/.github/actions/terraform@1.0.2
         with:
           PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
           ORGANISATION_NAME: ${{ secrets.ORGANISATION_NAME }}
