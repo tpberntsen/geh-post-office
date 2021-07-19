@@ -12,22 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
-using Energinet.DataHub.PostOffice.Domain;
+using Energinet.DataHub.PostOffice.Application.Validation.Rules;
+using FluentValidation;
 
-namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
+namespace Energinet.DataHub.PostOffice.Application.Validation
 {
-    /// <summary>
-    /// Service to connect and retrieve data from Cosmos database
-    /// </summary>
-    public interface IDataAvailableStorageService
+    public class GetMessageRuleSetValidator : AbstractValidator<GetMessageQuery>
     {
-        /// <summary>
-        /// Get UUIDs from Cosmos database
-        /// </summary>
-        /// <param name="query"></param>
-        /// <returns>A collection with all UUIDs for the specified recipient</returns>
-        public Task<RequestData> GetDataAvailableUuidsAsync(GetMessageQuery query);
+        public GetMessageRuleSetValidator()
+        {
+            RuleFor(request => request.Recipient).NotEmpty().SetValidator(new GetMessageMustBeValidGuidRule());
+        }
     }
 }

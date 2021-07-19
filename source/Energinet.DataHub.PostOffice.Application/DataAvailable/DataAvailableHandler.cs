@@ -30,7 +30,7 @@ namespace Energinet.DataHub.PostOffice.Application.DataAvailable
 
         public async Task<bool> Handle(DataAvailableCommand request, CancellationToken cancellationToken)
         {
-            if (request == null) throw new ArgumentNullException(nameof(request));
+            if (request is null) throw new ArgumentNullException(nameof(request));
 
             var dataAvailableDomain = new Domain.DataAvailable(request.UUID, request.Recipient, request.MessageType, request.Origin, request.SupportsBundling, request.RelativeWeight, 1M);
             var saveResult = await _documentStore.SaveDocumentAsync(dataAvailableDomain).ConfigureAwait(false);

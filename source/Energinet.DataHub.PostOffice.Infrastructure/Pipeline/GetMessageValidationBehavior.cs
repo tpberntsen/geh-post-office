@@ -21,12 +21,12 @@ using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Pipeline
 {
-    public class DataAvailablePipelineValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IRequest<bool>
+    public class GetMessagePipelineValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
     {
         private readonly IValidator<TRequest> _validator;
 
-        public DataAvailablePipelineValidationBehavior(IValidator<TRequest> validator)
+        public GetMessagePipelineValidationBehavior(IValidator<TRequest> validator)
             => _validator = validator;
 
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
@@ -39,7 +39,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Pipeline
             if (!validationResult.IsValid)
             {
                 throw new ValidationException(
-                    $"Cannot validate document, because: {string.Join(", ", validationResult.Errors.Select(r => r.ErrorMessage))}");
+                    $"Cannot validate request because: {validationResult.Errors.First()}");
             }
 
             return await next().ConfigureAwait(false);

@@ -12,18 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using GreenEnergyHub.Messaging.Validation;
+using System;
+using System.Linq;
+using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Domain;
 
-namespace Energinet.DataHub.PostOffice.Inbound.Parsing
+namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
-    public class DocumentRules : RuleCollection<Contracts.Document>
+    public sealed class RequestDataMapper : IMapper<Contracts.RequestDataset, RequestData>
     {
-        public DocumentRules()
+        public RequestData Map(Contracts.RequestDataset obj)
         {
-            RuleFor(document => document.Type).PropertyRule<DocumentCannotHaveEmptyValue>();
-            RuleFor(document => document.Version).PropertyRule<DocumentCannotHaveEmptyValue>();
-            RuleFor(document => document.Recipient).PropertyRule<DocumentCannotHaveEmptyValue>();
-            RuleFor(document => document.EffectuationDate).PropertyRule<DocumentMustHaveEffectuationDate>();
+            if (obj is null) throw new ArgumentNullException(nameof(obj));
+
+            var requestData = new RequestData() { Uuids = obj.UUID.ToList() };
+
+            return requestData;
         }
     }
 }

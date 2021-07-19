@@ -21,7 +21,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
     {
         public static CosmosDocument Map(Domain.Document obj)
         {
-            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            if (obj is null) throw new ArgumentNullException(nameof(obj));
 
             return new CosmosDocument
             {
@@ -37,7 +37,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
         public static Domain.Document Map(CosmosDocument obj)
         {
-            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            if (obj is null) throw new ArgumentNullException(nameof(obj));
 
             return new Domain.Document
             {

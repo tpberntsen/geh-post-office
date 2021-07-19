@@ -14,81 +14,71 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
+using Energinet.DataHub.PostOffice.Domain;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
 {
     public class GetMessageHandler : IRequestHandler<GetMessageQuery, string>
     {
-        private readonly string _queueName = "charges";
-        private readonly string _blobStorageFileName = "Test.txt";
         private readonly string? _blobStorageContainerName = Environment.GetEnvironmentVariable("BlobStorageContainerName");
-        private readonly IDataAvailableStorageService _dataAvailableStorageService;
-        private readonly ISendMessageToServiceBus _sendMessageToServiceBus;
-        private readonly IGetPathToDataFromServiceBus _getPathToDataFromServiceBus;
+        private readonly IDataAvailableController _dataAvailableController;
         private readonly IStorageService _storageService;
-        private Guid _sessionId;
 
         public GetMessageHandler(
-            IDataAvailableStorageService dataAvailableStorageService,
-            ISendMessageToServiceBus sendMessageToServiceBus,
-            IGetPathToDataFromServiceBus getPathToDataFromServiceBus,
+            IDataAvailableController dataAvailableController,
             IStorageService storageService)
         {
-            _dataAvailableStorageService = dataAvailableStorageService;
-            _sendMessageToServiceBus = sendMessageToServiceBus;
-            _getPathToDataFromServiceBus = getPathToDataFromServiceBus;
+            _dataAvailableController = dataAvailableController;
             _storageService = storageService;
-            _sessionId = Guid.NewGuid();
         }
 
-        public async Task<string> Handle(GetMessageQuery request, CancellationToken cancellationToken)
+        public async Task<string> Handle(GetMessageQuery getMessagesQuery, CancellationToken cancellationToken)
         {
-            if (request is null)
+            if (getMessagesQuery is null) { throw new ArgumentNullException(nameof(getMessagesQuery)); }
+
+            var requestData = await _dataAvailableController.GetCurrentDataAvailableRequestSetAsync(getMessagesQuery).ConfigureAwait(false);
+
+            if (requestData.Uuids.Any() is false)
             {
-                throw new ArgumentNullException(nameof(request));
+                return string.Empty;
             }
 
-            var uuids = await _dataAvailableStorageService.GetDataAvailableUuidsAsync(request.Recipient).ConfigureAwait(false);
+            var messageReply = await GetContentPathAsync(requestData).ConfigureAwait(false);
 
-            await RequestPathToMarketOperatorDataAsync(uuids).ConfigureAwait(false);
+            var data = await GetMarketOperatorDataAsync(messageReply.DataPath ?? string.Empty).ConfigureAwait(false);
 
-            var path = await ReadPathToMarketOperatorDataAsync().ConfigureAwait(false);
-
-            var data = await GetMarketOperatorDataAsync(path).ConfigureAwait(false);
+            await _dataAvailableController.AddToMessageReplyStorageAsync(messageReply).ConfigureAwait(false);
 
             return data;
         }
 
-        private async Task RequestPathToMarketOperatorDataAsync(IList<string>? uuids)
+        private async Task<MessageReply> GetContentPathAsync(RequestData requestData)
         {
-            if (uuids is null) throw new ArgumentNullException(nameof(uuids));
+            var contentPathStrategy = await _dataAvailableController
+                .GetStrategyForContentPathAsync(requestData)
+                .ConfigureAwait(false);
 
-            await _sendMessageToServiceBus.SendMessageAsync(
-                uuids,
-                _queueName,
-                _sessionId.ToString()).ConfigureAwait(false);
+            var messageReply = await contentPathStrategy
+                .GetContentPathAsync(requestData)
+                .ConfigureAwait(false);
+
+            return messageReply;
         }
 
-        private async Task<string> ReadPathToMarketOperatorDataAsync()
+        private async Task<string> GetMarketOperatorDataAsync(string contentPath)
         {
-            return await _getPathToDataFromServiceBus.GetPathAsync(
-                _queueName,
-                _sessionId.ToString()).ConfigureAwait(false);
-        }
+            var contentPathUri = new Uri(contentPath);
+            var filename = contentPathUri.Segments[^1];
 
-        private async Task<string> GetMarketOperatorDataAsync(string? path)
-        {
-            if (path is null) throw new ArgumentNullException(nameof(path));
-
-            // Todo: change '_blobStorageFileName' to 'path' when 'ReadPathToMarketOperatorDataAsync()' actually returns a path.
             return await _storageService.GetStorageContentAsync(
                 _blobStorageContainerName,
-                _blobStorageFileName).ConfigureAwait(false);
+                filename).ConfigureAwait(false);
         }
     }
 }

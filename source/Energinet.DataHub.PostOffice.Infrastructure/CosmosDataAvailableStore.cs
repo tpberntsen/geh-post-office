@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
@@ -38,14 +39,42 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             _cosmosConfig = cosmosConfig;
         }
 
-        public async Task<IList<DataAvailable>> GetDocumentsAsync(GetMessageQuery documentQuery)
+        public async Task<IEnumerable<DataAvailable>> GetDocumentsAsync(string query, List<KeyValuePair<string, string>> parameters)
         {
-            if (documentQuery == null) throw new ArgumentNullException(nameof(documentQuery));
+            if (query is null) throw new ArgumentNullException(nameof(query));
+            if (parameters is null) throw new ArgumentNullException(nameof(parameters));
+
+            var documentQuery = new QueryDefinition(query);
+            parameters.ForEach(item => documentQuery.WithParameter($"@{item.Key}", item.Value));
+
+            var container = GetContainer(ContainerName);
+
+            using (FeedIterator<CosmosDataAvailable> feedIterator = container.GetItemQueryIterator<CosmosDataAvailable>(documentQuery))
+            {
+                var documentsFromCosmos = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+                var documents = documentsFromCosmos
+                    .Select(document => new DataAvailable(
+                        document.uuid,
+                        document.recipient,
+                        document.messageType,
+                        document.origin,
+                        document.supportsBundling,
+                        document.relativeWeight,
+                        document.priority));
+
+                return documents.ToList();
+            }
+        }
+
+        public async Task<DataAvailable?> GetOldestDocumentAsync(GetMessageQuery documentQuery)
+        {
+            if (documentQuery is null) throw new ArgumentNullException(nameof(documentQuery));
 
             const string QueryString = @"
-                SELECT *
+                SELECT TOP 1 *
                 FROM Documents d
-                WHERE d.recipient = @recipient";
+                WHERE d.recipient = @recipient
+                ORDER BY d.EffectuationDate";
 
             var container = GetContainer(ContainerName);
 
@@ -72,7 +101,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                         document.priority));
                 }
 
-                return documents;
+                return documents.FirstOrDefault();
             }
         }
 
@@ -93,7 +122,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
         public async Task<bool> SaveDocumentAsync(DataAvailable document)
         {
-            if (document == null) throw new ArgumentNullException(nameof(document));
+            if (document is null) throw new ArgumentNullException(nameof(document));
 
             var container = GetContainer(ContainerName);
 

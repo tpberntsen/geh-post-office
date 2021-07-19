@@ -16,6 +16,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Outbound.Extensions;
+using FluentValidation;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -41,19 +42,19 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
             {
                 var getMessageQuery = request.GetDocumentQuery();
 
-                if (string.IsNullOrEmpty(getMessageQuery.Recipient))
-                {
-                    return GetHttpResponse(request, HttpStatusCode.BadRequest, "Query parameter is missing 'recipient'");
-                }
-
                 var logger = context.GetLogger(nameof(GetMessage));
                 logger.LogInformation($"Processing GetMessage query: {getMessageQuery}.");
 
                 var data = await _mediator.Send(getMessageQuery).ConfigureAwait(false);
 
-                var response = request.CreateResponse(HttpStatusCode.OK);
-                await response.WriteAsJsonAsync(data).ConfigureAwait(false);
+                var response = await GetHttpResponseAsync(request, HttpStatusCode.OK, string.IsNullOrWhiteSpace(data) ? null : data).ConfigureAwait(false);
 
+                return response;
+            }
+            catch (ValidationException e)
+            {
+                var response = request.CreateResponse(HttpStatusCode.BadRequest);
+                await response.WriteStringAsync(e.Message).ConfigureAwait(false);
                 return response;
             }
             catch (Exception e)
@@ -62,10 +63,10 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
             }
         }
 
-        private static HttpResponseData GetHttpResponse(HttpRequestData request, HttpStatusCode httpStatusCode, string body)
+        private static async Task<HttpResponseData> GetHttpResponseAsync(HttpRequestData request, HttpStatusCode httpStatusCode, string body)
         {
             var response = request.CreateResponse(httpStatusCode);
-            response.WriteString(body);
+            await response.WriteAsJsonAsync(body).ConfigureAwait(false);
             return response;
         }
     }

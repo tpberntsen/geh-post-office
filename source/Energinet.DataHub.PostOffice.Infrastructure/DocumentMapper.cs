@@ -23,7 +23,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
     {
         public Domain.Document Map(Document obj)
         {
-            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            if (obj is null) throw new ArgumentNullException(nameof(obj));
 
             var document = new Domain.Document
             {

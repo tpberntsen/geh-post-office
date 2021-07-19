@@ -22,7 +22,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
     {
         public DataAvailableCommand Map(Contracts.DataAvailable obj)
         {
-            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            if (obj is null) throw new ArgumentNullException(nameof(obj));
 
             var dataAvailableCommand = new DataAvailableCommand(
                 obj.UUID,

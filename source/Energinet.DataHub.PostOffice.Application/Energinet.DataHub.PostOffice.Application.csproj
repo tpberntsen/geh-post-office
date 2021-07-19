@@ -50,4 +50,8 @@ limitations under the License.
       <None Remove="Validations\**" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="DataAvailable\Interfaces" />
+    </ItemGroup>
+
 </Project>

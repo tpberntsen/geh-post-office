@@ -19,23 +19,26 @@ using Energinet.DataHub.PostOffice.Domain;
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
 {
     /// <summary>
-    /// Send message to service bus container
+    /// Strategy for creating content path
     /// </summary>
-    public interface ISendMessageToServiceBus
+    public interface IGetContentPathStrategy
     {
         /// <summary>
-        /// Send message to service bus container
+        /// Unique strategy name
         /// </summary>
-        /// <param name="requestData"></param>
-        /// <param name="queueName"></param>
-        /// <param name="sessionId"></param>
-        public Task SendMessageAsync(RequestData requestData, string queueName, string sessionId);
+        /// <returns>strategy name</returns>
+        string StrategyName { get; }
 
         /// <summary>
-        /// Sends a message to sub domain that we need to fetch data
+        /// Unique strategy name
         /// </summary>
-        /// <param name="requestData"></param>
-        /// <param name="sessionId"></param>
-        public Task RequestDataAsync(RequestData requestData, string sessionId);
+        /// <returns>strategy name</returns>
+        string? SavedContentPath { get; set; }
+
+        /// <summary>
+        /// Return path to content
+        /// </summary>
+        /// <returns>content path</returns>
+        Task<MessageReply> GetContentPathAsync(RequestData dataAvailables);
     }
 }

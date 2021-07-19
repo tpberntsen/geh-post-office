@@ -23,6 +23,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
     {
         public async Task<string> GetStorageContentAsync(string? containerName, string fileName)
         {
+            if (containerName is null) throw new ArgumentNullException(nameof(containerName));
+
             var connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
 
             var storageAccount = CloudStorageAccount.Parse(connectionString);

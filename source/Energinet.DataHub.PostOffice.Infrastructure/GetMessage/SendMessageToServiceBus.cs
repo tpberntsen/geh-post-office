@@ -13,16 +13,18 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
+using Energinet.DataHub.PostOffice.Domain;
+using Google.Protobuf;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 {
     public class SendMessageToServiceBus : ISendMessageToServiceBus
     {
         private readonly ServiceBusClient? _serviceBusClient;
+        private readonly string? _returnQueueName = Environment.GetEnvironmentVariable("ServiceBus_DataRequest_Return_Queue");
         private ServiceBusSender? _sender;
 
         public SendMessageToServiceBus(ServiceBusClient serviceBusClient)
@@ -30,20 +32,53 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             _serviceBusClient = serviceBusClient;
         }
 
-        public async Task SendMessageAsync(IList<string> collection, string queueName, string sessionId)
+        public async Task SendMessageAsync(RequestData requestData, string queueName, string sessionId)
         {
-            if (collection is null) throw new ArgumentNullException(nameof(collection));
+            if (requestData is null) throw new ArgumentNullException(nameof(requestData));
 
-            // What if _serviceBusClient is null?
             if (_serviceBusClient is not null) _sender = _serviceBusClient.CreateSender(queueName);
 
-            var message = new ServiceBusMessage(collection.ToString()) { SessionId = sessionId };
+            var message = new ServiceBusMessage(requestData.Uuids?.ToString()) { SessionId = sessionId };
 
             message.ReplyToSessionId = message.SessionId;
             message.ReplyTo = queueName;
 
             // What if _sender is null?
             if (_sender is not null) await _sender.SendMessageAsync(message).ConfigureAwait(false);
+        }
+
+        public async Task RequestDataAsync(RequestData requestData, string sessionId)
+        {
+            if (requestData is null) throw new ArgumentNullException(nameof(requestData));
+
+            var originReceiver = FindQueueOrTopicNameFromOrigin(requestData.Origin ?? string.Empty);
+            if (_serviceBusClient is not null) _sender = _serviceBusClient.CreateSender(originReceiver);
+
+            var requestDatasetMessage = new Contracts.RequestDataset() { UUID = { requestData.Uuids } };
+            var message = new ServiceBusMessage(requestDatasetMessage.ToByteArray()) { SessionId = sessionId };
+
+            message.ReplyToSessionId = message.SessionId;
+            message.ReplyTo = _returnQueueName;
+
+            // What if _sender is null?
+            if (_sender is not null) await _sender.SendMessageAsync(message).ConfigureAwait(false);
+        }
+
+        private static string FindQueueOrTopicNameFromOrigin(string origin)
+        {
+            switch (origin)
+            {
+                case "charges":
+                    return "charges";
+                case "ts" or "timeseries":
+                    return "ts";
+                default:
+                    #if DEBUG
+                    return "charges";
+                    #else
+                    throw new Exception("Unknown origin name");
+                    #endif
+            }
         }
     }
 }

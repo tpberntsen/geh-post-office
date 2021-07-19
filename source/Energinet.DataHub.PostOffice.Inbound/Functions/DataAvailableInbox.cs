@@ -48,7 +48,7 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
             byte[] message,
             FunctionContext context)
         {
-            if (message == null) throw new ArgumentNullException(nameof(message));
+            if (message is null) throw new ArgumentNullException(nameof(message));
 
             var topicName = Environment.GetEnvironmentVariable("INBOUND_QUEUE_DATAAVAILABLE_TOPIC_NAME");
             if (string.IsNullOrEmpty(topicName)) throw new InvalidOperationException("TopicName is null");

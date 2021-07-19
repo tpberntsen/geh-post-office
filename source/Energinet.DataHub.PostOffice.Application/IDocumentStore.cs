@@ -26,9 +26,10 @@ namespace Energinet.DataHub.PostOffice.Application
         /// <summary>
         /// Get documents.
         /// </summary>
-        /// <param name="getMessageQuery">The documentQuery to get documents by.</param>
+        /// <param name="query">The documentQuery to get documents by.</param>
+        /// <param name="parameters">parameters to sql in key-value type</param>
         /// <returns>A list of documents matching the documentQuery parameters.</returns>
-        Task<IList<T>> GetDocumentsAsync(GetMessageQuery getMessageQuery);
+        Task<IEnumerable<Domain.DataAvailable>> GetDocumentsAsync(string query, List<KeyValuePair<string, string>> parameters);
 
         /// <summary>
         /// Get documents.
@@ -55,5 +56,12 @@ namespace Energinet.DataHub.PostOffice.Application
         /// </summary>
         /// <param name="document">The document to save.</param>
         Task<bool> SaveDocumentAsync(T document);
+
+        /// <summary>
+        /// Gets the oldest document we have for this query
+        /// </summary>
+        /// <param name="documentQuery"></param>
+        /// <returns>The oldest document available or null if no data found</returns>
+        Task<T?> GetOldestDocumentAsync(GetMessageQuery documentQuery);
     }
 }
