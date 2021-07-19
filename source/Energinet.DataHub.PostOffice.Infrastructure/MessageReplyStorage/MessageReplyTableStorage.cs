@@ -23,6 +23,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage
 {
     public class MessageReplyTableStorage : IMessageReplyStorage
     {
+        private const string TableName = "MessageReply";
         private readonly CloudTableClient _serviceClient;
 
         public MessageReplyTableStorage()
@@ -66,7 +67,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage
 
         private async Task<CloudTable> InstantiateCloudTableAsync()
         {
-            var cloudTable = _serviceClient.GetTableReference("MessageReply");
+            var cloudTable = _serviceClient.GetTableReference(TableName);
             await cloudTable.CreateIfNotExistsAsync().ConfigureAwait(false);
             return cloudTable;
         }
