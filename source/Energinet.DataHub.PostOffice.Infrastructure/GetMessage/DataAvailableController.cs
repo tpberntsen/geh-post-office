@@ -14,7 +14,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
@@ -25,16 +24,16 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
     public class DataAvailableController : IDataAvailableController
     {
         private readonly IDataAvailableStorageService _dataAvailableStorageService;
-        private readonly IMessageResponseStorage _messageResponseStorage;
+        private readonly IMessageReplyStorage _messageReplyStorage;
         private readonly IGetContentPathStrategyFactory _contentPathStrategyFactory;
 
         public DataAvailableController(
             IDataAvailableStorageService dataAvailableStorageService,
-            IMessageResponseStorage messageResponseStorage,
+            IMessageReplyStorage messageReplyStorage,
             IGetContentPathStrategyFactory contentPathStrategyFactory)
         {
             _dataAvailableStorageService = dataAvailableStorageService;
-            _messageResponseStorage = messageResponseStorage;
+            _messageReplyStorage = messageReplyStorage;
             _contentPathStrategyFactory = contentPathStrategyFactory;
         }
 
@@ -49,7 +48,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             if (requestData is null) throw new ArgumentNullException(nameof(requestData));
 
             var dataAvailableContentKey = GetContentKeyFromUuids(requestData.Uuids);
-            var savedContentPath = await _messageResponseStorage.GetMessageResponseAsync(dataAvailableContentKey).ConfigureAwait(false);
+            var savedContentPath = await _messageReplyStorage.GetMessageReplyAsync(dataAvailableContentKey).ConfigureAwait(false);
 
             return _contentPathStrategyFactory.Create(savedContentPath ?? string.Empty);
         }
@@ -60,7 +59,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 
             var messageContentKey = GetContentKeyFromUuids(messageReply.Uuids);
 
-            await _messageResponseStorage.SaveMessageReplyAsync(messageContentKey, new Uri(messageReply.DataPath!)).ConfigureAwait(false);
+            await _messageReplyStorage.SaveMessageReplyAsync(messageContentKey, new Uri(messageReply.DataPath!)).ConfigureAwait(false);
         }
 
         private static string GetContentKeyFromUuids(IEnumerable<string> uuids)

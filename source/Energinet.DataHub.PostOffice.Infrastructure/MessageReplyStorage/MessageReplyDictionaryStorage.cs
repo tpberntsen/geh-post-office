@@ -16,28 +16,26 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Table;
 
-namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
+namespace Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage
 {
-    public class MessageResponseStorage : IMessageResponseStorage
+    public class MessageReplyDictionaryStorage : IMessageReplyStorage
     {
-        private static Dictionary<string, string> _savedMessageResponses = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> _savedReplyResponses = new ();
 
-        public Task<string?> GetMessageResponseAsync(string messageKey)
+        public Task<string?> GetMessageReplyAsync(string messageKey)
         {
-            var elementExists = _savedMessageResponses.TryGetValue(messageKey, out var path);
+            var elementExists = _savedReplyResponses.TryGetValue(messageKey, out var path);
 
             return Task.FromResult(elementExists ? path : null);
         }
 
-        public Task SaveMessageReplyAsync(string messageKey, Uri contentUrl)
+        public Task SaveMessageReplyAsync(string messageKey, Uri contentUri)
         {
-            if (contentUrl is null) throw new ArgumentNullException(nameof(contentUrl));
+            if (contentUri is null) throw new ArgumentNullException(nameof(contentUri));
             if (string.IsNullOrWhiteSpace(messageKey)) throw new ArgumentNullException(nameof(messageKey));
 
-            _savedMessageResponses.TryAdd(messageKey, contentUrl.AbsoluteUri);
+            _savedReplyResponses.TryAdd(messageKey, new Uri(contentUri.AbsoluteUri).AbsoluteUri);
 
             return Task.CompletedTask;
         }

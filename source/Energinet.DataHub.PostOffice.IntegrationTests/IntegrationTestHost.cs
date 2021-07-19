@@ -28,6 +28,7 @@ using Energinet.DataHub.PostOffice.Infrastructure;
 using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
+using Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage;
 using Energinet.DataHub.PostOffice.Infrastructure.Pipeline;
 using Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable;
 using FluentValidation;
@@ -68,7 +69,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
             _container.Register<IDocumentStore<Domain.DataAvailable>, CosmosDataAvailableStore>(Lifestyle.Scoped);
             _container.Register<IDataAvailableStorageService, DataAvailableStorageService>(Lifestyle.Scoped);
             _container.Register<IDataAvailableController, DataAvailableController>(Lifestyle.Scoped);
-            _container.Register<IMessageResponseStorage, MessageResponseStorage>(Lifestyle.Scoped);
+            _container.Register<IMessageReplyStorage, MessageReplyDictionaryStorage>(Lifestyle.Scoped);
             _container.Register<DataAvailableContractParser>(Lifestyle.Scoped);
             _container.Register<ISendMessageToServiceBus, SendMessageToServiceBus>(Lifestyle.Scoped);
             _container.Register<IGetPathToDataFromServiceBus, GetPathToDataFromServiceBus>(Lifestyle.Scoped);

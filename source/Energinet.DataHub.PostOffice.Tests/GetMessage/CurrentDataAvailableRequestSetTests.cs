@@ -44,7 +44,7 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
                 .ReturnsAsync(Helpers.TestData.GetRandomValidDataAvailables(2));
 
             var dataAvailableStorageService = new DataAvailableStorageService(documentStore.Object);
-            var messageResponseStorage = new Mock<IMessageResponseStorage>();
+            var messageResponseStorage = new Mock<IMessageReplyStorage>();
             var contentPathStrategyFactory = new Mock<IGetContentPathStrategyFactory>();
 
             var dataAvailableController = new DataAvailableController(dataAvailableStorageService, messageResponseStorage.Object, contentPathStrategyFactory.Object);

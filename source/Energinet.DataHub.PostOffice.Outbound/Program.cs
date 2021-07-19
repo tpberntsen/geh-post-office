@@ -24,6 +24,7 @@ using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
+using Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage;
 using Energinet.DataHub.PostOffice.Infrastructure.Pipeline;
 using FluentValidation;
 using MediatR;
@@ -58,7 +59,7 @@ namespace Energinet.DataHub.PostOffice.Outbound
                     services.AddScoped<IDocumentStore<Domain.DataAvailable>, CosmosDataAvailableStore>();
                     services.AddScoped<IDataAvailableStorageService, DataAvailableStorageService>();
                     services.AddScoped<IDataAvailableController, DataAvailableController>();
-                    services.AddScoped<IMessageResponseStorage, MessageResponseStorage>();
+                    services.AddScoped<IMessageReplyStorage, MessageReplyTableStorage>();
                     services.AddScoped<ISendMessageToServiceBus, SendMessageToServiceBus>();
                     services.AddScoped<IGetPathToDataFromServiceBus, GetPathToDataFromServiceBus>();
                     services.AddScoped<IStorageService, StorageService>();

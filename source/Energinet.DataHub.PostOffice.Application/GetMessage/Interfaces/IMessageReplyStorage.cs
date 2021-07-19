@@ -20,21 +20,21 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
     /// <summary>
     /// Interface for defining method to get saved data.
     /// </summary>
-    public interface IMessageResponseStorage
+    public interface IMessageReplyStorage
     {
         /// <summary>
         /// Getting path to saved data.
         /// </summary>
         /// <param name="messageKey"></param>
         /// <returns>path to saved data</returns>
-        Task<string?> GetMessageResponseAsync(string messageKey);
+        Task<string?> GetMessageReplyAsync(string messageKey);
 
         /// <summary>
         /// Saves message response to storage
         /// </summary>
         /// <param name="messageKey"></param>
-        /// <param name="contentUrl"></param>
+        /// <param name="contentUri"></param>
         /// <returns>void task</returns>
-        Task SaveMessageReplyAsync(string messageKey, Uri contentUrl);
+        Task SaveMessageReplyAsync(string messageKey, Uri contentUri);
     }
 }
