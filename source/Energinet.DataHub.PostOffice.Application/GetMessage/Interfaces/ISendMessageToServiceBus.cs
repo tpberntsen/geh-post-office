@@ -24,14 +24,6 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
     public interface ISendMessageToServiceBus
     {
         /// <summary>
-        /// Send message to service bus container
-        /// </summary>
-        /// <param name="requestData"></param>
-        /// <param name="queueName"></param>
-        /// <param name="sessionId"></param>
-        public Task SendMessageAsync(RequestData requestData, string queueName, string sessionId);
-
-        /// <summary>
         /// Sends a message to sub domain that we need to fetch data
         /// </summary>
         /// <param name="requestData"></param>
