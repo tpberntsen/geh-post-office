@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
@@ -19,6 +20,7 @@ using Energinet.DataHub.PostOffice.Application.GetMessage.Handlers;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Energinet.DataHub.PostOffice.Domain;
+using Energinet.DataHub.PostOffice.Domain.Enums;
 using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using FluentAssertions;
@@ -34,7 +36,7 @@ namespace Energinet.DataHub.PostOffice.Tests
         }
 
         [Fact]
-        public async Task GetMessageHandler_CallFromMarketOperator_ResultMustMatch()
+        public async Task GetMessageHandler_CallFromMarketOperator_ResultMustMatch_Failure()
         {
             // Arrange
             var documentStore = new Mock<IDocumentStore<DataAvailable>>();
@@ -47,7 +49,41 @@ namespace Energinet.DataHub.PostOffice.Tests
                 .Setup(e => e.GetMessageReplyAsync(It.IsAny<string>()))
                 .ReturnsAsync(It.IsAny<string>());
 
-            var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies());
+            var messageReply = new MessageReply() { DataPath = "https://testpath.com", FailureReason = MessageReplyFailureReason.DatasetNotFound };
+            var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies(messageReply));
+            var dataAvailableController = new DataAvailableController(dataAvailableStorageService, messageResponseStorage.Object, strategyFactory);
+
+            var storageServiceMock = new Mock<IStorageService>();
+            GetMarketOperatorDataFromStorageService(storageServiceMock);
+
+            GetMessageQuery query = new GetMessageQuery(It.IsAny<string>());
+            GetMessageHandler handler = new GetMessageHandler(
+                dataAvailableController,
+                storageServiceMock.Object);
+
+            // Act
+            Func<Task> act = async () => { await handler.Handle(query, System.Threading.CancellationToken.None).ConfigureAwait(false); };
+
+            // Assert
+            await act.Should().ThrowAsync<Domain.Exceptions.MessageReplyException>().ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task GetMessageHandler_CallFromMarketOperator_ResultMustMatch_Success()
+        {
+            // Arrange
+            var documentStore = new Mock<IDocumentStore<DataAvailable>>();
+            GetDocumentsAsync(documentStore);
+
+            var dataAvailableStorageService = new DataAvailableStorageService(documentStore.Object);
+
+            var messageResponseStorage = new Mock<IMessageReplyStorage>();
+            messageResponseStorage
+                .Setup(e => e.GetMessageReplyAsync(It.IsAny<string>()))
+                .ReturnsAsync(It.IsAny<string>());
+
+            var messageReply = new MessageReply() { DataPath = "https://testpath.com" };
+            var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies(messageReply));
             var dataAvailableController = new DataAvailableController(dataAvailableStorageService, messageResponseStorage.Object, strategyFactory);
 
             var storageServiceMock = new Mock<IStorageService>();
@@ -65,11 +101,11 @@ namespace Energinet.DataHub.PostOffice.Tests
             result.Should().Be(GetStorageContentAsyncSimulatedData());
         }
 
-        private static IEnumerable<IGetContentPathStrategy> GetContentPathStrategies()
+        private static IEnumerable<IGetContentPathStrategy> GetContentPathStrategies(MessageReply messageReply)
         {
             var getPathToDataFromServiceBus = new Mock<IGetPathToDataFromServiceBus>();
             getPathToDataFromServiceBus.Setup(path => path.GetPathAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new MessageReply() { DataPath = "https://testpath.com" });
+                .ReturnsAsync(messageReply);
             var sendMessageToServiceBus = new Mock<ISendMessageToServiceBus>();
 
             return new List<IGetContentPathStrategy>() { new ContentPathFromSavedResponse(), new ContentPathFromSubDomain(sendMessageToServiceBus.Object, getPathToDataFromServiceBus.Object) };
