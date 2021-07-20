@@ -13,6 +13,8 @@
 // limitations under the License.
 
 using System;
+using System.Net;
+using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -52,6 +54,15 @@ namespace Energinet.DataHub.PostOffice.Outbound.Extensions
             var dequeueCommand = new DequeueCommand(recipient!, bundle!);
 
             return dequeueCommand;
+        }
+
+        public static async Task<HttpResponseData> CreateErrorHttpResponseAsync(this HttpRequestData request, HttpStatusCode httpStatusCode, string message)
+        {
+            if (request == null) throw new ArgumentNullException(nameof(request));
+
+            var response = request.CreateResponse(httpStatusCode);
+            await response.WriteStringAsync(message).ConfigureAwait(false);
+            return response;
         }
     }
 }

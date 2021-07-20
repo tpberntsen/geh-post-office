@@ -12,19 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-using Energinet.DataHub.PostOffice.Domain.Enums;
-
-namespace Energinet.DataHub.PostOffice.Domain
+namespace Energinet.DataHub.PostOffice.Domain.Enums
 {
-    public class MessageReply
+    public enum MessageReplyFailureReason
     {
-        public string? DataPath { get; init; }
-
-        public IEnumerable<string> Uuids { get; init; } = new List<string>();
-
-        public MessageReplyFailureReason? FailureReason { get; init; }
-
-        public string? FailureDescription { get; init; }
+        DatasetNotFound = 0, // Dataset was not found
+        DatasetNotAvailable = 1, // Data found, but not ready yet - try again later
+        InternalError = 15, // Something bad happened on our end - nothing the caller can do about this
     }
 }
