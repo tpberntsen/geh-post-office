@@ -16,7 +16,9 @@ using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
+using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Domain;
+using Energinet.DataHub.PostOffice.Domain.Enums;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 {
@@ -35,8 +37,28 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             var received = await receiver.ReceiveMessageAsync(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
             var replyMessage = Contracts.DatasetReply.Parser.ParseFrom(received.Body.ToArray());
 
-            // Todo: Add parser here to parse from contract to domain object
-            return replyMessage.Success is null ? new MessageReply() : new MessageReply() { DataPath = replyMessage.Success.Uri, Uuids = replyMessage.Success.UUID };
+            return replyMessage.ReplyCase == DatasetReply.ReplyOneofCase.Success
+                ? SuccessReply(replyMessage.Success)
+                : FailureReply(replyMessage.Failure);
+        }
+
+        private static MessageReply SuccessReply(Contracts.DatasetReply.Types.FileResource fileResource)
+        {
+            return new ()
+            {
+                DataPath = fileResource.Uri,
+                Uuids = fileResource.UUID,
+            };
+        }
+
+        private static MessageReply FailureReply(Contracts.DatasetReply.Types.RequestFailure requestFailure)
+        {
+            return new ()
+            {
+                FailureReason = (MessageReplyFailureReason)(int)requestFailure.Reason,
+                FailureDescription = requestFailure.FailureDescription,
+                Uuids = requestFailure.UUID,
+            };
         }
     }
 }

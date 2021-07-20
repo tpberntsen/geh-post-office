@@ -12,22 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Domain;
-
-namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
+namespace Energinet.DataHub.PostOffice.Domain.Enums
 {
-    /// <summary>
-    /// Send message to service bus container
-    /// </summary>
-    public interface ISendMessageToServiceBus
+    public enum MessageReplyFailureReason
     {
-        /// <summary>
-        /// Sends a message to sub domain that we need to fetch data
-        /// </summary>
-        /// <param name="requestData"></param>
-        /// <param name="sessionId"></param>
-        public Task RequestDataAsync(RequestData requestData, string sessionId);
+        DatasetNotFound = 0, // Dataset was not found
+        DatasetNotAvailable = 1, // Data found, but not ready yet - try again later
+        InternalError = 15, // Something bad happened on our end - nothing the caller can do about this
     }
 }

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Collections.Generic;
+using Energinet.DataHub.PostOffice.Domain.Enums;
 
 namespace Energinet.DataHub.PostOffice.Domain
 {
@@ -21,5 +22,9 @@ namespace Energinet.DataHub.PostOffice.Domain
         public string? DataPath { get; init; }
 
         public IEnumerable<string> Uuids { get; init; } = new List<string>();
+
+        public MessageReplyFailureReason? FailureReason { get; init; }
+
+        public string? FailureDescription { get; init; }
     }
 }

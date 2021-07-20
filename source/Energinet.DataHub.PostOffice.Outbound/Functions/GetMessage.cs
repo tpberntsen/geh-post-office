@@ -15,6 +15,8 @@
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Domain.Enums;
+using Energinet.DataHub.PostOffice.Domain.Exceptions;
 using Energinet.DataHub.PostOffice.Outbound.Extensions;
 using FluentValidation;
 using MediatR;
@@ -27,10 +29,14 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
     public class GetMessage
     {
         private readonly IMediator _mediator;
+        private readonly ILogger _logger;
 
-        public GetMessage(IMediator mediator)
+        public GetMessage(
+            IMediator mediator,
+            ILogger<GetMessage> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
         [Function("GetMessage")]
@@ -47,27 +53,43 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
 
                 var data = await _mediator.Send(getMessageQuery).ConfigureAwait(false);
 
-                var response = await GetHttpResponseAsync(request, HttpStatusCode.OK, string.IsNullOrWhiteSpace(data) ? null : data).ConfigureAwait(false);
+                var response = await CreateHttpResponseAsync(request, HttpStatusCode.OK, string.IsNullOrWhiteSpace(data) ? null : data).ConfigureAwait(false);
 
                 return response;
             }
             catch (ValidationException e)
             {
-                var response = request.CreateResponse(HttpStatusCode.BadRequest);
-                await response.WriteStringAsync(e.Message).ConfigureAwait(false);
-                return response;
+                var errorResponse = await request.CreateErrorHttpResponseAsync(HttpStatusCode.BadRequest, e.Message).ConfigureAwait(false);
+                return errorResponse;
+            }
+            catch (MessageReplyException e)
+            {
+                _logger.LogError(e.Message, e);
+                var httpStatusCode = ConvertMessageReplyFailureToHttpStatusCode(e.FailureReason);
+                return await request.CreateErrorHttpResponseAsync(httpStatusCode, e.Message).ConfigureAwait(false);
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message, e);
                 throw new Exception("Exception in GetMessage.", e);
             }
         }
 
-        private static async Task<HttpResponseData> GetHttpResponseAsync(HttpRequestData request, HttpStatusCode httpStatusCode, string body)
+        private static async Task<HttpResponseData> CreateHttpResponseAsync(HttpRequestData request, HttpStatusCode httpStatusCode, string body)
         {
             var response = request.CreateResponse(httpStatusCode);
             await response.WriteAsJsonAsync(body).ConfigureAwait(false);
             return response;
+        }
+
+        private static HttpStatusCode ConvertMessageReplyFailureToHttpStatusCode(MessageReplyFailureReason? failureReason)
+        {
+            return failureReason switch
+            {
+                MessageReplyFailureReason.InternalError => HttpStatusCode.InternalServerError,
+                MessageReplyFailureReason.DatasetNotAvailable => HttpStatusCode.Accepted,
+                _ => HttpStatusCode.NotFound
+            };
         }
     }
 }

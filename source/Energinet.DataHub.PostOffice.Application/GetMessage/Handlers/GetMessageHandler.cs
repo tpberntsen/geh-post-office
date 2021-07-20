@@ -13,13 +13,13 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Energinet.DataHub.PostOffice.Domain;
+using Energinet.DataHub.PostOffice.Domain.Exceptions;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
@@ -67,6 +67,11 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
             var messageReply = await contentPathStrategy
                 .GetContentPathAsync(requestData)
                 .ConfigureAwait(false);
+
+            if (messageReply.FailureReason is not null)
+            {
+                throw new MessageReplyException(messageReply.FailureDescription, messageReply.FailureReason);
+            }
 
             return messageReply;
         }

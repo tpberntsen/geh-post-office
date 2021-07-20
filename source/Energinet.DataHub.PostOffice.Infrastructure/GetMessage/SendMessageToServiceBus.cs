@@ -32,21 +32,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             _serviceBusClient = serviceBusClient;
         }
 
-        public async Task SendMessageAsync(RequestData requestData, string queueName, string sessionId)
-        {
-            if (requestData is null) throw new ArgumentNullException(nameof(requestData));
-
-            if (_serviceBusClient is not null) _sender = _serviceBusClient.CreateSender(queueName);
-
-            var message = new ServiceBusMessage(requestData.Uuids?.ToString()) { SessionId = sessionId };
-
-            message.ReplyToSessionId = message.SessionId;
-            message.ReplyTo = queueName;
-
-            // What if _sender is null?
-            if (_sender is not null) await _sender.SendMessageAsync(message).ConfigureAwait(false);
-        }
-
         public async Task RequestDataAsync(RequestData requestData, string sessionId)
         {
             if (requestData is null) throw new ArgumentNullException(nameof(requestData));
