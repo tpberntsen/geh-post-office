@@ -37,6 +37,8 @@ module "azfun_inbound" {
     INBOUND_QUEUE_AGGREGATIONS_SUBSCRIPTION_NAME      = module.sbtaur_aggregations_subscription.name
     INBOUND_QUEUE_TIMESERIES_TOPIC_NAME               = module.sbt_timeseries.name
     INBOUND_QUEUE_TIMESERIES_SUBSCRIPTION_NAME        = module.sbtaur_timeseries_subscription.name
+    INBOUND_QUEUE_DATAAVAILABLE_TOPIC_NAME            = module.sbt_dataavailable.name
+    INBOUND_QUEUE_DATAAVAILABLE_SUBSCRIPTION_NAME     = module.sbs_dataavailable_subscription.name
   }
   dependencies                              = [
     module.appi_postoffice.dependent_on,
@@ -48,6 +50,8 @@ module "azfun_inbound" {
     module.sbtaur_aggregations_subscription.dependent_on,
     module.sbt_timeseries.dependent_on,
     module.sbtaur_timeseries_subscription.dependent_on,
+    module.sbt_dataavailable.dependent_on,
+    module.sbs_dataavailable_subscription.dependent_on
   ]
 }
 

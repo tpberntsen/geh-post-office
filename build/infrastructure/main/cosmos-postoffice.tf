@@ -61,3 +61,11 @@ resource "azurerm_cosmosdb_sql_container" "collection_aggregations" {
   database_name       = azurerm_cosmosdb_sql_database.db.name
   partition_key_path  = "/recipient"
 }
+
+resource "azurerm_cosmosdb_sql_container" "collection_dataavailable" {
+  name                = "dataavailable"
+  resource_group_name = var.resource_group_name
+  account_name        = azurerm_cosmosdb_account.messages.name
+  database_name       = azurerm_cosmosdb_sql_database.db.name
+  partition_key_path  = "/recipient"
+}
