@@ -13,7 +13,7 @@
 # limitations under the License.
 module "stor_outbound_getmessage" {
   source                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//storage-account?ref=1.3.0"
-  name                      = "storoutbound${lower(var.project)}${lower(var.organisation)}${lower(var.environment)}"
+  name                      = "storout${lower(var.project)}${lower(var.organisation)}${lower(var.environment)}"
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   location                  = data.azurerm_resource_group.postoffice.location
   account_replication_type  = "LRS"
