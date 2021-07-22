@@ -30,14 +30,24 @@ module "azfun_outbound" {
     # Endregion
     MESSAGES_DB_CONNECTION_STRING       = local.message_db_connection_string
     MESSAGES_DB_NAME                    = azurerm_cosmosdb_sql_database.db.name
-    MESSAGE_DB_CONTAINERS               = "${azurerm_cosmosdb_sql_container.collection_marketdata.name},${azurerm_cosmosdb_sql_container.collection_timeseries.name},${azurerm_cosmosdb_sql_container.collection_aggregations.name}"
+    MESSAGE_DB_CONTAINERS               = "${azurerm_cosmosdb_sql_container.collection_marketdata.name},${azurerm_cosmosdb_sql_container.collection_timeseries.name},${azurerm_cosmosdb_sql_container.collection_aggregations.name},${azurerm_cosmosdb_sql_container.collection_dataavailable.name}"
     SCHEMAS_STORAGE_CONNECTION_STRING   = module.stor_schemas.primary_access_key
     SCHEMAS_STORAGE_CONTAINER_NAME      = module.container_schemas.name
+    BlobStorageConnectionString         = module.stor_outbound_getmessage.primary_access_key
+    BlobStorageContainerName            = module.container_getmessage_reply.name
+    ServiceBusConnectionString          = module.sbn_outbound.name
+    ServiceBus_DataRequest_Return_Queue = module.sbq_messagereply.name
+    StorageAccountConnectionString      = module.stor_outbound_getmessage.primary_access_key
   }
   dependencies                              = [
     module.azfun_outbound_plan.dependent_on,
     module.azfun_outbound_stor.dependent_on,
     module.stor_schemas.dependent_on,
+    module.stor_outbound_getmessage.dependent_on,
+    module.sbq_messagereply.dependent_on,
+    module.sbs_messagereply_subscription.dependent_on,
+    module.sbq_charges.dependent_on,
+    module.sbs_charges_subscription.dependent_on
   ]
 }
 
