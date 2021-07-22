@@ -33,11 +33,11 @@ module "azfun_outbound" {
     MESSAGE_DB_CONTAINERS               = "${azurerm_cosmosdb_sql_container.collection_marketdata.name},${azurerm_cosmosdb_sql_container.collection_timeseries.name},${azurerm_cosmosdb_sql_container.collection_aggregations.name},${azurerm_cosmosdb_sql_container.collection_dataavailable.name}"
     SCHEMAS_STORAGE_CONNECTION_STRING   = module.stor_schemas.primary_access_key
     SCHEMAS_STORAGE_CONTAINER_NAME      = module.container_schemas.name
-    "BlobStorageConnectionString"       = module.stor_outbound_getmessage.primary_access_key
-    "BlobStorageContainerName"          = module.container_getmessage_reply.name
-    "ServiceBusConnectionString"        = module.sbn_outbound.name
-    "ServiceBus_DataRequest_Return_Queue" = module.sbq_messagereply.name
-    "StorageAccountConnectionString"      = module.stor_outbound_getmessage.primary_access_key
+    BlobStorageConnectionString       = module.stor_outbound_getmessage.primary_access_key
+    BlobStorageContainerName          = module.container_getmessage_reply.name
+    ServiceBusConnectionString        = module.sbn_outbound.name
+    ServiceBus_DataRequest_Return_Queue = module.sbq_messagereply.name
+    StorageAccountConnectionString      = module.stor_outbound_getmessage.primary_access_key
   }
   dependencies                              = [
     module.azfun_outbound_plan.dependent_on,
