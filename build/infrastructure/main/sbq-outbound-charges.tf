@@ -19,7 +19,7 @@ module "sbq_charges" {
   dependencies        = [module.sbn_outbound]
 }
 
-module "sbqaur_charges_subscription" {
+module "sbs_charges_subscription" {
   source                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-subscription?ref=1.3.0"
   name                      = "default"
   namespace_name            = module.sbn_outbound.name

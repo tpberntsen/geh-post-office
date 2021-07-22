@@ -44,6 +44,10 @@ module "azfun_outbound" {
     module.azfun_outbound_stor.dependent_on,
     module.stor_schemas.dependent_on,
     module.stor_outbound_getmessage.dependent_on,
+    module.sbq_messagereply.dependent_on,
+    module.sbs_messagereply_subscription.dependent_on,
+    module.sbq_charges.dependent_on,
+    module.sbs_charges_subscription.dependent_on
   ]
 }
 
