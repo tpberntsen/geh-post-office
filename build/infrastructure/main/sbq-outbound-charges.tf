@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 module "sbq_charges" {
-  source              = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-queue?ref=1.3.0"
+  source              = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-topic?ref=1.3.0"
   name                = "charges"
   namespace_name      = module.sbn_outbound.name
   resource_group_name = data.azurerm_resource_group.postoffice.name
@@ -23,7 +23,7 @@ module "sbs_charges_subscription" {
   source                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-subscription?ref=1.3.0"
   name                      = "default"
   namespace_name            = module.sbn_outbound.name
-  queue_name                = module.sbq_charges.name
+  topic_name                = module.sbq_charges.name
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   max_delivery_count        = 1
   dependencies              = [module.sbq_charges]
