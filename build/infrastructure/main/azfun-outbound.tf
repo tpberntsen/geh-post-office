@@ -35,7 +35,7 @@ module "azfun_outbound" {
     SCHEMAS_STORAGE_CONTAINER_NAME      = module.container_schemas.name
     BlobStorageConnectionString         = module.stor_outbound_getmessage.primary_connection_string
     BlobStorageContainerName            = module.container_getmessage_reply.name
-    ServiceBusConnectionString          = module.sbn_outbound.name
+    ServiceBusConnectionString          = module.sbnar_outbound.primary_connection_string
     ServiceBus_DataRequest_Return_Queue = module.sbq_messagereply.name
     StorageAccountConnectionString      = module.stor_outbound_getmessage.primary_connection_string
   }

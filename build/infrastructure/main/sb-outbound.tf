@@ -20,20 +20,12 @@ module "sbn_outbound" {
   tags                = data.azurerm_resource_group.postoffice.tags
 }
 
-module "sbnar_outbound_listener" {
+module "sbnar_outbound" {
   source                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-namespace-auth-rule?ref=1.8.0"
-  name                      = "sbnar-outbound-listener"
+  name                      = "sbnar-outbound"
   namespace_name            = module.sbn_outbound.name
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   listen                    = true
-  dependencies              = [module.sbn_outbound]
-}
-
-module "sbnar_outbound_sender" {
-  source                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-namespace-auth-rule?ref=1.8.0"
-  name                      = "sbnar-outbound-sender"
-  namespace_name            = module.sbn_outbound.name
-  resource_group_name       = data.azurerm_resource_group.postoffice.name
   send                      = true
   dependencies              = [module.sbn_outbound]
 }
