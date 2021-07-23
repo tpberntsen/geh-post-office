@@ -16,5 +16,6 @@ module "sbq_messagereply" {
   name                = "messagereply"
   namespace_name      = module.sbn_outbound.name
   resource_group_name = data.azurerm_resource_group.postoffice.name
+  requires_session    = true
   dependencies        = [module.sbn_outbound]
 }
