@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 module "stor_schemas" {
-  source                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//storage-account?ref=1.3.0"
+  source                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//storage-account?ref=1.7.0"
   name                      = "schemas${lower(var.organisation)}${lower(var.environment)}"
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   location                  = data.azurerm_resource_group.postoffice.location
@@ -23,7 +23,7 @@ module "stor_schemas" {
 }
 
 module "container_schemas" {
-  source                = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//storage-container?ref=1.3.0"
+  source                = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//storage-container?ref=1.7.0"
   container_name        = "schemas"
   storage_account_name  = module.stor_schemas.name
   container_access_type = "private"
