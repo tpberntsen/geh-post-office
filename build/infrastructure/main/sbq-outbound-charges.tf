@@ -15,7 +15,7 @@ module "sbq_charges" {
   source              = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-queue?ref=1.8.0"
   name                = "charges"
   namespace_name      = module.sbn_outbound.name
-  resource_group_name = data.azurerm_resourcegroup.postoffice.name
+  resource_group_name = data.azurerm_resource_group.postoffice.name
   requires_session    = true
   dependencies        = [module.sbn_outbound]
 }
