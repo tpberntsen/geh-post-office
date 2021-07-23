@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 module "stor_outbound_getmessage" {
-  source                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//storage-account?ref=1.7.0"
+  source                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//storage-account?ref=1.8.0"
   name                      = "storout${lower(var.project)}${lower(var.organisation)}${lower(var.environment)}"
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   location                  = data.azurerm_resource_group.postoffice.location
@@ -23,7 +23,7 @@ module "stor_outbound_getmessage" {
 }
 
 module "container_getmessage_reply" {
-  source                = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//storage-container?ref=1.7.0"
+  source                = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//storage-container?ref=1.8.0"
   container_name        = "getmessage-reply-blobstorage"
   storage_account_name  = module.stor_outbound_getmessage.name
   container_access_type = "private"

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 module "sbq_charges" {
-  source              = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-queue?ref=1.7.0"
+  source              = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-queue?ref=1.8.0"
   name                = "charges"
   namespace_name      = module.sbn_outbound.name
   resource_group_name = data.azurerm_resourcegroup.postoffice.name
