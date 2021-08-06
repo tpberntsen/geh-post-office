@@ -13,21 +13,25 @@
 // limitations under the License.
 
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
-using Energinet.DataHub.PostOffice.Domain;
 
-namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
+namespace Energinet.DataHub.PostOffice.Domain.Repositories
 {
     /// <summary>
-    /// Service to connect and retrieve data from Cosmos database
+    /// Repository for DataAvailable domain value objects.
     /// </summary>
-    public interface IDataAvailableStorageService
+    public interface IDataAvailableRepository
     {
         /// <summary>
         /// Get UUIDs from Cosmos database
         /// </summary>
-        /// <param name="query"></param>
+        /// <param name="recipient"></param>
         /// <returns>A collection with all UUIDs for the specified recipient</returns>
-        public Task<RequestData> GetDataAvailableUuidsAsync(GetMessageQuery query);
+        public Task<RequestData> GetDataAvailableUuidsAsync(string recipient);
+
+        /// <summary>
+        /// Save a document.
+        /// </summary>
+        /// <param name="document">The document to save.</param>
+        Task<bool> SaveDocumentAsync(DataAvailable document);
     }
 }

@@ -23,6 +23,7 @@ using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Application.Validation;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Common.MediatR;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
@@ -66,8 +67,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
 
             // Add Custom Services
             _container.Register<IMapper<Contracts.DataAvailable, DataAvailableCommand>, DataAvailableMapper>(Lifestyle.Scoped);
-            _container.Register<IDocumentStore<Domain.DataAvailable>, CosmosDataAvailableStore>(Lifestyle.Scoped);
-            _container.Register<IDataAvailableStorageService, DataAvailableStorageService>(Lifestyle.Scoped);
+            _container.Register<IDataAvailableRepository, IDataAvailableRepository>(Lifestyle.Scoped);
             _container.Register<IDataAvailableController, DataAvailableController>(Lifestyle.Scoped);
             _container.Register<IMessageReplyStorage, MessageReplyDictionaryStorage>(Lifestyle.Scoped);
             _container.Register<DataAvailableContractParser>(Lifestyle.Scoped);

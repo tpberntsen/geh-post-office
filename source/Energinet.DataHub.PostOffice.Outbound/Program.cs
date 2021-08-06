@@ -15,13 +15,12 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Handlers;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Energinet.DataHub.PostOffice.Application.Validation;
 using Energinet.DataHub.PostOffice.Common;
-using Energinet.DataHub.PostOffice.Infrastructure;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage;
@@ -56,8 +55,7 @@ namespace Energinet.DataHub.PostOffice.Outbound
                     services.AddScoped(typeof(IValidator<GetMessageQuery>), typeof(GetMessageRuleSetValidator));
 
                     // Add Custom Services
-                    services.AddScoped<IDocumentStore<Domain.DataAvailable>, CosmosDataAvailableStore>();
-                    services.AddScoped<IDataAvailableStorageService, DataAvailableStorageService>();
+                    services.AddScoped<IDataAvailableRepository, IDataAvailableRepository>();
                     services.AddScoped<IDataAvailableController, DataAvailableController>();
                     services.AddScoped<IMessageReplyStorage, MessageReplyTableStorage>();
                     services.AddScoped<ISendMessageToServiceBus, SendMessageToServiceBus>();

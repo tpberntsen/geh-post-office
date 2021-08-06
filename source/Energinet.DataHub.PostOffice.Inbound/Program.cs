@@ -18,11 +18,12 @@ using Energinet.DataHub.PostOffice.Application.DataAvailable;
 using Energinet.DataHub.PostOffice.Application.Validation;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Contracts;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Inbound.GreenEnergyHub;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
-using Energinet.DataHub.PostOffice.Infrastructure;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using Energinet.DataHub.PostOffice.Infrastructure.Pipeline;
+using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -57,7 +58,7 @@ namespace Energinet.DataHub.PostOffice.Inbound
 
                     // Add Custom Services
                     services.AddScoped<IMapper<DataAvailable, DataAvailableCommand>, DataAvailableMapper>();
-                    services.AddScoped<IDocumentStore<Domain.DataAvailable>, CosmosDataAvailableStore>();
+                    services.AddScoped<IDataAvailableRepository, DataAvailableRepository>();
                     services.AddScoped<DataAvailableContractParser>();
                     services.AddDatabaseCosmosConfig();
                     services.AddCosmosClientBuilder(useBulkExecution: false);

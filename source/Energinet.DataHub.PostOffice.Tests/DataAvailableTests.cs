@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.DataAvailable;
 using Energinet.DataHub.PostOffice.Domain;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using FluentAssertions;
@@ -36,12 +37,12 @@ namespace Energinet.DataHub.PostOffice.Tests
         public async Task Validate_DataAvailable_Handler()
         {
             // Arrange
-            var documentStore = new Mock<IDocumentStore<Domain.DataAvailable>>();
+            var dataAvailableRepositoryMock = new Mock<IDataAvailableRepository>();
 
-            documentStore.Setup(e => e.SaveDocumentAsync(It.IsAny<DataAvailable>())).ReturnsAsync(true);
+            dataAvailableRepositoryMock.Setup(e => e.SaveDocumentAsync(It.IsAny<DataAvailable>())).ReturnsAsync(true);
 
             DataAvailableCommand command = new DataAvailableCommand(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<int>());
-            DataAvailableHandler handler = new DataAvailableHandler(documentStore.Object);
+            DataAvailableHandler handler = new DataAvailableHandler(dataAvailableRepositoryMock.Object);
 
             // Act
             var result = await handler.Handle(command, System.Threading.CancellationToken.None).ConfigureAwait(false);

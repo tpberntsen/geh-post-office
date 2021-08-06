@@ -17,6 +17,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Domain;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using Energinet.DataHub.PostOffice.Tests.Helpers;
@@ -34,14 +35,14 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
         public async Task Test_Finding_Correct_Strategy_FromDomain()
         {
             // Arrange
-            var dataAvailableStorageService = new Mock<IDataAvailableStorageService>();
+            var dataAvailableRepositoryMock = new Mock<IDataAvailableRepository>();
             var messageResponseStorage = new Mock<IMessageReplyStorage>();
             messageResponseStorage
                 .Setup(e => e.GetMessageReplyAsync(It.IsAny<string>()))
                 .ReturnsAsync(It.IsAny<string>());
 
             var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies());
-            var dataAvailableController = new DataAvailableController(dataAvailableStorageService.Object, messageResponseStorage.Object, strategyFactory);
+            var dataAvailableController = new DataAvailableController(dataAvailableRepositoryMock.Object, messageResponseStorage.Object, strategyFactory);
 
             var dataAvailables = TestData.GetRandomValidDataAvailables(5);
             var requestData = new RequestData() { Uuids = dataAvailables.Select(data => data.uuid!), Origin = "Test" };
@@ -62,14 +63,14 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
             var dataAvailables = TestData.GetRandomValidDataAvailables(5).ToList();
             var contentKey = string.Join(";", dataAvailables.Select(e => e.uuid));
 
-            var dataAvailableStorageService = new Mock<IDataAvailableStorageService>();
+            var dataAvailableRepositoryMock = new Mock<IDataAvailableRepository>();
             var messageResponseStorage = new Mock<IMessageReplyStorage>();
             messageResponseStorage
                 .Setup(e => e.GetMessageReplyAsync(It.IsAny<string>()))
                 .ReturnsAsync(contentKey);
 
             var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies());
-            var dataAvailableController = new DataAvailableController(dataAvailableStorageService.Object, messageResponseStorage.Object, strategyFactory);
+            var dataAvailableController = new DataAvailableController(dataAvailableRepositoryMock.Object, messageResponseStorage.Object, strategyFactory);
 
             var requestData = new RequestData() { Uuids = dataAvailables.Select(data => data.uuid!), Origin = "Test" };
 
