@@ -12,20 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Energinet.DataHub.PostOffice.Domain;
-using Energinet.DataHub.PostOffice.Infrastructure;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using FluentAssertions;
-using Microsoft.Azure.Cosmos;
 using Moq;
-using Moq.Protected;
-using NSubstitute;
 using Xunit;
 using Xunit.Categories;
 
@@ -38,20 +32,20 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
         public async Task GetCurrentDataAvailableRequestSet_Test()
         {
             // Arrange
-            var documentStore = new Mock<IDocumentStore<DataAvailable>>();
-            documentStore
-                .Setup(c => c.GetDocumentsAsync(It.IsAny<string>(), It.IsAny<List<KeyValuePair<string, string>>>()))
-                .ReturnsAsync(Helpers.TestData.GetRandomValidDataAvailables(2));
+            const string recipient = "recipient";
+            var dataAvailableRepositoryMock = new Mock<IDataAvailableRepository>();
+            dataAvailableRepositoryMock
+                .Setup(repository => repository.GetDataAvailableUuidsAsync(recipient))
+                .ReturnsAsync(new RequestData());
 
-            var dataAvailableStorageService = new DataAvailableStorageService(documentStore.Object);
             var messageResponseStorage = new Mock<IMessageReplyStorage>();
             var contentPathStrategyFactory = new Mock<IGetContentPathStrategyFactory>();
 
-            var dataAvailableController = new DataAvailableController(dataAvailableStorageService, messageResponseStorage.Object, contentPathStrategyFactory.Object);
+            var dataAvailableController = new DataAvailableController(dataAvailableRepositoryMock.Object, messageResponseStorage.Object, contentPathStrategyFactory.Object);
 
             // Act
             var result = await dataAvailableController
-                .GetCurrentDataAvailableRequestSetAsync(new GetMessageQuery("recipient")).ConfigureAwait(false);
+                .GetCurrentDataAvailableRequestSetAsync(new GetMessageQuery(recipient)).ConfigureAwait(false);
 
             // Assert
             result.Should().NotBeNull();

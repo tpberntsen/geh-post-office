@@ -15,17 +15,18 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.DataAvailable
 {
     public class DataAvailableHandler : IRequestHandler<DataAvailableCommand, bool>
     {
-        private readonly IDocumentStore<Domain.DataAvailable> _documentStore;
+        private readonly IDataAvailableRepository _dataAvailableRepository;
 
-        public DataAvailableHandler(IDocumentStore<Domain.DataAvailable> documentStore)
+        public DataAvailableHandler(IDataAvailableRepository dataAvailableRepository)
         {
-            _documentStore = documentStore;
+            _dataAvailableRepository = dataAvailableRepository;
         }
 
         public async Task<bool> Handle(DataAvailableCommand request, CancellationToken cancellationToken)
@@ -33,7 +34,7 @@ namespace Energinet.DataHub.PostOffice.Application.DataAvailable
             if (request is null) throw new ArgumentNullException(nameof(request));
 
             var dataAvailableDomain = new Domain.DataAvailable(request.UUID, request.Recipient, request.MessageType, request.Origin, request.SupportsBundling, request.RelativeWeight, 1M);
-            var saveResult = await _documentStore.SaveDocumentAsync(dataAvailableDomain).ConfigureAwait(false);
+            var saveResult = await _dataAvailableRepository.SaveDocumentAsync(dataAvailableDomain).ConfigureAwait(false);
 
             return saveResult;
         }

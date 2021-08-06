@@ -14,13 +14,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Handlers;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Energinet.DataHub.PostOffice.Domain;
 using Energinet.DataHub.PostOffice.Domain.Enums;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using FluentAssertions;
@@ -39,10 +40,9 @@ namespace Energinet.DataHub.PostOffice.Tests
         public async Task GetMessageHandler_CallFromMarketOperator_ResultMustMatch_Failure()
         {
             // Arrange
-            var documentStore = new Mock<IDocumentStore<DataAvailable>>();
-            GetDocumentsAsync(documentStore);
-
-            var dataAvailableStorageService = new DataAvailableStorageService(documentStore.Object);
+            var dataAvailableRepositoryMock = new Mock<IDataAvailableRepository>();
+            var dataAvailableRepository = dataAvailableRepositoryMock.Object;
+            GetDocumentsAsync(dataAvailableRepositoryMock);
 
             var messageResponseStorage = new Mock<IMessageReplyStorage>();
             messageResponseStorage
@@ -51,7 +51,7 @@ namespace Energinet.DataHub.PostOffice.Tests
 
             var messageReply = new MessageReply() { DataPath = "https://testpath.com", FailureReason = MessageReplyFailureReason.DatasetNotFound };
             var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies(messageReply));
-            var dataAvailableController = new DataAvailableController(dataAvailableStorageService, messageResponseStorage.Object, strategyFactory);
+            var dataAvailableController = new DataAvailableController(dataAvailableRepository, messageResponseStorage.Object, strategyFactory);
 
             var storageServiceMock = new Mock<IStorageService>();
             GetMarketOperatorDataFromStorageService(storageServiceMock);
@@ -72,10 +72,9 @@ namespace Energinet.DataHub.PostOffice.Tests
         public async Task GetMessageHandler_CallFromMarketOperator_ResultMustMatch_Success()
         {
             // Arrange
-            var documentStore = new Mock<IDocumentStore<DataAvailable>>();
-            GetDocumentsAsync(documentStore);
-
-            var dataAvailableStorageService = new DataAvailableStorageService(documentStore.Object);
+            var dataAvailableRepositoryMock = new Mock<IDataAvailableRepository>();
+            var dataAvailableRepository = dataAvailableRepositoryMock.Object;
+            GetDocumentsAsync(dataAvailableRepositoryMock);
 
             var messageResponseStorage = new Mock<IMessageReplyStorage>();
             messageResponseStorage
@@ -84,7 +83,7 @@ namespace Energinet.DataHub.PostOffice.Tests
 
             var messageReply = new MessageReply() { DataPath = "https://testpath.com" };
             var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies(messageReply));
-            var dataAvailableController = new DataAvailableController(dataAvailableStorageService, messageResponseStorage.Object, strategyFactory);
+            var dataAvailableController = new DataAvailableController(dataAvailableRepository, messageResponseStorage.Object, strategyFactory);
 
             var storageServiceMock = new Mock<IStorageService>();
             GetMarketOperatorDataFromStorageService(storageServiceMock);
@@ -118,11 +117,11 @@ namespace Energinet.DataHub.PostOffice.Tests
                     It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(GetStorageContentAsyncSimulatedData());
         }
 
-        private static void GetDocumentsAsync(Mock<IDocumentStore<DataAvailable>> dataAvailableStore)
+        private static void GetDocumentsAsync(Mock<IDataAvailableRepository> dataAvailableRepository)
         {
-            var result = dataAvailableStore.Setup(
-                store => store.GetDocumentsAsync(
-                    It.IsAny<string>(), It.IsAny<List<KeyValuePair<string, string>>>())).ReturnsAsync(CreateListOfDataAvailableObjects());
+            dataAvailableRepository
+                .Setup(repository => repository.GetDataAvailableUuidsAsync(It.IsAny<string>()))
+                .ReturnsAsync(new RequestData { Uuids = CreateListOfDataAvailableObjects().Select(dataAvailable => dataAvailable.uuid!) });
         }
 
         private static string GetStorageContentAsyncSimulatedData()

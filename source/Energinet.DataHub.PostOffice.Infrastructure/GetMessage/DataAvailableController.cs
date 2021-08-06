@@ -18,28 +18,32 @@ using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Energinet.DataHub.PostOffice.Domain;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 {
     public class DataAvailableController : IDataAvailableController
     {
-        private readonly IDataAvailableStorageService _dataAvailableStorageService;
+        private readonly IDataAvailableRepository _dataAvailableRepository;
         private readonly IMessageReplyStorage _messageReplyStorage;
         private readonly IGetContentPathStrategyFactory _contentPathStrategyFactory;
 
         public DataAvailableController(
-            IDataAvailableStorageService dataAvailableStorageService,
+            IDataAvailableRepository dataAvailableRepository,
             IMessageReplyStorage messageReplyStorage,
             IGetContentPathStrategyFactory contentPathStrategyFactory)
         {
-            _dataAvailableStorageService = dataAvailableStorageService;
+            _dataAvailableRepository = dataAvailableRepository;
             _messageReplyStorage = messageReplyStorage;
             _contentPathStrategyFactory = contentPathStrategyFactory;
         }
 
         public async Task<RequestData> GetCurrentDataAvailableRequestSetAsync(GetMessageQuery getMessageQuery)
         {
-            var dataAvailablesByRecipient = await _dataAvailableStorageService.GetDataAvailableUuidsAsync(getMessageQuery).ConfigureAwait(false);
+            if (getMessageQuery is null)
+                throw new ArgumentNullException(nameof(getMessageQuery));
+
+            var dataAvailablesByRecipient = await _dataAvailableRepository.GetDataAvailableUuidsAsync(getMessageQuery.Recipient).ConfigureAwait(false);
             return dataAvailablesByRecipient;
         }
 
