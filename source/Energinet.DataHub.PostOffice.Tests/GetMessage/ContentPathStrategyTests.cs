@@ -45,7 +45,7 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
             var dataAvailableController = new DataAvailableController(dataAvailableRepositoryMock.Object, messageResponseStorage.Object, strategyFactory);
 
             var dataAvailables = TestData.GetRandomValidDataAvailables(5);
-            var requestData = new RequestData() { Uuids = dataAvailables.Select(data => data.uuid!), Origin = "Test" };
+            var requestData = new RequestData { Uuids = dataAvailables.Select(data => data.Uuid!), Origin = "Test" };
 
             // Act
             var strategy = await dataAvailableController
@@ -61,7 +61,7 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
         {
             // Arrange
             var dataAvailables = TestData.GetRandomValidDataAvailables(5).ToList();
-            var contentKey = string.Join(";", dataAvailables.Select(e => e.uuid));
+            var contentKey = string.Join(";", dataAvailables.Select(e => e.Uuid));
 
             var dataAvailableRepositoryMock = new Mock<IDataAvailableRepository>();
             var messageResponseStorage = new Mock<IMessageReplyStorage>();
@@ -72,7 +72,7 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
             var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies());
             var dataAvailableController = new DataAvailableController(dataAvailableRepositoryMock.Object, messageResponseStorage.Object, strategyFactory);
 
-            var requestData = new RequestData() { Uuids = dataAvailables.Select(data => data.uuid!), Origin = "Test" };
+            var requestData = new RequestData { Uuids = dataAvailables.Select(data => data.Uuid!), Origin = "Test" };
 
             // Act
             var strategy = await dataAvailableController

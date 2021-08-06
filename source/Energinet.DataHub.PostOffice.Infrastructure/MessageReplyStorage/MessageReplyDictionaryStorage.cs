@@ -21,7 +21,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage
 {
     public class MessageReplyDictionaryStorage : IMessageReplyStorage
     {
-        private static readonly Dictionary<string, string> _savedReplyResponses = new ();
+        private static readonly Dictionary<string, string> _savedReplyResponses = new();
 
         public Task<string?> GetMessageReplyAsync(string messageKey)
         {

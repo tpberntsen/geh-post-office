@@ -38,11 +38,11 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Handlers
             _storageService = storageService;
         }
 
-        public async Task<string> Handle(GetMessageQuery getMessagesQuery, CancellationToken cancellationToken)
+        public async Task<string> Handle(GetMessageQuery request, CancellationToken cancellationToken)
         {
-            if (getMessagesQuery is null) { throw new ArgumentNullException(nameof(getMessagesQuery)); }
+            if (request is null) { throw new ArgumentNullException(nameof(request)); }
 
-            var requestData = await _dataAvailableController.GetCurrentDataAvailableRequestSetAsync(getMessagesQuery).ConfigureAwait(false);
+            var requestData = await _dataAvailableController.GetCurrentDataAvailableRequestSetAsync(request).ConfigureAwait(false);
 
             if (requestData.Uuids.Any() is false)
             {

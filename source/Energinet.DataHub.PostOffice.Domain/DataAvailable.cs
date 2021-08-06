@@ -14,6 +14,6 @@
 
 namespace Energinet.DataHub.PostOffice.Domain
 {
-    public record DataAvailable(string uuid, string recipient, string messageType, string origin,
-        bool supportsBundling, int relativeWeight, decimal priority);
+    public record DataAvailable(string Uuid, string Recipient, string MessageType, string Origin,
+        bool SupportsBundling, int RelativeWeight, decimal Priority);
 }

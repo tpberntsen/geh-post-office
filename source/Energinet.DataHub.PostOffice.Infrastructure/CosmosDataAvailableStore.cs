@@ -39,13 +39,17 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             _cosmosConfig = cosmosConfig;
         }
 
-        public async Task<IEnumerable<DataAvailable>> GetDocumentsAsync(string query, List<KeyValuePair<string, string>> parameters)
+        public async Task<IEnumerable<DataAvailable>> GetDocumentsAsync(string query, IDictionary<string, string> parameters)
         {
             if (query is null) throw new ArgumentNullException(nameof(query));
             if (parameters is null) throw new ArgumentNullException(nameof(parameters));
 
             var documentQuery = new QueryDefinition(query);
-            parameters.ForEach(item => documentQuery.WithParameter($"@{item.Key}", item.Value));
+
+            foreach (var (key, value) in parameters)
+            {
+                documentQuery.WithParameter($"@{key}", value);
+            }
 
             var container = GetContainer(ContainerName);
 
@@ -128,13 +132,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
             var cosmosDocument = new CosmosDataAvailable
             {
-                uuid = document.uuid,
-                recipient = document.recipient,
-                messageType = document.messageType,
-                origin = document.origin,
-                supportsBundling = document.supportsBundling,
-                relativeWeight = document.relativeWeight,
-                priority = document.priority,
+                uuid = document.Uuid,
+                recipient = document.Recipient,
+                messageType = document.MessageType,
+                origin = document.Origin,
+                supportsBundling = document.SupportsBundling,
+                relativeWeight = document.RelativeWeight,
+                priority = document.Priority,
             };
 
             var response = await container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);

@@ -32,10 +32,6 @@ namespace Energinet.DataHub.PostOffice.Tests
 {
     public class GetMessageTests
     {
-        public GetMessageTests()
-        {
-        }
-
         [Fact]
         public async Task GetMessageHandler_CallFromMarketOperator_ResultMustMatch_Failure()
         {
@@ -56,8 +52,8 @@ namespace Energinet.DataHub.PostOffice.Tests
             var storageServiceMock = new Mock<IStorageService>();
             GetMarketOperatorDataFromStorageService(storageServiceMock);
 
-            GetMessageQuery query = new GetMessageQuery(It.IsAny<string>());
-            GetMessageHandler handler = new GetMessageHandler(
+            var query = new GetMessageQuery(It.IsAny<string>());
+            var handler = new GetMessageHandler(
                 dataAvailableController,
                 storageServiceMock.Object);
 
@@ -88,8 +84,8 @@ namespace Energinet.DataHub.PostOffice.Tests
             var storageServiceMock = new Mock<IStorageService>();
             GetMarketOperatorDataFromStorageService(storageServiceMock);
 
-            GetMessageQuery query = new GetMessageQuery(It.IsAny<string>());
-            GetMessageHandler handler = new GetMessageHandler(
+            var query = new GetMessageQuery(It.IsAny<string>());
+            var handler = new GetMessageHandler(
                 dataAvailableController,
                 storageServiceMock.Object);
 
@@ -112,7 +108,7 @@ namespace Energinet.DataHub.PostOffice.Tests
 
         private static void GetMarketOperatorDataFromStorageService(Mock<IStorageService> storageService)
         {
-            var data = storageService.Setup(
+            storageService.Setup(
                 ss => ss.GetStorageContentAsync(
                     It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(GetStorageContentAsyncSimulatedData());
         }
@@ -121,7 +117,7 @@ namespace Energinet.DataHub.PostOffice.Tests
         {
             dataAvailableRepository
                 .Setup(repository => repository.GetDataAvailableUuidsAsync(It.IsAny<string>()))
-                .ReturnsAsync(new RequestData { Uuids = CreateListOfDataAvailableObjects().Select(dataAvailable => dataAvailable.uuid!) });
+                .ReturnsAsync(new RequestData { Uuids = CreateListOfDataAvailableObjects().Select(dataAvailable => dataAvailable.Uuid) });
         }
 
         private static string GetStorageContentAsyncSimulatedData()

@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain;
 
@@ -39,6 +38,6 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
         /// Return path to content
         /// </summary>
         /// <returns>content path</returns>
-        Task<MessageReply> GetContentPathAsync(RequestData dataAvailables);
+        Task<MessageReply> GetContentPathAsync(RequestData requestData);
     }
 }

@@ -21,7 +21,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.ContentPath
 {
     public class ContentPathFromSavedResponse : IGetContentPathStrategy
     {
-        public string StrategyName { get; } = nameof(ContentPathFromSavedResponse);
+        public string StrategyName => nameof(ContentPathFromSavedResponse);
 
         public string? SavedContentPath { get; set; }
 
@@ -29,7 +29,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.ContentPath
         {
             if (requestData is null) throw new ArgumentNullException(nameof(requestData));
 
-            var messageReply = new MessageReply() { DataPath = SavedContentPath, Uuids = requestData.Uuids };
+            var messageReply = new MessageReply { DataPath = SavedContentPath, Uuids = requestData.Uuids };
             return Task.FromResult(messageReply);
         }
     }

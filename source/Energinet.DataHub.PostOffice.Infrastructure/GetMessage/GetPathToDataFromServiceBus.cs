@@ -35,25 +35,25 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
         {
             var receiver = await _serviceBusClient.AcceptSessionAsync(queueName, sessionId).ConfigureAwait(false);
             var received = await receiver.ReceiveMessageAsync(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
-            var replyMessage = Contracts.DatasetReply.Parser.ParseFrom(received.Body.ToArray());
+            var replyMessage = DatasetReply.Parser.ParseFrom(received.Body.ToArray());
 
             return replyMessage.ReplyCase == DatasetReply.ReplyOneofCase.Success
                 ? SuccessReply(replyMessage.Success)
                 : FailureReply(replyMessage.Failure);
         }
 
-        private static MessageReply SuccessReply(Contracts.DatasetReply.Types.FileResource fileResource)
+        private static MessageReply SuccessReply(DatasetReply.Types.FileResource fileResource)
         {
-            return new ()
+            return new()
             {
                 DataPath = fileResource.Uri,
                 Uuids = fileResource.UUID,
             };
         }
 
-        private static MessageReply FailureReply(Contracts.DatasetReply.Types.RequestFailure requestFailure)
+        private static MessageReply FailureReply(DatasetReply.Types.RequestFailure requestFailure)
         {
-            return new ()
+            return new()
             {
                 FailureReason = (MessageReplyFailureReason)(int)requestFailure.Reason,
                 FailureDescription = requestFailure.FailureDescription,

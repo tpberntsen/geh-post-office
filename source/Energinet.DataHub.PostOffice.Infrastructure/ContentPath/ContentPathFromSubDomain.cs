@@ -13,8 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Domain;
@@ -37,7 +35,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.ContentPath
             _sessionId = Guid.NewGuid();
         }
 
-        public string StrategyName { get; } = nameof(ContentPathFromSubDomain);
+        public string StrategyName => nameof(ContentPathFromSubDomain);
 
         public string? SavedContentPath { get; set; }
 

@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Energinet.DataHub.PostOffice.Domain;
@@ -35,9 +33,9 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
         /// <summary>
         /// Finds data message uuids for recipient.
         /// </summary>
-        /// <param name="dataAvailables"></param>
+        /// <param name="requestData"></param>
         /// <returns>list of dataAvailables where data should be collected</returns>
-        Task<IGetContentPathStrategy> GetStrategyForContentPathAsync(RequestData dataAvailables);
+        Task<IGetContentPathStrategy> GetStrategyForContentPathAsync(RequestData requestData);
 
         /// <summary>
         /// Saves message reply to storage

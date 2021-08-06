@@ -45,13 +45,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             const string queryString =
                 "SELECT * FROM c WHERE c.recipient = @recipient ORDER BY c._ts ASC OFFSET 0 LIMIT 1";
-            var parameters = new List<KeyValuePair<string, string>> { new ("recipient", recipient) };
+            var parameters = new List<KeyValuePair<string, string>> { new("recipient", recipient) };
 
             var documents = await GetDocumentsAsync(queryString, parameters).ConfigureAwait(false);
             var document = documents.FirstOrDefault();
 
             return document is not null
-                ? new RequestData { Origin = document.origin, Uuids = new List<string> { document.uuid! } }
+                ? new RequestData { Origin = document.Origin, Uuids = new List<string> { document.Uuid } }
                 : new RequestData();
         }
 
@@ -64,13 +64,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var cosmosDocument = new CosmosDataAvailable
             {
-                uuid = document.uuid,
-                recipient = document.recipient,
-                messageType = document.messageType,
-                origin = document.origin,
-                supportsBundling = document.supportsBundling,
-                relativeWeight = document.relativeWeight,
-                priority = document.priority,
+                uuid = document.Uuid,
+                recipient = document.Recipient,
+                messageType = document.MessageType,
+                origin = document.Origin,
+                supportsBundling = document.SupportsBundling,
+                relativeWeight = document.RelativeWeight,
+                priority = document.Priority,
             };
 
             var response = await container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);

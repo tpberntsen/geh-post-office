@@ -14,12 +14,9 @@
 
 using System;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Application.DataAvailable;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.Inbound.Functions
@@ -27,9 +24,9 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
     public class DataAvailableInbox
     {
         private const string FunctionName = "DataAvailableInbox";
+        private readonly DataAvailableContractParser _dataAvailableContractParser;
 
         private readonly IMediator _mediator;
-        private readonly DataAvailableContractParser _dataAvailableContractParser;
 
         public DataAvailableInbox(
             IMediator mediator,
@@ -54,7 +51,9 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
             if (string.IsNullOrEmpty(topicName)) throw new InvalidOperationException("TopicName is null");
 
             var logger = context.GetLogger(nameof(DataAvailableInbox));
-            logger.LogInformation(message: "C# ServiceBus topic trigger function processed message in {FunctionName}", FunctionName);
+            logger.LogInformation(
+                "C# ServiceBus topic trigger function processed message in {FunctionName}",
+                FunctionName);
 
             try
             {

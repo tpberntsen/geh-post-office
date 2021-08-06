@@ -29,14 +29,14 @@ namespace Energinet.DataHub.PostOffice.Application
         /// <param name="query">The documentQuery to get documents by.</param>
         /// <param name="parameters">parameters to sql in key-value type</param>
         /// <returns>A list of documents matching the documentQuery parameters.</returns>
-        Task<IEnumerable<Domain.DataAvailable>> GetDocumentsAsync(string query, List<KeyValuePair<string, string>> parameters);
+        Task<IEnumerable<Domain.DataAvailable>> GetDocumentsAsync(string query, IDictionary<string, string> parameters);
 
         /// <summary>
         /// Get documents.
         /// </summary>
-        /// <param name="getMessageQuery">The documentQuery to get documents by.</param>
+        /// <param name="documentQuery">The documentQuery to get documents by.</param>
         /// <returns>A list of documents matching the documentQuery parameters.</returns>
-        Task<IList<T>> GetDocumentBundleAsync(GetMessageQuery getMessageQuery);
+        Task<IList<T>> GetDocumentBundleAsync(GetMessageQuery documentQuery);
 
         /// <summary>
         /// Save a document.

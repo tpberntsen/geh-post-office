@@ -142,7 +142,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
                     It.IsAny<CosmosDataAvailable>(),
                     null,
                     null,
-                    default(CancellationToken)))
+                    default))
                 .ReturnsAsync(mockItemResponse.Object);
 
             return new CosmosClientWrapper(

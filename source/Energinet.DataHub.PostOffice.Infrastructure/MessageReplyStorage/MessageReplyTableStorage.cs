@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Microsoft.WindowsAzure.Storage;
@@ -29,7 +28,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage
         public MessageReplyTableStorage()
         {
             var connectionString = Environment.GetEnvironmentVariable("StorageAccountConnectionString");
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+            var storageAccount = CloudStorageAccount.Parse(connectionString);
             _serviceClient = storageAccount.CreateCloudTableClient();
         }
 
@@ -37,8 +36,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage
         {
             var cloudTable = await InstantiateCloudTableAsync().ConfigureAwait(false);
 
-            TableOperation getOperation = TableOperation.Retrieve<MessageReplyTableEntity>(messageKey, messageKey);
-            TableResult operationResult = await cloudTable.ExecuteAsync(getOperation).ConfigureAwait(false);
+            var getOperation = TableOperation.Retrieve<MessageReplyTableEntity>(messageKey, messageKey);
+            var operationResult = await cloudTable.ExecuteAsync(getOperation).ConfigureAwait(false);
             var messageReplyTableEntity = operationResult.Result as MessageReplyTableEntity;
 
             return await Task.FromResult(messageReplyTableEntity?.ContentPath ?? null).ConfigureAwait(false);
@@ -51,7 +50,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage
             var cloudTable = await InstantiateCloudTableAsync().ConfigureAwait(false);
 
             var messageReplyTableEntity = new MessageReplyTableEntity(messageKey, messageKey) { ContentPath = contentUri.AbsoluteUri };
-            TableOperation tableOperation = TableOperation.InsertOrReplace(messageReplyTableEntity);
+            var tableOperation = TableOperation.InsertOrReplace(messageReplyTableEntity);
 
             var tableResult = await cloudTable.ExecuteAsync(tableOperation).ConfigureAwait(false);
             ValidateTableOperationResult(tableResult);
@@ -61,7 +60,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage
         {
             if (result.Result is null)
             {
+#pragma warning disable CA2201 // Do not raise reserved exception types
                 throw new Exception($"Could not save MessageReply to storage, response code: {result.HttpStatusCode}");
+#pragma warning restore CA2201 // Do not raise reserved exception types
             }
         }
 

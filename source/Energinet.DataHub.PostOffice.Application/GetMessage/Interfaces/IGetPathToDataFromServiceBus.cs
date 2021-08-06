@@ -25,9 +25,9 @@ namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
         /// <summary>
         /// Get path to data from service bus container
         /// </summary>
-        /// <param name="containerName"></param>
+        /// <param name="queueName"></param>
         /// <param name="sessionId"></param>
         /// <returns>String containing path to data in document store</returns>
-        public Task<MessageReply> GetPathAsync(string containerName, string sessionId);
+        public Task<MessageReply> GetPathAsync(string queueName, string sessionId);
     }
 }

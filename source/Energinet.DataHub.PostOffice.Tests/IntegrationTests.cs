@@ -93,7 +93,7 @@ namespace Energinet.DataHub.PostOffice.Tests
             const int numberOfDocuments = 10;
             const string topicName = "marketdata";
             var changeOfSupplerDocuments = CreateDocuments("me", "changeofsupplier", numberOfDocuments);
-            await using ServiceBusClient client = new ServiceBusClient(connectionString);
+            await using var client = new ServiceBusClient(connectionString);
             var sender = client.CreateSender(topicName);
             foreach (var document in changeOfSupplerDocuments)
             {

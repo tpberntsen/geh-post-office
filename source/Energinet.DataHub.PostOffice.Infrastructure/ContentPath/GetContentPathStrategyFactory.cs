@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
@@ -29,9 +30,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.ContentPath
 
         public IGetContentPathStrategy Create(string pathToExistingContent)
         {
-            IGetContentPathStrategy strategy = string.IsNullOrWhiteSpace(pathToExistingContent)
-                ? _strategies.FirstOrDefault(contentPathStrategy => contentPathStrategy.StrategyName.Equals(nameof(ContentPathFromSubDomain))) !
-                : _strategies.FirstOrDefault(contentPathStrategy => contentPathStrategy.StrategyName.Equals(nameof(ContentPathFromSavedResponse))) !;
+            var strategy = string.IsNullOrWhiteSpace(pathToExistingContent)
+                ? _strategies.First(contentPathStrategy => contentPathStrategy.StrategyName.Equals(nameof(ContentPathFromSubDomain), StringComparison.Ordinal))
+                : _strategies.First(contentPathStrategy => contentPathStrategy.StrategyName.Equals(nameof(ContentPathFromSavedResponse), StringComparison.Ordinal));
 
             strategy.SavedContentPath = pathToExistingContent;
             return strategy;

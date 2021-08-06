@@ -29,10 +29,6 @@ namespace Energinet.DataHub.PostOffice.Tests
 {
     public class DataAvailableTests
     {
-        public DataAvailableTests()
-        {
-        }
-
         [Fact]
         public async Task Validate_DataAvailable_Handler()
         {
@@ -41,8 +37,8 @@ namespace Energinet.DataHub.PostOffice.Tests
 
             dataAvailableRepositoryMock.Setup(e => e.SaveDocumentAsync(It.IsAny<DataAvailable>())).ReturnsAsync(true);
 
-            DataAvailableCommand command = new DataAvailableCommand(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<int>());
-            DataAvailableHandler handler = new DataAvailableHandler(dataAvailableRepositoryMock.Object);
+            var command = new DataAvailableCommand(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<int>());
+            var handler = new DataAvailableHandler(dataAvailableRepositoryMock.Object);
 
             // Act
             var result = await handler.Handle(command, System.Threading.CancellationToken.None).ConfigureAwait(false);
@@ -56,7 +52,7 @@ namespace Energinet.DataHub.PostOffice.Tests
         {
             // Arrange
             IMapper<Contracts.DataAvailable, DataAvailableCommand> mapper = new DataAvailableMapper();
-            DataAvailableContractParser dataAvailableContractParser = new DataAvailableContractParser(mapper);
+            var dataAvailableContractParser = new DataAvailableContractParser(mapper);
             var dataContract = GetDataAvailableProtobufContract();
             var inputContractBytes = dataContract.ToByteArray();
 
