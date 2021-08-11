@@ -61,6 +61,7 @@ namespace Energinet.DataHub.PostOffice.Inbound
                     services.AddScoped<IDataAvailableRepository, DataAvailableRepository>();
                     services.AddScoped<DataAvailableContractParser>();
                     services.AddDatabaseCosmosConfig();
+                    services.AddServiceBusConfig();
                     services.AddCosmosClientBuilder(useBulkExecution: false);
 
                     services.DiscoverValidation(new[] { typeof(DataAvailableRuleSet).Assembly });

@@ -15,6 +15,7 @@
 using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
+using Energinet.DataHub.PostOffice.Infrastructure;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -25,7 +26,6 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
     {
         private const string FunctionName = "DataAvailableInbox";
         private readonly DataAvailableContractParser _dataAvailableContractParser;
-
         private readonly IMediator _mediator;
 
         public DataAvailableInbox(
@@ -39,16 +39,14 @@ namespace Energinet.DataHub.PostOffice.Inbound.Functions
         [Function(FunctionName)]
         public async Task RunAsync(
             [ServiceBusTrigger(
-                "%INBOUND_QUEUE_DATAAVAILABLE_TOPIC_NAME%",
-                "%INBOUND_QUEUE_DATAAVAILABLE_SUBSCRIPTION_NAME%",
-                Connection = "INBOUND_QUEUE_CONNECTION_STRING")]
+                "%" + ServiceBusConfig.InboundQueueDataAvailableTopicNameKey + "%",
+                "%" + ServiceBusConfig.InboundQueueDataAvailableSubscriptionNameKey + "%",
+                Connection = ServiceBusConfig.InboundQueueConnectionStringKey)]
             byte[] message,
             FunctionContext context)
         {
-            if (message is null) throw new ArgumentNullException(nameof(message));
-
-            var topicName = Environment.GetEnvironmentVariable("INBOUND_QUEUE_DATAAVAILABLE_TOPIC_NAME");
-            if (string.IsNullOrEmpty(topicName)) throw new InvalidOperationException("TopicName is null");
+            if (message is null)
+                throw new ArgumentNullException(nameof(message));
 
             var logger = context.GetLogger(nameof(DataAvailableInbox));
             logger.LogInformation(
