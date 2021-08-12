@@ -28,7 +28,7 @@ env:
   CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Outbound/Energinet.DataHub.PostOffice.Outbound.csproj'
   SOLUTION_FILE_PATH: 'Energinet.DataHub.PostOffice.sln'
   DOTNET_VERSION: '5.0'
-  AZURE_FUNCTIONAPP_BASE_NAME: 'azfun-outbound'
+  AZURE_FUNCTIONAPP_BASE_NAME: 'azfun-outbound-${{ secrets.PROJECT_NAME }}-${{ secrets.ORGANISATION_NAME }}'
 
 jobs:
   build_outbound:
@@ -76,27 +76,24 @@ jobs:
 
       - name: Set Environment Secrets
         shell: bash
-        run: |  
-          echo "ENVIRONMENT_SHORT=u" >> $GITHUB_ENV
-
-      - name: Setup Azure CLI
-        shell: bash
         run: |
-          curl -sL https://aka.ms/InstallAzureCLIDeb
-          sudo bash
-          az login --service-principal --username ${{ secrets.AZURE_SPN_ID }} --password ${{ secrets.AZURE_SPN_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  
+          echo "FUNCTIONAPP_NAME=${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}-u" >> $GITHUB_ENV
+
       - name: Get function publish profile
         id: get-publish-profile
-        run: |
-          publish_profile=$(az webapp deployment list-publishing-profiles --name ${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}-${{ secrets.PROJECT_NAME }}-${{ secrets.ORGANISATION_NAME }}-${{ env.ENVIRONMENT_SHORT }} --resource-group ${{ secrets.AZURE_RG_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} --xml)
-          echo "::set-output name=publish-profile::${publish_profile}"
+        uses: Energinet-DataHub/.github/.github/actions/get-publish-profile@main
+        with:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SPN_ID: ${{ secrets.AZURE_SPN_ID }}
+          AZURE_SPN_SECRET: ${{ secrets.AZURE_SPN_SECRET }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RG_NAME: ${{ secrets.AZURE_RG_NAME }}
+          AZURE_FUNCTIONAPP_NAME: ${{ env.FUNCTIONAPP_NAME }}
   
       - name: Deploy function
         uses: Azure/functions-action@v1
         with:
-          app-name: "${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}"
+          app-name: "${{ env.FUNCTIONAPP_NAME }}"
           package: ${{ github.workspace }}/drop
           publish-profile: ${{ steps.get-publish-profile.outputs.publish-profile }}
  
@@ -115,27 +112,24 @@ jobs:
 
       - name: Set Environment Secrets
         shell: bash
-        run: |  
-          echo "ENVIRONMENT_SHORT=t" >> $GITHUB_ENV
-
-      - name: Setup Azure CLI
-        shell: bash
         run: |
-          curl -sL https://aka.ms/InstallAzureCLIDeb
-          sudo bash
-          az login --service-principal --username ${{ secrets.AZURE_SPN_ID }} --password ${{ secrets.AZURE_SPN_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          echo "FUNCTIONAPP_NAME=${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}-t" >> $GITHUB_ENV
 
       - name: Get function publish profile
         id: get-publish-profile
-        run: |
-          publish_profile=$(az webapp deployment list-publishing-profiles --name ${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}-${{ secrets.PROJECT_NAME }}-${{ secrets.ORGANISATION_NAME }}-${{ env.ENVIRONMENT_SHORT }} --resource-group ${{ secrets.AZURE_RG_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} --xml)
-          echo "::set-output name=publish-profile::${publish_profile}"
+        uses: Energinet-DataHub/.github/.github/actions/get-publish-profile@main
+        with:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SPN_ID: ${{ secrets.AZURE_SPN_ID }}
+          AZURE_SPN_SECRET: ${{ secrets.AZURE_SPN_SECRET }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RG_NAME: ${{ secrets.AZURE_RG_NAME }}
+          AZURE_FUNCTIONAPP_NAME: ${{ env.FUNCTIONAPP_NAME }}
 
       - name: Deploy function
         uses: Azure/functions-action@v1
         with:
-          app-name: "${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}"
+          app-name: "${{ env.FUNCTIONAPP_NAME }}"
           package: ${{ github.workspace }}/drop
           publish-profile: ${{ steps.get-publish-profile.outputs.publish-profile }}
  
@@ -154,27 +148,24 @@ jobs:
 
       - name: Set Environment Secrets
         shell: bash
-        run: |  
-          echo "ENVIRONMENT_SHORT=b" >> $GITHUB_ENV
-
-      - name: Setup Azure CLI
-        shell: bash
         run: |
-          curl -sL https://aka.ms/InstallAzureCLIDeb
-          sudo bash
-          az login --service-principal --username ${{ secrets.AZURE_SPN_ID }} --password ${{ secrets.AZURE_SPN_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          echo "FUNCTIONAPP_NAME=${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}-b" >> $GITHUB_ENV
 
       - name: Get function publish profile
         id: get-publish-profile
-        run: |
-          publish_profile=$(az webapp deployment list-publishing-profiles --name ${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}-${{ secrets.PROJECT_NAME }}-${{ secrets.ORGANISATION_NAME }}-${{ env.ENVIRONMENT_SHORT }} --resource-group ${{ secrets.AZURE_RG_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} --xml)
-          echo "::set-output name=publish-profile::${publish_profile}"
+        uses: Energinet-DataHub/.github/.github/actions/get-publish-profile@main
+        with:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SPN_ID: ${{ secrets.AZURE_SPN_ID }}
+          AZURE_SPN_SECRET: ${{ secrets.AZURE_SPN_SECRET }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RG_NAME: ${{ secrets.AZURE_RG_NAME }}
+          AZURE_FUNCTIONAPP_NAME: ${{ env.FUNCTIONAPP_NAME }}
 
       - name: Deploy function
         uses: Azure/functions-action@v1
         with:
-          app-name: "${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}"
+          app-name: "${{ env.FUNCTIONAPP_NAME }}"
           package: ${{ github.workspace }}/drop
           publish-profile: ${{ steps.get-publish-profile.outputs.publish-profile }}
  
@@ -193,26 +184,23 @@ jobs:
 
       - name: Set Environment Secrets
         shell: bash
-        run: |  
-          echo "ENVIRONMENT_SHORT=p" >> $GITHUB_ENV
-
-      - name: Setup Azure CLI
-        shell: bash
         run: |
-          curl -sL https://aka.ms/InstallAzureCLIDeb
-          sudo bash
-          az login --service-principal --username ${{ secrets.AZURE_SPN_ID }} --password ${{ secrets.AZURE_SPN_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          echo "FUNCTIONAPP_NAME=${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}-p" >> $GITHUB_ENV
 
       - name: Get function publish profile
         id: get-publish-profile
-        run: |
-          publish_profile=$(az webapp deployment list-publishing-profiles --name ${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}-${{ secrets.PROJECT_NAME }}-${{ secrets.ORGANISATION_NAME }}-${{ env.ENVIRONMENT_SHORT }} --resource-group ${{ secrets.AZURE_RG_NAME }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} --xml)
-          echo "::set-output name=publish-profile::${publish_profile}"
+        uses: Energinet-DataHub/.github/.github/actions/get-publish-profile@main
+        with:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SPN_ID: ${{ secrets.AZURE_SPN_ID }}
+          AZURE_SPN_SECRET: ${{ secrets.AZURE_SPN_SECRET }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RG_NAME: ${{ secrets.AZURE_RG_NAME }}
+          AZURE_FUNCTIONAPP_NAME: ${{ env.FUNCTIONAPP_NAME }}
 
       - name: Deploy function
         uses: Azure/functions-action@v1
         with:
-          app-name: "${{ env.AZURE_FUNCTIONAPP_BASE_NAME }}"
+          app-name: "${{ env.FUNCTIONAPP_NAME }}"
           package: ${{ github.workspace }}/drop
           publish-profile: ${{ steps.get-publish-profile.outputs.publish-profile }}
