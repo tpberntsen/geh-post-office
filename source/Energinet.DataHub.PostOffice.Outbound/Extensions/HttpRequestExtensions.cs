@@ -23,7 +23,7 @@ namespace Energinet.DataHub.PostOffice.Outbound.Extensions
 {
     public static class HttpRequestExtensions
     {
-        public static GetMessageQuery GetDocumentQuery(this HttpRequestData request)
+        public static GetMessageQuery GetMessageQuery(this HttpRequestData request)
         {
             if (request is null) throw new ArgumentNullException(nameof(request));
 

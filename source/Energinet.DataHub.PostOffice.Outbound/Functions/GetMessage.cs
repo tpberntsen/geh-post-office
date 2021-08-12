@@ -46,7 +46,7 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
         {
             try
             {
-                var getMessageQuery = request.GetDocumentQuery();
+                var getMessageQuery = request.GetMessageQuery();
 
                 var logger = context.GetLogger(nameof(GetMessage));
                 logger.LogInformation($"Processing GetMessage query: {getMessageQuery}.");
