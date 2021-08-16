@@ -21,6 +21,6 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// <param name="messageKey"></param>
         /// <param name="contentUri"></param>
         /// <returns>void task</returns>
-        Task SaveMessageReplyAsync(string messageKey, Uri contentUri);
+        Task<bool> SaveMessageReplyAsync(string messageKey, Uri contentUri);
     }
 }

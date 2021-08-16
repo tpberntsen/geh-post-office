@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
@@ -46,15 +47,29 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var documents = await GetDocumentsAsync(queryString, parameters).ConfigureAwait(false);
             var document = documents.FirstOrDefault();
 
-            return await Task.FromResult(string.Empty).ConfigureAwait(false);
+            return document?.ContentPath;
         }
 
-        public Task SaveMessageReplyAsync(string messageKey, Uri contentUri)
+        public async Task<bool> SaveMessageReplyAsync(string messageKey, Uri contentUri)
         {
-            throw new NotImplementedException();
+            if (messageKey is null) throw new ArgumentNullException(nameof(messageKey));
+            if (contentUri is null) throw new ArgumentNullException(nameof(contentUri));
+            var container = GetContainer(ContainerName);
+
+            var messageDocument = new MessageReplyDocument()
+            {
+               Id = messageKey,
+               ContentPath = contentUri.AbsoluteUri
+            };
+
+            var response = await container.CreateItemAsync(messageDocument).ConfigureAwait(false);
+            if (response.StatusCode != HttpStatusCode.Created)
+                throw new InvalidOperationException("Could not create document in cosmos");
+
+            return true;
         }
 
-        private async Task<IEnumerable<MessageReplyEntity>> GetDocumentsAsync(string query, List<KeyValuePair<string, string>> parameters)
+        private async Task<IEnumerable<MessageReplyDocument>> GetDocumentsAsync(string query, List<KeyValuePair<string, string>> parameters)
         {
             if (query is null)
                 throw new ArgumentNullException(nameof(query));
@@ -66,12 +81,12 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var container = GetContainer(ContainerName);
 
-            using (FeedIterator<MessageReplyEntity> feedIterator =
-                container.GetItemQueryIterator<MessageReplyEntity>(documentQuery))
+            using (FeedIterator<MessageReplyDocument> feedIterator =
+                container.GetItemQueryIterator<MessageReplyDocument>(documentQuery))
             {
                 var documentsFromCosmos = await feedIterator.ReadNextAsync().ConfigureAwait(false);
                 var documents = documentsFromCosmos
-                    .Select(document => new MessageReplyEntity()
+                    .Select(document => new MessageReplyDocument()
                     {
                         Id = document.Id,
                         ContentPath = document.ContentPath

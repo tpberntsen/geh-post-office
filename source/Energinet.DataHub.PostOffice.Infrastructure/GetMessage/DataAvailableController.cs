@@ -25,16 +25,16 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
     public class DataAvailableController : IDataAvailableController
     {
         private readonly IDataAvailableRepository _dataAvailableRepository;
-        private readonly IMessageReplyStorage _messageReplyStorage;
+        private readonly IMessageReplyRepository _messageReplyRepository;
         private readonly IGetContentPathStrategyFactory _contentPathStrategyFactory;
 
         public DataAvailableController(
             IDataAvailableRepository dataAvailableRepository,
-            IMessageReplyStorage messageReplyStorage,
+            IMessageReplyRepository messageReplyRepository,
             IGetContentPathStrategyFactory contentPathStrategyFactory)
         {
             _dataAvailableRepository = dataAvailableRepository;
-            _messageReplyStorage = messageReplyStorage;
+            _messageReplyRepository = messageReplyRepository;
             _contentPathStrategyFactory = contentPathStrategyFactory;
         }
 
@@ -52,7 +52,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             if (requestData is null) throw new ArgumentNullException(nameof(requestData));
 
             var dataAvailableContentKey = GetContentKeyFromUuids(requestData.Uuids);
-            var savedContentPath = await _messageReplyStorage.GetMessageReplyAsync(dataAvailableContentKey).ConfigureAwait(false);
+            var savedContentPath = await _messageReplyRepository.GetMessageReplyAsync(dataAvailableContentKey).ConfigureAwait(false);
 
             return _contentPathStrategyFactory.Create(savedContentPath ?? string.Empty);
         }
@@ -63,7 +63,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 
             var messageContentKey = GetContentKeyFromUuids(messageReply.Uuids);
 
-            await _messageReplyStorage.SaveMessageReplyAsync(messageContentKey, new Uri(messageReply.DataPath!)).ConfigureAwait(false);
+            await _messageReplyRepository.SaveMessageReplyAsync(messageContentKey, new Uri(messageReply.DataPath!)).ConfigureAwait(false);
         }
 
         private static string GetContentKeyFromUuids(IEnumerable<string> uuids)

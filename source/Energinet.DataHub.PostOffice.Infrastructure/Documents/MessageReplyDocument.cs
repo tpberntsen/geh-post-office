@@ -16,7 +16,7 @@ using System.Text.Json.Serialization;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Entities
 {
-    public class MessageReplyEntity
+    public class MessageReplyDocument
     {
         [JsonPropertyName("id")]
         public string Id { get; init; } = string.Empty;
