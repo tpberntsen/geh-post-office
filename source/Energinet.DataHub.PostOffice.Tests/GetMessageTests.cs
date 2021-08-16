@@ -40,14 +40,14 @@ namespace Energinet.DataHub.PostOffice.Tests
             var dataAvailableRepository = dataAvailableRepositoryMock.Object;
             GetDocumentsAsync(dataAvailableRepositoryMock);
 
-            var messageResponseStorage = new Mock<IMessageReplyStorage>();
-            messageResponseStorage
+            var messageReplyRepository = new Mock<IMessageReplyRepository>();
+            messageReplyRepository
                 .Setup(e => e.GetMessageReplyAsync(It.IsAny<string>()))
                 .ReturnsAsync(It.IsAny<string>());
 
             var messageReply = new MessageReply() { DataPath = "https://testpath.com", FailureReason = MessageReplyFailureReason.DatasetNotFound };
             var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies(messageReply));
-            var dataAvailableController = new DataAvailableController(dataAvailableRepository, messageResponseStorage.Object, strategyFactory);
+            var dataAvailableController = new DataAvailableController(dataAvailableRepository, messageReplyRepository.Object, strategyFactory);
 
             var storageServiceMock = new Mock<IStorageService>();
             GetMarketOperatorDataFromStorageService(storageServiceMock);
@@ -72,14 +72,14 @@ namespace Energinet.DataHub.PostOffice.Tests
             var dataAvailableRepository = dataAvailableRepositoryMock.Object;
             GetDocumentsAsync(dataAvailableRepositoryMock);
 
-            var messageResponseStorage = new Mock<IMessageReplyStorage>();
-            messageResponseStorage
+            var messageReplyRepository = new Mock<IMessageReplyRepository>();
+            messageReplyRepository
                 .Setup(e => e.GetMessageReplyAsync(It.IsAny<string>()))
                 .ReturnsAsync(It.IsAny<string>());
 
             var messageReply = new MessageReply() { DataPath = "https://testpath.com" };
             var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies(messageReply));
-            var dataAvailableController = new DataAvailableController(dataAvailableRepository, messageResponseStorage.Object, strategyFactory);
+            var dataAvailableController = new DataAvailableController(dataAvailableRepository, messageReplyRepository.Object, strategyFactory);
 
             var storageServiceMock = new Mock<IStorageService>();
             GetMarketOperatorDataFromStorageService(storageServiceMock);

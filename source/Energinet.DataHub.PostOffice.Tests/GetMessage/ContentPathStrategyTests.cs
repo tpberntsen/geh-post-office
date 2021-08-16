@@ -36,13 +36,13 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
         {
             // Arrange
             var dataAvailableRepositoryMock = new Mock<IDataAvailableRepository>();
-            var messageResponseStorage = new Mock<IMessageReplyStorage>();
-            messageResponseStorage
+            var messageReplyRepository = new Mock<IMessageReplyRepository>();
+            messageReplyRepository
                 .Setup(e => e.GetMessageReplyAsync(It.IsAny<string>()))
                 .ReturnsAsync(It.IsAny<string>());
 
             var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies());
-            var dataAvailableController = new DataAvailableController(dataAvailableRepositoryMock.Object, messageResponseStorage.Object, strategyFactory);
+            var dataAvailableController = new DataAvailableController(dataAvailableRepositoryMock.Object, messageReplyRepository.Object, strategyFactory);
 
             var dataAvailables = TestData.GetRandomValidDataAvailables(5);
             var requestData = new RequestData { Uuids = dataAvailables.Select(data => data.Uuid!), Origin = "Test" };
@@ -64,13 +64,13 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
             var contentKey = string.Join(";", dataAvailables.Select(e => e.Uuid));
 
             var dataAvailableRepositoryMock = new Mock<IDataAvailableRepository>();
-            var messageResponseStorage = new Mock<IMessageReplyStorage>();
-            messageResponseStorage
+            var messageReplyRepository = new Mock<IMessageReplyRepository>();
+            messageReplyRepository
                 .Setup(e => e.GetMessageReplyAsync(It.IsAny<string>()))
                 .ReturnsAsync(contentKey);
 
             var strategyFactory = new GetContentPathStrategyFactory(GetContentPathStrategies());
-            var dataAvailableController = new DataAvailableController(dataAvailableRepositoryMock.Object, messageResponseStorage.Object, strategyFactory);
+            var dataAvailableController = new DataAvailableController(dataAvailableRepositoryMock.Object, messageReplyRepository.Object, strategyFactory);
 
             var requestData = new RequestData { Uuids = dataAvailables.Select(data => data.Uuid!), Origin = "Test" };
 

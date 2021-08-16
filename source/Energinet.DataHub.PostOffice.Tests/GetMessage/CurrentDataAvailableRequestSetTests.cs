@@ -38,10 +38,10 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
                 .Setup(repository => repository.GetDataAvailableUuidsAsync(recipient))
                 .ReturnsAsync(new RequestData());
 
-            var messageResponseStorage = new Mock<IMessageReplyStorage>();
+            var messageReplyRepository = new Mock<IMessageReplyRepository>();
             var contentPathStrategyFactory = new Mock<IGetContentPathStrategyFactory>();
 
-            var dataAvailableController = new DataAvailableController(dataAvailableRepositoryMock.Object, messageResponseStorage.Object, contentPathStrategyFactory.Object);
+            var dataAvailableController = new DataAvailableController(dataAvailableRepositoryMock.Object, messageReplyRepository.Object, contentPathStrategyFactory.Object);
 
             // Act
             var result = await dataAvailableController
