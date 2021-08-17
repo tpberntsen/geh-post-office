@@ -22,7 +22,7 @@ using MediatR;
 namespace Energinet.DataHub.PostOffice.Infrastructure.Pipeline
 {
     public class GetMessagePipelineValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IRequest<string>
+        where TRequest : IRequest<TResponse>
     {
         private readonly IValidator<TRequest> _validator;
 
