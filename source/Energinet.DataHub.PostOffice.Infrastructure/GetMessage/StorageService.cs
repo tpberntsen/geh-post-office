@@ -14,6 +14,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
@@ -35,9 +36,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             var blob = container.GetBlobClient(fileName);
             try
             {
-                await using MemoryStream ms = new MemoryStream();
-                await blob.DownloadToAsync(ms).ConfigureAwait(false);
-                using StreamReader sr = new StreamReader(ms);
+                var response = await blob.DownloadAsync().ConfigureAwait(false);
+                using StreamReader sr = new StreamReader(response.Value.Content);
                 var pathToContent = await sr.ReadToEndAsync().ConfigureAwait(false);
                 return pathToContent;
             }

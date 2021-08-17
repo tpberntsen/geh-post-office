@@ -12,15 +12,15 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Entities
 {
     public class MessageReplyDocument
     {
-        [JsonPropertyName("id")]
+        [JsonProperty("id")]
         public string Id { get; init; } = string.Empty;
-        [JsonPropertyName("contentpath")]
+        [JsonProperty("contentpath")]
         public string ContentPath { get; init; } = string.Empty;
     }
 }
