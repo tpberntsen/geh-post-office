@@ -24,7 +24,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
     public class SendMessageToServiceBus : ISendMessageToServiceBus
     {
         private readonly ServiceBusClient? _serviceBusClient;
-        private readonly string? _returnQueueName = Environment.GetEnvironmentVariable("ServiceBus_DataRequest_Return_Queue");
+        private readonly string? _returnTopic = Environment.GetEnvironmentVariable("MessageReplyTopic");
         private ServiceBusSender? _sender;
 
         public SendMessageToServiceBus(ServiceBusClient serviceBusClient)
@@ -43,7 +43,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             var message = new ServiceBusMessage(requestDatasetMessage.ToByteArray()) { SessionId = sessionId };
 
             message.ReplyToSessionId = message.SessionId;
-            message.ReplyTo = _returnQueueName;
+            message.ReplyTo = _returnTopic;
 
             // What if _sender is null?
             if (_sender is not null) await _sender.SendMessageAsync(message).ConfigureAwait(false);
@@ -54,12 +54,12 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             switch (origin)
             {
                 case "charges":
-                    return "charges";
+                    return "sbt-outbund-charges";
                 case "ts" or "timeseries":
                     return "ts";
                 default:
                     #if DEBUG
-                    return "charges";
+                    return "sbt-outbund-charges";
                     #else
                     throw new Exception("Unknown origin name");
                     #endif
