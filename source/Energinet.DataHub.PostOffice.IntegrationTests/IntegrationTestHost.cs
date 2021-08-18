@@ -31,6 +31,7 @@ using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage;
 using Energinet.DataHub.PostOffice.Infrastructure.Pipeline;
+using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable;
 using FluentValidation;
 using Microsoft.Azure.Cosmos;
@@ -67,7 +68,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
 
             // Add Custom Services
             _container.Register<IMapper<Contracts.DataAvailable, DataAvailableCommand>, DataAvailableMapper>(Lifestyle.Scoped);
-            _container.Register<IDataAvailableRepository, IDataAvailableRepository>(Lifestyle.Scoped);
+            _container.Register<IDataAvailableRepository, DataAvailableRepository>(Lifestyle.Scoped);
             _container.Register<IDataAvailableController, DataAvailableController>(Lifestyle.Scoped);
             _container.Register<IMessageReplyStorage, MessageReplyDictionaryStorage>(Lifestyle.Scoped);
             _container.Register<DataAvailableContractParser>(Lifestyle.Scoped);

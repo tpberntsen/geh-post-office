@@ -33,7 +33,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 
         public async Task<MessageReply> GetPathAsync(string queueName, string sessionId)
         {
-            var receiver = await _serviceBusClient.AcceptSessionAsync(queueName, sessionId).ConfigureAwait(false);
+            var receiver = await _serviceBusClient.AcceptSessionAsync(queueName, "sbs-messagereply", sessionId).ConfigureAwait(false);
             var received = await receiver.ReceiveMessageAsync(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
             var replyMessage = DatasetReply.Parser.ParseFrom(received.Body.ToArray());
 

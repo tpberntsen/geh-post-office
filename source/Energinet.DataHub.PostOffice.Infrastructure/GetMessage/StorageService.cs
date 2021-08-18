@@ -13,9 +13,13 @@
 // limitations under the License.
 
 using System;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
+using Azure;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
-using Microsoft.WindowsAzure.Storage;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 {
@@ -26,18 +30,22 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             if (containerName is null) throw new ArgumentNullException(nameof(containerName));
 
             var connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
-
-            var storageAccount = CloudStorageAccount.Parse(connectionString);
-
-            var serviceClient = storageAccount.CreateCloudBlobClient();
-
-            var container = serviceClient.GetContainerReference(containerName);
-
-            var blob = container.GetBlockBlobReference(fileName);
-
-            var contents = await blob.DownloadTextAsync().ConfigureAwait(false);
-
-            return contents;
+            var blobServiceClient = new BlobServiceClient(connectionString);
+            var container = blobServiceClient.GetBlobContainerClient(containerName);
+            await container.CreateIfNotExistsAsync().ConfigureAwait(false);
+            var blob = container.GetBlobClient(fileName);
+            try
+            {
+                var response = await blob.DownloadAsync().ConfigureAwait(false);
+                using StreamReader sr = new StreamReader(response.Value.Content);
+                var pathToContent = await sr.ReadToEndAsync().ConfigureAwait(false);
+                return pathToContent;
+            }
+            catch (RequestFailedException e)
+                when (e.ErrorCode == BlobErrorCode.BlobNotFound)
+            {
+                return string.Empty;
+            }
         }
     }
 }

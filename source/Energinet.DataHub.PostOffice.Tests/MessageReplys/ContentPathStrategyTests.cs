@@ -86,7 +86,7 @@ namespace Energinet.DataHub.PostOffice.Tests.MessageReplys
 
         private static ContentPathFromSubDomain SetUp_ContentPathStrategyTest(Contracts.DatasetReply response)
         {
-            Environment.SetEnvironmentVariable("ServiceBus_DataRequest_Return_Queue", "queueName");
+            Environment.SetEnvironmentVariable("MessageReplyTopic", "queueName");
 
             var contractInBytes = new ReadOnlyMemory<byte>(response.ToByteArray());
             var serviceBusReceivedMessage = new Mock<ServiceBusReceivedMessage>(contractInBytes);
@@ -100,7 +100,7 @@ namespace Energinet.DataHub.PostOffice.Tests.MessageReplys
             var mockServiceBusClient = new Mock<ServiceBusClient>();
 
             mockServiceBusClient
-                .Setup(e => e.AcceptSessionAsync(It.IsAny<string>(), It.IsAny<string>(), default(ServiceBusSessionReceiverOptions), default))
+                .Setup(e => e.AcceptSessionAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), default(ServiceBusSessionReceiverOptions), default))
                 .ReturnsAsync(mockServiceBusSessionReceiver.Object);
             mockServiceBusClient
                 .Setup(e => e.CreateSender(It.IsAny<string>()))

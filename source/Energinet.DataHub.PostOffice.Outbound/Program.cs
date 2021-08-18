@@ -25,6 +25,7 @@ using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage;
 using Energinet.DataHub.PostOffice.Infrastructure.Pipeline;
+using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -49,13 +50,14 @@ namespace Energinet.DataHub.PostOffice.Outbound
                     services.AddLogging();
 
                     // Add MediatR
-                    services.AddMediatR(typeof(GetMessageHandler).Assembly);
+                    services.AddMediatR(typeof(GetMessageHandler));
                     services.AddScoped(typeof(IRequest<string>), typeof(GetMessageHandler));
                     services.AddScoped(typeof(IPipelineBehavior<,>), typeof(GetMessagePipelineValidationBehavior<,>));
                     services.AddScoped(typeof(IValidator<GetMessageQuery>), typeof(GetMessageRuleSetValidator));
 
                     // Add Custom Services
-                    services.AddScoped<IDataAvailableRepository, IDataAvailableRepository>();
+                    services.AddScoped<IDataAvailableRepository, DataAvailableRepository>();
+                    services.AddScoped<IMessageReplyRepository, MessageReplyRepository>();
                     services.AddScoped<IDataAvailableController, DataAvailableController>();
                     services.AddScoped<IMessageReplyStorage, MessageReplyTableStorage>();
                     services.AddScoped<ISendMessageToServiceBus, SendMessageToServiceBus>();

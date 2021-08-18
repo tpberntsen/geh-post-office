@@ -9,6 +9,8 @@
     "ServiceBusConnectionString": "",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "APPINSIGHTS_INSTRUMENTATIONKEY": ""
+    "APPINSIGHTS_INSTRUMENTATIONKEY": "",
+    "MessageReplyTopic": "",
+    "StorageAccountConnectionString": ""
   }
 }

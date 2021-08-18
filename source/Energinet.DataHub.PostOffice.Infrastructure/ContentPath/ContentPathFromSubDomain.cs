@@ -21,7 +21,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.ContentPath
 {
     public class ContentPathFromSubDomain : IGetContentPathStrategy
     {
-        private readonly string? _returnQueueName = Environment.GetEnvironmentVariable("ServiceBus_DataRequest_Return_Queue");
+        private readonly string? _returnTopic = Environment.GetEnvironmentVariable("MessageReplyTopic");
         private readonly ISendMessageToServiceBus _sendMessageToServiceBus;
         private readonly IGetPathToDataFromServiceBus _getPathToDataFromServiceBus;
         private Guid _sessionId;
@@ -61,7 +61,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.ContentPath
         private async Task<MessageReply> ReadPathToMarketOperatorDataAsync()
         {
             return await _getPathToDataFromServiceBus.GetPathAsync(
-                _returnQueueName ?? "default",
+                _returnTopic ?? "default",
                 _sessionId.ToString()).ConfigureAwait(false);
         }
     }
