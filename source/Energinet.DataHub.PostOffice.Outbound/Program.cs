@@ -15,12 +15,16 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
+using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Handlers;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
+using Energinet.DataHub.PostOffice.Application.Handlers;
 using Energinet.DataHub.PostOffice.Application.Validation;
 using Energinet.DataHub.PostOffice.Common;
+using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
+using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage;
@@ -50,12 +54,16 @@ namespace Energinet.DataHub.PostOffice.Outbound
                     services.AddLogging();
 
                     // Add MediatR
-                    services.AddMediatR(typeof(GetMessageHandler));
+                    services.AddMediatR(typeof(GetMessageHandler), typeof(PeekHandler));
                     services.AddScoped(typeof(IRequest<string>), typeof(GetMessageHandler));
                     services.AddScoped(typeof(IPipelineBehavior<,>), typeof(GetMessagePipelineValidationBehavior<,>));
                     services.AddScoped(typeof(IValidator<GetMessageQuery>), typeof(GetMessageRuleSetValidator));
+                    services.AddScoped(typeof(IValidator<PeekCommand>), typeof(PeekRuleSet));
 
                     // Add Custom Services
+                    services.AddScoped<IBundleRepository, BundleRepository>();
+                    services.AddScoped<IDataAvailableNotificationRepository, DataAvailableNotificationRepository>();
+                    services.AddScoped<IWarehouseDomainService, WarehouseDomainService>();
                     services.AddScoped<IDataAvailableRepository, DataAvailableRepository>();
                     services.AddScoped<IMessageReplyRepository, MessageReplyRepository>();
                     services.AddScoped<IDataAvailableController, DataAvailableController>();

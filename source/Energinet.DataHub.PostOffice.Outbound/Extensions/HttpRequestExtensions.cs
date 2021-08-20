@@ -16,6 +16,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Microsoft.Azure.Functions.Worker.Http;
 
@@ -23,6 +24,22 @@ namespace Energinet.DataHub.PostOffice.Outbound.Extensions
 {
     public static class HttpRequestExtensions
     {
+        public static PeekCommand GetPeekCommand(this HttpRequestData request)
+        {
+            if (request is null) throw new ArgumentNullException(nameof(request));
+
+            var queryDictionary = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(request.Url.Query);
+            var recipient = queryDictionary.ContainsKey("recipient") ? queryDictionary["recipient"].ToString() : null;
+            if (recipient == null)
+            {
+                throw new InvalidOperationException("Request must include recipient.");
+            }
+
+            var documentQuery = new PeekCommand(recipient);
+
+            return documentQuery;
+        }
+
         public static GetMessageQuery GetMessageQuery(this HttpRequestData request)
         {
             if (request is null) throw new ArgumentNullException(nameof(request));
