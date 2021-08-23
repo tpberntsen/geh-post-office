@@ -13,62 +13,25 @@
 // limitations under the License.
 
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Application.DataAvailable;
-using Energinet.DataHub.PostOffice.Application.Validation;
-using Energinet.DataHub.PostOffice.Common;
-using Energinet.DataHub.PostOffice.Contracts;
-using Energinet.DataHub.PostOffice.Domain.Repositories;
-using Energinet.DataHub.PostOffice.Inbound.GreenEnergyHub;
-using Energinet.DataHub.PostOffice.Inbound.Parsing;
-using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
-using Energinet.DataHub.PostOffice.Infrastructure.Pipeline;
-using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
-using FluentValidation;
-using MediatR;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using Energinet.DataHub.PostOffice.Common.SimpleInjector;
 using Microsoft.Extensions.Hosting;
+using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.Inbound
 {
-    public class Program
+    public static class Program
     {
-        private static Task Main()
+        public static async Task Main()
         {
+            await using var startup = new Startup();
+
             var host = new HostBuilder()
-                .ConfigureAppConfiguration(configurationBuilder =>
-                {
-                    configurationBuilder.AddEnvironmentVariables();
-                })
-                .ConfigureFunctionsWorkerDefaults()
-                .ConfigureServices(services =>
-                {
-                    // Add Logging
-                    services.AddLogging();
+                .ConfigureFunctionsWorkerDefaults(options => options.UseMiddleware<SimpleInjectorScopedRequest>())
+                .ConfigureServices(startup.ConfigureServices)
+                .Build()
+                .UseSimpleInjector(startup.Container);
 
-                    // Add HttpClient
-                    services.AddHttpClient();
-
-                    // Add MediatR
-                    services.AddMediatR(typeof(DataAvailableHandler));
-                    services.AddScoped(typeof(IRequest<bool>), typeof(DataAvailableHandler));
-                    services.AddScoped(typeof(IPipelineBehavior<,>), typeof(DataAvailablePipelineValidationBehavior<,>));
-                    services.AddScoped<IValidator<DataAvailableCommand>, DataAvailableRuleSet>();
-
-                    // Add Custom Services
-                    services.AddScoped<IMapper<DataAvailable, DataAvailableCommand>, DataAvailableMapper>();
-                    services.AddScoped<IDataAvailableRepository, DataAvailableRepository>();
-                    services.AddScoped<DataAvailableContractParser>();
-                    services.AddDatabaseCosmosConfig();
-                    services.AddServiceBusConfig();
-                    services.AddCosmosClientBuilder(useBulkExecution: false);
-
-                    services.DiscoverValidation(new[] { typeof(DataAvailableRuleSet).Assembly });
-                })
-                .Build();
-
-            return host.RunAsync();
+            await host.RunAsync().ConfigureAwait(false);
         }
     }
 }

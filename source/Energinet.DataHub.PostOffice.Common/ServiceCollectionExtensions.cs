@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Configuration;
@@ -65,25 +64,6 @@ namespace Energinet.DataHub.PostOffice.Common
                     configuration.GetValue<string>(ServiceBusConfig.InboundQueueDataAvailableSubscriptionNameKey),
                     configuration.GetValue<string>(ServiceBusConfig.InboundQueueConnectionStringKey));
             });
-        }
-
-        public static void AddCosmosContainerConfig(this IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddSingleton(
-                serviceProvider =>
-                {
-                    var configuration = serviceProvider.GetService<IConfiguration>();
-
-                    var containersAsString = configuration.GetValue<string>("MESSAGE_DB_CONTAINERS");
-                    if (string.IsNullOrEmpty(containersAsString))
-                        throw new InvalidOperationException("MESSAGE_DB_CONTAINERS does not contain any value");
-
-                    var containers = containersAsString.Split(',');
-                    if (!containers.Any())
-                        throw new InvalidOperationException("No containers found in MESSAGE_DB_CONTAINERS");
-
-                    return new CosmosContainerConfig(containers);
-                });
         }
     }
 }

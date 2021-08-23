@@ -1,4 +1,4 @@
-<!--
+﻿<!--
 Copyright 2020 Energinet DataHub A/S
 
 Licensed under the Apache License, Version 2.0 (the "License2");
@@ -13,58 +13,61 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <IsPackable>false</IsPackable>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Energinet.DataHub.PostOffice.Application\Energinet.DataHub.PostOffice.Application.csproj" />
-      <ProjectReference Include="..\Energinet.DataHub.PostOffice.Domain\Energinet.DataHub.PostOffice.Domain.csproj" />
-      <ProjectReference Include="..\Energinet.DataHub.PostOffice.Inbound\Energinet.DataHub.PostOffice.Inbound.csproj" />
-      <ProjectReference Include="..\Energinet.DataHub.PostOffice.Infrastructure\Energinet.DataHub.PostOffice.Infrastructure.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Energinet.DataHub.PostOffice.Application\Energinet.DataHub.PostOffice.Application.csproj" />
+    <ProjectReference Include="..\Energinet.DataHub.PostOffice.Domain\Energinet.DataHub.PostOffice.Domain.csproj" />
+    <ProjectReference Include="..\Energinet.DataHub.PostOffice.Inbound\Energinet.DataHub.PostOffice.Inbound.csproj" />
+    <ProjectReference Include="..\Energinet.DataHub.PostOffice.Infrastructure\Energinet.DataHub.PostOffice.Infrastructure.csproj" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="AutoFixture" Version="4.15.0" />
-        <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.1.0" />
-        <PackageReference Include="Bogus" Version="33.0.1" />
-        <PackageReference Include="Moq" Version="4.16.1" />
-        <PackageReference Include="NodaTime.Serialization.JsonNet" Version="3.0.0" />
-        <PackageReference Include="NodaTime.Serialization.SystemTextJson" Version="1.0.0" />
-        <PackageReference Include="xunit" Version="2.4.1" />
-        <PackageReference Include="FluentAssertions" Version="5.10.3" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
-        <PackageReference Include="NSubstitute" Version="4.2.2" />
-        <PackageReference Include="xunit.categories" Version="2.0.5" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
-        <PackageReference Include="coverlet.collector" Version="3.0.3">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AutoFixture" Version="4.17.0" />
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.2.1" />
+    <PackageReference Include="Bogus" Version="33.0.2" />
+    <PackageReference Include="Moq" Version="4.16.1" />
+    <PackageReference Include="NodaTime.Serialization.JsonNet" Version="3.0.0" />
+    <PackageReference Include="NodaTime.Serialization.SystemTextJson" Version="1.0.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+    <PackageReference Include="xunit.categories" Version="2.0.5" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="3.1.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Google.Protobuf" Version="3.15.5" />
-      <PackageReference Include="Grpc.Tools" Version="2.34.0" PrivateAssets="All" />
-      <PackageReference Include="NodaTime.Serialization.Protobuf" Version="2.0.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.17.3" />
+    <PackageReference Include="Grpc.Tools" Version="2.39.1" PrivateAssets="All" />
+    <PackageReference Include="NodaTime.Serialization.Protobuf" Version="2.0.0" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <None Update="local.settings.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-      </None>
-    </ItemGroup>
+  <ItemGroup>
+    <None Update="local.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
 
-    <ItemGroup>
-      <Reference Include="GreenEnergyHub.Messaging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\poor-man-package-sharing\GreenEnergyHub.Messaging.dll</HintPath>
-      </Reference>
-    </ItemGroup>
+  <ItemGroup>
+    <Reference Include="GreenEnergyHub.Messaging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\poor-man-package-sharing\GreenEnergyHub.Messaging.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

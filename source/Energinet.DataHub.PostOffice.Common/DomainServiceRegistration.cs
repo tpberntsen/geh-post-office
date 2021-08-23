@@ -11,18 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-using System;
-using System.Collections.Generic;
 
-namespace Energinet.DataHub.PostOffice.Infrastructure
+using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
+using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
+using SimpleInjector;
+
+namespace Energinet.DataHub.PostOffice.Common
 {
-    public class CosmosContainerConfig
+    internal static class DomainServiceRegistration
     {
-        public CosmosContainerConfig(string[] containers)
+        public static void AddDomainServices(this Container container)
         {
-            Containers = containers ?? throw new ArgumentNullException(nameof(containers));
+            container.Register<IDataAvailableController, DataAvailableController>(Lifestyle.Scoped);
         }
-
-        public IReadOnlyList<string> Containers { get; }
     }
 }

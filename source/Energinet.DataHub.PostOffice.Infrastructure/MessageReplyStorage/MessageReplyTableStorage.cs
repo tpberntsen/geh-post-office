@@ -22,14 +22,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage
     public class MessageReplyTableStorage : IMessageReplyStorage
     {
         private const string TableName = "MessageReply";
-        private readonly CloudTableClient _serviceClient;
-
-        public MessageReplyTableStorage()
-        {
-            var connectionString = Environment.GetEnvironmentVariable("StorageAccountConnectionString");
-            var storageAccount = CloudStorageAccount.Parse(connectionString);
-            _serviceClient = storageAccount.CreateCloudTableClient();
-        }
+        private readonly Lazy<CloudTableClient> _serviceClient = new(CreateTableClient);
 
         public async Task<string?> GetMessageReplyAsync(string messageKey)
         {
@@ -44,7 +37,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage
 
         public async Task SaveMessageReplyAsync(string messageKey, Uri contentUri)
         {
-            if (contentUri is null) throw new ArgumentNullException(nameof(contentUri));
+            if (contentUri is null)
+                throw new ArgumentNullException(nameof(contentUri));
 
             var cloudTable = await InstantiateCloudTableAsync().ConfigureAwait(false);
 
@@ -65,9 +59,16 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage
             }
         }
 
+        private static CloudTableClient CreateTableClient()
+        {
+            var connectionString = Environment.GetEnvironmentVariable("StorageAccountConnectionString");
+            var storageAccount = CloudStorageAccount.Parse(connectionString);
+            return storageAccount.CreateCloudTableClient();
+        }
+
         private async Task<CloudTable> InstantiateCloudTableAsync()
         {
-            var cloudTable = _serviceClient.GetTableReference(TableName);
+            var cloudTable = _serviceClient.Value.GetTableReference(TableName);
             await cloudTable.CreateIfNotExistsAsync().ConfigureAwait(false);
             return cloudTable;
         }

@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-name: Code coverage
+name: Run tests and collect code coverage
 
 on:
   push:
@@ -46,11 +46,12 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' || github.ref == 'refs/heads/main' }}
     name: Collect code coverage .NET
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     strategy:
       matrix:
         project: [
-          source/Energinet.DataHub.PostOffice.Tests/Energinet.DataHub.PostOffice.Tests.csproj
+          source/Energinet.DataHub.PostOffice.Tests/Energinet.DataHub.PostOffice.Tests.csproj,
+          source/Energinet.DataHub.PostOffice.IntegrationTests/Energinet.DataHub.PostOffice.IntegrationTests.csproj
         ]
         
     steps:
@@ -61,19 +62,21 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '3.1.x'
-        
+
       - name: Setup .NET ${{ env.DOTNET_VERSION }} environment
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Azure Cosmos DB Emulator
+        uses: southpolesteve/cosmos-emulator-github-action@v1
           
       - name: Collect coverage
         run: dotnet test ${{ matrix.project }} --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
         
-      - name: upload coverage
+      - name: Upload coverage
         uses: codecov/codecov-action@v1
         with:
           flags: unittests
           fail_ci_if_error: true
           verbose: true
-          

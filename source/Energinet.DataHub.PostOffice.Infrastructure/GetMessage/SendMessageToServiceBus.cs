@@ -34,10 +34,12 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
 
         public async Task RequestDataAsync(RequestData requestData, string sessionId)
         {
-            if (requestData is null) throw new ArgumentNullException(nameof(requestData));
+            if (requestData is null)
+                throw new ArgumentNullException(nameof(requestData));
 
             var originReceiver = FindQueueOrTopicNameFromOrigin(requestData.Origin ?? string.Empty);
-            if (_serviceBusClient is not null) _sender = _serviceBusClient.CreateSender(originReceiver);
+            if (_serviceBusClient is not null)
+                _sender = _serviceBusClient.CreateSender(originReceiver);
 
             var requestDatasetMessage = new Contracts.RequestDataset() { UUID = { requestData.Uuids } };
             var message = new ServiceBusMessage(requestDatasetMessage.ToByteArray()) { SessionId = sessionId };
@@ -46,7 +48,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
             message.ReplyTo = _returnTopic;
 
             // What if _sender is null?
-            if (_sender is not null) await _sender.SendMessageAsync(message).ConfigureAwait(false);
+            if (_sender is not null)
+                await _sender.SendMessageAsync(message).ConfigureAwait(false);
         }
 
         private static string FindQueueOrTopicNameFromOrigin(string origin)
@@ -58,11 +61,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.GetMessage
                 case "ts" or "timeseries":
                     return "ts";
                 default:
-                    #if DEBUG
+#if DEBUG
                     return "sbt-outbund-charges";
-                    #else
-                    throw new Exception("Unknown origin name");
-                    #endif
+#else
+                    throw new ArgumentOutOfRangeException(nameof(origin));
+#endif
             }
         }
     }

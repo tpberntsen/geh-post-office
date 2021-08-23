@@ -21,18 +21,13 @@ using Energinet.DataHub.PostOffice.Application.Validation;
 using FluentAssertions;
 using GreenEnergyHub.Messaging.Validation;
 using Xunit;
+using Xunit.Categories;
 
 namespace Energinet.DataHub.PostOffice.Tests.Validation
 {
+    [UnitTest]
     public class ValidationTests
     {
-        private readonly Fixture _fixture;
-
-        public ValidationTests()
-        {
-            _fixture = new Fixture();
-        }
-
         [Fact]
         public async Task DataAvailable_request_should_be_valid()
         {
