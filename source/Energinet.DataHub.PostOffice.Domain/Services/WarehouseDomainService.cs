@@ -41,7 +41,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             if (dataAvailableNotification != null)
             {
                 var dataAvailableNotifications = await _dataAvailableRepository.PeekAsync(recipient, dataAvailableNotification.MessageType).ConfigureAwait(false);
-                return await _bundleRepository.CreateBundleAsync(dataAvailableNotifications).ConfigureAwait(false);
+                return await _bundleRepository.CreateBundleAsync(dataAvailableNotifications, recipient).ConfigureAwait(false);
             }
 
             return null;
