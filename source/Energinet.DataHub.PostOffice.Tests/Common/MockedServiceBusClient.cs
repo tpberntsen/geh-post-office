@@ -12,26 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Common.SimpleInjector;
-using Microsoft.Extensions.Hosting;
-using SimpleInjector;
+using Azure.Messaging.ServiceBus;
 
-namespace Energinet.DataHub.PostOffice.Outbound
+namespace Energinet.DataHub.PostOffice.Tests.Common
 {
-    public static class Program
+    internal sealed class MockedServiceBusClient : ServiceBusClient
     {
-        public static async Task Main()
+        public override async ValueTask DisposeAsync()
         {
-            await using var startup = new Startup();
-
-            var host = new HostBuilder()
-                .ConfigureFunctionsWorkerDefaults(options => options.UseMiddleware<SimpleInjectorScopedRequest>())
-                .ConfigureServices(startup.ConfigureServices)
-                .Build()
-                .UseSimpleInjector(startup.Container);
-
-            await host.RunAsync().ConfigureAwait(false);
+            try
+            {
+                await base.DisposeAsync().ConfigureAwait(false);
+            }
+            catch (NullReferenceException)
+            {
+                // Mocked ServiceBusClient does not have a Connection, which crashes DisposeAsync().
+            }
         }
     }
 }

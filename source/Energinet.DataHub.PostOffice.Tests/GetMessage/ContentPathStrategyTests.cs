@@ -53,7 +53,7 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
                 .ConfigureAwait(false);
 
             // Assert
-            strategy.GetType().IsSameOrEqualTo(typeof(ContentPathFromSubDomain));
+            Assert.IsAssignableFrom<ContentPathFromSubDomain>(strategy);
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace Energinet.DataHub.PostOffice.Tests.GetMessage
                 .ConfigureAwait(false);
 
             // Assert
-            strategy.GetType().IsSameOrEqualTo(typeof(ContentPathFromSavedResponse));
+            Assert.IsAssignableFrom<ContentPathFromSavedResponse>(strategy);
         }
 
         private static IEnumerable<IGetContentPathStrategy> GetContentPathStrategies()

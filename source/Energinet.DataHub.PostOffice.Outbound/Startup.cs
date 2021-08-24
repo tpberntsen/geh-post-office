@@ -12,26 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Common.SimpleInjector;
-using Microsoft.Extensions.Hosting;
+using System;
+using Energinet.DataHub.PostOffice.Common;
+using Energinet.DataHub.PostOffice.Outbound.Functions;
+using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.Outbound
 {
-    public static class Program
+    public sealed class Startup : StartupBase
     {
-        public static async Task Main()
+        protected override void Configure(Container container)
         {
-            await using var startup = new Startup();
+            if (container == null) throw new ArgumentNullException(nameof(container));
 
-            var host = new HostBuilder()
-                .ConfigureFunctionsWorkerDefaults(options => options.UseMiddleware<SimpleInjectorScopedRequest>())
-                .ConfigureServices(startup.ConfigureServices)
-                .Build()
-                .UseSimpleInjector(startup.Container);
+            container.Register<Dequeue>(Lifestyle.Scoped);
+            container.Register<GetMessage>(Lifestyle.Scoped);
+        }
 
-            await host.RunAsync().ConfigureAwait(false);
+        protected override void Configure(IServiceCollection serviceCollection)
+        {
         }
     }
 }

@@ -24,9 +24,11 @@ using FluentAssertions;
 using Google.Protobuf;
 using Moq;
 using Xunit;
+using Xunit.Categories;
 
 namespace Energinet.DataHub.PostOffice.Tests
 {
+    [UnitTest]
     public class DataAvailableTests
     {
         [Fact]

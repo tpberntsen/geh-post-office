@@ -19,26 +19,25 @@ using Energinet.DataHub.PostOffice.Application.DataAvailable;
 using FluentAssertions;
 using MediatR;
 using Xunit;
+using Xunit.Categories;
 
 namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
 {
-    public class DataAvailableIntegrationTests : IntegrationTestHost
+    [Collection("IntegrationTest")]
+    [IntegrationTest]
+    public class DataAvailableIntegrationTests
     {
-        private readonly IMediator _mediator;
-
-        public DataAvailableIntegrationTests()
-        {
-            _mediator = GetService<IMediator>();
-        }
-
         [Fact]
         public async Task Test_DataAvailable_Integration()
         {
             // Arrange
+            await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
             var dataAvailableCommand = GetDataAvailableCommand();
 
             // Act
-            var result = await _mediator.Send(dataAvailableCommand, CancellationToken.None).ConfigureAwait(false);
+            var result = await mediator.Send(dataAvailableCommand, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             result.Should().BeTrue();

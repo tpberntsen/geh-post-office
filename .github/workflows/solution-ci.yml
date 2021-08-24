@@ -11,19 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-name: Outbound CI
+name: Solution CI and Code Coverage
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
   workflow_dispatch: {}
 
 env:
-  CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Outbound/Energinet.DataHub.PostOffice.Outbound.csproj'
   SOLUTION_FILE_PATH: 'Energinet.DataHub.PostOffice.sln'
   DOTNET_VERSION: '5.0'
-
+  
 jobs:
   pre_job:
     runs-on: ubuntu-latest
@@ -37,16 +39,22 @@ jobs:
           github_token: ${{ github.token }}
           paths: '[
             "source/**",
-            ".github/workflows/outbound-cd.yml",
-            ".github/actions/dotnet-build-and-test",
-            "Energinet.DataHub.PostOffice.sln"
+            "Energinet.DataHub.PostOffice.sln",
+            ".github/workflows/codecov-ci.yml"
           ]'
 
-  validate_build_outbound:
+  solution_ci:
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-    name: Validate build Outbound
-    runs-on: ubuntu-latest
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' || github.ref == 'refs/heads/main' }}
+    name: Solution CI and Code Coverage
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        project: [
+          source/Energinet.DataHub.PostOffice.Tests/Energinet.DataHub.PostOffice.Tests.csproj,
+          source/Energinet.DataHub.PostOffice.IntegrationTests/Energinet.DataHub.PostOffice.IntegrationTests.csproj
+        ]
+        
     steps:
       - name: Checkout repository
         uses: actions/checkout@master
@@ -61,15 +69,18 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Build and test project
-        uses: Energinet-DataHub/.github/.github/actions/dotnet-build-and-test@1.0.1
-        with:
-          CSPROJ_FILE_PATH: ${{ env.CSPROJ_FILE_PATH }}
-          SOLUTION_FILE_PATH: ${{ env.SOLUTION_FILE_PATH }}
-          OUTPUT_PATH: '${{ github.workspace }}/output'
+      - name: Build solution
+        run: dotnet build ${{ env.SOLUTION_FILE_PATH }} --configuration Release
 
-      - name: Publish artifact
-        uses: actions/upload-artifact@v2
+      - name: Setup Azure Cosmos DB Emulator
+        uses: southpolesteve/cosmos-emulator-github-action@v1
+
+      - name: Run tests and collect coverage
+        run: dotnet test ${{ matrix.project }} --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+        
+      - name: Upload coverage
+        uses: codecov/codecov-action@v1
         with:
-          name: drop
-          path: '${{ github.workspace }}/output'
+          flags: unittests
+          fail_ci_if_error: true
+          verbose: true
