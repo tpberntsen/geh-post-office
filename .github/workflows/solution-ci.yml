@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-name: Run tests and collect code coverage
+name: Solution CI and Code Coverage
 
 on:
   push:
@@ -21,9 +21,10 @@ on:
     branches:
       - main
   workflow_dispatch: {}
-  
+
 env:
-  DOTNET_VERSION: '5.0.202'
+  SOLUTION_FILE_PATH: 'Energinet.DataHub.PostOffice.sln'
+  DOTNET_VERSION: '5.0'
   
 jobs:
   pre_job:
@@ -41,11 +42,11 @@ jobs:
             "Energinet.DataHub.PostOffice.sln",
             ".github/workflows/codecov-ci.yml"
           ]'
-          
-  collect_coverage_dotnet:
+
+  solution_ci:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' || github.ref == 'refs/heads/main' }}
-    name: Collect code coverage .NET
+    name: Solution CI and Code Coverage
     runs-on: windows-latest
     strategy:
       matrix:
@@ -68,10 +69,13 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Azure Cosmos DB Emulator
+      - name: Build solution
+        run: dotnet build ${{ env.SOLUTION_FILE_PATH }} --configuration Release
+
+      - name: Setup Azure Cosmos DB Emulator
         uses: southpolesteve/cosmos-emulator-github-action@v1
-          
-      - name: Collect coverage
+
+      - name: Run tests and collect coverage
         run: dotnet test ${{ matrix.project }} --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
         
       - name: Upload coverage
