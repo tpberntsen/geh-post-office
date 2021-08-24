@@ -12,14 +12,29 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 using System.Collections.Generic;
+using System.Linq;
 using Energinet.DataHub.PostOffice.Domain.Model;
+using Newtonsoft.Json;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Entities
 {
-    public class BundleDocument
+    public record BundleDocument
     {
-        public string Recipient { get; init; }
-        public Uuid Id { get; init; }
-        public IEnumerable<Uuid> NotificationsIds { get; init; }
+        public BundleDocument(string recipient, Uuid id, IEnumerable<Uuid> notificationsIds, bool dequeued)
+        {
+            Recipient = recipient;
+            Id = id;
+            NotificationsIds = notificationsIds;
+            Dequeued = dequeued;
+        }
+
+        [JsonProperty("recipient")]
+        public string Recipient { get; }
+        [JsonProperty("id")]
+        public Uuid Id { get; }
+        [JsonProperty("notificationids")]
+        public IEnumerable<Uuid> NotificationsIds { get; }
+        [JsonProperty("dequeued")]
+        public bool Dequeued { get; init; }
     }
 }

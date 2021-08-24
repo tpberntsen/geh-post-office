@@ -19,7 +19,9 @@ using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
+using Energinet.DataHub.PostOffice.Infrastructure.Entities;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
+using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
@@ -29,38 +31,85 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
     {
         private readonly Container _container;
 
-        public BundleRepository(Container container)
+        public BundleRepository(IBundleRepositoryContainer repositoryContainer)
         {
-            _container = container;
+            _container = repositoryContainer.Container;
         }
 
-        public Task<IBundle?> PeekAsync(Recipient recipient)
+        public async Task<IBundle?> PeekAsync(Recipient recipient)
         {
             if (recipient is null)
                 throw new ArgumentNullException(nameof(recipient));
 
-            const string query = "SELECT * FROM c WHERE c.id = @recipient ORDER BY c._ts ASC OFFSET 0 LIMIT 1";
-            var documentQuery = new QueryDefinition(query);
-            documentQuery.WithParameter($"@recipient", recipient.Value);
-            return Task.FromResult<IBundle?>(null);
+            var documentQuery =
+                new QueryDefinition(
+                    "SELECT * FROM c WHERE c.id = @recipient AND c.dequeued = 0 ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
+                    .WithParameter($"@recipient", recipient.Value);
+
+            using FeedIterator<BundleDocument> feedIterator =
+                _container.GetItemQueryIterator<BundleDocument>(documentQuery);
+
+            var documentsFromCosmos =
+                await feedIterator
+                    .ReadNextAsync()
+                    .ConfigureAwait(false);
+
+            var documents = documentsFromCosmos
+                .Select(BundleMapper.MapFromDocument);
+
+            return documents?.FirstOrDefault();
         }
 
-        public async Task<IBundle> CreateBundleAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications, Recipient recipient)
+        public async Task<IBundle> CreateBundleAsync(
+            IEnumerable<DataAvailableNotification> dataAvailableNotifications,
+            Recipient recipient)
         {
-            var bundle = new Bundle(new Uuid(Guid.NewGuid().ToString()), Enumerable.Empty<Uuid>());
+            var bundle = new Bundle(
+                new Uuid(Guid.NewGuid().ToString()),
+                Enumerable.Empty<Uuid>());
 
             var messageDocument = BundleMapper.MapToDocument(bundle, recipient);
 
-            var response = await _container.CreateItemAsync(messageDocument).ConfigureAwait(false);
+            var response =
+                await _container
+                    .CreateItemAsync(messageDocument)
+                    .ConfigureAwait(false);
+
             if (response.StatusCode != HttpStatusCode.Created)
                 throw new InvalidOperationException("Could not create document in cosmos");
 
             return bundle;
         }
 
-        public Task DequeueAsync(Uuid id)
+        public async Task DequeueAsync(Uuid id)
         {
-            return Task.CompletedTask;
+            if (id is null)
+                throw new ArgumentNullException(nameof(id));
+
+            const string query = "";
+            var documentQuery =
+                new QueryDefinition("SELECT * FROM c WHERE c.id = @id ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
+                    .WithParameter($"@id", id.Value);
+
+            using FeedIterator<BundleDocument> feedIterator =
+                _container.GetItemQueryIterator<BundleDocument>(documentQuery);
+
+            var documentsFromCosmos =
+                await feedIterator
+                    .ReadNextAsync()
+                    .ConfigureAwait(false);
+
+            if (documentsFromCosmos.Any())
+            {
+                var dequeuedBundleDocument = documentsFromCosmos.First() with { Dequeued = true };
+                var response =
+                    await _container
+                        .ReplaceItemAsync(dequeuedBundleDocument, dequeuedBundleDocument.Id?.ToString())
+                        .ConfigureAwait(false);
+
+                if (response.StatusCode != HttpStatusCode.Created)
+                    throw new InvalidOperationException("Could not dequeue document in cosmos");
+            }
         }
     }
 }

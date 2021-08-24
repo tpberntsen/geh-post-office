@@ -19,7 +19,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
     public static class BundleMapper
     {
-        public static IBundle MapFromDocument(BundleDocument from)
+        public static Bundle MapFromDocument(BundleDocument from)
         {
             if (@from is null) throw new ArgumentNullException(nameof(@from));
             return new Bundle(from.Id, from.NotificationsIds);
@@ -32,7 +32,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
             if (recipient is null)
                 throw new ArgumentNullException(nameof(recipient));
 
-            return new BundleDocument() { Id = from.Id, NotificationsIds = from.NotificationsIds, Recipient = recipient.Value };
+            return new BundleDocument(recipient.Value, from.Id, from.NotificationsIds, false);
         }
     }
 }
