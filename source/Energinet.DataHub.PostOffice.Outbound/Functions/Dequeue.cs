@@ -12,55 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Outbound.Extensions;
+using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.Outbound.Functions
 {
-    public class Dequeue
+    public sealed class Dequeue
     {
-        private readonly IDocumentStore<Domain.Document> _documentStore;
+        private readonly IMediator _mediator;
 
-        public Dequeue(
-            IDocumentStore<Domain.Document> documentStore)
+        public Dequeue(IMediator mediator)
         {
-            _documentStore = documentStore;
+            _mediator = mediator;
         }
 
         [Function("Dequeue")]
-        public async Task<HttpResponseData> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = null)] HttpRequestData request,
+        public async Task<HttpResponseMessage> RunAsync(
+            [HttpTrigger(AuthorizationLevel.Function, "delete")]
+            HttpRequestData request,
             FunctionContext context)
         {
-            if (request == null) throw new ArgumentNullException(nameof(request));
+            var logger = context.GetLogger<Dequeue>();
+            var command = request.GetDequeueCommand();
 
-            var dequeueCommand = request.GetDequeueCommand();
-            if (string.IsNullOrEmpty(dequeueCommand.Recipient)) return GetHttpResponse(request, HttpStatusCode.BadRequest, "Request body is missing 'recipient'");
-            if (string.IsNullOrEmpty(dequeueCommand.Bundle)) return GetHttpResponse(request, HttpStatusCode.BadRequest, "Request body is missing 'type'");
+            logger.LogInformation($"Processing Dequeue query: {command}.");
 
-            var logger = context.GetLogger(nameof(Dequeue));
-            logger.LogInformation($"processing dequeue command: {dequeueCommand}", dequeueCommand);
-
-            var didDeleteDocuments = await _documentStore
-                .DeleteDocumentsAsync(dequeueCommand)
-                .ConfigureAwait(false);
-
-            return didDeleteDocuments
-                ? GetHttpResponse(request, HttpStatusCode.OK, string.Empty)
-                : GetHttpResponse(request, HttpStatusCode.NotFound, string.Empty);
-        }
-
-        private static HttpResponseData GetHttpResponse(HttpRequestData request, HttpStatusCode httpStatusCode, string body)
-        {
-            var response = request.CreateResponse(httpStatusCode);
-            response.WriteString(body);
-            return response;
+            var response = await _mediator.Send(command).ConfigureAwait(false);
+            return response.IsDequeued
+                ? new HttpResponseMessage(HttpStatusCode.OK)
+                : new HttpResponseMessage(HttpStatusCode.NotFound);
         }
     }
 }

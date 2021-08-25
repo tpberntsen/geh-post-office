@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
@@ -23,27 +22,25 @@ using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
-    public class PeekHandler : IRequestHandler<PeekCommand, PeekResponse>
+    public class DequeueHandler : IRequestHandler<Commands.DequeueCommand, DequeueResponse>
     {
         private readonly IWarehouseDomainService _warehouseDomainService;
 
-        public PeekHandler(IWarehouseDomainService warehouseDomainService)
+        public DequeueHandler(IWarehouseDomainService warehouseDomainService)
         {
             _warehouseDomainService = warehouseDomainService;
         }
 
-        public async Task<PeekResponse> Handle(PeekCommand request, CancellationToken cancellationToken)
+        public async Task<DequeueResponse> Handle(Commands.DequeueCommand request, CancellationToken cancellationToken)
         {
             if (request is null)
                 throw new ArgumentNullException(nameof(request));
 
-            var bundle = await _warehouseDomainService
-                .PeekAsync(new Recipient(request.Recipient))
+            var isDequeued = await _warehouseDomainService
+                .TryDequeueAsync(new Recipient(request.Recipient), new Uuid(request.BundleUuid))
                 .ConfigureAwait(false);
 
-            return bundle is not null
-                ? new PeekResponse(true, await bundle.OpenAsync().ConfigureAwait(false))
-                : new PeekResponse(false, Stream.Null);
+            return new DequeueResponse(isDequeued);
         }
     }
 }

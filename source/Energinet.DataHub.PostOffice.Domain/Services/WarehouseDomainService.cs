@@ -18,7 +18,7 @@ using Energinet.DataHub.PostOffice.Domain.Repositories;
 
 namespace Energinet.DataHub.PostOffice.Domain.Services
 {
-    public class WarehouseDomainService : IWarehouseDomainService
+    public sealed class WarehouseDomainService : IWarehouseDomainService
     {
         private readonly IBundleRepository _bundleRepository;
         private readonly IDataAvailableNotificationRepository _dataAvailableRepository;
@@ -32,30 +32,31 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         public async Task<IBundle?> PeekAsync(Recipient recipient)
         {
             var bundle = await _bundleRepository.PeekAsync(recipient).ConfigureAwait(false);
-
             if (bundle != null)
                 return bundle;
 
             var dataAvailableNotification = await _dataAvailableRepository.PeekAsync(recipient).ConfigureAwait(false);
+            if (dataAvailableNotification == null)
+                return null;
 
-            if (dataAvailableNotification != null)
-            {
-                var dataAvailableNotifications = await _dataAvailableRepository.PeekAsync(recipient, dataAvailableNotification.MessageType).ConfigureAwait(false);
-                return await _bundleRepository.CreateBundleAsync(dataAvailableNotifications, recipient).ConfigureAwait(false);
-            }
+            var dataAvailableNotifications = await _dataAvailableRepository
+                .PeekAsync(recipient, dataAvailableNotification.MessageType)
+                .ConfigureAwait(false);
 
-            return null;
+            return await _bundleRepository
+                .CreateBundleAsync(dataAvailableNotifications)
+                .ConfigureAwait(false);
         }
 
-        public async Task DequeueAsync(Recipient recipient)
+        public async Task<bool> TryDequeueAsync(Recipient recipient, Uuid expectedId)
         {
             var bundle = await _bundleRepository.PeekAsync(recipient).ConfigureAwait(false);
-
-            if (bundle == null)
-                return;
+            if (bundle == null || bundle.Id != expectedId)
+                return false;
 
             await _dataAvailableRepository.DequeueAsync(bundle.NotificationsIds).ConfigureAwait(false);
             await _bundleRepository.DequeueAsync(bundle.Id).ConfigureAwait(false);
+            return true;
         }
     }
 }

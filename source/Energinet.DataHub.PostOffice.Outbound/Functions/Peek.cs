@@ -23,17 +23,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.Outbound.Functions
 {
-    public class Peek
+    public sealed class Peek
     {
         private readonly IMediator _mediator;
-        private readonly ILogger _logger;
 
-        public Peek(
-            IMediator mediator,
-            ILogger<GetMessage> logger)
+        public Peek(IMediator mediator)
         {
             _mediator = mediator;
-            _logger = logger;
         }
 
         [Function("Peek")]
@@ -42,10 +38,10 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
             HttpRequestData request,
             FunctionContext context)
         {
-            var logger = context.GetLogger(nameof(GetMessage));
+            var logger = context.GetLogger<Peek>();
             var command = request.GetPeekCommand();
 
-            logger.LogInformation($"Processing GetMessage query: {command}.");
+            logger.LogInformation($"Processing Peek query: {command}.");
 
             var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
 

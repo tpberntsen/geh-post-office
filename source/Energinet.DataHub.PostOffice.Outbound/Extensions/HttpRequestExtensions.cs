@@ -15,10 +15,10 @@
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Microsoft.Azure.Functions.Worker.Http;
+using DequeueCommand = Energinet.DataHub.PostOffice.Application.DequeueCommand;
 
 namespace Energinet.DataHub.PostOffice.Outbound.Extensions
 {
@@ -26,7 +26,8 @@ namespace Energinet.DataHub.PostOffice.Outbound.Extensions
     {
         public static PeekCommand GetPeekCommand(this HttpRequestData request)
         {
-            if (request is null) throw new ArgumentNullException(nameof(request));
+            if (request is null)
+                throw new ArgumentNullException(nameof(request));
 
             var queryDictionary = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(request.Url.Query);
             var recipient = queryDictionary.ContainsKey("recipient") ? queryDictionary["recipient"].ToString() : null;
@@ -42,7 +43,8 @@ namespace Energinet.DataHub.PostOffice.Outbound.Extensions
 
         public static GetMessageQuery GetMessageQuery(this HttpRequestData request)
         {
-            if (request is null) throw new ArgumentNullException(nameof(request));
+            if (request is null)
+                throw new ArgumentNullException(nameof(request));
 
             var queryDictionary = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(request.Url.Query);
             var recipient = queryDictionary.ContainsKey("recipient") ? queryDictionary["recipient"].ToString() : null;
@@ -56,9 +58,27 @@ namespace Energinet.DataHub.PostOffice.Outbound.Extensions
             return documentQuery;
         }
 
-        public static DequeueCommand GetDequeueCommand(this HttpRequestData request)
+        public static Application.Commands.DequeueCommand GetDequeueCommand(this HttpRequestData request)
         {
-            if (request == null) throw new ArgumentNullException(nameof(request));
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            var queryDictionary = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(request.Url.Query);
+            var bundle = queryDictionary.ContainsKey("bundle") ? queryDictionary["bundle"].ToString() : null;
+            var recipient = queryDictionary.ContainsKey("recipient") ? queryDictionary["recipient"].ToString() : null;
+            if (bundle == null || recipient == null)
+            {
+                throw new InvalidOperationException("Request must include bundle and recipient.");
+            }
+
+            var dequeueCommand = new Application.Commands.DequeueCommand(recipient, bundle);
+            return dequeueCommand;
+        }
+
+        public static DequeueCommand GetDequeueOrigCommand(this HttpRequestData request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
 
             var queryDictionary = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(request.Url.Query);
             var bundle = queryDictionary.ContainsKey("bundle") ? queryDictionary["bundle"].ToString() : null;
@@ -75,7 +95,8 @@ namespace Energinet.DataHub.PostOffice.Outbound.Extensions
 
         public static async Task<HttpResponseData> CreateErrorHttpResponseAsync(this HttpRequestData request, HttpStatusCode httpStatusCode, string message)
         {
-            if (request == null) throw new ArgumentNullException(nameof(request));
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
 
             var response = request.CreateResponse(httpStatusCode);
             await response.WriteStringAsync(message).ConfigureAwait(false);

@@ -26,6 +26,7 @@ namespace Energinet.DataHub.PostOffice.Outbound
         {
             if (container == null) throw new ArgumentNullException(nameof(container));
 
+            container.Register<Peek>(Lifestyle.Scoped);
             container.Register<Dequeue>(Lifestyle.Scoped);
             container.Register<GetMessage>(Lifestyle.Scoped);
         }
