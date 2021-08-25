@@ -59,7 +59,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
             target.ConfigureServices(serviceCollection);
 
             // Assert
-            Assert.Equal(1, configureContainerMock.Invocations.Count);
+            configureContainerMock.Verify(x => x(), Times.Once);
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
             target.ConfigureServices(serviceCollection);
 
             // Assert
-            Assert.Equal(1, configureServiceCollectionMock.Invocations.Count);
+            configureServiceCollectionMock.Verify(x => x(), Times.Once);
         }
 
         private sealed class TestOfStartupBase : StartupBase

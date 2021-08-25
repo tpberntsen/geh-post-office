@@ -23,30 +23,31 @@ using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.Outbound.Functions
 {
-    public sealed class Dequeue
+    public sealed class Peek
     {
         private readonly IMediator _mediator;
 
-        public Dequeue(IMediator mediator)
+        public Peek(IMediator mediator)
         {
             _mediator = mediator;
         }
 
-        [Function("Dequeue")]
+        [Function("Peek")]
         public async Task<HttpResponseMessage> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Function, "delete")]
+            [HttpTrigger(AuthorizationLevel.Function, "get")]
             HttpRequestData request,
             FunctionContext context)
         {
-            var logger = context.GetLogger<Dequeue>();
-            var command = request.GetDequeueCommand();
+            var logger = context.GetLogger<Peek>();
+            var command = request.GetPeekCommand();
 
-            logger.LogInformation($"Processing Dequeue query: {command}.");
+            logger.LogInformation($"Processing Peek query: {command}.");
 
-            var response = await _mediator.Send(command).ConfigureAwait(false);
-            return response.IsDequeued
-                ? new HttpResponseMessage(HttpStatusCode.OK)
-                : new HttpResponseMessage(HttpStatusCode.NotFound);
+            var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
+
+            return hasContent
+                ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new StreamContent(stream) }
+                : new HttpResponseMessage(HttpStatusCode.NoContent);
         }
     }
 }

@@ -13,26 +13,26 @@
 // limitations under the License.
 
 using System;
-using Energinet.DataHub.PostOffice.Common;
-using Energinet.DataHub.PostOffice.Outbound.Functions;
-using Microsoft.Extensions.DependencyInjection;
-using SimpleInjector;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
-namespace Energinet.DataHub.PostOffice.Outbound
+namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public sealed class Startup : StartupBase
+    public class Bundle : IBundle
     {
-        protected override void Configure(Container container)
+        public Bundle(Uuid id, IEnumerable<Uuid> notificationsIds)
         {
-            if (container == null) throw new ArgumentNullException(nameof(container));
-
-            container.Register<Peek>(Lifestyle.Scoped);
-            container.Register<Dequeue>(Lifestyle.Scoped);
-            container.Register<GetMessage>(Lifestyle.Scoped);
+            Id = id;
+            NotificationsIds = notificationsIds;
         }
 
-        protected override void Configure(IServiceCollection serviceCollection)
+        public Uuid Id { get; }
+        public IEnumerable<Uuid> NotificationsIds { get; }
+
+        public Task<Stream> OpenAsync()
         {
+            throw new NotImplementedException();
         }
     }
 }

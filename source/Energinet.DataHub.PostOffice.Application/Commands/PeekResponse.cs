@@ -12,20 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
-using Energinet.DataHub.PostOffice.Domain.Services;
-using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
-using SimpleInjector;
+using System.IO;
 
-namespace Energinet.DataHub.PostOffice.Common
+namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    internal static class DomainServiceRegistration
-    {
-        public static void AddDomainServices(this Container container)
-        {
-            container.Register<IWarehouseDomainService, WarehouseDomainService>(Lifestyle.Scoped);
-
-            container.Register<IDataAvailableController, DataAvailableController>(Lifestyle.Scoped);
-        }
-    }
+    public record PeekResponse(bool HasContent, Stream Data);
 }

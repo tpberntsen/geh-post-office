@@ -12,20 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
-using Energinet.DataHub.PostOffice.Domain.Services;
-using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
-using SimpleInjector;
+using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Application.Validation.Rules;
+using FluentValidation;
 
-namespace Energinet.DataHub.PostOffice.Common
+namespace Energinet.DataHub.PostOffice.Application.Validation
 {
-    internal static class DomainServiceRegistration
+    public class PeekRuleSet : AbstractValidator<PeekCommand>
     {
-        public static void AddDomainServices(this Container container)
+        public PeekRuleSet()
         {
-            container.Register<IWarehouseDomainService, WarehouseDomainService>(Lifestyle.Scoped);
-
-            container.Register<IDataAvailableController, DataAvailableController>(Lifestyle.Scoped);
+            RuleFor(document => document.Recipient).SetValidator(new DocumentCannotHaveEmptyValue());
         }
     }
 }
