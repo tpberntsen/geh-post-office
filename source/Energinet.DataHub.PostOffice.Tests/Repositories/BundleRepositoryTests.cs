@@ -40,7 +40,20 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentOutOfRangeException>(() => target.PeekAsync(null!))
+                .ThrowsAsync<ArgumentNullException>(() => target.PeekAsync(null!))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task Dequeue_With_Null_Argument_ThrowsException()
+        {
+            // Arrange
+            var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
+            var target = new BundleRepository(bundleRepositoryContainer.Object);
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() => target.DequeueAsync(null!))
                 .ConfigureAwait(false);
         }
 

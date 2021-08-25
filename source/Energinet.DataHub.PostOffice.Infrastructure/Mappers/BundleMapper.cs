@@ -35,7 +35,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
             if (recipient is null)
                 throw new ArgumentNullException(nameof(recipient));
 
-            return new BundleDocument(recipient.Value, from.Id, from.NotificationsIds, false);
+            return new BundleDocument(recipient, from.Id, from.NotificationsIds, false);
         }
     }
 }

@@ -13,8 +13,11 @@
 // // limitations under the License.
 
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Infrastructure.Entities;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using FluentAssertions;
@@ -24,6 +27,7 @@ using Xunit.Categories;
 
 namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 {
+    [Collection("IntegrationTest")]
     [IntegrationTest]
     public sealed class BundleRepositoryIntegrationTests
     {
@@ -52,6 +56,49 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 .ConfigureAwait(false);
             //Assert
             Assert.NotNull(bundle);
+        }
+
+        [Fact]
+        public async Task Peek_Should_Return_Bundle()
+        {
+            // Arrange
+            var recipient = new Recipient("fake_value");
+            var messageType = new MessageType(1, "fake_value");
+            await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotifications = new List<DataAvailableNotification>()
+            {
+                CreateDataAvailableNotifications(recipient, messageType),
+            }.Select(x => new Uuid(x.Id.Value));
+
+            var client = scope.GetInstance<CosmosClient>();
+            var container = client.GetContainer("post-office", "bundles");
+            BundleRepository bundleRepository = new BundleRepository(new BundleRepositoryContainer(container));
+
+            var testBundle = new BundleDocument(recipient, new Uuid("fake-value"), dataAvailableNotifications, false);
+
+            //Act
+            var insertResult = await container.UpsertItemAsync(testBundle);
+            var peakBundle = await bundleRepository.PeekAsync(recipient);
+
+            //Assert
+            Assert.NotNull(peakBundle);
+            Assert.Equal(testBundle.Id, peakBundle.Id);
+        }
+
+        [Fact]
+        public async Task Peek_Should_Not_Return_Bundle()
+        {
+            // Arrange
+            var recipient = new Recipient("fake_value");
+            var messageType = new MessageType(1, "fake_value");
+            await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+            var client = scope.GetInstance<CosmosClient>();
+            var container = client.GetContainer("post-office", "bundles");
+            //Act
+            //Assert
         }
 
         private static DataAvailableNotification CreateDataAvailableNotifications(

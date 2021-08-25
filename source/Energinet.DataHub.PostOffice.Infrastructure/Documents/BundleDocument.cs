@@ -22,12 +22,12 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Entities
 {
     public record BundleDocument
     {
-        public BundleDocument(string recipient, Uuid id, IEnumerable<Uuid> notificationsIds, bool dequeued)
+        public BundleDocument(Recipient recipient, Uuid id, IEnumerable<Uuid> notificationsIds, bool dequeued)
         {
             if (id is null)
                 throw new ArgumentNullException(nameof(id));
 
-            Recipient = recipient;
+            Recipient = recipient.Value;
             Id = id.Value;
             NotificationsIds = notificationsIds.Select(x => x.Value);
             Dequeued = dequeued;
