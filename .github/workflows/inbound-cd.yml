@@ -49,7 +49,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Build and test project
-        uses: Energinet-DataHub/.github/.github/actions/dotnet-build-and-test@1.0.1
+        uses: ./.github/actions/dotnet-build-and-test
         with:
           CSPROJ_FILE_PATH: ${{ env.CSPROJ_FILE_PATH }}
           SOLUTION_FILE_PATH: ${{ env.SOLUTION_FILE_PATH }}
