@@ -70,13 +70,15 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Build solution
-        run: dotnet build ${{ env.SOLUTION_FILE_PATH }} --configuration Release
+        run: dotnet build ${{ env.SOLUTION_FILE_PATH }} --configuration Release --output '${{ github.workspace }}/output'
 
       - name: Setup Azure Cosmos DB Emulator
         uses: southpolesteve/cosmos-emulator-github-action@v1
 
       - name: Run tests and collect coverage
-        run: dotnet test ${{ matrix.project }} --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+        run: |
+          dotnet tool install --tool-path ./temp/reportgenerator dotnet-reportgenerator-globaltool
+          dotnet test ${{ matrix.project }} --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover 
 
       - name: Upload coverage
         uses: codecov/codecov-action@v1
@@ -84,3 +86,9 @@ jobs:
           flags: unittests
           fail_ci_if_error: true
           verbose: true
+
+      - name: Publish artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: drop
+          path: '${{ github.workspace }}/output'
