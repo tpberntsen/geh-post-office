@@ -40,7 +40,7 @@ jobs:
           paths: '[
             "source/**",
             "Energinet.DataHub.PostOffice.sln",
-            ".github/workflows/codecov-ci.yml"
+            ".github/workflows/solution-ci.yml"
           ]'
 
   solution_ci:
