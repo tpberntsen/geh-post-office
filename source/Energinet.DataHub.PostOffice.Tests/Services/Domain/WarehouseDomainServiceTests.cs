@@ -86,7 +86,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .ReturnsAsync((IBundle?)null);
 
             bundleRepositoryMock
-                .Setup(x => x.CreateBundleAsync(allDataAvailableNotificationsForMessageType))
+                .Setup(x => x.CreateBundleAsync(allDataAvailableNotificationsForMessageType, recipient))
                 .ReturnsAsync(bundleMock.Object);
 
             var target = new WarehouseDomainService(

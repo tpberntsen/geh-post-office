@@ -11,6 +11,8 @@
 // // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Energinet.DataHub.PostOffice.Domain.Model;
@@ -22,6 +24,21 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Entities
     {
         public BundleDocument(string recipient, Uuid id, IEnumerable<Uuid> notificationsIds, bool dequeued)
         {
+            if (id is null)
+                throw new ArgumentNullException(nameof(id));
+
+            Recipient = recipient;
+            Id = id.Value;
+            NotificationsIds = notificationsIds.Select(x => x.Value);
+            Dequeued = dequeued;
+        }
+
+        [JsonConstructor]
+        public BundleDocument(string recipient, string id, IEnumerable<string> notificationsIds, bool dequeued)
+        {
+            if (id is null)
+                throw new ArgumentNullException(nameof(id));
+
             Recipient = recipient;
             Id = id;
             NotificationsIds = notificationsIds;
@@ -31,9 +48,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Entities
         [JsonProperty("recipient")]
         public string Recipient { get; }
         [JsonProperty("id")]
-        public Uuid Id { get; }
+        public string Id { get; }
         [JsonProperty("notificationids")]
-        public IEnumerable<Uuid> NotificationsIds { get; }
+        public IEnumerable<string> NotificationsIds { get; }
         [JsonProperty("dequeued")]
         public bool Dequeued { get; init; }
     }

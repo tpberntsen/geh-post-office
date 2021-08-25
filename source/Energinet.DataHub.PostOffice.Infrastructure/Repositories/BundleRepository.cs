@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -33,6 +34,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public BundleRepository(IBundleRepositoryContainer repositoryContainer)
         {
+            if (repositoryContainer is null)
+                throw new ArgumentNullException(nameof(repositoryContainer));
+
             _container = repositoryContainer.Container;
         }
 
@@ -64,9 +68,15 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             IEnumerable<DataAvailableNotification> dataAvailableNotifications,
             Recipient recipient)
         {
+            var availableNotifications = dataAvailableNotifications.ToList();
+
+            if (!availableNotifications.Any())
+                throw new ArgumentOutOfRangeException(nameof(dataAvailableNotifications));
+
+            // TODO: Fetch data from subdomain here and add path to bundle document
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid().ToString()),
-                Enumerable.Empty<Uuid>());
+                availableNotifications.Select(x => x.Id));
 
             var messageDocument = BundleMapper.MapToDocument(bundle, recipient);
 
@@ -86,7 +96,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             if (id is null)
                 throw new ArgumentNullException(nameof(id));
 
-            const string query = "";
             var documentQuery =
                 new QueryDefinition("SELECT * FROM c WHERE c.id = @id ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
                     .WithParameter($"@id", id.Value);

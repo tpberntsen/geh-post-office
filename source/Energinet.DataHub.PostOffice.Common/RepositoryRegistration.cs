@@ -25,11 +25,10 @@ namespace Energinet.DataHub.PostOffice.Common
         public static void AddRepositories(this Container container)
         {
             container.Register<IDataAvailableNotificationRepository, DataAvailableNotificationRepository>(Lifestyle.Scoped);
-            container.Register<IBundleRepository, BundleRepository>(Lifestyle.Scoped);
-
             container.Register<IDataAvailableRepository, DataAvailableRepository>(Lifestyle.Scoped);
             container.Register<IMessageReplyRepository, MessageReplyRepository>(Lifestyle.Scoped);
             container.Register<IStorageService, StorageService>(Lifestyle.Scoped);
+            container.Register<IBundleRepository, BundleRepository>(Lifestyle.Scoped);
         }
     }
 }

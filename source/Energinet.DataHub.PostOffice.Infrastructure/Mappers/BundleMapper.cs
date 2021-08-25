@@ -12,6 +12,7 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 using System;
+using System.Linq;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Entities;
 
@@ -22,7 +23,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
         public static Bundle MapFromDocument(BundleDocument from)
         {
             if (@from is null) throw new ArgumentNullException(nameof(@from));
-            return new Bundle(from.Id, from.NotificationsIds);
+            return new Bundle(
+                new Uuid(from.Id),
+                from.NotificationsIds.Select(x => new Uuid(x)));
         }
 
         public static BundleDocument MapToDocument(IBundle from, Recipient recipient)
