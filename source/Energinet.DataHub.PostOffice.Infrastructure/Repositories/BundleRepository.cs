@@ -47,8 +47,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var documentQuery =
                 new QueryDefinition(
-                    "SELECT * FROM c WHERE c.id = @recipient AND c.dequeued = 0 ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
-                    .WithParameter($"@recipient", recipient.Value);
+                    "SELECT * FROM c WHERE c.recipient = @recipient AND c.dequeued = @dequeued ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
+                    .WithParameter($"@recipient", recipient.Value)
+                    .WithParameter("@dequeued", false);
 
             using FeedIterator<BundleDocument> feedIterator =
                 _container.GetItemQueryIterator<BundleDocument>(documentQuery);

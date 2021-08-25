@@ -79,26 +79,51 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var testBundle = new BundleDocument(recipient, new Uuid("fake-value"), dataAvailableNotifications, false);
 
             //Act
-            var insertResult = await container.UpsertItemAsync(testBundle);
-            var peakBundle = await bundleRepository.PeekAsync(recipient);
+            var insertResult = await container
+                .UpsertItemAsync(testBundle)
+                .ConfigureAwait(false);
+
+            var peakBundle = await bundleRepository
+                .PeekAsync(recipient)
+                .ConfigureAwait(false);
 
             //Assert
             Assert.NotNull(peakBundle);
-            Assert.Equal(testBundle.Id, peakBundle.Id);
+            Assert.Equal(testBundle.Id, peakBundle?.Id.Value);
+            Assert.Equal(testBundle.NotificationsIds.Count(), peakBundle?.NotificationsIds.Count());
         }
 
         [Fact]
         public async Task Peek_Should_Not_Return_Bundle()
         {
-            // Arrange
             var recipient = new Recipient("fake_value");
+            var peakRecipient = new Recipient("fake_value2");
             var messageType = new MessageType(1, "fake_value");
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
+
+            var dataAvailableNotifications = new List<DataAvailableNotification>()
+            {
+                CreateDataAvailableNotifications(recipient, messageType),
+            }.Select(x => new Uuid(x.Id.Value));
+
             var client = scope.GetInstance<CosmosClient>();
             var container = client.GetContainer("post-office", "bundles");
+            BundleRepository bundleRepository = new BundleRepository(new BundleRepositoryContainer(container));
+
+            var testBundle = new BundleDocument(recipient, new Uuid("fake-value"), dataAvailableNotifications, false);
+
             //Act
+            var insertResult = await container
+                .UpsertItemAsync(testBundle)
+                .ConfigureAwait(false);
+
+            var peakBundle = await bundleRepository
+                .PeekAsync(peakRecipient)
+                .ConfigureAwait(false);
+
             //Assert
+            Assert.Null(peakBundle);
         }
 
         private static DataAvailableNotification CreateDataAvailableNotifications(

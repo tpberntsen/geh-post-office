@@ -24,6 +24,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Entities
     {
         public BundleDocument(Recipient recipient, Uuid id, IEnumerable<Uuid> notificationsIds, bool dequeued)
         {
+            if (recipient is null)
+                throw new ArgumentNullException(nameof(recipient));
+
             if (id is null)
                 throw new ArgumentNullException(nameof(id));
 
