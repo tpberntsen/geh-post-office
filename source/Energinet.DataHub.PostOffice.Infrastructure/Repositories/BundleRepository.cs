@@ -30,14 +30,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
     // todo : correct implementation #136
     public class BundleRepository : IBundleRepository
     {
-        private readonly Container _container;
-
+        private IBundleRepositoryContainer _repositoryContainer;
         public BundleRepository(IBundleRepositoryContainer repositoryContainer)
         {
-            if (repositoryContainer is null)
-                throw new ArgumentNullException(nameof(repositoryContainer));
-
-            _container = repositoryContainer.Container;
+            _repositoryContainer = repositoryContainer;
         }
 
         public async Task<IBundle?> PeekAsync(Recipient recipient)
@@ -52,7 +48,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     .WithParameter("@dequeued", false);
 
             using FeedIterator<BundleDocument> feedIterator =
-                _container.GetItemQueryIterator<BundleDocument>(documentQuery);
+                _repositoryContainer.Container.GetItemQueryIterator<BundleDocument>(documentQuery);
 
             var documentsFromCosmos =
                 await feedIterator
@@ -82,7 +78,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var messageDocument = BundleMapper.MapToDocument(bundle, recipient);
 
             var response =
-                await _container
+                await _repositoryContainer.Container
                     .CreateItemAsync(messageDocument)
                     .ConfigureAwait(false);
 
@@ -102,7 +98,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     .WithParameter($"@id", id.Value);
 
             using FeedIterator<BundleDocument> feedIterator =
-                _container.GetItemQueryIterator<BundleDocument>(documentQuery);
+                _repositoryContainer.Container.GetItemQueryIterator<BundleDocument>(documentQuery);
 
             var documentsFromCosmos =
                 await feedIterator
@@ -113,7 +109,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             {
                 var dequeuedBundleDocument = documentsFromCosmos.First() with { Dequeued = true };
                 var response =
-                    await _container
+                    await _repositoryContainer.Container
                         .ReplaceItemAsync(dequeuedBundleDocument, dequeuedBundleDocument.Id?.ToString())
                         .ConfigureAwait(false);
 
