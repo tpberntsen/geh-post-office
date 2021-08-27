@@ -35,7 +35,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         public async Task CreateBundle_Should_Return_Bundle()
         {
             // Arrange
-            var recipient = new Recipient("fake_value");
+            var recipient = new Recipient(System.Guid.NewGuid().ToString());
             var messageType = new MessageType(1, "fake_value");
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
@@ -62,7 +62,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         public async Task Peek_Should_Return_Bundle()
         {
             // Arrange
-            var recipient = new Recipient("fake_value");
+            var recipient = new Recipient(System.Guid.NewGuid().ToString());
             var messageType = new MessageType(1, "fake_value");
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
@@ -75,8 +75,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var client = scope.GetInstance<CosmosClient>();
             var container = client.GetContainer("post-office", "bundles");
             BundleRepository bundleRepository = new BundleRepository(new BundleRepositoryContainer(container));
-
-            var testBundle = new BundleDocument(recipient, new Uuid("fake-value"), dataAvailableNotifications, false);
+            var testBundle = new BundleDocument(recipient, new Uuid("39272D67-6B63-4BE3-83CC-4AC0D2619F8A"), dataAvailableNotifications, false);
 
             //Act
             var insertResult = await container
@@ -96,8 +95,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         [Fact]
         public async Task Peek_Should_Not_Return_Bundle()
         {
-            var recipient = new Recipient("fake_value");
-            var peakRecipient = new Recipient("fake_value2");
+            var recipient = new Recipient(System.Guid.NewGuid().ToString());
+            var peakRecipient = new Recipient(System.Guid.NewGuid().ToString());
             var messageType = new MessageType(1, "fake_value");
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
@@ -111,7 +110,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var container = client.GetContainer("post-office", "bundles");
             BundleRepository bundleRepository = new BundleRepository(new BundleRepositoryContainer(container));
 
-            var testBundle = new BundleDocument(recipient, new Uuid("fake-value"), dataAvailableNotifications, false);
+            var testBundle = new BundleDocument(recipient, new Uuid("9F34C9BB-C236-42DC-837F-0E04A898E1CB"), dataAvailableNotifications, false);
 
             //Act
             var insertResult = await container
@@ -129,14 +128,15 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         [Fact]
         public async Task Dequeue_Should_Set_Bundle_Dequeued()
         {
-            var recipient = new Recipient("fake_value");
+            var recipient = new Recipient(System.Guid.NewGuid().ToString());
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
             var messageType = new MessageType(1, "fake_value");
             var dataAvailableNotifications =
                 new List<DataAvailableNotification>() { CreateDataAvailableNotifications(recipient, messageType), };
+
             var dataAvailableUuids = dataAvailableNotifications.Select(x => new Uuid(x.Id.Value));
-            var bundleUuid = new Uuid("fake-value");
+            var bundleUuid = new Uuid(System.Guid.NewGuid().ToString());
             var client = scope.GetInstance<CosmosClient>();
             var container = client.GetContainer("post-office", "bundles");
             BundleRepository bundleRepository = new BundleRepository(new BundleRepositoryContainer(container));
@@ -159,7 +159,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             MessageType messageType)
         {
             return new DataAvailableNotification(
-                new Uuid("fake_value"),
+                new Uuid(System.Guid.NewGuid().ToString()),
                 recipient,
                 messageType,
                 Origin.TimeSeries,
