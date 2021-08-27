@@ -18,7 +18,7 @@ using Energinet.DataHub.PostOffice.Infrastructure.Entities;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
-    public static class BundleMapper
+    internal static class BundleMapper
     {
         public static Bundle MapFromDocument(BundleDocument from)
         {

@@ -34,9 +34,8 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// Create a new bundle containing supplied dataAvailableNotifications
         /// </summary>
         /// <param name="dataAvailableNotifications"></param>
-        /// <param name="recipient"></param>
         /// <returns>Bundle</returns>
-        Task<IBundle> CreateBundleAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications, Recipient recipient);
+        Task<IBundle> CreateBundleAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications);
 
         /// <summary>
         /// Dequeue next bundle for recipient

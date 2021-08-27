@@ -44,7 +44,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var documentQuery =
                 new QueryDefinition(
                     "SELECT * FROM c WHERE c.recipient = @recipient AND c.dequeued = @dequeued ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
-                    .WithParameter($"@recipient", recipient.Value)
+                    .WithParameter("@recipient", recipient.Value)
                     .WithParameter("@dequeued", false);
 
             using FeedIterator<BundleDocument> feedIterator =
@@ -58,12 +58,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var documents = documentsFromCosmos
                 .Select(BundleMapper.MapFromDocument);
 
-            return documents?.FirstOrDefault();
+            return documents.FirstOrDefault();
         }
 
         public async Task<IBundle> CreateBundleAsync(
-            IEnumerable<DataAvailableNotification> dataAvailableNotifications,
-            Recipient recipient)
+            IEnumerable<DataAvailableNotification> dataAvailableNotifications)
         {
             var availableNotifications = dataAvailableNotifications.ToList();
 
@@ -74,6 +73,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid().ToString()),
                 availableNotifications.Select(x => x.Id));
+            var recipient = availableNotifications.First().Recipient;
 
             var messageDocument = BundleMapper.MapToDocument(bundle, recipient);
 
@@ -95,7 +95,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var documentQuery =
                 new QueryDefinition("SELECT * FROM c WHERE c.id = @id ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
-                    .WithParameter($"@id", id.Value);
+                    .WithParameter("@id", id.Value);
 
             using FeedIterator<BundleDocument> feedIterator =
                 _repositoryContainer.Container.GetItemQueryIterator<BundleDocument>(documentQuery);

@@ -14,22 +14,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Newtonsoft.Json;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Entities
 {
-    public record BundleDocument
+    internal record BundleDocument
     {
-        public BundleDocument(Recipient recipient, Uuid id, IEnumerable<Uuid> notificationsIds, bool dequeued)
+        public BundleDocument([NotNull]Recipient recipient, Uuid id, IEnumerable<Uuid> notificationsIds, bool dequeued)
         {
-            if (recipient is null)
-                throw new ArgumentNullException(nameof(recipient));
-
-            if (id is null)
-                throw new ArgumentNullException(nameof(id));
-
             Recipient = recipient.Value;
             Id = id.Value;
             NotificationsIds = notificationsIds.Select(x => x.Value);

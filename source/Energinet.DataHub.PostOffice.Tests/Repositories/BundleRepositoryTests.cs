@@ -67,7 +67,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentOutOfRangeException>(() => target.CreateBundleAsync(Enumerable.Empty<DataAvailableNotification>(), recipient))
+                .ThrowsAsync<ArgumentOutOfRangeException>(() => target.CreateBundleAsync(Enumerable.Empty<DataAvailableNotification>()))
                 .ConfigureAwait(false);
         }
     }
