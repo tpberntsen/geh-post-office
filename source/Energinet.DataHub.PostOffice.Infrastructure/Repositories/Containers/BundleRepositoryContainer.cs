@@ -12,15 +12,19 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
+using System;
 using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
 {
     public class BundleRepositoryContainer : IBundleRepositoryContainer
     {
-        public BundleRepositoryContainer(Container container)
+        public BundleRepositoryContainer(CosmosClient client)
         {
-            Container = container;
+            if (client is null)
+                throw new ArgumentNullException(nameof(client));
+
+            Container = client.GetContainer("post-office", "bundles"); // TODO: fetch variables from configuration
         }
 
         public Container Container { get; init; }

@@ -48,8 +48,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             };
 
             var client = scope.GetInstance<CosmosClient>();
-            var container = client.GetContainer("post-office", "bundles");
-            BundleRepository bundleRepository = new BundleRepository(new BundleRepositoryContainer(container));
+            var container = client.GetContainer("post-office", "bundles"); // TODO: Add config variables once config is in place.
+            BundleRepository bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
 
             //Act
             var bundle = await bundleRepository.CreateBundleAsync(dataAvailableNotificationIds, recipient)
@@ -73,8 +73,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             }.Select(x => new Uuid(x.Id.Value));
 
             var client = scope.GetInstance<CosmosClient>();
-            var container = client.GetContainer("post-office", "bundles");
-            BundleRepository bundleRepository = new BundleRepository(new BundleRepositoryContainer(container));
+            var container = client.GetContainer("post-office", "bundles"); // TODO: Add config variables once config is in place.
+            BundleRepository bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
             var testBundle = new BundleDocument(recipient, new Uuid("39272D67-6B63-4BE3-83CC-4AC0D2619F8A"), dataAvailableNotifications, false);
 
             //Act
@@ -107,8 +107,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             }.Select(x => new Uuid(x.Id.Value));
 
             var client = scope.GetInstance<CosmosClient>();
-            var container = client.GetContainer("post-office", "bundles");
-            BundleRepository bundleRepository = new BundleRepository(new BundleRepositoryContainer(container));
+            var container = client.GetContainer("post-office", "bundles"); // TODO: Add config variables once config is in place.
+            BundleRepository bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
 
             var testBundle = new BundleDocument(recipient, new Uuid("9F34C9BB-C236-42DC-837F-0E04A898E1CB"), dataAvailableNotifications, false);
 
@@ -138,8 +138,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var dataAvailableUuids = dataAvailableNotifications.Select(x => new Uuid(x.Id.Value));
             var bundleUuid = new Uuid(System.Guid.NewGuid().ToString());
             var client = scope.GetInstance<CosmosClient>();
-            var container = client.GetContainer("post-office", "bundles");
-            BundleRepository bundleRepository = new BundleRepository(new BundleRepositoryContainer(container));
+            var container = client.GetContainer("post-office", "bundles"); // TODO: Add config variables once config is in place.
+            BundleRepository bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
             var testBundle = new BundleDocument(recipient, bundleUuid, dataAvailableUuids, false);
 
             //Act

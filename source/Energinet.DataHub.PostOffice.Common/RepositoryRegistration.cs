@@ -16,6 +16,7 @@ using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
+using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.Common
@@ -29,6 +30,7 @@ namespace Energinet.DataHub.PostOffice.Common
             container.Register<IMessageReplyRepository, MessageReplyRepository>(Lifestyle.Scoped);
             container.Register<IStorageService, StorageService>(Lifestyle.Scoped);
             container.Register<IBundleRepository, BundleRepository>(Lifestyle.Scoped);
+            container.Register<IBundleRepositoryContainer, BundleRepositoryContainer>(Lifestyle.Scoped);
         }
     }
 }
