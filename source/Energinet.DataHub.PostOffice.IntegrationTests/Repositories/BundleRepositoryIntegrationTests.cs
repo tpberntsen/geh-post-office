@@ -126,6 +126,34 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             Assert.Null(peakBundle);
         }
 
+        [Fact]
+        public async Task Dequeue_Should_Set_Bundle_Dequeued()
+        {
+            var recipient = new Recipient("fake_value");
+            await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+            var messageType = new MessageType(1, "fake_value");
+            var dataAvailableNotifications =
+                new List<DataAvailableNotification>() { CreateDataAvailableNotifications(recipient, messageType), };
+            var dataAvailableUuids = dataAvailableNotifications.Select(x => new Uuid(x.Id.Value));
+            var bundleUuid = new Uuid("fake-value");
+            var client = scope.GetInstance<CosmosClient>();
+            var container = client.GetContainer("post-office", "bundles");
+            BundleRepository bundleRepository = new BundleRepository(new BundleRepositoryContainer(container));
+            var testBundle = new BundleDocument(recipient, bundleUuid, dataAvailableUuids, false);
+
+            //Act
+            var insertResult = await container
+                .UpsertItemAsync(testBundle)
+                .ConfigureAwait(false);
+
+            await bundleRepository.DequeueAsync(bundleUuid).ConfigureAwait(false);
+
+            var peakResult = await bundleRepository.PeekAsync(recipient).ConfigureAwait(false);
+
+            Assert.Null(peakResult);
+        }
+
         private static DataAvailableNotification CreateDataAvailableNotifications(
             Recipient recipient,
             MessageType messageType)

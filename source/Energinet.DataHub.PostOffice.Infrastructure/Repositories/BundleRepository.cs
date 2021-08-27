@@ -117,7 +117,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                         .ReplaceItemAsync(dequeuedBundleDocument, dequeuedBundleDocument.Id?.ToString())
                         .ConfigureAwait(false);
 
-                if (response.StatusCode != HttpStatusCode.Created)
+                if (response.StatusCode != HttpStatusCode.OK)
                     throw new InvalidOperationException("Could not dequeue document in cosmos");
             }
         }
