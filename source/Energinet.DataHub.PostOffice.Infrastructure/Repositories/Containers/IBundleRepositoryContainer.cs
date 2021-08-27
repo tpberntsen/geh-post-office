@@ -26,6 +26,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
         /// The actual container used in cosmos
         /// </summary>
         /// <returns>Bundle</returns>
-        public Container Container { get; init; }
+        public Container Container { get; }
     }
 }

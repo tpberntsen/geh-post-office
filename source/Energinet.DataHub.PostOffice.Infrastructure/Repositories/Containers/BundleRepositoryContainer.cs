@@ -19,14 +19,12 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
 {
     public class BundleRepositoryContainer : IBundleRepositoryContainer
     {
+        private readonly CosmosClient _client;
         public BundleRepositoryContainer(CosmosClient client)
         {
-            if (client is null)
-                throw new ArgumentNullException(nameof(client));
-
-            Container = client.GetContainer("post-office", "bundles"); // TODO: fetch variables from configuration
+            _client = client;
         }
 
-        public Container Container { get; init; }
+        public Container Container => _client.GetContainer("post-office", "bundles"); // TODO: Add config variables once config is in place.
     }
 }
