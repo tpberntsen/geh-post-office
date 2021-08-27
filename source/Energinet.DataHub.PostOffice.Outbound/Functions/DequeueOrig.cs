@@ -40,7 +40,7 @@ namespace Energinet.DataHub.PostOffice.Outbound.Functions
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
 
-            var dequeueCommand = request.GetDequeueOrigCommand();
+            var dequeueCommand = request.GetDequeueCommand();
             if (string.IsNullOrEmpty(dequeueCommand.Recipient)) return GetHttpResponse(request, HttpStatusCode.BadRequest, "Request body is missing 'recipient'");
             if (string.IsNullOrEmpty(dequeueCommand.Bundle)) return GetHttpResponse(request, HttpStatusCode.BadRequest, "Request body is missing 'type'");
 
