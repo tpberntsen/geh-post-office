@@ -22,7 +22,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
     {
         public static Bundle MapFromDocument(BundleDocument from)
         {
-            if (@from is null) throw new ArgumentNullException(nameof(@from));
             return new Bundle(
                 new Uuid(from.Id),
                 from.NotificationsIds.Select(x => new Uuid(x)));
@@ -30,11 +29,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 
         public static BundleDocument MapToDocument(IBundle from, Recipient recipient)
         {
-            if (@from is null)
-                throw new ArgumentNullException(nameof(@from));
-            if (recipient is null)
-                throw new ArgumentNullException(nameof(recipient));
-
             return new BundleDocument(recipient, from.Id, from.NotificationsIds, false);
         }
     }
