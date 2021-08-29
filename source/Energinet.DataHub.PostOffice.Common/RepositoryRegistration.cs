@@ -16,6 +16,7 @@ using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
+using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.Common
@@ -25,11 +26,11 @@ namespace Energinet.DataHub.PostOffice.Common
         public static void AddRepositories(this Container container)
         {
             container.Register<IDataAvailableNotificationRepository, DataAvailableNotificationRepository>(Lifestyle.Scoped);
-            container.Register<IBundleRepository, BundleRepository>(Lifestyle.Scoped);
-
             container.Register<IDataAvailableRepository, DataAvailableRepository>(Lifestyle.Scoped);
             container.Register<IMessageReplyRepository, MessageReplyRepository>(Lifestyle.Scoped);
             container.Register<IStorageService, StorageService>(Lifestyle.Scoped);
+            container.Register<IBundleRepository, BundleRepository>(Lifestyle.Scoped);
+            container.Register<IBundleRepositoryContainer, BundleRepositoryContainer>(Lifestyle.Scoped);
         }
     }
 }
