@@ -15,19 +15,17 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 
-namespace Energinet.DataHub.PostOffice.Domain.Services
+namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 {
     /// <summary>
-    /// Handles communication with sub-domains through ServiceBus
+    /// Handles communicating with the servicebus
     /// </summary>
-    public interface IRequestBundleDomainService
+    public interface IServiceBusService
     {
         /// <summary>
-        /// Requests data from a sub-domain through the ServiceBus and waits for the answer.
+        /// Sends a request out on a specific servicebus and uses sessions to wait for a reply.
         /// </summary>
-        /// <param name="notifications"></param>
-        /// <param name="origin"></param>
-        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        Task RequestDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, Origin origin);
+        /// <returns>A path to the data in our storage, or null if no data is ready</returns>
+        public Task RequestDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, Origin origin);
     }
 }

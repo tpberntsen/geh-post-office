@@ -11,16 +11,28 @@
 // // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Infrastructure.Services;
 
 namespace Energinet.DataHub.PostOffice.Domain.Services
 {
     internal class RequestBundleDomainService : IRequestBundleDomainService
     {
-        public Task RequestDataFromSubDomainAsync(DataAvailableNotification notifications)
+        private readonly IServiceBusService _serviceBusService;
+        public RequestBundleDomainService(IServiceBusService serviceBusService)
         {
-            throw new System.NotImplementedException();
+            _serviceBusService = serviceBusService;
+        }
+
+        public async Task RequestDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, Origin origin)
+        {
+
+
+            await _serviceBusService.RequestDataFromSubDomainAsync(notifications).ConfigureAwait(false);
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }
