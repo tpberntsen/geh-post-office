@@ -16,40 +16,21 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Energinet.DataHub.PostOffice.Domain.Model;
-using Newtonsoft.Json;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Entities
 {
     internal record BundleDocument
     {
-        public BundleDocument([NotNull]Recipient recipient, Uuid id, IEnumerable<Uuid> notificationsIds, bool dequeued)
+        public BundleDocument()
         {
-            Recipient = recipient.Value;
-            Id = id.Value;
-            NotificationsIds = notificationsIds.Select(x => x.Value);
-            Dequeued = dequeued;
+            NotificationsIds = new List<string>();
         }
 
-        [JsonConstructor]
-        public BundleDocument(string recipient, string id, IEnumerable<string> notificationsIds, bool dequeued)
-        {
-            if (id is null)
-                throw new ArgumentNullException(nameof(id));
-
-            Recipient = recipient;
-            Id = id;
-            NotificationsIds = notificationsIds;
-            Dequeued = dequeued;
-        }
-
-        [JsonProperty("recipient")]
-        public string Recipient { get; }
-        [JsonProperty("id")]
-        public string Id { get; }
-        [JsonProperty("notificationids")]
-        public IEnumerable<string> NotificationsIds { get; }
-        [JsonProperty("dequeued")]
+        public string Recipient { get; init; } = string.Empty;
+        public string Id { get; init; } = string.Empty;
+        public ICollection<string> NotificationsIds { get; init; }
         public bool Dequeued { get; init; }
     }
 }

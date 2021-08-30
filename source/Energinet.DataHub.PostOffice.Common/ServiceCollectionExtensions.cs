@@ -14,6 +14,7 @@
 
 using System;
 using Energinet.DataHub.PostOffice.Infrastructure;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,6 +38,7 @@ namespace Energinet.DataHub.PostOffice.Common
 
                 return new CosmosClientBuilder(connectionString)
                     .WithBulkExecution(useBulkExecution)
+                    .WithSerializerOptions(new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase })
                     .Build();
             });
         }
