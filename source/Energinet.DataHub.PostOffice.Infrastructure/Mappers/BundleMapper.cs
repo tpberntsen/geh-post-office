@@ -29,7 +29,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 
         public static BundleDocument MapToDocument(IBundle from, Recipient recipient)
         {
-            return new BundleDocument(recipient, from.Id, from.NotificationsIds, false);
+            return new BundleDocument()
+            {
+                Recipient = recipient.Value,
+                Id = from.Id.Value,
+                NotificationsIds = from.NotificationsIds.Select(x => x.Value).ToList(),
+                Dequeued = false
+            };
         }
     }
 }

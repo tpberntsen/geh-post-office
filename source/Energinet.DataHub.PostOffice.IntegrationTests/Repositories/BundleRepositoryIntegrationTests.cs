@@ -13,14 +13,11 @@
 // // limitations under the License.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
-using Energinet.DataHub.PostOffice.Infrastructure.Entities;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
-using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Xunit;
 using Xunit.Categories;
@@ -55,6 +52,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             //Assert
             Assert.NotNull(bundle);
+            Assert.Equal(3, bundle.NotificationsIds.Count());
         }
 
         [Fact]
