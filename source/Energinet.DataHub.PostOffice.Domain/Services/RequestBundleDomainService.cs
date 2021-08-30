@@ -28,10 +28,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
         public async Task RequestDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, Origin origin)
         {
-
-
-            await _serviceBusService.RequestDataFromSubDomainAsync(notifications).ConfigureAwait(false);
-
+            await _serviceBusService.RequestDataFromSubDomainAsync(notifications, origin).ConfigureAwait(false);
             await Task.CompletedTask.ConfigureAwait(false);
         }
     }
