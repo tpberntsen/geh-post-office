@@ -33,7 +33,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
             {
                 Recipient = recipient.Value,
                 Id = from.Id.Value,
-                NotificationsIds = from.NotificationsIds.Select(x => x.Value).ToList(),
+                NotificationsIds = from.NotificationsIds.Select(x => x.Value),
                 Dequeued = false
             };
         }
