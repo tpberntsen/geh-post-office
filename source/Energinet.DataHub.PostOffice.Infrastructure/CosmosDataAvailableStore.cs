@@ -58,13 +58,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                 var documentsFromCosmos = await feedIterator.ReadNextAsync().ConfigureAwait(false);
                 var documents = documentsFromCosmos
                     .Select(document => new DataAvailable(
-                        document.uuid,
-                        document.recipient,
-                        document.messageType,
-                        document.origin,
-                        document.supportsBundling,
-                        document.relativeWeight,
-                        document.priority));
+                        document.Uuid,
+                        document.Recipient,
+                        document.MessageType,
+                        document.Origin,
+                        document.SupportsBundling,
+                        document.RelativeWeight,
+                        document.Priority));
 
                 return documents.ToList();
             }
@@ -96,13 +96,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                 foreach (var document in documentsFromCosmos)
                 {
                     documents.Add(new DataAvailable(
-                        document.uuid,
-                        document.recipient,
-                        document.messageType,
-                        document.origin,
-                        document.supportsBundling,
-                        document.relativeWeight,
-                        document.priority));
+                        document.Uuid,
+                        document.Recipient,
+                        document.MessageType,
+                        document.Origin,
+                        document.SupportsBundling,
+                        document.RelativeWeight,
+                        document.Priority));
                 }
 
                 return documents.FirstOrDefault();
@@ -132,13 +132,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
             var cosmosDocument = new CosmosDataAvailable
             {
-                uuid = document.Uuid,
-                recipient = document.Recipient,
-                messageType = document.MessageType,
-                origin = document.Origin,
-                supportsBundling = document.SupportsBundling,
-                relativeWeight = document.RelativeWeight,
-                priority = document.Priority,
+                Uuid = document.Uuid,
+                Recipient = document.Recipient,
+                MessageType = document.MessageType,
+                Origin = document.Origin,
+                SupportsBundling = document.SupportsBundling,
+                RelativeWeight = document.RelativeWeight,
+                Priority = document.Priority,
             };
 
             var response = await container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);

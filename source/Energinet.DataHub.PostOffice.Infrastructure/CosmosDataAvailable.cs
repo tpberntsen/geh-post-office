@@ -17,38 +17,34 @@ using System.Text.Json.Serialization;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure
 {
-#nullable disable
-    [SuppressMessage("ReSharper", "SA1300", Justification = "Cosmos error")]
     public class CosmosDataAvailable
     {
         public CosmosDataAvailable()
         {
-            id = System.Guid.NewGuid().ToString();
+            Uuid = null!;
+            MessageType = null!;
+            Origin = null!;
+            Recipient = null!;
+            Id = System.Guid.NewGuid().ToString();
         }
 
-        [JsonPropertyName("id")]
-        public string id { get; set; }
+        public string Id { get; set; }
 
-        [JsonPropertyName("uuid")]
-        public string uuid { get; set; }
+        public string Uuid { get; set; }
 
-        [JsonPropertyName("messageType")]
-        public string messageType { get; set; }
+        public string MessageType { get; set; }
 
-        [JsonPropertyName("origin")]
-        public string origin { get; set; }
+        public string Origin { get; set; }
 
-        [JsonPropertyName("recipient")]
-        public string recipient { get; set; }
+        public string Recipient { get; set; }
 
-        [JsonPropertyName("supportsBundling")]
-        public bool supportsBundling { get; set; }
+        public bool SupportsBundling { get; set; }
 
-        [JsonPropertyName("relativeWeight")]
-        public int relativeWeight { get; set; }
+        public int RelativeWeight { get; set; }
 
-        [JsonPropertyName("priority")]
-        public decimal priority { get; set; }
+        public decimal Priority { get; set; }
+
+        public bool Acknowledge { get; set; }
     }
 #nullable restore
 }

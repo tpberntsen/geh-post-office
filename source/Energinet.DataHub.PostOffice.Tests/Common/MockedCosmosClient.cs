@@ -19,6 +19,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
 {
     internal sealed class MockedCosmosClient : CosmosClient
     {
+        public override Container GetContainer(string databaseId, string containerId)
+        {
+            return null!;
+        }
+
         protected override void Dispose(bool disposing)
         {
             try

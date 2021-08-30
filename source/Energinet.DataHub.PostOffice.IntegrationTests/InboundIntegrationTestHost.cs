@@ -75,7 +75,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
 
             var testDatabase = databaseResponse.Database;
             await testDatabase
-                .CreateContainerIfNotExistsAsync("dataavailable", "/pk")
+                .CreateContainerIfNotExistsAsync("dataavailable", "/recipient")
                 .ConfigureAwait(true);
             await testDatabase
                 .CreateContainerIfNotExistsAsync("bundles", "/pk")

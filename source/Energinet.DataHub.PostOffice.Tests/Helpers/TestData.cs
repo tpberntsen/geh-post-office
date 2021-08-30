@@ -46,13 +46,13 @@ namespace Energinet.DataHub.PostOffice.Tests.Helpers
             {
                 list.Add(new CosmosDataAvailable()
                 {
-                    id = It.IsAny<string>(),
-                    recipient = It.IsAny<string>(),
-                    messageType = It.IsAny<string>(),
-                    origin = It.IsAny<string>(),
-                    supportsBundling = It.IsAny<bool>(),
-                    relativeWeight = It.IsAny<int>(),
-                    priority = It.IsAny<int>(),
+                    Id = It.IsAny<string>(),
+                    Recipient = It.IsAny<string>(),
+                    MessageType = It.IsAny<string>(),
+                    Origin = It.IsAny<string>(),
+                    SupportsBundling = It.IsAny<bool>(),
+                    RelativeWeight = It.IsAny<int>(),
+                    Priority = It.IsAny<int>(),
                 });
             }
 

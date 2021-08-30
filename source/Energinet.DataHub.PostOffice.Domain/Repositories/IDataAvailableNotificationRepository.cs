@@ -47,7 +47,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// <summary>
         /// Dequeue notifications
         /// </summary>
-        /// <param name="ids"></param>
-        Task DequeueAsync(IEnumerable<Uuid> ids);
+        /// <param name="dataAvailableNotificationUuids"></param>
+        Task DequeueAsync(IEnumerable<Uuid> dataAvailableNotificationUuids);
     }
 }
