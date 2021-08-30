@@ -13,9 +13,12 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.DataAvailable;
+using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using FluentAssertions;
 using MediatR;
 using Xunit;
@@ -28,7 +31,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
     public class DataAvailableIntegrationTests
     {
         [Fact]
-        public async Task Test_DataAvailable_Integration()
+        public async Task Test_DataAvailable_Integration_Create()
         {
             // Arrange
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
@@ -36,20 +39,70 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
             var mediator = scope.GetInstance<IMediator>();
             var dataAvailableCommand = GetDataAvailableCommand();
 
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+
             // Act
             var result = await mediator.Send(dataAvailableCommand, CancellationToken.None).ConfigureAwait(false);
+            var dataAvailablePeekResult = await dataAvailableNotificationRepository.PeekAsync(new Recipient(dataAvailableCommand.Recipient)).ConfigureAwait(false);
 
             // Assert
-            result.Should().BeTrue();
+            dataAvailablePeekResult.Should().NotBeNull();
+            dataAvailablePeekResult?.Recipient.Value.Should().Be(dataAvailableCommand.Recipient);
+        }
+
+        [Fact]
+        public async Task Test_DataAvailable_Integration_PeekByMessageType()
+        {
+            // Arrange
+            await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+            var dataAvailableCommand = GetDataAvailableCommand();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+            var recipient = new Recipient(dataAvailableCommand.Recipient);
+            var messageType = new MessageType(1, dataAvailableCommand.MessageType);
+
+            // Act
+            var result = await mediator.Send(dataAvailableCommand, CancellationToken.None).ConfigureAwait(false);
+            var dataAvailablePeekResult = await dataAvailableNotificationRepository.PeekAsync(recipient, messageType).ConfigureAwait(false);
+
+            // Assert
+            dataAvailablePeekResult.Should().NotBeNullOrEmpty();
+            dataAvailablePeekResult?.Should().Contain(e => messageType.Type.Equals(e.MessageType.Type, StringComparison.Ordinal));
+        }
+
+        [Fact]
+        public async Task Test_DataAvailable_Integration_Dequeue()
+        {
+            // Arrange
+            await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+            var dataAvailableCommand = GetDataAvailableCommand();
+            var dequeueUuids = new List<Uuid> { new(dataAvailableCommand.UUID) };
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            // Act
+            var result = await mediator.Send(dataAvailableCommand, CancellationToken.None).ConfigureAwait(false);
+            var dataAvailablePeekResult = await dataAvailableNotificationRepository.PeekAsync(new Recipient(dataAvailableCommand.Recipient)).ConfigureAwait(false);
+            await dataAvailableNotificationRepository.DequeueAsync(dequeueUuids).ConfigureAwait(false);
+            var dataAvailablePeekDequeuedResult = await dataAvailableNotificationRepository.PeekAsync(new Recipient(dataAvailableCommand.Recipient)).ConfigureAwait(false);
+
+            // Assert
+            dataAvailablePeekResult.Should().NotBeNull();
+            dataAvailablePeekResult?.Recipient.Value.Should().Be(dataAvailableCommand.Recipient);
+            dataAvailablePeekDequeuedResult.Should().BeNull();
         }
 
         private static DataAvailableCommand GetDataAvailableCommand()
         {
-            return new DataAvailableCommand(
+            return new(
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
-                "MessageType",
-                "Origin",
+                "address-change",
+                Origin.Charges.ToString(),
                 false,
                 1);
         }

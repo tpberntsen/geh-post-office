@@ -12,35 +12,128 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
+using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
-    // todo : correct implementation #137
     public class DataAvailableNotificationRepository : IDataAvailableNotificationRepository
     {
-        public Task CreateAsync(DataAvailableNotification dataAvailableNotification)
+        private const string ContainerName = "dataavailable";
+        private readonly Container _container;
+
+        public DataAvailableNotificationRepository(
+            [NotNull] CosmosClient cosmosClient,
+            [NotNull] CosmosDatabaseConfig cosmosConfig)
         {
-            return Task.CompletedTask;
+            _container = cosmosClient.GetContainer(cosmosConfig.DatabaseId, ContainerName);
         }
 
-        public Task<IEnumerable<DataAvailableNotification>> PeekAsync(Recipient recipient, MessageType messageType)
+        public async Task CreateAsync(DataAvailableNotification dataAvailableNotification)
         {
-            return Task.FromResult(Enumerable.Empty<DataAvailableNotification>());
+            if (dataAvailableNotification is null)
+                throw new ArgumentNullException(nameof(dataAvailableNotification));
+
+            var cosmosDocument = new CosmosDataAvailable
+            {
+                Uuid = dataAvailableNotification.Id.Value,
+                Recipient = dataAvailableNotification.Recipient.Value,
+                MessageType = dataAvailableNotification.MessageType.Type,
+                Origin = dataAvailableNotification.Origin.ToString(),
+                RelativeWeight = dataAvailableNotification.Weight.Value,
+                Priority = 1M,
+            };
+
+            var response = await _container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
+            if (response.StatusCode != HttpStatusCode.Created)
+                throw new InvalidOperationException("Could not create document in cosmos");
         }
 
-        public Task<DataAvailableNotification?> PeekAsync(Recipient recipient)
+        public async Task<IEnumerable<DataAvailableNotification>> PeekAsync(Recipient recipient, MessageType messageType)
         {
-            return Task.FromResult<DataAvailableNotification?>(null);
+            if (recipient is null)
+                throw new ArgumentNullException(nameof(recipient));
+            if (messageType is null)
+                throw new ArgumentNullException(nameof(messageType));
+
+            const string queryString = "SELECT * FROM c WHERE c.recipient = @recipient AND c.acknowledge = false AND c.messageType = @messageType ORDER BY c._ts ASC OFFSET 0 LIMIT 1";
+            var parameters = new List<KeyValuePair<string, string>> { new("recipient", recipient.Value), new("messageType", messageType.Type) };
+
+            var documents = await GetDocumentsAsync(queryString, parameters).ConfigureAwait(false);
+            return documents;
         }
 
-        public Task DequeueAsync(IEnumerable<Uuid> ids)
+        public async Task<DataAvailableNotification?> PeekAsync(Recipient recipient)
         {
-            return Task.CompletedTask;
+            if (recipient is null)
+                throw new ArgumentNullException(nameof(recipient));
+
+            const string queryString = "SELECT * FROM c WHERE c.recipient = @recipient AND c.acknowledge = false ORDER BY c._ts ASC OFFSET 0 LIMIT 1";
+            var parameters = new List<KeyValuePair<string, string>> { new("recipient", recipient.Value) };
+
+            var documents = await GetDocumentsAsync(queryString, parameters).ConfigureAwait(false);
+            var document = documents.FirstOrDefault();
+
+            return document;
+        }
+
+        public async Task DequeueAsync(IEnumerable<Uuid> dataAvailableNotificationUuids)
+        {
+            if (dataAvailableNotificationUuids is null)
+                throw new ArgumentNullException(nameof(dataAvailableNotificationUuids));
+
+            foreach (var uuid in dataAvailableNotificationUuids)
+            {
+                var documentToUpdateResponse = _container.GetItemLinqQueryable<CosmosDataAvailable>(true)
+                    .Where(document => document.Uuid == uuid.Value)
+                    .AsEnumerable()
+                    .FirstOrDefault();
+
+                if (documentToUpdateResponse is null) // Or Throw
+                    continue;
+
+                documentToUpdateResponse.Acknowledge = true;
+                await _container.ReplaceItemAsync(documentToUpdateResponse, documentToUpdateResponse.Id, new PartitionKey(documentToUpdateResponse.Recipient)).ConfigureAwait(false);
+            }
+        }
+
+        private async Task<IEnumerable<DataAvailableNotification>> GetDocumentsAsync(string query, List<KeyValuePair<string, string>> parameters)
+        {
+            if (query is null)
+                throw new ArgumentNullException(nameof(query));
+            if (parameters is null)
+                throw new ArgumentNullException(nameof(parameters));
+
+            var documentQuery = new QueryDefinition(query);
+            parameters.ForEach(item => documentQuery.WithParameter($"@{item.Key}", item.Value));
+
+            var documentsResult = new List<DataAvailableNotification>();
+
+            using (FeedIterator<CosmosDataAvailable> feedIterator = _container.GetItemQueryIterator<CosmosDataAvailable>(documentQuery))
+            {
+                while (feedIterator.HasMoreResults)
+                {
+                    var documentsFromCosmos = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+                    var documents = documentsFromCosmos
+                        .Select(document => new DataAvailableNotification(
+                            new Uuid(document.Uuid),
+                            new Recipient(document.Recipient),
+                            new MessageType(document.RelativeWeight, document.MessageType),
+                            Enum.Parse<Origin>(document.Origin, true),
+                            new Weight(document.RelativeWeight)));
+
+                    documentsResult.AddRange(documents);
+                }
+            }
+
+            return documentsResult;
         }
     }
 }

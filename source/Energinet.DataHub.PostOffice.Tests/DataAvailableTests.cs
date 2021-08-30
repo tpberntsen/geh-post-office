@@ -15,8 +15,10 @@
 using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.DataAvailable;
-using Energinet.DataHub.PostOffice.Domain;
+using Energinet.DataHub.PostOffice.Application.Handlers;
+using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Inbound.Parsing;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
@@ -35,18 +37,18 @@ namespace Energinet.DataHub.PostOffice.Tests
         public async Task Validate_DataAvailable_Handler()
         {
             // Arrange
-            var dataAvailableRepositoryMock = new Mock<IDataAvailableRepository>();
+            var dataAvailableRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
 
-            dataAvailableRepositoryMock.Setup(e => e.SaveDocumentAsync(It.IsAny<DataAvailable>())).ReturnsAsync(true);
+            dataAvailableRepositoryMock.Setup(e => e.CreateAsync(It.IsAny<DataAvailableNotification>())).Returns(Task.CompletedTask);
 
-            var command = new DataAvailableCommand(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<int>());
-            var handler = new DataAvailableHandler(dataAvailableRepositoryMock.Object);
+            var command = new DataAvailableCommand(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), Origin.Charges.ToString(), It.IsAny<bool>(), It.IsAny<int>());
+            var handler = new DataAvailableNotificationHandler(dataAvailableRepositoryMock.Object);
 
             // Act
             var result = await handler.Handle(command, System.Threading.CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            result.Should().Be(true);
+            result.Should().BeOfType(typeof(DataAvailableNotificationResponse));
         }
 
         [Fact]
