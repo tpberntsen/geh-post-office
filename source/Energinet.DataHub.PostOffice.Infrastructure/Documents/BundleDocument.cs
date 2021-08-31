@@ -23,9 +23,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Entities
 {
     internal record BundleDocument
     {
-        public string Recipient { get; init; } = null!;
-        public string Id { get; init; } = null!;
-        public IEnumerable<string> NotificationsIds { get; init; } = null!;
+        public BundleDocument()
+        {
+            NotificationsIds = new List<string>();
+        }
+
+        public string Recipient { get; init; } = string.Empty;
+        public string Id { get; init; } = string.Empty;
+        public ICollection<string> NotificationsIds { get; init; }
         public bool Dequeued { get; init; }
     }
 }
