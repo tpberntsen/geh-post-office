@@ -11,21 +11,23 @@
 // // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
-
-using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 
-namespace Energinet.DataHub.PostOffice.Infrastructure.Entities
+namespace Energinet.DataHub.PostOffice.Domain.Services
 {
-    internal record BundleDocument
+    /// <summary>
+    /// Handles communication with sub-domains through ServiceBus
+    /// </summary>
+    public interface IRequestBundleDomainService
     {
-        public string Recipient { get; init; } = null!;
-        public string Id { get; init; } = null!;
-        public IEnumerable<string> NotificationsIds { get; init; } = null!;
-        public bool Dequeued { get; init; }
+        /// <summary>
+        /// Requests data from a sub-domain through the ServiceBus and waits for the answer.
+        /// </summary>
+        /// <param name="notifications"></param>
+        /// <param name="origin"></param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        Task RequestDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, Origin origin);
     }
 }

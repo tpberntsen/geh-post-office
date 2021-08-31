@@ -11,21 +11,21 @@
 // // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
-
-using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 
-namespace Energinet.DataHub.PostOffice.Infrastructure.Entities
+namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 {
-    internal record BundleDocument
+    /// <summary>
+    /// Handles communicating with the servicebus
+    /// </summary>
+    public interface IServiceBusService
     {
-        public string Recipient { get; init; } = null!;
-        public string Id { get; init; } = null!;
-        public IEnumerable<string> NotificationsIds { get; init; } = null!;
-        public bool Dequeued { get; init; }
+        /// <summary>
+        /// Sends a request out on a specific servicebus and uses sessions to wait for a reply.
+        /// </summary>
+        /// <returns>A path to the data in our storage, or null if no data is ready</returns>
+        public Task RequestDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, Origin origin);
     }
 }
