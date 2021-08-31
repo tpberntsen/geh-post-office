@@ -17,7 +17,7 @@ using Energinet.DataHub.PostOffice.Common.SimpleInjector;
 using Microsoft.Extensions.Hosting;
 using SimpleInjector;
 
-namespace Energinet.DataHub.PostOffice.Inbound
+namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain
 {
     public static class Program
     {

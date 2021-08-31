@@ -23,36 +23,35 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Energinet.DataHub.PostOffice.Outbound.Functions
+namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
-    public sealed class Peek
+    public sealed class Dequeue
     {
         private readonly IMediator _mediator;
 
-        public Peek(IMediator mediator)
+        public Dequeue(IMediator mediator)
         {
             _mediator = mediator;
         }
 
-        [Function("Peek")]
+        [Function("Dequeue")]
         public async Task<HttpResponseMessage> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Function, "get")]
+            [HttpTrigger(AuthorizationLevel.Function, "delete")]
             HttpRequestData request,
             FunctionContext context)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            var logger = context.GetLogger<Peek>();
-            var command = request.Url.ParseQuery<PeekCommand>();
+            var logger = context.GetLogger<Dequeue>();
+            var command = request.Url.ParseQuery<DequeueCommand>();
 
-            logger.LogInformation($"Processing Peek query: {command}.");
+            logger.LogInformation($"Processing Dequeue query: {command}.");
 
-            var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
-
-            return hasContent
-                ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new StreamContent(stream) }
-                : new HttpResponseMessage(HttpStatusCode.NoContent);
+            var response = await _mediator.Send(command).ConfigureAwait(false);
+            return response.IsDequeued
+                ? new HttpResponseMessage(HttpStatusCode.OK)
+                : new HttpResponseMessage(HttpStatusCode.NotFound);
         }
     }
 }

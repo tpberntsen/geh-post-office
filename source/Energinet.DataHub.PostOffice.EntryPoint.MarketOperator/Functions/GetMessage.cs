@@ -17,14 +17,14 @@ using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Enums;
 using Energinet.DataHub.PostOffice.Domain.Exceptions;
-using Energinet.DataHub.PostOffice.Outbound.Extensions;
+using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Extensions;
 using FluentValidation;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Energinet.DataHub.PostOffice.Outbound.Functions
+namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
     public class GetMessage
     {

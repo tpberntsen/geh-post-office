@@ -14,21 +14,21 @@
 
 using System;
 using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Application.DataAvailable;
+using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Contracts;
 
-namespace Energinet.DataHub.PostOffice.Inbound.Parsing
+namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Parsing
 {
     public class DataAvailableContractParser
     {
-        private readonly IMapper<DataAvailable, DataAvailableCommand> _mapper;
+        private readonly IMapper<DataAvailable, DataAvailableNotificationCommand> _mapper;
 
-        public DataAvailableContractParser(IMapper<DataAvailable, DataAvailableCommand> mapper)
+        public DataAvailableContractParser(IMapper<DataAvailable, DataAvailableNotificationCommand> mapper)
         {
             _mapper = mapper;
         }
 
-        public DataAvailableCommand Parse(byte[] bytes)
+        public DataAvailableNotificationCommand Parse(byte[] bytes)
         {
             if (bytes is null) throw new ArgumentNullException(nameof(bytes));
 

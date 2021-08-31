@@ -14,10 +14,11 @@
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public enum Origin
+    public enum SubDomain
     {
-        Charges = 0,
-        TimeSeries = 1,
-        Aggregations = 2
+        Unknown = 0,
+        Charges = 1,
+        TimeSeries = 2,
+        Aggregations = 3
     }
 }

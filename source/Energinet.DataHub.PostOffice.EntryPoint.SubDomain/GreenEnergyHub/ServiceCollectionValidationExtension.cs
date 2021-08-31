@@ -20,7 +20,7 @@ using GreenEnergyHub.Messaging.Validation;
 using Microsoft.Extensions.DependencyInjection;
 
 // TODO: This is copied from GreenEnergyHub.Messaging.Integration.ServiceCollection
-namespace Energinet.DataHub.PostOffice.Inbound.GreenEnergyHub
+namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.GreenEnergyHub
 {
     internal static class ServiceCollectionValidationExtension
     {

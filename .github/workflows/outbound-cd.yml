@@ -21,12 +21,11 @@ on:
       - source/**
       - .github/workflows/outbound-cd.yml
       - .github/actions/dotnet-build-and-test
-      - Energinet.DataHub.PostOffice.sln
   workflow_dispatch: {}
 
 env:
-  CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Outbound/Energinet.DataHub.PostOffice.Outbound.csproj'
-  SOLUTION_FILE_PATH: 'Energinet.DataHub.PostOffice.sln'
+  CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.EntryPoint.MarketOperator/Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.csproj'
+  SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.sln'
   DOTNET_VERSION: '5.0'
   AZURE_FUNCTIONAPP_BASE_NAME: 'azfun-outbound-${{ secrets.PROJECT_NAME }}-${{ secrets.ORGANISATION_NAME }}'
 

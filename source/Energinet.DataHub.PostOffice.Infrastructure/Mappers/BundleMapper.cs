@@ -11,10 +11,10 @@
 // // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
-using System;
+
 using System.Linq;
 using Energinet.DataHub.PostOffice.Domain.Model;
-using Energinet.DataHub.PostOffice.Infrastructure.Entities;
+using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
@@ -27,13 +27,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 from.NotificationsIds.Select(x => new Uuid(x)));
         }
 
-        public static BundleDocument MapToDocument(IBundle from, Recipient recipient)
+        public static BundleDocument MapToDocument(IBundle from, MarketOperator recipient)
         {
             return new BundleDocument()
             {
                 Recipient = recipient.Value,
-                Id = from.Id.Value,
-                NotificationsIds = from.NotificationsIds.Select(x => x.Value).ToList(),
+                Id = from.BundleId.Value,
+                NotificationsIds = from.NotificationIds.Select(x => x.Value).ToList(),
                 Dequeued = false
             };
         }

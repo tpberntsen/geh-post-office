@@ -14,5 +14,5 @@
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public record Recipient(string Value);
+    public record MarketOperator(string Value);
 }

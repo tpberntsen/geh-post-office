@@ -21,14 +21,14 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
 {
     public class Bundle : IBundle
     {
-        public Bundle(Uuid id, IEnumerable<Uuid> notificationsIds)
+        public Bundle(Uuid bundleId, IEnumerable<Uuid> notificationIds)
         {
-            Id = id;
-            NotificationsIds = notificationsIds;
+            BundleId = bundleId;
+            NotificationIds = notificationIds;
         }
 
-        public Uuid Id { get; }
-        public IEnumerable<Uuid> NotificationsIds { get; }
+        public Uuid BundleId { get; }
+        public IEnumerable<Uuid> NotificationIds { get; }
 
         public Task<Stream> OpenAsync()
         {

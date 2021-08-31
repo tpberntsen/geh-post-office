@@ -16,14 +16,13 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
-using Energinet.DataHub.PostOffice.Application.DataAvailable;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
-    public class DataAvailableNotificationHandler : IRequestHandler<DataAvailableCommand, DataAvailableNotificationResponse>
+    public class DataAvailableNotificationHandler : IRequestHandler<DataAvailableNotificationCommand, DataAvailableNotificationResponse>
     {
         private readonly IDataAvailableNotificationRepository _dataAvailableNotificationRepository;
 
@@ -32,18 +31,18 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             _dataAvailableNotificationRepository = dataAvailableNotificationRepository;
         }
 
-        public async Task<DataAvailableNotificationResponse> Handle(DataAvailableCommand request, CancellationToken cancellationToken)
+        public async Task<DataAvailableNotificationResponse> Handle(DataAvailableNotificationCommand request, CancellationToken cancellationToken)
         {
             if (request is null) throw new ArgumentNullException(nameof(request));
 
             var dataAvailableNotification = new DataAvailableNotification(
-                new Uuid(request.UUID),
-                new Recipient(request.Recipient),
-                new MessageType(request.RelativeWeight, request.MessageType),
-                Enum.Parse<Origin>(request.Origin, true),
+                new Uuid(request.Uuid),
+                new MarketOperator(request.Recipient),
+                new ContentType(request.RelativeWeight, request.MessageType),
+                Enum.Parse<SubDomain>(request.Origin, true),
                 new Weight(request.RelativeWeight));
 
-            await _dataAvailableNotificationRepository.CreateAsync(dataAvailableNotification).ConfigureAwait(false);
+            await _dataAvailableNotificationRepository.SaveAsync(dataAvailableNotification).ConfigureAwait(false);
 
             return new DataAvailableNotificationResponse();
         }

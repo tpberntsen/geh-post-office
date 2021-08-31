@@ -14,12 +14,8 @@
 
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Application.Handlers;
 using Energinet.DataHub.PostOffice.Domain.Model;
-using Energinet.DataHub.PostOffice.Domain.Repositories;
-using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Moq;
@@ -40,7 +36,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.PeekAsync(null!))
+                .ThrowsAsync<ArgumentNullException>(() => target.GetNextUnacknowledgedAsync(null!))
                 .ConfigureAwait(false);
         }
 
@@ -53,7 +49,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.DequeueAsync(null!))
+                .ThrowsAsync<ArgumentNullException>(() => target.AcknowledgeAsync(null!))
                 .ConfigureAwait(false);
         }
 
@@ -61,7 +57,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         public async Task CreateBundle_Empty_List_Argument_ThrowsException()
         {
             // Arrange
-            var recipient = new Recipient("fake_value");
             var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
             var target = new BundleRepository(bundleRepositoryContainer.Object);
 

@@ -16,7 +16,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
-using Energinet.DataHub.PostOffice.Application.DataAvailable;
+using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.Validation;
 using FluentAssertions;
 using GreenEnergyHub.Messaging.Validation;
@@ -32,7 +32,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
         public async Task DataAvailable_request_should_be_valid()
         {
             // Arrange
-            var dataAvailable = new DataAvailableCommand(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), "1", "1", false, 1);
+            var dataAvailable = new DataAvailableNotificationCommand(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), "1", "1", false, 1);
 
             // Act
             var ruleSet = new DataAvailableRuleSet();

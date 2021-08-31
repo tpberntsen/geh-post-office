@@ -14,13 +14,13 @@
 
 using System;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Inbound.Parsing;
+using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Parsing;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace Energinet.DataHub.PostOffice.Inbound.Functions
+namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
 {
     public class DataAvailableInbox
     {

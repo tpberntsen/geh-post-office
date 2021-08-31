@@ -23,7 +23,7 @@ namespace Energinet.DataHub.PostOffice.Common
     {
         public static void AddDomainServices(this Container container)
         {
-            container.Register<IWarehouseDomainService, WarehouseDomainService>(Lifestyle.Scoped);
+            container.Register<IMarketOperatorDataDomainService, MarketOperatorDataDomainService>(Lifestyle.Scoped);
 
             container.Register<IDataAvailableController, DataAvailableController>(Lifestyle.Scoped);
         }

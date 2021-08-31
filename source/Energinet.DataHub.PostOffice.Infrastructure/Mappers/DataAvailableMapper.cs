@@ -14,17 +14,17 @@
 
 using System;
 using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Application.DataAvailable;
+using Energinet.DataHub.PostOffice.Application.Commands;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
-    public sealed class DataAvailableMapper : IMapper<Contracts.DataAvailable, DataAvailableCommand>
+    public sealed class DataAvailableMapper : IMapper<Contracts.DataAvailable, DataAvailableNotificationCommand>
     {
-        public DataAvailableCommand Map(Contracts.DataAvailable obj)
+        public DataAvailableNotificationCommand Map(Contracts.DataAvailable obj)
         {
             if (obj is null) throw new ArgumentNullException(nameof(obj));
 
-            var dataAvailableCommand = new DataAvailableCommand(
+            var dataAvailableCommand = new DataAvailableNotificationCommand(
                 obj.UUID,
                 obj.Recipient,
                 obj.MessageType,
