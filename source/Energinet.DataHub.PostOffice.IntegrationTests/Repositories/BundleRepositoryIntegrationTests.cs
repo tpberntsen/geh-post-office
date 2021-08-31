@@ -12,10 +12,12 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Domain.Services.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Microsoft.Azure.Cosmos;
@@ -36,7 +38,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var messageType = new ContentType(1, "fake_value");
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
-
+            var replyData = new SubDomainReply() { Success = true, UriToContent = new Uri("https://test.test.dk") };
             var dataAvailableNotificationIds = new List<DataAvailableNotification>()
             {
                 CreateDataAvailableNotifications(recipient, messageType),
@@ -47,7 +49,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
 
             //Act
-            var bundle = await bundleRepository.CreateBundleAsync(dataAvailableNotificationIds)
+            var bundle = await bundleRepository.CreateBundleAsync(dataAvailableNotificationIds, replyData.UriToContent)
                 .ConfigureAwait(false);
 
             //Assert
@@ -63,6 +65,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var messageType = new ContentType(1, "fake_value");
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
+            var replyData = new SubDomainReply() { Success = true, UriToContent = new Uri("https://test.test.dk") };
             var dataAvailableNotifications = new List<DataAvailableNotification>()
             {
                 CreateDataAvailableNotifications(recipient, messageType),
@@ -74,7 +77,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             //Act
             var createdBundle = await bundleRepository
-                .CreateBundleAsync(dataAvailableNotifications)
+                .CreateBundleAsync(dataAvailableNotifications, replyData.UriToContent)
                 .ConfigureAwait(false);
 
             var peakBundle = await bundleRepository
@@ -100,6 +103,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 .ConfigureAwait(false);
 
             var scope = host.BeginScope();
+            var replyData = new SubDomainReply() { Success = true, UriToContent = new Uri("https://test.test.dk") };
             var dataAvailableNotifications = new List<DataAvailableNotification>()
             {
                 CreateDataAvailableNotifications(recipient, messageType)
@@ -109,7 +113,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             //Act
             var createdBundle = await bundleRepository
-                .CreateBundleAsync(dataAvailableNotifications)
+                .CreateBundleAsync(dataAvailableNotifications, replyData.UriToContent)
                 .ConfigureAwait(false);
             var peakBundle = await bundleRepository
                 .GetNextUnacknowledgedAsync(peakRecipient)
@@ -127,6 +131,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
             var messageType = new ContentType(1, "fake_value");
+            var replyData = new SubDomainReply() { Success = true, UriToContent = new Uri("https://test.test.dk") };
             var dataAvailableNotifications = new List<DataAvailableNotification>()
             {
                 CreateDataAvailableNotifications(recipient, messageType),
@@ -136,7 +141,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             //Act
             var createdBundle = await bundleRepository
-                .CreateBundleAsync(dataAvailableNotifications)
+                .CreateBundleAsync(dataAvailableNotifications, replyData.UriToContent)
                 .ConfigureAwait(false);
 
             await bundleRepository

@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
+using Energinet.DataHub.PostOffice.Domain.Services.Model;
 using Moq;
 using Xunit;
 using Xunit.Categories;
@@ -42,9 +44,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync((IBundle?)null);
 
+            var bundleDomainServiceMock = new Mock<IRequestBundleDomainService>();
+
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
-                dataAvailableNotificationRepositoryMock.Object);
+                dataAvailableNotificationRepositoryMock.Object,
+                bundleDomainServiceMock.Object);
 
             // Act
             var bundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
@@ -68,6 +73,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 CreateDataAvailableNotification(recipient, messageType),
                 CreateDataAvailableNotification(recipient, messageType)
             };
+            var requestSession = new RequestDataSession() { Id = new Uuid(System.Guid.NewGuid().ToString()) };
+            var replyData = new SubDomainReply() { Success = true, UriToContent = new Uri("https://test.test.dk") };
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -86,12 +93,26 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .ReturnsAsync((IBundle?)null);
 
             bundleRepositoryMock
-                .Setup(x => x.CreateBundleAsync(allDataAvailableNotificationsForMessageType))
+                .Setup(x => x.CreateBundleAsync(allDataAvailableNotificationsForMessageType, replyData.UriToContent))
                 .ReturnsAsync(bundleMock.Object);
+
+            var bundleDomainServiceMock = new Mock<IRequestBundleDomainService>();
+            bundleDomainServiceMock
+                .Setup(x => x.RequestBundledDataFromSubDomainAsync(
+                    allDataAvailableNotificationsForMessageType,
+                    dataAvailableNotificationFirst.Origin))
+                .ReturnsAsync(requestSession);
+
+            bundleDomainServiceMock
+                .Setup(x => x.WaitForReplyFromSubDomainAsync(
+                    requestSession,
+                    dataAvailableNotificationFirst.Origin))
+                .ReturnsAsync(replyData);
 
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
-                dataAvailableNotificationRepositoryMock.Object);
+                dataAvailableNotificationRepositoryMock.Object,
+                bundleDomainServiceMock.Object);
 
             // Act
             var bundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
@@ -112,10 +133,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             bundleRepositoryMock
                 .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync(bundleMock.Object);
-
+            var bundleDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
-                dataAvailableNotificationRepositoryMock.Object);
+                dataAvailableNotificationRepositoryMock.Object,
+                bundleDomainServiceMock.Object);
 
             // Act
             var bundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
@@ -148,10 +170,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             bundleRepositoryMock
                 .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync(bundleMock.Object);
-
+            var bundleDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
-                dataAvailableNotificationRepositoryMock.Object);
+                dataAvailableNotificationRepositoryMock.Object,
+                bundleDomainServiceMock.Object);
 
             // Act
             var result = await target.TryAcknowledgeAsync(recipient, bundleUuid).ConfigureAwait(false);
@@ -175,9 +198,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync((IBundle?)null);
 
+            var bundleDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
-                dataAvailableNotificationRepositoryMock.Object);
+                dataAvailableNotificationRepositoryMock.Object,
+                bundleDomainServiceMock.Object);
 
             // Act
             var result = await target.TryAcknowledgeAsync(recipient, bundleUuid).ConfigureAwait(false);
@@ -205,9 +230,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync(bundleMock.Object);
 
+            var bundleDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
-                dataAvailableNotificationRepositoryMock.Object);
+                dataAvailableNotificationRepositoryMock.Object,
+                bundleDomainServiceMock.Object);
 
             // Act
             var result = await target.TryAcknowledgeAsync(recipient, incorrectId).ConfigureAwait(false);

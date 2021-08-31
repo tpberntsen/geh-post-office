@@ -61,14 +61,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
         }
 
         public async Task<IBundle> CreateBundleAsync(
-            IEnumerable<DataAvailableNotification> dataAvailableNotifications)
+            IEnumerable<DataAvailableNotification> dataAvailableNotifications,
+            Uri contentPath)
         {
             var availableNotifications = dataAvailableNotifications.ToList();
 
             if (!availableNotifications.Any())
                 throw new ArgumentOutOfRangeException(nameof(dataAvailableNotifications));
 
-            // TODO: Fetch data from subdomain here and add path to bundle document
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid().ToString()),
                 availableNotifications.Select(x => x.NotificationId));

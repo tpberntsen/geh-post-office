@@ -22,7 +22,7 @@ using Energinet.DataHub.PostOffice.Infrastructure.Services;
 
 namespace Energinet.DataHub.PostOffice.Domain.Services
 {
-    internal class RequestBundleDomainService : IRequestBundleDomainService
+    public class RequestBundleDomainService : IRequestBundleDomainService
     {
         private readonly IServiceBusService _serviceBusService;
         public RequestBundleDomainService(IServiceBusService serviceBusService)

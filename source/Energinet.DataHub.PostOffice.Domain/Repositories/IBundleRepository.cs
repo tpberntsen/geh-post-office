@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
@@ -33,9 +34,10 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// <summary>
         /// Create a new bundle containing supplied dataAvailableNotifications
         /// </summary>
-        /// <param name="dataAvailableNotifications"></param>
+        /// <param name="dataAvailableNotifications">The notifications included in the bundle</param>
+        /// <param name="contentPath">The path to the content i blob storage</param>
         /// <returns>Bundle</returns>
-        Task<IBundle> CreateBundleAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications);
+        Task<IBundle> CreateBundleAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications, Uri contentPath);
 
         /// <summary>
         /// Acknowledges the bundle with the specified bundle id.

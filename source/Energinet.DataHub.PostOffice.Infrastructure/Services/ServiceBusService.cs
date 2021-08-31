@@ -32,9 +32,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
             _serviceBusClient = serviceBusClient;
         }
 
-        public async Task<RequestDataSession> RequestBundledDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, SubDomain origin)
+        public async Task<RequestDataSession> RequestBundledDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, SubDomain subDomain)
         {
-            var sender = GetServiceBusSender(origin);
+            var sender = GetServiceBusSender(subDomain);
             var requestDataSession = new RequestDataSession() { Id = new Uuid(System.Guid.NewGuid().ToString()) };
             var requestDatasetMessage = new Contracts.RequestDataset()
                 {
@@ -44,14 +44,17 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
                 new ServiceBusMessage(requestDatasetMessage.ToByteArray()) { SessionId = requestDataSession.Id.Value };
 
             message.ReplyToSessionId = message.SessionId;
-            message.ReplyTo = "returnQueueName";
+            message.ReplyTo = $"sbq-{subDomain.ToString()}-reply";
             await sender.SendMessageAsync(message).ConfigureAwait(false);
             return requestDataSession;
         }
 
-        public async Task<SubDomainReply> WaitForReplyFromSubDomainAsync(RequestDataSession session, SubDomain origin)
+        public async Task<SubDomainReply> WaitForReplyFromSubDomainAsync(RequestDataSession session, SubDomain subDomain)
         {
-            var receiver = await GetServiceBusReciever(session, origin);
+            if (session is null)
+                throw new ArgumentNullException(nameof(session));
+
+            var receiver = await GetServiceBusRecieverAsync(session, subDomain).ConfigureAwait(false);
 
             var received = await receiver
                 .ReceiveMessageAsync(TimeSpan.FromSeconds(3))
@@ -65,26 +68,29 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
             };
         }
 
-        private ServiceBusSender GetServiceBusSender(SubDomain origin) => origin switch
+        private ServiceBusSender GetServiceBusSender(SubDomain subDomain) => subDomain switch
         {
             SubDomain.Aggregations => _serviceBusClient.CreateSender($"sbq-{nameof(SubDomain.Aggregations)}"),
             SubDomain.Charges => _serviceBusClient.CreateSender($"sbq-{nameof(SubDomain.Charges)}"),
             SubDomain.TimeSeries =>_serviceBusClient.CreateSender($"sbq-{nameof(SubDomain.TimeSeries)}"),
-            _ => throw new ArgumentException($"Unknown Origin: {origin}", nameof(origin)),
+            _ => throw new ArgumentException($"Unknown Origin: {subDomain}", nameof(subDomain)),
         };
 
-        private async Task<ServiceBusSessionReceiver> GetServiceBusReciever(RequestDataSession session, SubDomain origin) => origin switch
+        private async Task<ServiceBusSessionReceiver> GetServiceBusRecieverAsync(RequestDataSession session, SubDomain subDomain) => subDomain switch
         {
             SubDomain.Aggregations => await _serviceBusClient.AcceptSessionAsync(
-                $"sbq-{nameof(SubDomain.Aggregations)}",
-                session.Id.Value),
+                $"sbq-{nameof(SubDomain.Aggregations)}-reply",
+                session.Id.Value)
+                .ConfigureAwait(false),
             SubDomain.Charges => await _serviceBusClient.AcceptSessionAsync(
-                $"sbq-{nameof(SubDomain.Charges)}",
-                session.Id.Value),
+                $"sbq-{nameof(SubDomain.Charges)}-reply",
+                session.Id.Value)
+                .ConfigureAwait(false),
             SubDomain.TimeSeries => await _serviceBusClient.AcceptSessionAsync(
-                $"sbq-{nameof(SubDomain.TimeSeries)}",
-                session.Id.Value),
-            _ => throw new ArgumentException($"Unknown Origin: {origin}", nameof(origin)),
+                $"sbq-{nameof(SubDomain.TimeSeries)}-reply",
+                session.Id.Value)
+                .ConfigureAwait(false),
+            _ => throw new ArgumentException($"Unknown Origin: {subDomain}", nameof(subDomain)),
         };
     }
 }

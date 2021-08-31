@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
@@ -22,11 +23,16 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
     {
         private readonly IBundleRepository _bundleRepository;
         private readonly IDataAvailableNotificationRepository _dataAvailableRepository;
+        private readonly IRequestBundleDomainService _requestBundleDomainService;
 
-        public MarketOperatorDataDomainService(IBundleRepository bundleRepository, IDataAvailableNotificationRepository dataAvailableRepository)
+        public MarketOperatorDataDomainService(
+            IBundleRepository bundleRepository,
+            IDataAvailableNotificationRepository dataAvailableRepository,
+            IRequestBundleDomainService requestBundleDomainService)
         {
             _bundleRepository = bundleRepository;
             _dataAvailableRepository = dataAvailableRepository;
+            _requestBundleDomainService = requestBundleDomainService;
         }
 
         public async Task<IBundle?> GetNextUnacknowledgedAsync(MarketOperator recipient)
@@ -43,8 +49,21 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 .GetNextUnacknowledgedAsync(recipient, dataAvailableNotification.ContentType)
                 .ConfigureAwait(false);
 
+            var subDomain = dataAvailableNotification.Origin;
+            var requestSession = await
+                _requestBundleDomainService.RequestBundledDataFromSubDomainAsync(
+                    dataAvailableNotifications,
+                    subDomain)
+                    .ConfigureAwait(false);
+
+            var replyData = await _requestBundleDomainService
+                .WaitForReplyFromSubDomainAsync(requestSession, subDomain)
+                .ConfigureAwait(false);
+            if (!replyData.Success)
+                return null;
+
             return await _bundleRepository
-                .CreateBundleAsync(dataAvailableNotifications)
+                .CreateBundleAsync(dataAvailableNotifications, replyData.UriToContent)
                 .ConfigureAwait(false);
         }
 
