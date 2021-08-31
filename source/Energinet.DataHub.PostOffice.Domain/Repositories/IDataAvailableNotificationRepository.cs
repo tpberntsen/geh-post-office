@@ -19,35 +19,39 @@ using Energinet.DataHub.PostOffice.Domain.Model;
 namespace Energinet.DataHub.PostOffice.Domain.Repositories
 {
     /// <summary>
-    /// Repository for DataAvailableNotifications
+    /// Provides access to DataAvailableNotifications.
     /// </summary>
     public interface IDataAvailableNotificationRepository
     {
         /// <summary>
-        /// Create new DataAvailableNotification
+        /// Saves the given notification as unacknowledged.
         /// </summary>
-        /// <param name="dataAvailableNotification"></param>
-        Task CreateAsync(DataAvailableNotification dataAvailableNotification);
+        /// <param name="dataAvailableNotification">The notification to save.</param>
+        Task SaveAsync(DataAvailableNotification dataAvailableNotification);
 
         /// <summary>
-        /// Peek notifications of a specific type for the recipient
+        /// Gets the next ordered list of unacknowledged notifications of a specific type for the given market operator.
+        /// The list is limited by maximum weight, based on the given content type.
+        /// The list is empty if there are no unacknowledged notifications.
         /// </summary>
-        /// <param name="recipient"></param>
-        /// <param name="messageType"></param>
-        /// <returns>IEnumerable of DataAvailNotification</returns>
-        Task<IEnumerable<DataAvailableNotification>> PeekAsync(Recipient recipient, MessageType messageType);
+        /// <param name="recipient">The market operator to get the notifications for.</param>
+        /// <param name="contentType">The content type used to filter the notitications.</param>
+        /// <returns>An ordered list of unacknowledged notifications for the given market operator and content type.</returns>
+        Task<IEnumerable<DataAvailableNotification>> GetNextUnacknowledgedAsync(MarketOperator recipient, ContentType contentType);
 
         /// <summary>
-        /// Peek top DataAvailableNotification for recipient
+        /// Gets the next unacknowledged notification for the given market operator.
+        /// Returns null, if there are no unacknowledged notifications.
         /// </summary>
-        /// <param name="recipient"></param>
-        /// <returns>Notification</returns>
-        Task<DataAvailableNotification?> PeekAsync(Recipient recipient);
+        /// <param name="recipient">The market operator to get the next notification for.</param>
+        /// <returns>The next unacknowledged notification; or null, if there are no unacknowledged notifications.</returns>
+        Task<DataAvailableNotification?> GetNextUnacknowledgedAsync(MarketOperator recipient);
 
         /// <summary>
-        /// Dequeue notifications
+        /// Acknowledges the specified list of notifications, based on their ids.
+        /// Acknowledged notifications are not returned from GetNextUnacknowledgedAsync.
         /// </summary>
-        /// <param name="dataAvailableNotificationUuids"></param>
-        Task DequeueAsync(IEnumerable<Uuid> dataAvailableNotificationUuids);
+        /// <param name="dataAvailableNotificationUuids">The list of notification ids to acknowledge.</param>
+        Task AcknowledgeAsync(IEnumerable<Uuid> dataAvailableNotificationUuids);
     }
 }

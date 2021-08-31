@@ -16,12 +16,12 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Outbound.Extensions;
+using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Extensions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Energinet.DataHub.PostOffice.Outbound.Functions
+namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
     public class DequeueOrig
     {

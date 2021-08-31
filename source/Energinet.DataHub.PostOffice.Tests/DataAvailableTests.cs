@@ -16,11 +16,10 @@ using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.Commands;
-using Energinet.DataHub.PostOffice.Application.DataAvailable;
 using Energinet.DataHub.PostOffice.Application.Handlers;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
-using Energinet.DataHub.PostOffice.Inbound.Parsing;
+using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Parsing;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using FluentAssertions;
 using Google.Protobuf;
@@ -39,9 +38,9 @@ namespace Energinet.DataHub.PostOffice.Tests
             // Arrange
             var dataAvailableRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
 
-            dataAvailableRepositoryMock.Setup(e => e.CreateAsync(It.IsAny<DataAvailableNotification>())).Returns(Task.CompletedTask);
+            dataAvailableRepositoryMock.Setup(e => e.SaveAsync(It.IsAny<DataAvailableNotification>())).Returns(Task.CompletedTask);
 
-            var command = new DataAvailableCommand(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), Origin.Charges.ToString(), It.IsAny<bool>(), It.IsAny<int>());
+            var command = new DataAvailableNotificationCommand(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), SubDomain.Charges.ToString(), It.IsAny<bool>(), It.IsAny<int>());
             var handler = new DataAvailableNotificationHandler(dataAvailableRepositoryMock.Object);
 
             // Act
@@ -55,7 +54,7 @@ namespace Energinet.DataHub.PostOffice.Tests
         public void Validate_DataAvailable_Protobuf_Contract_Parser()
         {
             // Arrange
-            IMapper<Contracts.DataAvailable, DataAvailableCommand> mapper = new DataAvailableMapper();
+            IMapper<Contracts.DataAvailable, DataAvailableNotificationCommand> mapper = new DataAvailableMapper();
             var dataAvailableContractParser = new DataAvailableContractParser(mapper);
             var dataContract = GetDataAvailableProtobufContract();
             var inputContractBytes = dataContract.ToByteArray();
@@ -64,7 +63,7 @@ namespace Energinet.DataHub.PostOffice.Tests
             var parseResult = dataAvailableContractParser.Parse(inputContractBytes);
 
             // Assert
-            parseResult.UUID.Should().Be(dataContract.UUID);
+            parseResult.Uuid.Should().Be(dataContract.UUID);
         }
 
         private static Contracts.DataAvailable GetDataAvailableProtobufContract()

@@ -19,7 +19,6 @@ limitations under the License.
     <LangVersion>9</LangVersion>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
     <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
-    <RootNamespace>Energinet.DataHub.PostOffice.Outbound</RootNamespace>
     <OutputType>Exe</OutputType>
     <Nullable>enable</Nullable>
   </PropertyGroup>

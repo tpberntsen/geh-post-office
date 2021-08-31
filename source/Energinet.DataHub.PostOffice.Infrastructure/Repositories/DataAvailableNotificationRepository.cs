@@ -36,16 +36,16 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             _container = cosmosClient.GetContainer(cosmosConfig.DatabaseId, ContainerName);
         }
 
-        public async Task CreateAsync(DataAvailableNotification dataAvailableNotification)
+        public async Task SaveAsync(DataAvailableNotification dataAvailableNotification)
         {
             if (dataAvailableNotification is null)
                 throw new ArgumentNullException(nameof(dataAvailableNotification));
 
             var cosmosDocument = new CosmosDataAvailable
             {
-                Uuid = dataAvailableNotification.Id.Value,
+                Uuid = dataAvailableNotification.NotificationId.Value,
                 Recipient = dataAvailableNotification.Recipient.Value,
-                MessageType = dataAvailableNotification.MessageType.Type,
+                MessageType = dataAvailableNotification.ContentType.Type,
                 Origin = dataAvailableNotification.Origin.ToString(),
                 RelativeWeight = dataAvailableNotification.Weight.Value,
                 Priority = 1M,
@@ -56,21 +56,21 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 throw new InvalidOperationException("Could not create document in cosmos");
         }
 
-        public async Task<IEnumerable<DataAvailableNotification>> PeekAsync(Recipient recipient, MessageType messageType)
+        public async Task<IEnumerable<DataAvailableNotification>> GetNextUnacknowledgedAsync(MarketOperator recipient, ContentType contentType)
         {
             if (recipient is null)
                 throw new ArgumentNullException(nameof(recipient));
-            if (messageType is null)
-                throw new ArgumentNullException(nameof(messageType));
+            if (contentType is null)
+                throw new ArgumentNullException(nameof(contentType));
 
             const string queryString = "SELECT * FROM c WHERE c.recipient = @recipient AND c.acknowledge = false AND c.messageType = @messageType ORDER BY c._ts ASC OFFSET 0 LIMIT 1";
-            var parameters = new List<KeyValuePair<string, string>> { new("recipient", recipient.Value), new("messageType", messageType.Type) };
+            var parameters = new List<KeyValuePair<string, string>> { new("recipient", recipient.Value), new("messageType", contentType.Type) };
 
             var documents = await GetDocumentsAsync(queryString, parameters).ConfigureAwait(false);
             return documents;
         }
 
-        public async Task<DataAvailableNotification?> PeekAsync(Recipient recipient)
+        public async Task<DataAvailableNotification?> GetNextUnacknowledgedAsync(MarketOperator recipient)
         {
             if (recipient is null)
                 throw new ArgumentNullException(nameof(recipient));
@@ -84,7 +84,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             return document;
         }
 
-        public async Task DequeueAsync(IEnumerable<Uuid> dataAvailableNotificationUuids)
+        public async Task AcknowledgeAsync(IEnumerable<Uuid> dataAvailableNotificationUuids)
         {
             if (dataAvailableNotificationUuids is null)
                 throw new ArgumentNullException(nameof(dataAvailableNotificationUuids));
@@ -124,9 +124,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     var documents = documentsFromCosmos
                         .Select(document => new DataAvailableNotification(
                             new Uuid(document.Uuid),
-                            new Recipient(document.Recipient),
-                            new MessageType(document.RelativeWeight, document.MessageType),
-                            Enum.Parse<Origin>(document.Origin, true),
+                            new MarketOperator(document.Recipient),
+                            new ContentType(document.RelativeWeight, document.MessageType),
+                            Enum.Parse<SubDomain>(document.Origin, true),
                             new Weight(document.RelativeWeight)));
 
                     documentsResult.AddRange(documents);

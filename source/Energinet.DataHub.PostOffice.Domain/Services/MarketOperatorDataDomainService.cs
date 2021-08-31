@@ -18,29 +18,29 @@ using Energinet.DataHub.PostOffice.Domain.Repositories;
 
 namespace Energinet.DataHub.PostOffice.Domain.Services
 {
-    public sealed class WarehouseDomainService : IWarehouseDomainService
+    public sealed class MarketOperatorDataDomainService : IMarketOperatorDataDomainService
     {
         private readonly IBundleRepository _bundleRepository;
         private readonly IDataAvailableNotificationRepository _dataAvailableRepository;
 
-        public WarehouseDomainService(IBundleRepository bundleRepository, IDataAvailableNotificationRepository dataAvailableRepository)
+        public MarketOperatorDataDomainService(IBundleRepository bundleRepository, IDataAvailableNotificationRepository dataAvailableRepository)
         {
             _bundleRepository = bundleRepository;
             _dataAvailableRepository = dataAvailableRepository;
         }
 
-        public async Task<IBundle?> PeekAsync(Recipient recipient)
+        public async Task<IBundle?> GetNextUnacknowledgedAsync(MarketOperator recipient)
         {
-            var bundle = await _bundleRepository.PeekAsync(recipient).ConfigureAwait(false);
+            var bundle = await _bundleRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
             if (bundle != null)
                 return bundle;
 
-            var dataAvailableNotification = await _dataAvailableRepository.PeekAsync(recipient).ConfigureAwait(false);
+            var dataAvailableNotification = await _dataAvailableRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
             if (dataAvailableNotification == null)
                 return null;
 
             var dataAvailableNotifications = await _dataAvailableRepository
-                .PeekAsync(recipient, dataAvailableNotification.MessageType)
+                .GetNextUnacknowledgedAsync(recipient, dataAvailableNotification.ContentType)
                 .ConfigureAwait(false);
 
             return await _bundleRepository
@@ -48,14 +48,14 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 .ConfigureAwait(false);
         }
 
-        public async Task<bool> TryDequeueAsync(Recipient recipient, Uuid expectedId)
+        public async Task<bool> TryAcknowledgeAsync(MarketOperator recipient, Uuid bundleId)
         {
-            var bundle = await _bundleRepository.PeekAsync(recipient).ConfigureAwait(false);
-            if (bundle == null || bundle.Id != expectedId)
+            var bundle = await _bundleRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
+            if (bundle == null || bundle.BundleId != bundleId)
                 return false;
 
-            await _dataAvailableRepository.DequeueAsync(bundle.NotificationsIds).ConfigureAwait(false);
-            await _bundleRepository.DequeueAsync(bundle.Id).ConfigureAwait(false);
+            await _dataAvailableRepository.AcknowledgeAsync(bundle.NotificationIds).ConfigureAwait(false);
+            await _bundleRepository.AcknowledgeAsync(bundle.BundleId).ConfigureAwait(false);
             return true;
         }
     }

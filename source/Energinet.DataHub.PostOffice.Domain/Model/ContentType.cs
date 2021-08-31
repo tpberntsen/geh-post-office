@@ -14,5 +14,5 @@
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public record MessageType(int MaxWeight, string Type);
+    public record ContentType(int MaxWeight, string Type);
 }
