@@ -61,15 +61,15 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
 
             var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
             var recipient = new MarketOperator(dataAvailableCommand.Recipient);
-            var messageType = new ContentType(1, dataAvailableCommand.MessageType);
+            const ContentType contentType = ContentType.TimeSeries;
 
             // Act
             var result = await mediator.Send(dataAvailableCommand, CancellationToken.None).ConfigureAwait(false);
-            var dataAvailablePeekResult = await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipient, messageType).ConfigureAwait(false);
+            var dataAvailablePeekResult = await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipient, contentType, new Weight(1)).ConfigureAwait(false);
 
             // Assert
             dataAvailablePeekResult.Should().NotBeNullOrEmpty();
-            dataAvailablePeekResult?.Should().Contain(e => messageType.Type.Equals(e.ContentType.Type, StringComparison.Ordinal));
+            dataAvailablePeekResult?.Should().Contain(e => contentType == e.ContentType);
         }
 
         [Fact]
@@ -101,8 +101,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
             return new(
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
-                "address-change",
-                SubDomain.Charges.ToString(),
+                ContentType.TimeSeries.ToString(),
+                DomainOrigin.Charges.ToString(),
                 false,
                 1);
         }

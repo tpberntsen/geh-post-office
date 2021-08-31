@@ -66,7 +66,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             {
                 Uuid = document.Uuid,
                 Recipient = document.Recipient,
-                MessageType = document.MessageType,
+                ContentType = document.MessageType,
                 Origin = document.Origin,
                 SupportsBundling = document.SupportsBundling,
                 RelativeWeight = document.RelativeWeight,
@@ -100,7 +100,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     .Select(document => new DataAvailable(
                         document.Uuid,
                         document.Recipient,
-                        document.MessageType,
+                        document.ContentType,
                         document.Origin,
                         document.SupportsBundling,
                         document.RelativeWeight,

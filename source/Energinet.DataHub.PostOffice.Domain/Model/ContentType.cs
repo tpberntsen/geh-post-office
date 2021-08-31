@@ -14,5 +14,9 @@
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public record ContentType(int MaxWeight, string Type);
+    public enum ContentType
+    {
+        Unknown = 0,
+        TimeSeries = 1,
+    }
 }

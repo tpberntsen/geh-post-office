@@ -14,7 +14,7 @@
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public enum SubDomain
+    public enum DomainOrigin
     {
         Unknown = 0,
         Charges = 1,
