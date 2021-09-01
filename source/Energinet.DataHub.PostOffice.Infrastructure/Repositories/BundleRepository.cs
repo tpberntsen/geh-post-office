@@ -14,10 +14,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Entities;
@@ -31,6 +32,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
     public class BundleRepository : IBundleRepository
     {
         private IBundleRepositoryContainer _repositoryContainer;
+
         public BundleRepository(IBundleRepositoryContainer repositoryContainer)
         {
             _repositoryContainer = repositoryContainer;
@@ -43,7 +45,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var documentQuery =
                 new QueryDefinition(
-                    "SELECT * FROM c WHERE c.recipient = @recipient AND c.dequeued = @dequeued ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
+                        "SELECT * FROM c WHERE c.recipient = @recipient AND c.dequeued = @dequeued ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
                     .WithParameter("@recipient", recipient.Value)
                     .WithParameter("@dequeued", false);
 
@@ -55,10 +57,23 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     .ReadNextAsync()
                     .ConfigureAwait(false);
 
-            var documents = documentsFromCosmos
-                .Select(BundleMapper.MapFromDocument);
+            var document = documentsFromCosmos
+                .FirstOrDefault();
 
-            return documents.FirstOrDefault();
+            if (document is null)
+                return null;
+
+            return new Bundle(new Uuid(document.Id), document.NotificationsIds.Select(x => new Uuid(x)), async () =>
+            {
+                var connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
+                var blobServiceClient = new BlobServiceClient(connectionString);
+                var container = blobServiceClient.GetBlobContainerClient(Environment.GetEnvironmentVariable("BlobStorageContainerName"));
+                await container.CreateIfNotExistsAsync().ConfigureAwait(false);
+                var blob = container.GetBlobClient(recipient + "/" + document.Id);
+
+                var response = await blob.DownloadStreamingAsync().ConfigureAwait(false);
+                return response.Value.Content;
+            });
         }
 
         public async Task<IBundle> CreateBundleAsync(
@@ -72,7 +87,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             // TODO: Fetch data from subdomain here and add path to bundle document
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid().ToString()),
-                availableNotifications.Select(x => x.Id));
+                availableNotifications.Select(x => x.Id),
+                () => Task.FromResult(Stream.Null));
             var recipient = availableNotifications.First().Recipient;
 
             var messageDocument = BundleMapper.MapToDocument(bundle, recipient);

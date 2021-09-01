@@ -21,18 +21,20 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
 {
     public class Bundle : IBundle
     {
-        public Bundle(Uuid id, IEnumerable<Uuid> notificationsIds)
+        private readonly Func<Task<Stream>> _getStream;
+        public Bundle(Uuid id, IEnumerable<Uuid> notificationsIds, Func<Task<Stream>> getStream)
         {
             Id = id;
             NotificationsIds = notificationsIds;
+            _getStream = getStream;
         }
 
         public Uuid Id { get; }
         public IEnumerable<Uuid> NotificationsIds { get; }
 
-        public Task<Stream> OpenAsync()
+        public async Task<Stream> OpenAsync()
         {
-            throw new NotImplementedException();
+            return await _getStream();
         }
     }
 }

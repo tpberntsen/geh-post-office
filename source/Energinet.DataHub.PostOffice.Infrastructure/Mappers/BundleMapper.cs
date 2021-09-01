@@ -20,13 +20,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
     internal static class BundleMapper
     {
-        public static Bundle MapFromDocument(BundleDocument from)
-        {
-            return new Bundle(
-                new Uuid(from.Id),
-                from.NotificationsIds.Select(x => new Uuid(x)));
-        }
-
         public static BundleDocument MapToDocument(IBundle from, Recipient recipient)
         {
             return new BundleDocument()
