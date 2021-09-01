@@ -24,11 +24,11 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
     public class DequeueHandler : IRequestHandler<Commands.DequeueCommand, DequeueResponse>
     {
-        private readonly IWarehouseDomainService _warehouseDomainService;
+        private readonly IMarketOperatorDataDomainService _marketOperatorDataDomainService;
 
-        public DequeueHandler(IWarehouseDomainService warehouseDomainService)
+        public DequeueHandler(IMarketOperatorDataDomainService marketOperatorDataDomainService)
         {
-            _warehouseDomainService = warehouseDomainService;
+            _marketOperatorDataDomainService = marketOperatorDataDomainService;
         }
 
         public async Task<DequeueResponse> Handle(Commands.DequeueCommand request, CancellationToken cancellationToken)
@@ -36,8 +36,8 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             if (request is null)
                 throw new ArgumentNullException(nameof(request));
 
-            var isDequeued = await _warehouseDomainService
-                .TryDequeueAsync(new Recipient(request.Recipient), new Uuid(request.BundleUuid))
+            var isDequeued = await _marketOperatorDataDomainService
+                .TryAcknowledgeAsync(new MarketOperator(request.Recipient), new Uuid(request.BundleUuid))
                 .ConfigureAwait(false);
 
             return new DequeueResponse(isDequeued);

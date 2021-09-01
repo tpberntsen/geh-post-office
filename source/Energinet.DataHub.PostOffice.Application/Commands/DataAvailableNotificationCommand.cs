@@ -12,26 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Application.Commands;
 using MediatR;
 
-namespace Energinet.DataHub.PostOffice.Application.DataAvailable
+namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public record DataAvailableCommand : IRequest<DataAvailableNotificationResponse>
+    public record DataAvailableNotificationCommand : IRequest<DataAvailableNotificationResponse>
     {
-        public DataAvailableCommand(string uuid, string recipient, string messageType, string origin, bool supportsBundling, int relativeWeight)
+        public DataAvailableNotificationCommand(
+            string uuid,
+            string recipient,
+            string contentType,
+            string origin,
+            bool supportsBundling,
+            int relativeWeight)
         {
-            UUID = uuid;
+            Uuid = uuid;
             Recipient = recipient;
-            MessageType = messageType;
+            ContentType = contentType;
             Origin = origin;
             SupportsBundling = supportsBundling;
             RelativeWeight = relativeWeight;
         }
 
-        public string UUID { get; }
+        public string Uuid { get; }
         public string Recipient { get; }
-        public string MessageType { get; }
+        public string ContentType { get; }
         public string Origin { get; }
         public bool SupportsBundling { get; }
         public int RelativeWeight { get; }

@@ -11,7 +11,7 @@
 // // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
-using System;
+
 using System.Linq;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Entities;
@@ -25,8 +25,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
             return new BundleDocument()
             {
                 Recipient = recipient.Value,
-                Id = from.Id.Value,
-                NotificationsIds = from.NotificationsIds.Select(x => x.Value).ToList(),
+                Id = from.BundleId.Value,
+                NotificationsIds = from.NotificationIds.Select(x => x.Value).ToList(),
                 Dequeued = false
             };
         }

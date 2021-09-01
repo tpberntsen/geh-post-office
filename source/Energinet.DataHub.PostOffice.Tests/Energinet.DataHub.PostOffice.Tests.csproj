@@ -27,7 +27,8 @@ limitations under the License.
   <ItemGroup>
     <ProjectReference Include="..\Energinet.DataHub.PostOffice.Application\Energinet.DataHub.PostOffice.Application.csproj" />
     <ProjectReference Include="..\Energinet.DataHub.PostOffice.Domain\Energinet.DataHub.PostOffice.Domain.csproj" />
-    <ProjectReference Include="..\Energinet.DataHub.PostOffice.Inbound\Energinet.DataHub.PostOffice.Inbound.csproj" />
+    <ProjectReference Include="..\Energinet.DataHub.PostOffice.EntryPoint.SubDomain\Energinet.DataHub.PostOffice.EntryPoint.SubDomain.csproj" />
+    <ProjectReference Include="..\Energinet.DataHub.PostOffice.EntryPoint.MarketOperator\Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.csproj" />
     <ProjectReference Include="..\Energinet.DataHub.PostOffice.Infrastructure\Energinet.DataHub.PostOffice.Infrastructure.csproj" />
   </ItemGroup>
 

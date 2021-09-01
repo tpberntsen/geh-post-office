@@ -14,7 +14,7 @@
 
 using Newtonsoft.Json;
 
-namespace Energinet.DataHub.PostOffice.Infrastructure.Entities
+namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 {
     public class MessageReplyDocument
     {

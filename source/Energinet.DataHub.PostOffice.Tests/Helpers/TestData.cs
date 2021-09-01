@@ -14,7 +14,6 @@
 
 using System.Collections.Generic;
 using Energinet.DataHub.PostOffice.Domain;
-using Energinet.DataHub.PostOffice.Infrastructure;
 using Moq;
 
 namespace Energinet.DataHub.PostOffice.Tests.Helpers
@@ -34,26 +33,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Helpers
                     It.IsAny<bool>(),
                     It.IsAny<int>(),
                     It.IsAny<int>()));
-            }
-
-            return list;
-        }
-
-        public static IEnumerable<CosmosDataAvailable> GetRandomValidCosmosDataAvailables(int number)
-        {
-            var list = new List<CosmosDataAvailable>();
-            for (var i = 0; i < number; i++)
-            {
-                list.Add(new CosmosDataAvailable()
-                {
-                    Id = It.IsAny<string>(),
-                    Recipient = It.IsAny<string>(),
-                    MessageType = It.IsAny<string>(),
-                    Origin = It.IsAny<string>(),
-                    SupportsBundling = It.IsAny<bool>(),
-                    RelativeWeight = It.IsAny<int>(),
-                    Priority = It.IsAny<int>(),
-                });
             }
 
             return list;

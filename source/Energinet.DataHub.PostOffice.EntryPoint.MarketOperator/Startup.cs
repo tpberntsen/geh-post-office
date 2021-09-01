@@ -14,11 +14,11 @@
 
 using System;
 using Energinet.DataHub.PostOffice.Common;
-using Energinet.DataHub.PostOffice.Outbound.Functions;
+using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
 using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;
 
-namespace Energinet.DataHub.PostOffice.Outbound
+namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
 {
     public sealed class Startup : StartupBase
     {

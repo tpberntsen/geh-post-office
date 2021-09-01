@@ -16,10 +16,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Domain;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
-using Energinet.DataHub.PostOffice.Infrastructure.Entities;
-using Energinet.DataHub.PostOffice.Infrastructure.MessageReplyStorage;
+using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories

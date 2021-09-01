@@ -22,15 +22,15 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
     public class Bundle : IBundle
     {
         private readonly Func<Task<Stream>> _getStream;
-        public Bundle(Uuid id, IEnumerable<Uuid> notificationsIds, Func<Task<Stream>> getStream)
+        public Bundle(Uuid bundleId, IEnumerable<Uuid> notificationIds, Func<Task<Stream>> getStream)
         {
-            Id = id;
-            NotificationsIds = notificationsIds;
+            BundleId = bundleId;
+            NotificationIds = notificationIds;
             _getStream = getStream;
         }
 
-        public Uuid Id { get; }
-        public IEnumerable<Uuid> NotificationsIds { get; }
+        public Uuid BundleId { get; }
+        public IEnumerable<Uuid> NotificationIds { get; }
 
         public async Task<Stream> OpenAsync()
         {

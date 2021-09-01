@@ -19,7 +19,7 @@ using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
 using Microsoft.Azure.Functions.Worker.Http;
 
-namespace Energinet.DataHub.PostOffice.Outbound.Extensions
+namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Extensions
 {
     public static class HttpRequestExtensions
     {

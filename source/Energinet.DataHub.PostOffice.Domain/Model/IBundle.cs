@@ -19,24 +19,25 @@ using System.Threading.Tasks;
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
     /// <summary>
-    /// Bundle of data
+    /// Represents potentially bundled data returned from a sub domain.
     /// </summary>
     public interface IBundle
     {
         /// <summary>
-        /// Id of Bundle
+        /// Uniquely indentifies a bundle in the entire system.
         /// </summary>
-        Uuid Id { get; }
+        Uuid BundleId { get; }
 
         /// <summary>
-        /// Ids of included notifications
+        /// Notifications contained in the bundle.
         /// </summary>
-        IEnumerable<Uuid> NotificationsIds { get; }
+        IEnumerable<Uuid> NotificationIds { get; }
 
         /// <summary>
-        /// Open stream for reading
+        /// Opens a stream to the content contained within the bundle.
+        /// It is the responsibility of the caller to close the stream after use.
         /// </summary>
-        /// <returns>Stream</returns>
+        /// <returns>A stream to the content contained within the bundle.</returns>
         Task<Stream> OpenAsync();
     }
 }

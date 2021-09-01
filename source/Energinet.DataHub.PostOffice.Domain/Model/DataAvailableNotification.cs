@@ -16,19 +16,24 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
 {
     public class DataAvailableNotification
     {
-        public DataAvailableNotification(Uuid id, Recipient recipient, MessageType messageType, Origin origin, Weight weight)
+        public DataAvailableNotification(
+            Uuid notificationId,
+            MarketOperator recipient,
+            ContentType contentType,
+            DomainOrigin origin,
+            Weight weight)
         {
-            Id = id;
+            NotificationId = notificationId;
             Recipient = recipient;
-            MessageType = messageType;
+            ContentType = contentType;
             Origin = origin;
             Weight = weight;
         }
 
-        public Uuid Id { get; }
-        public Recipient Recipient { get; }
-        public MessageType MessageType { get; }
-        public Origin Origin { get; }
+        public Uuid NotificationId { get; }
+        public MarketOperator Recipient { get; }
+        public ContentType ContentType { get; }
+        public DomainOrigin Origin { get; }
         public Weight Weight { get; }
     }
 }

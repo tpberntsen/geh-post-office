@@ -32,16 +32,15 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         public async Task CreateBundle_Should_Return_Bundle()
         {
             // Arrange
-            var recipient = new Recipient(System.Guid.NewGuid().ToString());
-            var messageType = new MessageType(1, "fake_value");
+            var recipient = new MarketOperator(System.Guid.NewGuid().ToString());
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
 
             var dataAvailableNotificationIds = new List<DataAvailableNotification>()
             {
-                CreateDataAvailableNotifications(recipient, messageType),
-                CreateDataAvailableNotifications(recipient, messageType),
-                CreateDataAvailableNotifications(recipient, messageType)
+                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
+                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
+                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries)
             };
             var client = scope.GetInstance<CosmosClient>();
             var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
@@ -52,22 +51,21 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             //Assert
             Assert.NotNull(bundle);
-            Assert.Equal(3, bundle.NotificationsIds.Count());
+            Assert.Equal(3, bundle.NotificationIds.Count());
         }
 
         [Fact]
         public async Task Peek_Should_Return_Bundle_Created_For_Same_Recipient()
         {
             // Arrange
-            var recipient = new Recipient(System.Guid.NewGuid().ToString());
-            var messageType = new MessageType(1, "fake_value");
+            var recipient = new MarketOperator(System.Guid.NewGuid().ToString());
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
             var dataAvailableNotifications = new List<DataAvailableNotification>()
             {
-                CreateDataAvailableNotifications(recipient, messageType),
-                CreateDataAvailableNotifications(recipient, messageType),
-                CreateDataAvailableNotifications(recipient, messageType),
+                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
+                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
+                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
             };
             var client = scope.GetInstance<CosmosClient>();
             var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
@@ -78,23 +76,22 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 .ConfigureAwait(false);
 
             var peakBundle = await bundleRepository
-                .PeekAsync(recipient)
+                .GetNextUnacknowledgedAsync(recipient)
                 .ConfigureAwait(false);
 
             //Assert
             Assert.NotNull(createdBundle);
             Assert.NotNull(peakBundle);
-            Assert.Equal(createdBundle?.Id, peakBundle?.Id);
-            Assert.Equal(createdBundle?.NotificationsIds.Count(), peakBundle?.NotificationsIds.Count());
-            Assert.True(createdBundle!.NotificationsIds.All(x => peakBundle!.NotificationsIds.Contains(x)));
+            Assert.Equal(createdBundle.BundleId, peakBundle?.BundleId);
+            Assert.Equal(createdBundle.NotificationIds.Count(), peakBundle?.NotificationIds.Count());
+            Assert.True(createdBundle.NotificationIds.All(x => peakBundle!.NotificationIds.Contains(x)));
         }
 
         [Fact]
         public async Task Peek_Should_Not_Return_Bundle_Created_For_Another_Recipient()
         {
-            var recipient = new Recipient(System.Guid.NewGuid().ToString());
-            var peakRecipient = new Recipient(System.Guid.NewGuid().ToString());
-            var messageType = new MessageType(1, "fake_value");
+            var recipient = new MarketOperator(System.Guid.NewGuid().ToString());
+            var peakRecipient = new MarketOperator(System.Guid.NewGuid().ToString());
             await using var host = await InboundIntegrationTestHost
                 .InitializeAsync()
                 .ConfigureAwait(false);
@@ -102,7 +99,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var scope = host.BeginScope();
             var dataAvailableNotifications = new List<DataAvailableNotification>()
             {
-                CreateDataAvailableNotifications(recipient, messageType)
+                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries)
             };
             var client = scope.GetInstance<CosmosClient>();
             var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
@@ -112,7 +109,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 .CreateBundleAsync(dataAvailableNotifications)
                 .ConfigureAwait(false);
             var peakBundle = await bundleRepository
-                .PeekAsync(peakRecipient)
+                .GetNextUnacknowledgedAsync(peakRecipient)
                 .ConfigureAwait(false);
 
             //Assert
@@ -123,13 +120,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         [Fact]
         public async Task Dequeue_Should_Set_Bundle_Dequeued()
         {
-            var recipient = new Recipient(System.Guid.NewGuid().ToString());
+            var recipient = new MarketOperator(System.Guid.NewGuid().ToString());
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
-            var messageType = new MessageType(1, "fake_value");
             var dataAvailableNotifications = new List<DataAvailableNotification>()
             {
-                CreateDataAvailableNotifications(recipient, messageType),
+                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
             };
             var client = scope.GetInstance<CosmosClient>();
             var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
@@ -140,11 +136,11 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 .ConfigureAwait(false);
 
             await bundleRepository
-                .DequeueAsync(createdBundle.Id)
+                .AcknowledgeAsync(createdBundle.BundleId)
                 .ConfigureAwait(false);
 
             var peakResult = await bundleRepository
-                .PeekAsync(recipient)
+                .GetNextUnacknowledgedAsync(recipient)
                 .ConfigureAwait(false);
 
             //Assert
@@ -153,14 +149,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         }
 
         private static DataAvailableNotification CreateDataAvailableNotifications(
-            Recipient recipient,
-            MessageType messageType)
+            MarketOperator recipient,
+            ContentType contentType)
         {
             return new DataAvailableNotification(
                 new Uuid(System.Guid.NewGuid().ToString()),
                 recipient,
-                messageType,
-                Origin.TimeSeries,
+                contentType,
+                DomainOrigin.TimeSeries,
                 new Weight(1));
         }
     }

@@ -12,27 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Diagnostics.CodeAnalysis;
-using System.Text.Json.Serialization;
-
 namespace Energinet.DataHub.PostOffice.Infrastructure
 {
     public class CosmosDataAvailable
     {
         public CosmosDataAvailable()
         {
+            Id = System.Guid.NewGuid().ToString();
             Uuid = null!;
-            MessageType = null!;
+            ContentType = null!;
             Origin = null!;
             Recipient = null!;
-            Id = System.Guid.NewGuid().ToString();
         }
 
         public string Id { get; set; }
 
         public string Uuid { get; set; }
 
-        public string MessageType { get; set; }
+        public string ContentType { get; set; }
 
         public string Origin { get; set; }
 
@@ -46,5 +43,4 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 
         public bool Acknowledge { get; set; }
     }
-#nullable restore
 }

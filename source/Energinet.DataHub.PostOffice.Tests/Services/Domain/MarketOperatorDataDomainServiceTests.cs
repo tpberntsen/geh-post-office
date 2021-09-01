@@ -24,111 +24,124 @@ using Xunit.Categories;
 namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 {
     [UnitTest]
-    public sealed class WarehouseDomainServiceTests
+    public sealed class MarketOperatorDataDomainServiceTests
     {
         [Fact]
-        public async Task PeekAsync_NoMessagesReady_ReturnsNull()
+        public async Task GetNextUnacknowledgedAsync_NoMessagesReady_ReturnsNull()
         {
             // Arrange
-            var recipient = new Recipient("fake_value");
+            var recipient = new MarketOperator("fake_value");
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
-                .Setup(x => x.PeekAsync(recipient))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync((DataAvailableNotification?)null);
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
-                .Setup(x => x.PeekAsync(recipient))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync((IBundle?)null);
 
-            var target = new WarehouseDomainService(
+            var contentTypeWeightMap = new Mock<IWeightCalculatorDomainService>();
+
+            var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
-                dataAvailableNotificationRepositoryMock.Object);
+                dataAvailableNotificationRepositoryMock.Object,
+                contentTypeWeightMap.Object);
 
             // Act
-            var bundle = await target.PeekAsync(recipient).ConfigureAwait(false);
+            var bundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
 
             // Assert
             Assert.Null(bundle);
         }
 
         [Fact]
-        public async Task PeekAsync_MessagesReady_ReturnsBundle()
+        public async Task GetNextUnacknowledgedAsync_MessagesReady_ReturnsBundle()
         {
             // Arrange
-            var recipient = new Recipient("fake_value");
-            var messageType = new MessageType(5, "fake_value");
+            var recipient = new MarketOperator("fake_value");
 
-            var dataAvailableNotificationFirst = CreateDataAvailableNotification(recipient, messageType);
+            var dataAvailableNotificationFirst = CreateDataAvailableNotification(recipient, ContentType.TimeSeries);
             var allDataAvailableNotificationsForMessageType = new[]
             {
                 dataAvailableNotificationFirst,
-                CreateDataAvailableNotification(recipient, messageType),
-                CreateDataAvailableNotification(recipient, messageType),
-                CreateDataAvailableNotification(recipient, messageType)
+                CreateDataAvailableNotification(recipient, ContentType.TimeSeries),
+                CreateDataAvailableNotification(recipient, ContentType.TimeSeries),
+                CreateDataAvailableNotification(recipient, ContentType.TimeSeries)
             };
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
-                .Setup(x => x.PeekAsync(recipient))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync(dataAvailableNotificationFirst);
 
+            var weight = new Weight(1);
+
+            var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
+            contentTypeWeightMapMock
+                .Setup(x => x.CalculateMaxWeight(ContentType.TimeSeries))
+                .Returns(weight);
+
             dataAvailableNotificationRepositoryMock
-                .Setup(x => x.PeekAsync(recipient, messageType))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, ContentType.TimeSeries, weight))
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var bundleMock = new Mock<IBundle>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
-                .Setup(x => x.PeekAsync(recipient))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync((IBundle?)null);
 
             bundleRepositoryMock
                 .Setup(x => x.CreateBundleAsync(allDataAvailableNotificationsForMessageType))
                 .ReturnsAsync(bundleMock.Object);
 
-            var target = new WarehouseDomainService(
+            var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
-                dataAvailableNotificationRepositoryMock.Object);
+                dataAvailableNotificationRepositoryMock.Object,
+                contentTypeWeightMapMock.Object);
 
             // Act
-            var bundle = await target.PeekAsync(recipient).ConfigureAwait(false);
+            var bundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(bundleMock.Object, bundle);
         }
 
         [Fact]
-        public async Task PeekAsync_HasBundleNotYetDequeued_ReturnsThatPreviousBundle()
+        public async Task GetNextUnacknowledgedAsync_HasBundleNotYetDequeued_ReturnsThatPreviousBundle()
         {
             // Arrange
-            var recipient = new Recipient("fake_value");
+            var recipient = new MarketOperator("fake_value");
             var bundleMock = new Mock<IBundle>();
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
-                .Setup(x => x.PeekAsync(recipient))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync(bundleMock.Object);
 
-            var target = new WarehouseDomainService(
+            var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
+
+            var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
-                dataAvailableNotificationRepositoryMock.Object);
+                dataAvailableNotificationRepositoryMock.Object,
+                contentTypeWeightMapMock.Object);
 
             // Act
-            var bundle = await target.PeekAsync(recipient).ConfigureAwait(false);
+            var bundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(bundleMock.Object, bundle);
         }
 
         [Fact]
-        public async Task DequeueAsync_HasBundle_ReturnsTrue()
+        public async Task TryAcknowledgeAsync_HasBundle_ReturnsTrue()
         {
             // Arrange
-            var recipient = new Recipient("fake_value");
+            var recipient = new MarketOperator("fake_value");
             var bundleUuid = new Uuid("1E0A906E-8895-4C86-B4FC-48E9BAF2A2B6");
             var idsInBundle = new[]
             {
@@ -139,94 +152,103 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             };
 
             var bundleMock = new Mock<IBundle>();
-            bundleMock.Setup(x => x.Id).Returns(bundleUuid);
-            bundleMock.Setup(x => x.NotificationsIds).Returns(idsInBundle);
+            bundleMock.Setup(x => x.BundleId).Returns(bundleUuid);
+            bundleMock.Setup(x => x.NotificationIds).Returns(idsInBundle);
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
-                .Setup(x => x.PeekAsync(recipient))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync(bundleMock.Object);
 
-            var target = new WarehouseDomainService(
+            var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
+
+            var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
-                dataAvailableNotificationRepositoryMock.Object);
+                dataAvailableNotificationRepositoryMock.Object,
+                contentTypeWeightMapMock.Object);
 
             // Act
-            var result = await target.TryDequeueAsync(recipient, bundleUuid).ConfigureAwait(false);
+            var result = await target.TryAcknowledgeAsync(recipient, bundleUuid).ConfigureAwait(false);
 
             // Assert
             Assert.True(result);
-            bundleRepositoryMock.Verify(x => x.DequeueAsync(bundleUuid), Times.Once);
-            dataAvailableNotificationRepositoryMock.Verify(x => x.DequeueAsync(idsInBundle), Times.Once);
+            bundleRepositoryMock.Verify(x => x.AcknowledgeAsync(bundleUuid), Times.Once);
+            dataAvailableNotificationRepositoryMock.Verify(x => x.AcknowledgeAsync(idsInBundle), Times.Once);
         }
 
         [Fact]
-        public async Task DequeueAsync_HasNoBundle_ReturnsFalse()
+        public async Task TryAcknowledgeAsync_HasNoBundle_ReturnsFalse()
         {
             // Arrange
-            var recipient = new Recipient("fake_value");
+            var recipient = new MarketOperator("fake_value");
             var bundleUuid = new Uuid("60D041F5-548B-49C0-8118-BB0F3DF1E692");
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
-                .Setup(x => x.PeekAsync(recipient))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync((IBundle?)null);
 
-            var target = new WarehouseDomainService(
+            var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
+
+            var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
-                dataAvailableNotificationRepositoryMock.Object);
+                dataAvailableNotificationRepositoryMock.Object,
+                contentTypeWeightMapMock.Object);
 
             // Act
-            var result = await target.TryDequeueAsync(recipient, bundleUuid).ConfigureAwait(false);
+            var result = await target.TryAcknowledgeAsync(recipient, bundleUuid).ConfigureAwait(false);
 
             // Assert
             Assert.False(result);
-            bundleRepositoryMock.Verify(x => x.DequeueAsync(It.IsAny<Uuid>()), Times.Never);
-            dataAvailableNotificationRepositoryMock.Verify(x => x.DequeueAsync(It.IsAny<IEnumerable<Uuid>>()), Times.Never);
+            bundleRepositoryMock.Verify(x => x.AcknowledgeAsync(It.IsAny<Uuid>()), Times.Never);
+            dataAvailableNotificationRepositoryMock.Verify(x => x.AcknowledgeAsync(It.IsAny<IEnumerable<Uuid>>()), Times.Never);
         }
 
         [Fact]
-        public async Task DequeueAsync_WrongId_ReturnsFalse()
+        public async Task TryAcknowledgeAsync_WrongId_ReturnsFalse()
         {
             // Arrange
-            var recipient = new Recipient("fake_value");
+            var recipient = new MarketOperator("fake_value");
             var bundleUuid = new Uuid("60D041F5-548B-49C0-8118-BB0F3DF1E692");
             var incorrectId = new Uuid("8BF7791E-A179-4B86-AE2F-69B5C276E99F");
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
 
             var bundleMock = new Mock<IBundle>();
-            bundleMock.Setup(x => x.Id).Returns(bundleUuid);
+            bundleMock.Setup(x => x.BundleId).Returns(bundleUuid);
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
-                .Setup(x => x.PeekAsync(recipient))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync(bundleMock.Object);
 
-            var target = new WarehouseDomainService(
+            var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
+
+            var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
-                dataAvailableNotificationRepositoryMock.Object);
+                dataAvailableNotificationRepositoryMock.Object,
+                contentTypeWeightMapMock.Object);
 
             // Act
-            var result = await target.TryDequeueAsync(recipient, incorrectId).ConfigureAwait(false);
+            var result = await target.TryAcknowledgeAsync(recipient, incorrectId).ConfigureAwait(false);
 
             // Assert
             Assert.False(result);
-            bundleRepositoryMock.Verify(x => x.DequeueAsync(It.IsAny<Uuid>()), Times.Never);
-            dataAvailableNotificationRepositoryMock.Verify(x => x.DequeueAsync(It.IsAny<IEnumerable<Uuid>>()), Times.Never);
+            bundleRepositoryMock.Verify(x => x.AcknowledgeAsync(It.IsAny<Uuid>()), Times.Never);
+            dataAvailableNotificationRepositoryMock.Verify(x => x.AcknowledgeAsync(It.IsAny<IEnumerable<Uuid>>()), Times.Never);
         }
 
         private static DataAvailableNotification CreateDataAvailableNotification(
-            Recipient recipient,
-            MessageType messageType)
+            MarketOperator recipient,
+            ContentType contentType)
         {
             return new DataAvailableNotification(
                 new Uuid("fake_value"),
                 recipient,
-                messageType,
-                Origin.TimeSeries,
+                contentType,
+                DomainOrigin.TimeSeries,
                 new Weight(1));
         }
     }

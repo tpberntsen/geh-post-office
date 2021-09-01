@@ -31,14 +31,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
     // todo : correct implementation #136
     public class BundleRepository : IBundleRepository
     {
-        private IBundleRepositoryContainer _repositoryContainer;
+        private readonly IBundleRepositoryContainer _repositoryContainer;
 
         public BundleRepository(IBundleRepositoryContainer repositoryContainer)
         {
             _repositoryContainer = repositoryContainer;
         }
 
-        public async Task<IBundle?> PeekAsync(Recipient recipient)
+        public async Task<IBundle?> GetNextUnacknowledgedAsync(MarketOperator recipient)
         {
             if (recipient is null)
                 throw new ArgumentNullException(nameof(recipient));
@@ -87,7 +87,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             // TODO: Fetch data from subdomain here and add path to bundle document
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid().ToString()),
-                availableNotifications.Select(x => x.Id),
+                availableNotifications.Select(x => x.NotificationId),
                 () => Task.FromResult(Stream.Null));
             var recipient = availableNotifications.First().Recipient;
 
@@ -104,17 +104,18 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             return bundle;
         }
 
-        public async Task DequeueAsync(Uuid id)
+        public async Task AcknowledgeAsync(Uuid bundleId)
         {
-            if (id is null)
-                throw new ArgumentNullException(nameof(id));
+            if (bundleId is null)
+                throw new ArgumentNullException(nameof(bundleId));
 
             var documentQuery =
                 new QueryDefinition("SELECT * FROM c WHERE c.id = @id ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
-                    .WithParameter("@id", id.Value);
+                    .WithParameter("@id", bundleId.Value);
 
-            using FeedIterator<BundleDocument> feedIterator =
-                _repositoryContainer.Container.GetItemQueryIterator<BundleDocument>(documentQuery);
+            using var feedIterator = _repositoryContainer
+                .Container
+                .GetItemQueryIterator<BundleDocument>(documentQuery);
 
             var documentsFromCosmos =
                 await feedIterator

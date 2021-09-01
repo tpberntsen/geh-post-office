@@ -25,11 +25,11 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
     public class PeekHandler : IRequestHandler<PeekCommand, PeekResponse>
     {
-        private readonly IWarehouseDomainService _warehouseDomainService;
+        private readonly IMarketOperatorDataDomainService _marketOperatorDataDomainService;
 
-        public PeekHandler(IWarehouseDomainService warehouseDomainService)
+        public PeekHandler(IMarketOperatorDataDomainService marketOperatorDataDomainService)
         {
-            _warehouseDomainService = warehouseDomainService;
+            _marketOperatorDataDomainService = marketOperatorDataDomainService;
         }
 
         public async Task<PeekResponse> Handle(PeekCommand request, CancellationToken cancellationToken)
@@ -37,8 +37,8 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             if (request is null)
                 throw new ArgumentNullException(nameof(request));
 
-            var bundle = await _warehouseDomainService
-                .PeekAsync(new Recipient(request.Recipient))
+            var bundle = await _marketOperatorDataDomainService
+                .GetNextUnacknowledgedAsync(new MarketOperator(request.Recipient))
                 .ConfigureAwait(false);
 
             return bundle is not null

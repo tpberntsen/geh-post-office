@@ -39,17 +39,14 @@ limitations under the License.
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="DataAvailable\Interfaces\**" />
       <Compile Remove="Validations\**" />
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Remove="DataAvailable\Interfaces\**" />
       <EmbeddedResource Remove="Validations\**" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="DataAvailable\Interfaces\**" />
       <None Remove="Validations\**" />
     </ItemGroup>
 

@@ -19,16 +19,16 @@ using Energinet.DataHub.PostOffice.Domain.Model;
 namespace Energinet.DataHub.PostOffice.Domain.Repositories
 {
     /// <summary>
-    /// BundleRepository
+    /// Provides access to the bundles.
     /// </summary>
     public interface IBundleRepository
     {
         /// <summary>
-        /// Peek a Bundle for a given recipient
+        /// Gets the next bundle from the recipient that has yet to be acknowledged.
         /// </summary>
-        /// <param name="recipient"></param>
-        /// <returns>Bundle</returns>
-        Task<IBundle?> PeekAsync(Recipient recipient);
+        /// <param name="recipient">The market operator to retrieve the next bundle for.</param>
+        /// <returns>The next unacknowledged bundle; or null, if none is available.</returns>
+        Task<IBundle?> GetNextUnacknowledgedAsync(MarketOperator recipient);
 
         /// <summary>
         /// Create a new bundle containing supplied dataAvailableNotifications
@@ -38,10 +38,9 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         Task<IBundle> CreateBundleAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications);
 
         /// <summary>
-        /// Dequeue next bundle for recipient
+        /// Acknowledges the bundle with the specified bundle id.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns>Bundle</returns>
-        Task DequeueAsync(Uuid id);
+        /// <param name="bundleId">The bundle id to acknowledge.</param>
+        Task AcknowledgeAsync(Uuid bundleId);
     }
 }

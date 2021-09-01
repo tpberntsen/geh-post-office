@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Application.DataAvailable;
+using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Application.Validation;
 using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
@@ -33,7 +33,7 @@ namespace Energinet.DataHub.PostOffice.Common
             container.Register<ISendMessageToServiceBus, SendMessageToServiceBus>(Lifestyle.Scoped);
 
             // Validations at AppService level
-            container.Register<IValidator<DataAvailableCommand>, DataAvailableRuleSet>(Lifestyle.Scoped);
+            container.Register<IValidator<DataAvailableNotificationCommand>, DataAvailableRuleSet>(Lifestyle.Scoped);
         }
     }
 }

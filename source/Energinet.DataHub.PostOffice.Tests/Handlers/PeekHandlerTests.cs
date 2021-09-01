@@ -34,7 +34,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         public async Task Handle_NullArgument_ThrowsException()
         {
             // Arrange
-            var warehouseDomainServiceMock = new Mock<IWarehouseDomainService>();
+            var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             var target = new PeekHandler(warehouseDomainServiceMock.Object);
 
             // Act + Assert
@@ -54,9 +54,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 .Setup(x => x.OpenAsync())
                 .ReturnsAsync(() => new MemoryStream(new byte[] { 1, 2, 3 }));
 
-            var warehouseDomainServiceMock = new Mock<IWarehouseDomainService>();
+            var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock
-                .Setup(x => x.PeekAsync(It.Is<Recipient>(r => string.Equals(r.Value, request.Recipient, StringComparison.OrdinalIgnoreCase))))
+                .Setup(x => x.GetNextUnacknowledgedAsync(It.Is<MarketOperator>(r => string.Equals(r.Value, request.Recipient, StringComparison.OrdinalIgnoreCase))))
                 .ReturnsAsync(bundleMock.Object);
 
             var target = new PeekHandler(warehouseDomainServiceMock.Object);
@@ -78,9 +78,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             // Arrange
             var request = new PeekCommand("fake_value");
 
-            var warehouseDomainServiceMock = new Mock<IWarehouseDomainService>();
+            var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock
-                .Setup(x => x.PeekAsync(It.Is<Recipient>(r => string.Equals(r.Value, request.Recipient, StringComparison.OrdinalIgnoreCase))))
+                .Setup(x => x.GetNextUnacknowledgedAsync(It.Is<MarketOperator>(r => string.Equals(r.Value, request.Recipient, StringComparison.OrdinalIgnoreCase))))
                 .ReturnsAsync((IBundle?)null);
 
             var target = new PeekHandler(warehouseDomainServiceMock.Object);
