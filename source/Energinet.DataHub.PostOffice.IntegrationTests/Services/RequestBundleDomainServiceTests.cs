@@ -29,25 +29,24 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Services
          * UUID's that will result in a failure in the current Test-Project
          * 0ae6c542-385f-4d89-bfba-d6c451915a1b
          */
-        [Fact]
+        [Fact(Skip = "Requires POC Subdomain running for test, this is not yet available for CI tests")]
         public async Task RequestData_From_SubDomain_Should_Return_Data()
         {
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
             var bundleService = scope.GetInstance<IRequestBundleDomainService>();
 
-            var recipient = new MarketOperator(System.Guid.NewGuid().ToString());
-            var messageType = new ContentType(1, "fake_value");
+            var recipient = new MarketOperator(new GlobalLocationNumber(System.Guid.NewGuid().ToString()));
             var dataAvailableNotifications = new List<DataAvailableNotification>()
             {
-                CreateDataAvailableNotifications(recipient, messageType),
+                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
             };
 
             var session = await bundleService
-                .RequestBundledDataFromSubDomainAsync(dataAvailableNotifications, SubDomain.TimeSeries)
+                .RequestBundledDataFromSubDomainAsync(dataAvailableNotifications, DomainOrigin.TimeSeries)
                 .ConfigureAwait(false);
             var replyData = await bundleService
-                .WaitForReplyFromSubDomainAsync(session, SubDomain.TimeSeries)
+                .WaitForReplyFromSubDomainAsync(session, DomainOrigin.TimeSeries)
                 .ConfigureAwait(false);
 
             Assert.True(replyData.Success);
@@ -62,7 +61,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Services
                 new Uuid(System.Guid.NewGuid().ToString()),
                 recipient,
                 contentType,
-                SubDomain.TimeSeries,
+                DomainOrigin.TimeSeries,
                 new Weight(1));
         }
     }

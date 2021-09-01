@@ -37,10 +37,10 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
             var dataAvailableNotification = new DataAvailableNotification(
                 new Uuid(request.Uuid),
-                new MarketOperator(request.Recipient),
-                new ContentType(request.RelativeWeight, request.MessageType),
-                Enum.Parse<SubDomain>(request.Origin, true),
-                new Weight(request.RelativeWeight));
+                new MarketOperator(new GlobalLocationNumber(request.Recipient)),
+                Enum.Parse<ContentType>(request.ContentType, true),
+                Enum.Parse<DomainOrigin>(request.Origin, true),
+                new Weight(request.Weight));
 
             await _dataAvailableNotificationRepository.SaveAsync(dataAvailableNotification).ConfigureAwait(false);
 

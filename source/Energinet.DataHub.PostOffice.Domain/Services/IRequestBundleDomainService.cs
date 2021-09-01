@@ -29,7 +29,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         /// <param name="notifications"></param>
         /// <param name="origin"></param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        Task<RequestDataSession> RequestBundledDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, SubDomain origin);
+        Task<RequestDataSession> RequestBundledDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, DomainOrigin origin);
 
         /// <summary>
         /// Awaits a reply for the given session and Subdomain
@@ -37,6 +37,6 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         /// <param name="session">The session to wait for a reply from</param>
         /// <param name="origin">The subdomain which queue you want to wait for</param>
         /// <returns>A reply <see cref="SubDomainReply"/> indicating a success or failure, includes a path to the data if successful</returns>
-        Task<SubDomainReply> WaitForReplyFromSubDomainAsync(RequestDataSession session, SubDomain origin);
+        Task<SubDomainReply> WaitForReplyFromSubDomainAsync(RequestDataSession session, DomainOrigin origin);
     }
 }

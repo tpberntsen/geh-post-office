@@ -32,8 +32,9 @@ namespace Energinet.DataHub.PostOffice.Common
             container.Register<IGetPathToDataFromServiceBus, GetPathToDataFromServiceBus>(Lifestyle.Scoped);
             container.Register<ISendMessageToServiceBus, SendMessageToServiceBus>(Lifestyle.Scoped);
 
-            // Validations at AppService level
-            container.Register<IValidator<DataAvailableNotificationCommand>, DataAvailableRuleSet>(Lifestyle.Scoped);
+            container.Register<IValidator<DataAvailableNotificationCommand>, DataAvailableNotificationCommandRuleSet>(Lifestyle.Scoped);
+            container.Register<IValidator<PeekCommand>, PeekCommandRuleSet>(Lifestyle.Scoped);
+            container.Register<IValidator<DequeueCommand>, DequeueCommandRuleSet>(Lifestyle.Scoped);
         }
     }
 }

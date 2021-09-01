@@ -12,24 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using FluentValidation.Validators;
-using GreenEnergyHub.Messaging.Validation;
-
-namespace Energinet.DataHub.PostOffice.Application.Validation.Rules
+namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public class DataAvailableMustHaveValidUuid : PropertyRule<string>
+    public enum DomainOrigin
     {
-        protected override string Code => "Uuid must be valid";
-
-        protected override string GetDefaultMessageTemplate()
-        {
-            return "'{PropertyName}' must have a valid guid.";
-        }
-
-        protected override bool IsValid(string propertyValue, PropertyValidatorContext context)
-        {
-            return Guid.TryParse(propertyValue, out _);
-        }
+        Unknown = 0,
+        Charges = 1,
+        TimeSeries = 2,
+        Aggregations = 3
     }
 }

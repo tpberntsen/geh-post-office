@@ -20,7 +20,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             Uuid notificationId,
             MarketOperator recipient,
             ContentType contentType,
-            SubDomain origin,
+            DomainOrigin origin,
             Weight weight)
         {
             NotificationId = notificationId;
@@ -33,7 +33,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
         public Uuid NotificationId { get; }
         public MarketOperator Recipient { get; }
         public ContentType ContentType { get; }
-        public SubDomain Origin { get; }
+        public DomainOrigin Origin { get; }
         public Weight Weight { get; }
     }
 }

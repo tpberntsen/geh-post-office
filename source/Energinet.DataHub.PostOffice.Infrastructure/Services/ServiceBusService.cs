@@ -32,29 +32,29 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
             _serviceBusClient = serviceBusClient;
         }
 
-        public async Task<RequestDataSession> RequestBundledDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, SubDomain subDomain)
+        public async Task<RequestDataSession> RequestBundledDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, DomainOrigin domainOrigin)
         {
-            var sender = GetServiceBusSender(subDomain);
+            var sender = GetServiceBusSender(domainOrigin);
             var requestDataSession = new RequestDataSession() { Id = new Uuid(System.Guid.NewGuid().ToString()) };
             var requestDatasetMessage = new Contracts.RequestDataset()
                 {
-                    UUID = { notifications.Select(x => x.NotificationId.Value) }
+                    UUID = { notifications.Select(x => x.NotificationId.ToString()) }
                 };
             var message =
-                new ServiceBusMessage(requestDatasetMessage.ToByteArray()) { SessionId = requestDataSession.Id.Value };
+                new ServiceBusMessage(requestDatasetMessage.ToByteArray()) { SessionId = requestDataSession.Id.ToString() };
 
             message.ReplyToSessionId = message.SessionId;
-            message.ReplyTo = $"sbq-{subDomain.ToString()}-reply";
+            message.ReplyTo = $"sbq-{domainOrigin.ToString()}-reply";
             await sender.SendMessageAsync(message).ConfigureAwait(false);
             return requestDataSession;
         }
 
-        public async Task<SubDomainReply> WaitForReplyFromSubDomainAsync(RequestDataSession session, SubDomain subDomain)
+        public async Task<SubDomainReply> WaitForReplyFromSubDomainAsync(RequestDataSession session, DomainOrigin domainOrigin)
         {
             if (session is null)
                 throw new ArgumentNullException(nameof(session));
 
-            var receiver = await GetServiceBusRecieverAsync(session, subDomain).ConfigureAwait(false);
+            var receiver = await GetServiceBusRecieverAsync(session, domainOrigin).ConfigureAwait(false);
 
             var received = await receiver
                 .ReceiveMessageAsync(TimeSpan.FromSeconds(3))
@@ -68,29 +68,29 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
             };
         }
 
-        private ServiceBusSender GetServiceBusSender(SubDomain subDomain) => subDomain switch
+        private ServiceBusSender GetServiceBusSender(DomainOrigin domainOrigin) => domainOrigin switch
         {
-            SubDomain.Aggregations => _serviceBusClient.CreateSender($"sbq-{nameof(SubDomain.Aggregations)}"),
-            SubDomain.Charges => _serviceBusClient.CreateSender($"sbq-{nameof(SubDomain.Charges)}"),
-            SubDomain.TimeSeries =>_serviceBusClient.CreateSender($"sbq-{nameof(SubDomain.TimeSeries)}"),
-            _ => throw new ArgumentException($"Unknown Origin: {subDomain}", nameof(subDomain)),
+            DomainOrigin.Aggregations => _serviceBusClient.CreateSender($"sbq-{nameof(DomainOrigin.Aggregations)}"),
+            DomainOrigin.Charges => _serviceBusClient.CreateSender($"sbq-{nameof(DomainOrigin.Charges)}"),
+            DomainOrigin.TimeSeries =>_serviceBusClient.CreateSender($"sbq-{nameof(DomainOrigin.TimeSeries)}"),
+            _ => throw new ArgumentException($"Unknown Origin: {domainOrigin}", nameof(domainOrigin)),
         };
 
-        private async Task<ServiceBusSessionReceiver> GetServiceBusRecieverAsync(RequestDataSession session, SubDomain subDomain) => subDomain switch
+        private async Task<ServiceBusSessionReceiver> GetServiceBusRecieverAsync(RequestDataSession session, DomainOrigin domainOrigin) => domainOrigin switch
         {
-            SubDomain.Aggregations => await _serviceBusClient.AcceptSessionAsync(
-                $"sbq-{nameof(SubDomain.Aggregations)}-reply",
-                session.Id.Value)
+            DomainOrigin.Aggregations => await _serviceBusClient.AcceptSessionAsync(
+                $"sbq-{nameof(DomainOrigin.Aggregations)}-reply",
+                session.Id.ToString())
                 .ConfigureAwait(false),
-            SubDomain.Charges => await _serviceBusClient.AcceptSessionAsync(
-                $"sbq-{nameof(SubDomain.Charges)}-reply",
-                session.Id.Value)
+            DomainOrigin.Charges => await _serviceBusClient.AcceptSessionAsync(
+                $"sbq-{nameof(DomainOrigin.Charges)}-reply",
+                session.Id.ToString())
                 .ConfigureAwait(false),
-            SubDomain.TimeSeries => await _serviceBusClient.AcceptSessionAsync(
-                $"sbq-{nameof(SubDomain.TimeSeries)}-reply",
-                session.Id.Value)
+            DomainOrigin.TimeSeries => await _serviceBusClient.AcceptSessionAsync(
+                $"sbq-{nameof(DomainOrigin.TimeSeries)}-reply",
+                session.Id.ToString())
                 .ConfigureAwait(false),
-            _ => throw new ArgumentException($"Unknown Origin: {subDomain}", nameof(subDomain)),
+            _ => throw new ArgumentException($"Unknown Origin: {domainOrigin}", nameof(domainOrigin)),
         };
     }
 }

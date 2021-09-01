@@ -30,14 +30,14 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             _serviceBusService = serviceBusService;
         }
 
-        public async Task<RequestDataSession> RequestBundledDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, SubDomain origin)
+        public async Task<RequestDataSession> RequestBundledDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, DomainOrigin origin)
         {
             return await _serviceBusService
                 .RequestBundledDataFromSubDomainAsync(notifications, origin)
                 .ConfigureAwait(false);
         }
 
-        public async Task<SubDomainReply> WaitForReplyFromSubDomainAsync(RequestDataSession session, SubDomain origin)
+        public async Task<SubDomainReply> WaitForReplyFromSubDomainAsync(RequestDataSession session, DomainOrigin origin)
         {
             return await _serviceBusService
                 .WaitForReplyFromSubDomainAsync(session, origin)

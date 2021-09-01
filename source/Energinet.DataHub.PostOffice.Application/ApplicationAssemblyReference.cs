@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Energinet.DataHub.PostOffice.Domain.Model
+namespace Energinet.DataHub.PostOffice.Application
 {
-    public enum ContentType
+    public sealed class ApplicationAssemblyReference
     {
-        Unknown = 0,
-        TimeSeries = 1,
     }
 }

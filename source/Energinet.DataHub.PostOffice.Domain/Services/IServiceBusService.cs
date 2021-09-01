@@ -27,14 +27,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
         /// Sends a request out on a specific SubDomain ServiceBus and returns the session to use to wait for a reply.
         /// </summary>
         /// <returns>A session <see cref="RequestDataSession"/> to use to wait for the reply</returns>
-        public Task<RequestDataSession> RequestBundledDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, SubDomain subDomain);
+        public Task<RequestDataSession> RequestBundledDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, DomainOrigin domainOrigin);
 
         /// <summary>
         /// Waits for a given reply for a previous request, based on the session used, will wait 3 seconds for a reply
         /// </summary>
         /// <param name="session"></param>
-        /// <param name="subDomain"></param>
+        /// <param name="domainOrigin"></param>
         /// <returns><see cref="SubDomainReply"/> indicating success and a potential path to the data in blob storage</returns>
-        public Task<SubDomainReply> WaitForReplyFromSubDomainAsync(RequestDataSession session, SubDomain subDomain);
+        public Task<SubDomainReply> WaitForReplyFromSubDomainAsync(RequestDataSession session, DomainOrigin domainOrigin);
     }
 }

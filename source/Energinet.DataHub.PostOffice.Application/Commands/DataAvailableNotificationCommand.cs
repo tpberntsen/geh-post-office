@@ -21,24 +21,24 @@ namespace Energinet.DataHub.PostOffice.Application.Commands
         public DataAvailableNotificationCommand(
             string uuid,
             string recipient,
-            string messageType,
+            string contentType,
             string origin,
             bool supportsBundling,
-            int relativeWeight)
+            int weight)
         {
             Uuid = uuid;
             Recipient = recipient;
-            MessageType = messageType;
+            ContentType = contentType;
             Origin = origin;
             SupportsBundling = supportsBundling;
-            RelativeWeight = relativeWeight;
+            Weight = weight;
         }
 
         public string Uuid { get; }
         public string Recipient { get; }
-        public string MessageType { get; }
+        public string ContentType { get; }
         public string Origin { get; }
         public bool SupportsBundling { get; }
-        public int RelativeWeight { get; }
+        public int Weight { get; }
     }
 }

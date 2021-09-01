@@ -14,5 +14,5 @@
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public record MarketOperator(string Value);
+    public record MarketOperator(GlobalLocationNumber Gln);
 }

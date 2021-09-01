@@ -12,24 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using FluentValidation.Validators;
-using GreenEnergyHub.Messaging.Validation;
+using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Application.Validation.Rules;
+using FluentValidation;
 
-namespace Energinet.DataHub.PostOffice.Application.Validation.Rules
+namespace Energinet.DataHub.PostOffice.Application.Validation
 {
-    public class GetMessageMustBeValidGuidRule : PropertyRule<string>
+    public class PeekCommandRuleSet : AbstractValidator<PeekCommand>
     {
-        protected override string Code => "GUID identifier must be valid";
-
-        protected override string GetDefaultMessageTemplate()
+        public PeekCommandRuleSet()
         {
-            return "'{PropertyName}' must have a valid guid.";
-        }
-
-        protected override bool IsValid(string propertyValue, PropertyValidatorContext context)
-        {
-            return Guid.TryParse(propertyValue, out _);
+            RuleFor(command => command.Recipient)
+                .NotEmpty()
+                .SetValidator(new GlobalLocationNumberValidationRule());
         }
     }
 }

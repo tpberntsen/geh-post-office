@@ -14,11 +14,5 @@
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public enum SubDomain
-    {
-        Unknown = 0,
-        Charges = 1,
-        TimeSeries = 2,
-        Aggregations = 3
-    }
+    public record GlobalLocationNumber(string Value);
 }

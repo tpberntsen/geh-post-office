@@ -60,7 +60,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                     .Select(document => new DataAvailable(
                         document.Uuid,
                         document.Recipient,
-                        document.MessageType,
+                        document.ContentType,
                         document.Origin,
                         document.SupportsBundling,
                         document.RelativeWeight,
@@ -74,7 +74,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
         {
             if (documentQuery is null) throw new ArgumentNullException(nameof(documentQuery));
 
-            const string QueryString = @"
+            const string queryString = @"
                 SELECT TOP 1 *
                 FROM Documents d
                 WHERE d.recipient = @recipient
@@ -85,7 +85,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             // Querying with an equality filter on the partition key will create a partitioned documentQuery, per:
             // https://docs.microsoft.com/en-us/azure/cosmos-db/how-to-documentQuery-container#in-partition-documentQuery
             // TODO: Change when actual names are available, ie. recipient_MriD?
-            var queryDefinition = new QueryDefinition(QueryString)
+            var queryDefinition = new QueryDefinition(queryString)
                 .WithParameter("@recipient", documentQuery.Recipient);
 
             using (FeedIterator<CosmosDataAvailable> feedIterator =
@@ -98,7 +98,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
                     documents.Add(new DataAvailable(
                         document.Uuid,
                         document.Recipient,
-                        document.MessageType,
+                        document.ContentType,
                         document.Origin,
                         document.SupportsBundling,
                         document.RelativeWeight,
@@ -134,7 +134,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
             {
                 Uuid = document.Uuid,
                 Recipient = document.Recipient,
-                MessageType = document.MessageType,
+                ContentType = document.MessageType,
                 Origin = document.Origin,
                 SupportsBundling = document.SupportsBundling,
                 RelativeWeight = document.RelativeWeight,

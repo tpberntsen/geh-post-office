@@ -12,18 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Application.Commands;
-using Energinet.DataHub.PostOffice.Application.Validation.Rules;
-using FluentValidation;
+using FluentValidation.Validators;
+using GreenEnergyHub.Messaging.Validation;
 
-namespace Energinet.DataHub.PostOffice.Application.Validation
+namespace Energinet.DataHub.PostOffice.Application.Validation.Rules
 {
-    public class DataAvailableRuleSet : AbstractValidator<DataAvailableNotificationCommand>
+    public class GlobalLocationNumberValidationRule : PropertyRule<string>
     {
-        public DataAvailableRuleSet()
+        protected override string Code => "GLN must be valid";
+
+        protected override string GetDefaultMessageTemplate()
         {
-            RuleFor(document => document.Uuid).SetValidator(new DataAvailableMustHaveValidUuid());
-            RuleFor(document => document.Recipient).SetValidator(new DocumentCannotHaveEmptyValue());
+            return "'{PropertyName}' must have a valid GLN.";
+        }
+
+        protected override bool IsValid(string propertyValue, PropertyValidatorContext context)
+        {
+            return !string.IsNullOrWhiteSpace(propertyValue);
         }
     }
 }
