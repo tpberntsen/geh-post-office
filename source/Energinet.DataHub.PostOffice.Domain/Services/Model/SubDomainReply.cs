@@ -12,24 +12,13 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
-using System.Collections.Generic;
+using System;
 
-namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
+namespace Energinet.DataHub.PostOffice.Domain.Services.Model
 {
-    internal record BundleDocument
+    public record SubDomainReply
     {
-        public BundleDocument()
-        {
-            NotificationsIds = new List<string>();
-            Recipient = string.Empty;
-            Id = string.Empty;
-            ContentPath = string.Empty;
-        }
-
-        public string Recipient { get; init; }
-        public string Id { get; init; }
-        public ICollection<string> NotificationsIds { get; init; }
-        public bool Dequeued { get; init; }
-        public string ContentPath { get; init; }
+        public Uri UriToContent { get; init; } = null!;
+        public bool Success { get; init; }
     }
 }

@@ -47,10 +47,10 @@ namespace Energinet.DataHub.PostOffice.Common
             SwitchToSimpleInjector(services);
 
             // Configuration
-            services.AddSingleton(_ => new ServiceBusClient(Environment.GetEnvironmentVariable("ServiceBusConnectionString")));
             services.AddDatabaseCosmosConfig();
             services.AddServiceBusConfig();
             services.AddCosmosClientBuilder(false);
+            services.AddServiceBus();
 
             // FluentValidation
             services.DiscoverValidation(new[] { typeof(ApplicationAssemblyReference).Assembly });
@@ -63,6 +63,7 @@ namespace Energinet.DataHub.PostOffice.Common
             Container.AddRepositories();
             Container.AddDomainServices();
             Container.AddApplicationServices();
+            Container.AddInfrastructureServices();
 
             // Add MediatR
             Container.BuildMediator(new[] { typeof(ApplicationAssemblyReference).Assembly });
