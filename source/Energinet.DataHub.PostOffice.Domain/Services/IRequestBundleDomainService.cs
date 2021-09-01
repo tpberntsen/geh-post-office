@@ -19,16 +19,16 @@ using Energinet.DataHub.PostOffice.Domain.Services.Model;
 namespace Energinet.DataHub.PostOffice.Domain.Services
 {
     /// <summary>
-    /// Handles communication with sub-domains through ServiceBus
+    /// Handles communication with sub-domains
     /// </summary>
     public interface IRequestBundleDomainService
     {
         /// <summary>
-        /// Requests data from a sub-domain through the ServiceBus and waits for the answer.
+        /// Requests data from a sub-domain
         /// </summary>
         /// <param name="notifications"></param>
         /// <param name="origin"></param>
-        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <returns>A <see cref="Task"/> with a session id for this request.</returns>
         Task<RequestDataSession> RequestBundledDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, DomainOrigin origin);
 
         /// <summary>

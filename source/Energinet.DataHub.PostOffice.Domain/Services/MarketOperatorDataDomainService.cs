@@ -22,7 +22,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
     public sealed class MarketOperatorDataDomainService : IMarketOperatorDataDomainService
     {
         private readonly IBundleRepository _bundleRepository;
-        private readonly IDataAvailableNotificationRepository _dataAvailableRepository;
+        private readonly IDataAvailableNotificationRepository _dataAvailableNotificationRepository;
         private readonly IRequestBundleDomainService _requestBundleDomainService;
         private readonly IWeightCalculatorDomainService _weightCalculatorDomainService;
 
@@ -33,7 +33,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             IWeightCalculatorDomainService weightCalculatorDomainService)
         {
             _bundleRepository = bundleRepository;
-            _dataAvailableRepository = dataAvailableRepository;
+            _dataAvailableNotificationRepository = dataAvailableRepository;
             _requestBundleDomainService = requestBundleDomainService;
             _weightCalculatorDomainService = weightCalculatorDomainService;
         }
@@ -44,11 +44,11 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             if (bundle != null)
                 return bundle;
 
-            var dataAvailableNotification = await _dataAvailableRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
+            var dataAvailableNotification = await _dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
             if (dataAvailableNotification == null)
                 return null;
 
-            var dataAvailableNotifications = await _dataAvailableRepository
+            var dataAvailableNotifications = await _dataAvailableNotificationRepository
                 .GetNextUnacknowledgedAsync(
                     recipient,
                     dataAvailableNotification.ContentType,
@@ -79,7 +79,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             if (bundle == null || bundle.BundleId != bundleId)
                 return false;
 
-            await _dataAvailableRepository.AcknowledgeAsync(bundle.NotificationIds).ConfigureAwait(false);
+            await _dataAvailableNotificationRepository.AcknowledgeAsync(bundle.NotificationIds).ConfigureAwait(false);
             await _bundleRepository.AcknowledgeAsync(bundle.BundleId).ConfigureAwait(false);
             return true;
         }

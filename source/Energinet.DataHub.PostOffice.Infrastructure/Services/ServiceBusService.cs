@@ -11,6 +11,7 @@
 // // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,7 @@ using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Domain.Services.Model;
 using Google.Protobuf;
 
@@ -35,8 +37,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
         public async Task<RequestDataSession> RequestBundledDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, DomainOrigin domainOrigin)
         {
             var sender = GetServiceBusSender(domainOrigin);
-            var requestDataSession = new RequestDataSession() { Id = new Uuid(System.Guid.NewGuid().ToString()) };
-            var requestDatasetMessage = new Contracts.RequestDataset()
+            var requestDataSession = new RequestDataSession() { Id = new Uuid(Guid.NewGuid().ToString()) };
+            var requestDatasetMessage = new RequestDataset()
                 {
                     UUID = { notifications.Select(x => x.NotificationId.ToString()) }
                 };
@@ -54,17 +56,25 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
             if (session is null)
                 throw new ArgumentNullException(nameof(session));
 
-            var receiver = await GetServiceBusRecieverAsync(session, domainOrigin).ConfigureAwait(false);
+            var receiver = await GetServiceBusReceiverAsync(session, domainOrigin).ConfigureAwait(false);
 
             var received = await receiver
                 .ReceiveMessageAsync(TimeSpan.FromSeconds(3))
                 .ConfigureAwait(false);
             var replyMessage = DatasetReply.Parser.ParseFrom(received.Body.ToArray());
 
+            if (replyMessage.ReplyCase == DatasetReply.ReplyOneofCase.Success)
+            {
+                return new SubDomainReply()
+                {
+                    Success = true,
+                    UriToContent = new Uri(replyMessage.Success.Uri)
+                };
+            }
+
             return new SubDomainReply()
             {
-                Success = replyMessage.ReplyCase == DatasetReply.ReplyOneofCase.Success,
-                UriToContent = new Uri(replyMessage.Success.Uri)
+                Success = false
             };
         }
 
@@ -76,7 +86,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
             _ => throw new ArgumentException($"Unknown Origin: {domainOrigin}", nameof(domainOrigin)),
         };
 
-        private async Task<ServiceBusSessionReceiver> GetServiceBusRecieverAsync(RequestDataSession session, DomainOrigin domainOrigin) => domainOrigin switch
+        private async Task<ServiceBusSessionReceiver> GetServiceBusReceiverAsync(RequestDataSession session, DomainOrigin domainOrigin) => domainOrigin switch
         {
             DomainOrigin.Aggregations => await _serviceBusClient.AcceptSessionAsync(
                 $"sbq-{nameof(DomainOrigin.Aggregations)}-reply",
@@ -90,6 +100,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
                 $"sbq-{nameof(DomainOrigin.TimeSeries)}-reply",
                 session.Id.ToString())
                 .ConfigureAwait(false),
+            DomainOrigin.Unknown => throw new ArgumentException($"Unknown Origin: {domainOrigin}", nameof(domainOrigin)),
             _ => throw new ArgumentException($"Unknown Origin: {domainOrigin}", nameof(domainOrigin)),
         };
     }

@@ -12,6 +12,7 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
@@ -32,16 +33,18 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Services
         [Fact(Skip = "Requires POC Subdomain running for test, this is not yet available for CI tests")]
         public async Task RequestData_From_SubDomain_Should_Return_Data()
         {
+            // Arrange
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
             var bundleService = scope.GetInstance<IRequestBundleDomainService>();
 
-            var recipient = new MarketOperator(new GlobalLocationNumber(System.Guid.NewGuid().ToString()));
-            var dataAvailableNotifications = new List<DataAvailableNotification>()
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var dataAvailableNotifications = new List<DataAvailableNotification>
             {
                 CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
             };
 
+            // Act
             var session = await bundleService
                 .RequestBundledDataFromSubDomainAsync(dataAvailableNotifications, DomainOrigin.TimeSeries)
                 .ConfigureAwait(false);
@@ -49,6 +52,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Services
                 .WaitForReplyFromSubDomainAsync(session, DomainOrigin.TimeSeries)
                 .ConfigureAwait(false);
 
+            // Assert
             Assert.True(replyData.Success);
             Assert.NotNull(replyData.UriToContent);
         }
@@ -57,8 +61,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Services
             MarketOperator recipient,
             ContentType contentType)
         {
-            return new DataAvailableNotification(
-                new Uuid(System.Guid.NewGuid().ToString()),
+            return new(
+                new Uuid(Guid.NewGuid().ToString()),
                 recipient,
                 contentType,
                 DomainOrigin.TimeSeries,

@@ -35,7 +35,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// Create a new bundle containing supplied dataAvailableNotifications
         /// </summary>
         /// <param name="dataAvailableNotifications">The notifications included in the bundle</param>
-        /// <param name="contentPath">The path to the content i blob storage</param>
+        /// <param name="contentPath">The path to the content in blob storage</param>
         /// <returns>Bundle</returns>
         Task<IBundle> CreateBundleAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications, Uri contentPath);
 

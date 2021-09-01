@@ -11,15 +11,16 @@
 // // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services.Model;
 
-namespace Energinet.DataHub.PostOffice.Infrastructure.Services
+namespace Energinet.DataHub.PostOffice.Domain.Services
 {
     /// <summary>
-    /// Handles communicating with the servicebus
+    /// Handles communication with ServiceBus
     /// </summary>
     public interface IServiceBusService
     {

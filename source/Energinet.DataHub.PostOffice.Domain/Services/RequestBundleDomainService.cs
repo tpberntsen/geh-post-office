@@ -12,19 +12,17 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services.Model;
-using Energinet.DataHub.PostOffice.Infrastructure.Services;
 
 namespace Energinet.DataHub.PostOffice.Domain.Services
 {
     public class RequestBundleDomainService : IRequestBundleDomainService
     {
         private readonly IServiceBusService _serviceBusService;
+
         public RequestBundleDomainService(IServiceBusService serviceBusService)
         {
             _serviceBusService = serviceBusService;

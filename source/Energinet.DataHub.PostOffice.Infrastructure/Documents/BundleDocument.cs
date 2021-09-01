@@ -21,12 +21,15 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
         public BundleDocument()
         {
             NotificationsIds = new List<string>();
+            Recipient = string.Empty;
+            Id = string.Empty;
+            ContentPath = string.Empty;
         }
 
-        public string Recipient { get; init; } = string.Empty;
-        public string Id { get; init; } = string.Empty;
+        public string Recipient { get; init; }
+        public string Id { get; init; }
         public ICollection<string> NotificationsIds { get; init; }
         public bool Dequeued { get; init; }
-        public string ContentPath { get; init; } = null!;
+        public string ContentPath { get; init; }
     }
 }
