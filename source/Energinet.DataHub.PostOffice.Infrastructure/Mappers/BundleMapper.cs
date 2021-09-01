@@ -28,7 +28,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 from.NotificationsIds.Select(x => new Uuid(x)));
         }
 
-        public static BundleDocument MapToDocument(IBundle from, MarketOperator recipient, Uri contentPath)
+        public static BundleDocument MapToDocument(IBundle from, MarketOperator recipient, Uri? contentPath)
         {
             return new BundleDocument
             {
@@ -36,7 +36,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 Id = from.BundleId.ToString(),
                 NotificationsIds = from.NotificationIds.Select(x => x.ToString()).ToList(),
                 Dequeued = false,
-                ContentPath = contentPath.ToString()
+                ContentPath = contentPath?.ToString()
             };
         }
     }
