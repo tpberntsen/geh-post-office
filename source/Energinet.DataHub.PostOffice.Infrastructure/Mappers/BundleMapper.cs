@@ -14,13 +14,13 @@
 
 using System.Linq;
 using Energinet.DataHub.PostOffice.Domain.Model;
-using Energinet.DataHub.PostOffice.Infrastructure.Entities;
+using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
     internal static class BundleMapper
     {
-        public static BundleDocument MapToDocument(IBundle from, Recipient recipient)
+        public static BundleDocument MapToDocument(IBundle from, MarketOperator recipient)
         {
             return new BundleDocument()
             {
