@@ -27,7 +27,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
             {
                 Recipient = recipient.Gln.Value,
                 Id = from.BundleId.ToString(),
-                NotificationsIds = from.NotificationIds.Select(x => x.ToString()).ToList(),
+                NotificationIds = from.NotificationIds.Select(x => x.ToString()).ToList(),
                 Dequeued = false
             };
         }

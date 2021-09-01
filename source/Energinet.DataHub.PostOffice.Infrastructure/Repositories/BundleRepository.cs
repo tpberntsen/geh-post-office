@@ -47,7 +47,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var documentQuery =
                 new QueryDefinition(
                         "SELECT * FROM c WHERE c.recipient = @recipient AND c.dequeued = @dequeued ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
-                    .WithParameter("@recipient", recipient.Value)
+                    .WithParameter("@recipient", recipient.Gln.Value)
                     .WithParameter("@dequeued", false);
 
             using FeedIterator<BundleDocument> feedIterator =
@@ -58,23 +58,15 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     .ReadNextAsync()
                     .ConfigureAwait(false);
 
-            var document = documentsFromCosmos
-                .FirstOrDefault();
+            var document = documentsFromCosmos.FirstOrDefault();
 
             if (document is null)
                 return null;
 
-            return new Bundle(new Uuid(document.Id), document.NotificationsIds.Select(x => new Uuid(x)), async () =>
-            {
-                var connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
-                var blobServiceClient = new BlobServiceClient(connectionString);
-                var container = blobServiceClient.GetBlobContainerClient(Environment.GetEnvironmentVariable("BlobStorageContainerName"));
-                await container.CreateIfNotExistsAsync().ConfigureAwait(false);
-                var blob = container.GetBlobClient(recipient + "/" + document.Id);
-
-                var response = await blob.DownloadStreamingAsync().ConfigureAwait(false);
-                return response.Value.Content;
-            });
+            return new Bundle(
+                new Uuid(document.Id),
+                document.NotificationIds.Select(x => new Uuid(x)),
+                async () => await GetMarkedOperatorDataAsync(new Uri(document.ContentPath)));
         }
 
         public async Task<IBundle> CreateBundleAsync(
@@ -89,7 +81,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid().ToString()),
                 availableNotifications.Select(x => x.NotificationId),
-                () => Task.FromResult(Stream.Null));
+                async () => await GetMarkedOperatorDataAsync(contentPath));
+
             var recipient = availableNotifications.First().Recipient;
 
             var messageDocument = BundleMapper.MapToDocument(bundle, recipient);
@@ -134,6 +127,18 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 if (response.StatusCode != HttpStatusCode.OK)
                     throw new InvalidOperationException("Could not dequeue document in cosmos");
             }
+        }
+
+        private async Task<Stream> GetMarkedOperatorDataAsync(Uri contentPath)
+        {
+            var connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
+            var blobServiceClient = new BlobServiceClient(connectionString);
+            var container = blobServiceClient.GetBlobContainerClient(Environment.GetEnvironmentVariable("BlobStorageContainerName"));
+            await container.CreateIfNotExistsAsync().ConfigureAwait(false);
+            var blob = container.GetBlobClient(contentPath.ToString());
+
+            var response = await blob.DownloadStreamingAsync().ConfigureAwait(false);
+            return response.Value.Content;
         }
     }
 }

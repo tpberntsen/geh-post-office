@@ -20,7 +20,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
     {
         public BundleDocument()
         {
-            NotificationsIds = new List<string>();
+            NotificationIds = new List<string>();
             Recipient = string.Empty;
             Id = string.Empty;
             ContentPath = string.Empty;
@@ -28,7 +28,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 
         public string Recipient { get; init; }
         public string Id { get; init; }
-        public ICollection<string> NotificationsIds { get; init; }
+        public ICollection<string> NotificationIds { get; init; }
         public bool Dequeued { get; init; }
         public string ContentPath { get; init; }
     }
