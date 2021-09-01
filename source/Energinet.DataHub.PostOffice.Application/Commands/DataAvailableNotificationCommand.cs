@@ -24,14 +24,14 @@ namespace Energinet.DataHub.PostOffice.Application.Commands
             string contentType,
             string origin,
             bool supportsBundling,
-            int relativeWeight)
+            int weight)
         {
             Uuid = uuid;
             Recipient = recipient;
             ContentType = contentType;
             Origin = origin;
             SupportsBundling = supportsBundling;
-            RelativeWeight = relativeWeight;
+            Weight = weight;
         }
 
         public string Uuid { get; }
@@ -39,6 +39,6 @@ namespace Energinet.DataHub.PostOffice.Application.Commands
         public string ContentType { get; }
         public string Origin { get; }
         public bool SupportsBundling { get; }
-        public int RelativeWeight { get; }
+        public int Weight { get; }
     }
 }

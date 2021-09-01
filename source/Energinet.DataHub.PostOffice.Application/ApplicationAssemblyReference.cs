@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Energinet.DataHub.PostOffice.Domain.Model
+namespace Energinet.DataHub.PostOffice.Application
 {
-    public record MarketOperator(GlobalLocationNumber Gln);
+    public sealed class ApplicationAssemblyReference
+    {
+    }
 }

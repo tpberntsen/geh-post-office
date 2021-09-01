@@ -32,7 +32,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         public async Task CreateBundle_Should_Return_Bundle()
         {
             // Arrange
-            var recipient = new MarketOperator(System.Guid.NewGuid().ToString());
+            var recipient = new MarketOperator(new GlobalLocationNumber(System.Guid.NewGuid().ToString()));
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
 
@@ -58,10 +58,10 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         public async Task Peek_Should_Return_Bundle_Created_For_Same_Recipient()
         {
             // Arrange
-            var recipient = new MarketOperator(System.Guid.NewGuid().ToString());
+            var recipient = new MarketOperator(new GlobalLocationNumber(System.Guid.NewGuid().ToString()));
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
-            var dataAvailableNotifications = new List<DataAvailableNotification>()
+            var dataAvailableNotifications = new List<DataAvailableNotification>
             {
                 CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
                 CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
@@ -90,8 +90,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         [Fact]
         public async Task Peek_Should_Not_Return_Bundle_Created_For_Another_Recipient()
         {
-            var recipient = new MarketOperator(System.Guid.NewGuid().ToString());
-            var peakRecipient = new MarketOperator(System.Guid.NewGuid().ToString());
+            var recipient = new MarketOperator(new GlobalLocationNumber(System.Guid.NewGuid().ToString()));
+            var peakRecipient = new MarketOperator(new GlobalLocationNumber(System.Guid.NewGuid().ToString()));
             await using var host = await InboundIntegrationTestHost
                 .InitializeAsync()
                 .ConfigureAwait(false);
@@ -120,7 +120,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         [Fact]
         public async Task Dequeue_Should_Set_Bundle_Dequeued()
         {
-            var recipient = new MarketOperator(System.Guid.NewGuid().ToString());
+            var recipient = new MarketOperator(new GlobalLocationNumber(System.Guid.NewGuid().ToString()));
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
             var dataAvailableNotifications = new List<DataAvailableNotification>()
@@ -153,7 +153,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             ContentType contentType)
         {
             return new DataAvailableNotification(
-                new Uuid(System.Guid.NewGuid().ToString()),
+                new Uuid(System.Guid.NewGuid()),
                 recipient,
                 contentType,
                 DomainOrigin.TimeSeries,

@@ -37,7 +37,9 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 throw new ArgumentNullException(nameof(request));
 
             var isDequeued = await _marketOperatorDataDomainService
-                .TryAcknowledgeAsync(new MarketOperator(request.Recipient), new Uuid(request.BundleUuid))
+                .TryAcknowledgeAsync(
+                    new MarketOperator(new GlobalLocationNumber(request.Recipient)),
+                    new Uuid(request.BundleUuid))
                 .ConfigureAwait(false);
 
             return new DequeueResponse(isDequeued);

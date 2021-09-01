@@ -12,6 +12,7 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
+using System;
 using System.Linq;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
@@ -29,11 +30,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 
         public static BundleDocument MapToDocument(IBundle from, MarketOperator recipient)
         {
-            return new BundleDocument()
+            return new BundleDocument
             {
-                Recipient = recipient.Value,
-                Id = from.BundleId.Value,
-                NotificationsIds = from.NotificationIds.Select(x => x.Value).ToList(),
+                Recipient = recipient.Gln.Value,
+                Id = from.BundleId.ToString(),
+                NotificationsIds = from.NotificationIds.Select(x => x.ToString()).ToList(),
                 Dequeued = false
             };
         }

@@ -43,7 +43,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var documentQuery =
                 new QueryDefinition(
                     "SELECT * FROM c WHERE c.recipient = @recipient AND c.dequeued = @dequeued ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
-                    .WithParameter("@recipient", recipient.Value)
+                    .WithParameter("@recipient", recipient.Gln.Value)
                     .WithParameter("@dequeued", false);
 
             using FeedIterator<BundleDocument> feedIterator =
@@ -70,7 +70,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             // TODO: Fetch data from subdomain here and add path to bundle document
             var bundle = new Bundle(
-                new Uuid(Guid.NewGuid().ToString()),
+                new Uuid(Guid.NewGuid()),
                 availableNotifications.Select(x => x.NotificationId));
             var recipient = availableNotifications.First().Recipient;
 
@@ -94,7 +94,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var documentQuery =
                 new QueryDefinition("SELECT * FROM c WHERE c.id = @id ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
-                    .WithParameter("@id", bundleId.Value);
+                    .WithParameter("@id", bundleId.ToString());
 
             using var feedIterator = _repositoryContainer
                 .Container
@@ -110,7 +110,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 var dequeuedBundleDocument = documentsFromCosmos.First() with { Dequeued = true };
                 var response =
                     await _repositoryContainer.Container
-                        .ReplaceItemAsync(dequeuedBundleDocument, dequeuedBundleDocument.Id?.ToString())
+                        .ReplaceItemAsync(dequeuedBundleDocument, dequeuedBundleDocument.Id)
                         .ConfigureAwait(false);
 
                 if (response.StatusCode != HttpStatusCode.OK)

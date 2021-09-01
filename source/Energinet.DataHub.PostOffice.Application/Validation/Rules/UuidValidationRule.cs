@@ -12,24 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Common;
-using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
-using Microsoft.Extensions.DependencyInjection;
-using SimpleInjector;
+using System;
+using FluentValidation.Validators;
+using GreenEnergyHub.Messaging.Validation;
 
-namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
+namespace Energinet.DataHub.PostOffice.Application.Validation.Rules
 {
-    internal sealed class Startup : StartupBase
+    public class UuidValidationRule : PropertyRule<string>
     {
-        protected override void Configure(Container container)
+        protected override string Code => "Uuid must be valid";
+
+        protected override string GetDefaultMessageTemplate()
         {
-            container.Register<Peek>(Lifestyle.Scoped);
-            container.Register<Dequeue>(Lifestyle.Scoped);
-            container.Register<GetMessage>(Lifestyle.Scoped);
+            return "'{PropertyName}' must have a valid guid.";
         }
 
-        protected override void Configure(IServiceCollection serviceCollection)
+        protected override bool IsValid(string propertyValue, PropertyValidatorContext context)
         {
+            return Guid.TryParse(propertyValue, out _);
         }
     }
 }

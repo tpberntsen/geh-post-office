@@ -40,7 +40,14 @@ namespace Energinet.DataHub.PostOffice.Tests
 
             dataAvailableRepositoryMock.Setup(e => e.SaveAsync(It.IsAny<DataAvailableNotification>())).Returns(Task.CompletedTask);
 
-            var command = new DataAvailableNotificationCommand(It.IsAny<string>(), It.IsAny<string>(), ContentType.TimeSeries.ToString(), DomainOrigin.Charges.ToString(), It.IsAny<bool>(), It.IsAny<int>());
+            var command = new DataAvailableNotificationCommand(
+                "A028855E-ED72-4359-91D0-24DCB58E1994",
+                It.IsAny<string>(),
+                ContentType.TimeSeries.ToString(),
+                DomainOrigin.Charges.ToString(),
+                It.IsAny<bool>(),
+                It.IsAny<int>());
+
             var handler = new DataAvailableNotificationHandler(dataAvailableRepositoryMock.Object);
 
             // Act

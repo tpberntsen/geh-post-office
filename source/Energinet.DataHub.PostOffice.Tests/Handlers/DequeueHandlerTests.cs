@@ -45,12 +45,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         public async Task Handle_WithData_ReturnsTrue()
         {
             // Arrange
-            var request = new DequeueCommand("fake_value", "fake_value");
+            var request = new DequeueCommand("fake_value", "9FB4753A-0E2C-4F42-BA10-D38128DDA877");
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock.Setup(x => x.TryAcknowledgeAsync(
-                    It.Is<MarketOperator>(r => string.Equals(r.Value, request.Recipient, StringComparison.OrdinalIgnoreCase)),
-                    It.Is<Uuid>(id => string.Equals(id.Value, request.BundleUuid, StringComparison.OrdinalIgnoreCase))))
+                    It.Is<MarketOperator>(r => string.Equals(r.Gln.Value, request.Recipient, StringComparison.OrdinalIgnoreCase)),
+                    It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleUuid, StringComparison.OrdinalIgnoreCase))))
                 .ReturnsAsync(true);
 
             var target = new DequeueHandler(warehouseDomainServiceMock.Object);
@@ -67,12 +67,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         public async Task Handle_WithoutData_ReturnsFalse()
         {
             // Arrange
-            var request = new DequeueCommand("fake_value", "fake_value");
+            var request = new DequeueCommand("fake_value", "E3A22C4F-BA71-4BC0-9571-85F7F906D20D");
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock.Setup(x => x.TryAcknowledgeAsync(
-                    It.Is<MarketOperator>(r => string.Equals(r.Value, request.Recipient, StringComparison.OrdinalIgnoreCase)),
-                    It.Is<Uuid>(id => string.Equals(id.Value, request.BundleUuid, StringComparison.OrdinalIgnoreCase))))
+                    It.Is<MarketOperator>(r => string.Equals(r.Gln.Value, request.Recipient, StringComparison.OrdinalIgnoreCase)),
+                    It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleUuid, StringComparison.OrdinalIgnoreCase))))
                 .ReturnsAsync(false);
 
             var target = new DequeueHandler(warehouseDomainServiceMock.Object);
