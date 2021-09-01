@@ -1,0 +1,9 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "ServiceBusConnectionString": "",
+    "DataAvailableQueueName": "",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsServiceBus": ""
+  }
+}

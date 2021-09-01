@@ -12,38 +12,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoFixture;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.Validation;
-using FluentAssertions;
-using GreenEnergyHub.Messaging.Validation;
 using Xunit;
 using Xunit.Categories;
 
 namespace Energinet.DataHub.PostOffice.Tests.Validation
 {
     [UnitTest]
-    public class ValidationTests
+    public sealed class PeekCommandRuleSetTests
     {
-        [Fact]
-        public async Task DataAvailable_request_should_be_valid()
+        [Theory]
+        [InlineData("", false)]
+        [InlineData(null, false)]
+        [InlineData("  ", false)]
+        [InlineData("5790000555550", true)]
+        public async Task Validate_Recipient_ValidatesProperty(string value, bool isValid)
         {
             // Arrange
-            var dataAvailable = new DataAvailableNotificationCommand(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), "1", "1", false, 1);
+            const string propertyName = nameof(PeekCommand.Recipient);
+
+            var target = new PeekCommandRuleSet();
+            var command = new PeekCommand(value);
 
             // Act
-            var ruleSet = new DataAvailableRuleSet();
-            var validationResult = await ruleSet.ValidateAsync(dataAvailable).ConfigureAwait(false);
-
-            var result = validationResult.Errors
-                .Select(error => error.CustomState as PropertyRule)
-                .ToList();
+            var result = await target.ValidateAsync(command).ConfigureAwait(false);
 
             // Assert
-            result.Should().BeEmpty();
+            if (isValid)
+            {
+                Assert.True(result.IsValid);
+                Assert.DoesNotContain(propertyName, result.Errors.Select(x => x.PropertyName));
+            }
+            else
+            {
+                Assert.False(result.IsValid);
+                Assert.Contains(propertyName, result.Errors.Select(x => x.PropertyName));
+            }
         }
     }
 }

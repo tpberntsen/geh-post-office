@@ -26,6 +26,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
     public sealed class InboundIntegrationTestHost : IAsyncDisposable
     {
         private const string AzureCosmosEmulatorConnectionString = "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
+        private const string ServiceBusConnectionString = "INSERT CORRECT STRING HERE WHEN WE KNOW WHAT IT IS";
 
         private readonly Startup _startup;
 
@@ -37,7 +38,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
         public static async Task<InboundIntegrationTestHost> InitializeAsync()
         {
             await InitCosmosTestDatabaseAsync().ConfigureAwait(false);
-
+            InitTestServiceBus();
             var host = new InboundIntegrationTestHost();
 
             var serviceCollection = new ServiceCollection();
@@ -80,6 +81,11 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
             await testDatabase
                 .CreateContainerIfNotExistsAsync("bundles", "/pk")
                 .ConfigureAwait(true);
+        }
+
+        private static void InitTestServiceBus()
+        {
+            Environment.SetEnvironmentVariable("ServiceBusConnectionString", ServiceBusConnectionString);
         }
     }
 }

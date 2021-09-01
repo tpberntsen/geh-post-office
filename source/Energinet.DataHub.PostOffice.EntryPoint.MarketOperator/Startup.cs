@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,12 +19,10 @@ using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
 {
-    public sealed class Startup : StartupBase
+    internal sealed class Startup : StartupBase
     {
         protected override void Configure(Container container)
         {
-            if (container == null) throw new ArgumentNullException(nameof(container));
-
             container.Register<Peek>(Lifestyle.Scoped);
             container.Register<Dequeue>(Lifestyle.Scoped);
             container.Register<GetMessage>(Lifestyle.Scoped);

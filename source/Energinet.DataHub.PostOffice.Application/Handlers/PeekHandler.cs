@@ -38,7 +38,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 throw new ArgumentNullException(nameof(request));
 
             var bundle = await _marketOperatorDataDomainService
-                .GetNextUnacknowledgedAsync(new MarketOperator(request.Recipient))
+                .GetNextUnacknowledgedAsync(new MarketOperator(new GlobalLocationNumber(request.Recipient)))
                 .ConfigureAwait(false);
 
             return bundle is not null

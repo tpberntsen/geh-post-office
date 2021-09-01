@@ -12,24 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using FluentValidation.Validators;
-using GreenEnergyHub.Messaging.Validation;
+using Energinet.DataHub.PostOffice.Domain.Services;
+using Energinet.DataHub.PostOffice.Infrastructure.Services;
+using SimpleInjector;
 
-namespace Energinet.DataHub.PostOffice.Application.Validation.Rules
+namespace Energinet.DataHub.PostOffice.Common
 {
-    public class GetMessageMustBeValidGuidRule : PropertyRule<string>
+    internal static class InfrastructureServiceRegistration
     {
-        protected override string Code => "GUID identifier must be valid";
-
-        protected override string GetDefaultMessageTemplate()
+        public static void AddInfrastructureServices(this Container container)
         {
-            return "'{PropertyName}' must have a valid guid.";
-        }
-
-        protected override bool IsValid(string propertyValue, PropertyValidatorContext context)
-        {
-            return Guid.TryParse(propertyValue, out _);
+            container.Register<IServiceBusService, ServiceBusService>(Lifestyle.Scoped);
         }
     }
 }

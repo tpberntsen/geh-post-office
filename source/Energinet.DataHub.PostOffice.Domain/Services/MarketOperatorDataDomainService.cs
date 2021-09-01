@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
@@ -21,13 +22,19 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
     public sealed class MarketOperatorDataDomainService : IMarketOperatorDataDomainService
     {
         private readonly IBundleRepository _bundleRepository;
-        private readonly IDataAvailableNotificationRepository _dataAvailableRepository;
+        private readonly IDataAvailableNotificationRepository _dataAvailableNotificationRepository;
+        private readonly IRequestBundleDomainService _requestBundleDomainService;
         private readonly IWeightCalculatorDomainService _weightCalculatorDomainService;
 
-        public MarketOperatorDataDomainService(IBundleRepository bundleRepository, IDataAvailableNotificationRepository dataAvailableRepository, IWeightCalculatorDomainService weightCalculatorDomainService)
+        public MarketOperatorDataDomainService(
+            IBundleRepository bundleRepository,
+            IDataAvailableNotificationRepository dataAvailableRepository,
+            IRequestBundleDomainService requestBundleDomainService,
+            IWeightCalculatorDomainService weightCalculatorDomainService)
         {
             _bundleRepository = bundleRepository;
-            _dataAvailableRepository = dataAvailableRepository;
+            _dataAvailableNotificationRepository = dataAvailableRepository;
+            _requestBundleDomainService = requestBundleDomainService;
             _weightCalculatorDomainService = weightCalculatorDomainService;
         }
 
@@ -37,16 +44,32 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             if (bundle != null)
                 return bundle;
 
-            var dataAvailableNotification = await _dataAvailableRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
+            var dataAvailableNotification = await _dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
             if (dataAvailableNotification == null)
                 return null;
 
-            var dataAvailableNotifications = await _dataAvailableRepository
-                .GetNextUnacknowledgedAsync(recipient, dataAvailableNotification.ContentType, _weightCalculatorDomainService.CalculateMaxWeight(dataAvailableNotification.ContentType))
+            var dataAvailableNotifications = await _dataAvailableNotificationRepository
+                .GetNextUnacknowledgedAsync(
+                    recipient,
+                    dataAvailableNotification.ContentType,
+                    _weightCalculatorDomainService.CalculateMaxWeight(dataAvailableNotification.ContentType))
                 .ConfigureAwait(false);
 
+            var subDomain = dataAvailableNotification.Origin;
+            var requestSession = await
+                _requestBundleDomainService.RequestBundledDataFromSubDomainAsync(
+                    dataAvailableNotifications,
+                    subDomain)
+                    .ConfigureAwait(false);
+
+            var replyData = await _requestBundleDomainService
+                .WaitForReplyFromSubDomainAsync(requestSession, subDomain)
+                .ConfigureAwait(false);
+            if (!replyData.Success)
+                return null;
+
             return await _bundleRepository
-                .CreateBundleAsync(dataAvailableNotifications)
+                .CreateBundleAsync(dataAvailableNotifications, replyData.UriToContent)
                 .ConfigureAwait(false);
         }
 
@@ -56,7 +79,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             if (bundle == null || bundle.BundleId != bundleId)
                 return false;
 
-            await _dataAvailableRepository.AcknowledgeAsync(bundle.NotificationIds).ConfigureAwait(false);
+            await _dataAvailableNotificationRepository.AcknowledgeAsync(bundle.NotificationIds).ConfigureAwait(false);
             await _bundleRepository.AcknowledgeAsync(bundle.BundleId).ConfigureAwait(false);
             return true;
         }

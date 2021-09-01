@@ -26,6 +26,7 @@ namespace Energinet.DataHub.PostOffice.Common
             container.Register<IWeightCalculatorDomainService, WeightCalculatorDomainService>(Lifestyle.Scoped);
             container.Register<IMarketOperatorDataDomainService, MarketOperatorDataDomainService>(Lifestyle.Scoped);
             container.Register<IDataAvailableController, DataAvailableController>(Lifestyle.Scoped);
+            container.Register<IRequestBundleDomainService, RequestBundleDomainService>(Lifestyle.Scoped);
         }
     }
 }

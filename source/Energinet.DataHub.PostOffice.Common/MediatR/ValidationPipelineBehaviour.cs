@@ -12,36 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 
-namespace Energinet.DataHub.PostOffice.Infrastructure.Pipeline
+namespace Energinet.DataHub.PostOffice.Common.MediatR
 {
-    public class GetMessagePipelineValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IRequest<TResponse>
+    internal sealed class ValidationPipelineBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : notnull
     {
-        private readonly IValidator<TRequest> _validator;
+        private readonly IValidator<TRequest> _requestValidator;
 
-        public GetMessagePipelineValidationBehavior(IValidator<TRequest> validator)
-            => _validator = validator;
+        public ValidationPipelineBehaviour(IValidator<TRequest> requestValidator)
+        {
+            _requestValidator = requestValidator;
+        }
 
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
-            if (request is null) throw new ArgumentNullException(nameof(request));
-            if (next is null) throw new ArgumentNullException(nameof(next));
-
-            var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
-
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(
-                    $"Cannot validate request because: {validationResult.Errors.First()}");
-            }
-
+            await _requestValidator.ValidateAndThrowAsync(request, cancellationToken).ConfigureAwait(false);
             return await next().ConfigureAwait(false);
         }
     }

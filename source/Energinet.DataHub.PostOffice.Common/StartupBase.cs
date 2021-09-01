@@ -15,10 +15,11 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.PostOffice.Application.GetMessage.Handlers;
-using Energinet.DataHub.PostOffice.Application.Handlers;
+using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Common.Extensions;
 using Energinet.DataHub.PostOffice.Common.MediatR;
 using Energinet.DataHub.PostOffice.Common.SimpleInjector;
+using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -46,10 +47,13 @@ namespace Energinet.DataHub.PostOffice.Common
             SwitchToSimpleInjector(services);
 
             // Configuration
-            services.AddSingleton(_ => new ServiceBusClient(Environment.GetEnvironmentVariable("ServiceBusConnectionString")));
             services.AddDatabaseCosmosConfig();
             services.AddServiceBusConfig();
             services.AddCosmosClientBuilder(false);
+            services.AddServiceBus();
+
+            // FluentValidation
+            services.DiscoverValidation(new[] { typeof(ApplicationAssemblyReference).Assembly });
 
             Configure(services);
 
@@ -59,11 +63,10 @@ namespace Energinet.DataHub.PostOffice.Common
             Container.AddRepositories();
             Container.AddDomainServices();
             Container.AddApplicationServices();
+            Container.AddInfrastructureServices();
 
             // Add MediatR
-            Container.BuildMediator(
-                new[] { typeof(DataAvailableNotificationHandler).Assembly, typeof(GetMessageHandler).Assembly },
-                Array.Empty<Type>());
+            Container.BuildMediator(new[] { typeof(ApplicationAssemblyReference).Assembly });
 
             Configure(Container);
         }

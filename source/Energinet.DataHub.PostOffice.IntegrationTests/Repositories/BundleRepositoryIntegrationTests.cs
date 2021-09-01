@@ -12,10 +12,12 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Domain.Services.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Microsoft.Azure.Cosmos;
@@ -32,11 +34,11 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         public async Task CreateBundle_Should_Return_Bundle()
         {
             // Arrange
-            var recipient = new MarketOperator(System.Guid.NewGuid().ToString());
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
-
-            var dataAvailableNotificationIds = new List<DataAvailableNotification>()
+            var replyData = new SubDomainReply { Success = true, UriToContent = new Uri("https://test.test.dk") };
+            var dataAvailableNotificationIds = new List<DataAvailableNotification>
             {
                 CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
                 CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
@@ -45,11 +47,11 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var client = scope.GetInstance<CosmosClient>();
             var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
 
-            //Act
-            var bundle = await bundleRepository.CreateBundleAsync(dataAvailableNotificationIds)
+            // Act
+            var bundle = await bundleRepository.CreateBundleAsync(dataAvailableNotificationIds, replyData.UriToContent)
                 .ConfigureAwait(false);
 
-            //Assert
+            // Assert
             Assert.NotNull(bundle);
             Assert.Equal(3, bundle.NotificationIds.Count());
         }
@@ -58,10 +60,11 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         public async Task Peek_Should_Return_Bundle_Created_For_Same_Recipient()
         {
             // Arrange
-            var recipient = new MarketOperator(System.Guid.NewGuid().ToString());
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
-            var dataAvailableNotifications = new List<DataAvailableNotification>()
+            var replyData = new SubDomainReply { Success = true, UriToContent = new Uri("https://test.test.dk") };
+            var dataAvailableNotifications = new List<DataAvailableNotification>
             {
                 CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
                 CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
@@ -70,16 +73,16 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var client = scope.GetInstance<CosmosClient>();
             var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
 
-            //Act
+            // Act
             var createdBundle = await bundleRepository
-                .CreateBundleAsync(dataAvailableNotifications)
+                .CreateBundleAsync(dataAvailableNotifications, replyData.UriToContent)
                 .ConfigureAwait(false);
 
             var peakBundle = await bundleRepository
                 .GetNextUnacknowledgedAsync(recipient)
                 .ConfigureAwait(false);
 
-            //Assert
+            // Assert
             Assert.NotNull(createdBundle);
             Assert.NotNull(peakBundle);
             Assert.Equal(createdBundle.BundleId, peakBundle?.BundleId);
@@ -90,29 +93,30 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         [Fact]
         public async Task Peek_Should_Not_Return_Bundle_Created_For_Another_Recipient()
         {
-            var recipient = new MarketOperator(System.Guid.NewGuid().ToString());
-            var peakRecipient = new MarketOperator(System.Guid.NewGuid().ToString());
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var peakRecipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             await using var host = await InboundIntegrationTestHost
                 .InitializeAsync()
                 .ConfigureAwait(false);
 
             var scope = host.BeginScope();
-            var dataAvailableNotifications = new List<DataAvailableNotification>()
+            var replyData = new SubDomainReply { Success = true, UriToContent = new Uri("https://test.test.dk") };
+            var dataAvailableNotifications = new List<DataAvailableNotification>
             {
                 CreateDataAvailableNotifications(recipient, ContentType.TimeSeries)
             };
             var client = scope.GetInstance<CosmosClient>();
             var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
 
-            //Act
+            // Act
             var createdBundle = await bundleRepository
-                .CreateBundleAsync(dataAvailableNotifications)
+                .CreateBundleAsync(dataAvailableNotifications, replyData.UriToContent)
                 .ConfigureAwait(false);
             var peakBundle = await bundleRepository
                 .GetNextUnacknowledgedAsync(peakRecipient)
                 .ConfigureAwait(false);
 
-            //Assert
+            // Assert
             Assert.NotNull(createdBundle);
             Assert.Null(peakBundle);
         }
@@ -120,19 +124,20 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         [Fact]
         public async Task Dequeue_Should_Set_Bundle_Dequeued()
         {
-            var recipient = new MarketOperator(System.Guid.NewGuid().ToString());
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
-            var dataAvailableNotifications = new List<DataAvailableNotification>()
+            var replyData = new SubDomainReply { Success = true, UriToContent = new Uri("https://test.test.dk") };
+            var dataAvailableNotifications = new List<DataAvailableNotification>
             {
                 CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
             };
             var client = scope.GetInstance<CosmosClient>();
             var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
 
-            //Act
+            // Act
             var createdBundle = await bundleRepository
-                .CreateBundleAsync(dataAvailableNotifications)
+                .CreateBundleAsync(dataAvailableNotifications, replyData.UriToContent)
                 .ConfigureAwait(false);
 
             await bundleRepository
@@ -143,7 +148,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 .GetNextUnacknowledgedAsync(recipient)
                 .ConfigureAwait(false);
 
-            //Assert
+            // Assert
             Assert.NotNull(createdBundle);
             Assert.Null(peakResult);
         }
@@ -152,8 +157,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             MarketOperator recipient,
             ContentType contentType)
         {
-            return new DataAvailableNotification(
-                new Uuid(System.Guid.NewGuid().ToString()),
+            return new(
+                new Uuid(Guid.NewGuid()),
                 recipient,
                 contentType,
                 DomainOrigin.TimeSeries,

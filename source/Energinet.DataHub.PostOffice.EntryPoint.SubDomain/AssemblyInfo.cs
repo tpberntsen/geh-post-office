@@ -12,17 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Application.GetMessage.Queries;
-using Energinet.DataHub.PostOffice.Application.Validation.Rules;
-using FluentValidation;
+using System.Runtime.CompilerServices;
 
-namespace Energinet.DataHub.PostOffice.Application.Validation
-{
-    public class GetMessageRuleSetValidator : AbstractValidator<GetMessageQuery>
-    {
-        public GetMessageRuleSetValidator()
-        {
-            RuleFor(request => request.Recipient).NotEmpty().SetValidator(new GetMessageMustBeValidGuidRule());
-        }
-    }
-}
+[assembly: InternalsVisibleTo("Energinet.DataHub.PostOffice.IntegrationTests")]

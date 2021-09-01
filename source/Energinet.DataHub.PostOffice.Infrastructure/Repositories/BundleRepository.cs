@@ -15,9 +15,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
@@ -28,7 +30,6 @@ using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
-    // todo : correct implementation #136
     public class BundleRepository : IBundleRepository
     {
         private readonly IBundleRepositoryContainer _repositoryContainer;
@@ -77,14 +78,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
         }
 
         public async Task<IBundle> CreateBundleAsync(
-            IEnumerable<DataAvailableNotification> dataAvailableNotifications)
+            IEnumerable<DataAvailableNotification> dataAvailableNotifications,
+            Uri contentPath)
         {
             var availableNotifications = dataAvailableNotifications.ToList();
 
             if (!availableNotifications.Any())
                 throw new ArgumentOutOfRangeException(nameof(dataAvailableNotifications));
 
-            // TODO: Fetch data from subdomain here and add path to bundle document
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid().ToString()),
                 availableNotifications.Select(x => x.NotificationId),
@@ -111,7 +112,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var documentQuery =
                 new QueryDefinition("SELECT * FROM c WHERE c.id = @id ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
-                    .WithParameter("@id", bundleId.Value);
+                    .WithParameter("@id", bundleId.ToString());
 
             using var feedIterator = _repositoryContainer
                 .Container
@@ -127,7 +128,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 var dequeuedBundleDocument = documentsFromCosmos.First() with { Dequeued = true };
                 var response =
                     await _repositoryContainer.Container
-                        .ReplaceItemAsync(dequeuedBundleDocument, dequeuedBundleDocument.Id?.ToString())
+                        .ReplaceItemAsync(dequeuedBundleDocument, dequeuedBundleDocument.Id)
                         .ConfigureAwait(false);
 
                 if (response.StatusCode != HttpStatusCode.OK)

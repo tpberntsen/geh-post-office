@@ -22,12 +22,10 @@ using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.Common.MediatR
 {
-    public static class SimpleInjectorMediatorContainerExtensions
+    internal static class SimpleInjectorMediatorContainerExtensions
     {
-        public static void BuildMediator(this Container container, Assembly[] applicationAssemblies, Type[] pipelineBehaviors)
+        public static void BuildMediator(this Container container, Assembly[] applicationAssemblies)
         {
-            if (container is null) throw new ArgumentNullException(nameof(container));
-
             var assemblies = GetMediatorAssemblies().Union(applicationAssemblies).ToArray();
             container.RegisterSingleton<IMediator, Mediator>();
             container.Register(typeof(IRequestHandler<,>), assemblies);
@@ -43,11 +41,10 @@ namespace Energinet.DataHub.PostOffice.Common.MediatR
                 typeof(RequestExceptionActionProcessorBehavior<,>),
                 typeof(RequestPreProcessorBehavior<,>),
                 typeof(RequestPostProcessorBehavior<,>),
+                typeof(ValidationPipelineBehaviour<,>)
             };
 
-            // Register built both-in and custom pipeline
-            container.Collection.Register(typeof(IPipelineBehavior<,>), pipelineBehaviors.Union(builtInBehaviors));
-
+            container.Collection.Register(typeof(IPipelineBehavior<,>), builtInBehaviors);
             container.Collection.Register(typeof(IRequestPreProcessor<>), new[] { typeof(EmptyRequestPreProcessor<>) });
             container.Collection.Register(typeof(IRequestPostProcessor<,>), new[] { typeof(EmptyRequestPostProcessor<,>) });
 
@@ -57,11 +54,7 @@ namespace Energinet.DataHub.PostOffice.Common.MediatR
         private static void RegisterHandlers(Container container, Type collectionType, Assembly[] assemblies)
         {
             // we have to do this because by default, generic type definitions (such as the Constrained Notification Handler) won't be registered
-            var handlerTypes = container.GetTypesToRegister(collectionType, assemblies, new TypesToRegisterOptions
-            {
-                IncludeGenericTypeDefinitions = true,
-                IncludeComposites = false,
-            });
+            var handlerTypes = container.GetTypesToRegister(collectionType, assemblies, new TypesToRegisterOptions { IncludeGenericTypeDefinitions = true, IncludeComposites = false });
 
             container.Collection.Register(collectionType, handlerTypes);
         }
