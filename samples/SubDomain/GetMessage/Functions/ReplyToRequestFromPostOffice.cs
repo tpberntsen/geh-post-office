@@ -91,14 +91,14 @@ namespace GetMessage.Functions
 
         private DatasetReply CreateFailedResponse(
             RequestDataset requestData,
-            DatasetReply.Types.RequestFailure.Types.Reason failedReson)
+            DatasetReply.Types.RequestFailure.Types.Reason failedReason)
         {
             var proto = new DatasetReply()
             {
                 Failure = new DatasetReply.Types.RequestFailure()
                 {
-                    Reason = failedReson,
-                    FailureDescription = $"Failed with reason: {failedReson}"
+                    Reason = failedReason,
+                    FailureDescription = $"Failed with reason: {failedReason}"
                 }
             };
             proto.Failure.UUID.AddRange(requestData.UUID);

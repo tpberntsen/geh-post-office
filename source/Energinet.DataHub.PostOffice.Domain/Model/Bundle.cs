@@ -34,7 +34,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
 
         public async Task<Stream> OpenAsync()
         {
-            return await _getStream();
+            return await _getStream().ConfigureAwait(false);
         }
     }
 }

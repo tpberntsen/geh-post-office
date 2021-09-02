@@ -15,11 +15,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Azure.Storage.Blobs;
 using Azure.Storage.Blobs;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
@@ -66,7 +64,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             return new Bundle(
                 new Uuid(document.Id),
                 document.NotificationIds.Select(x => new Uuid(x)),
-                async () => await GetMarkedOperatorDataAsync(new Uri(document.ContentPath)));
+                async () => await GetMarkedOperatorDataAsync(new Uri(document.ContentPath)).ConfigureAwait(false));
         }
 
         public async Task<IBundle> CreateBundleAsync(
@@ -81,7 +79,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid().ToString()),
                 availableNotifications.Select(x => x.NotificationId),
-                async () => await GetMarkedOperatorDataAsync(contentPath));
+                async () => await GetMarkedOperatorDataAsync(contentPath).ConfigureAwait(false));
 
             var recipient = availableNotifications.First().Recipient;
 
@@ -129,7 +127,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
-        private async Task<Stream> GetMarkedOperatorDataAsync(Uri contentPath)
+        private static async Task<Stream> GetMarkedOperatorDataAsync(Uri contentPath)
         {
             var connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
             var blobServiceClient = new BlobServiceClient(connectionString);

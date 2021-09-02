@@ -28,7 +28,7 @@ namespace GetMessage.Storage
 
         public async Task<System.Uri> CreateBlobRessourceAsync(string blobName, System.BinaryData data)
         {
-            var containerClient = _blobServiceClient.GetBlobContainerClient("getmessage-reply-blobstorage");
+            var containerClient = _blobServiceClient.GetBlobContainerClient("timeseries");
             await containerClient.UploadBlobAsync(blobName, data).ConfigureAwait(false);
 
             var blobClient = containerClient.GetBlobClient(blobName);
