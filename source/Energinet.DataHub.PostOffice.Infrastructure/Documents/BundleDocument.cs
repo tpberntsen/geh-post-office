@@ -30,6 +30,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
         public string Id { get; init; }
         public ICollection<string> NotificationsIds { get; init; }
         public bool Dequeued { get; init; }
-        public string ContentPath { get; init; }
+        public string? ContentPath { get; init; }
     }
 }

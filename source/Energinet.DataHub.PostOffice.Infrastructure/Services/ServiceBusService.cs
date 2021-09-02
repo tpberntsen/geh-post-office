@@ -61,8 +61,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
             var received = await receiver
                 .ReceiveMessageAsync(TimeSpan.FromSeconds(3))
                 .ConfigureAwait(false);
-            var replyMessage = DatasetReply.Parser.ParseFrom(received.Body.ToArray());
 
+            if (received is null)
+                return new SubDomainReply() { Success = false };
+
+            var replyMessage = DatasetReply.Parser.ParseFrom(received.Body.ToArray());
             if (replyMessage.ReplyCase == DatasetReply.ReplyOneofCase.Success)
             {
                 return new SubDomainReply()
