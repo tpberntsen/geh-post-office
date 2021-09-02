@@ -130,11 +130,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
         private static async Task<Stream> GetMarkedOperatorDataAsync(Uri contentPath)
         {
             var connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
-            var blobServiceClient = new BlobServiceClient(connectionString);
-            var container = blobServiceClient.GetBlobContainerClient(Environment.GetEnvironmentVariable("BlobStorageContainerName"));
-            await container.CreateIfNotExistsAsync().ConfigureAwait(false);
-            var blob = container.GetBlobClient(contentPath.ToString());
-
+            var container = new BlobContainerClient(connectionString, Environment.GetEnvironmentVariable("BlobStorageContainerName"));
+            var blob = container.GetBlobClient(contentPath.Segments.Last());
             var response = await blob.DownloadStreamingAsync().ConfigureAwait(false);
             return response.Value.Content;
         }

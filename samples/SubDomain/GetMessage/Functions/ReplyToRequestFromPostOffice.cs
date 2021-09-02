@@ -122,7 +122,7 @@ namespace GetMessage.Functions
 
         private async Task<Uri> SaveDataToBlobStorageAsync(RequestDataset requestData)
         {
-            var blobName = $"blob-ressource-{Environment.GetEnvironmentVariable("QueueListenerName")}-{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss:ff}";
+            var blobName = $"blob-ressource-{Environment.GetEnvironmentVariable("QueueListenerName")}-{DateTime.UtcNow:yyyy-MM-dd-HH-mm-ss-ff}.txt";
             var data = $"<data>{blobName}</data>";
             var blobUri = await _blobStorageController.CreateBlobRessourceAsync(blobName, new BinaryData(data)).ConfigureAwait(false);
             return blobUri;
