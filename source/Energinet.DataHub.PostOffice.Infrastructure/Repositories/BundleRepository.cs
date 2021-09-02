@@ -30,6 +30,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
     public class BundleRepository : IBundleRepository
     {
+        private static readonly string? _containerName = Environment.GetEnvironmentVariable("BlobStorageContainerName");
+        private static readonly string? _connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
         private readonly IBundleRepositoryContainer _repositoryContainer;
 
         public BundleRepository(IBundleRepositoryContainer repositoryContainer)
@@ -134,8 +136,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         private static async Task<Stream> GetMarkedOperatorDataAsync(Uri contentPath)
         {
-            var connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
-            var container = new BlobContainerClient(connectionString, Environment.GetEnvironmentVariable("BlobStorageContainerName"));
+            var container = new BlobContainerClient(_connectionString, _containerName);
             var blob = container.GetBlobClient(contentPath.Segments.Last());
             var response = await blob.DownloadStreamingAsync().ConfigureAwait(false);
             return response.Value.Content;
