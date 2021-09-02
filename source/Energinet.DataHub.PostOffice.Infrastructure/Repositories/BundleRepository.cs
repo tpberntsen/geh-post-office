@@ -69,8 +69,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public async Task<IBundle> CreateBundleAsync(
             IEnumerable<DataAvailableNotification> dataAvailableNotifications,
-            Uri? contentPath)
+            Uri contentPath)
         {
+            if (contentPath is null)
+            {
+                throw new ArgumentNullException(nameof(contentPath));
+            }
+
             var availableNotifications = dataAvailableNotifications.ToList();
 
             if (!availableNotifications.Any())
