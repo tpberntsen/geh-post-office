@@ -35,7 +35,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         {
             // Arrange
             var mockedFunctionContext = new MockedFunctionContext();
-            var mockedRequestData = new MockedHttpRequestData(mockedFunctionContext, _functionRoute);
+            var mockedRequestData = new MockedHttpRequestData(mockedFunctionContext);
+            mockedRequestData.HttpRequestDataMock
+                .Setup(x => x.Url)
+                .Returns(_functionRoute);
+
             var mockedMediator = new Mock<IMediator>();
 
             mockedMediator
@@ -56,7 +60,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         {
             // Arrange
             var mockedFunctionContext = new MockedFunctionContext();
-            var mockedRequestData = new MockedHttpRequestData(mockedFunctionContext, _functionRoute);
+            var mockedRequestData = new MockedHttpRequestData(mockedFunctionContext);
+            mockedRequestData.HttpRequestDataMock
+                .Setup(x => x.Url)
+                .Returns(_functionRoute);
+
             var mockedMediator = new Mock<IMediator>();
 
             mockedMediator

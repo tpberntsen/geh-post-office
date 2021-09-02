@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
@@ -21,20 +20,20 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
 {
     public sealed class MockedHttpRequestData
     {
-        private readonly Mock<HttpRequestData> _httpRequestDataMock;
-
-        public MockedHttpRequestData(FunctionContext context, Uri url)
+        public MockedHttpRequestData(FunctionContext functionContext)
         {
-            var httpResponseDataMock = new Mock<HttpResponseData>(context);
-            httpResponseDataMock.SetupProperty(x => x.StatusCode);
-            httpResponseDataMock.SetupProperty(x => x.Body);
+            HttpResponseDataMock = new Mock<HttpResponseData>(functionContext);
+            HttpResponseDataMock.SetupProperty(x => x.StatusCode);
+            HttpResponseDataMock.SetupProperty(x => x.Body);
 
-            _httpRequestDataMock = new Mock<HttpRequestData>(context);
-            _httpRequestDataMock.Setup(x => x.CreateResponse()).Returns(httpResponseDataMock.Object);
-            _httpRequestDataMock.Setup(x => x.Url).Returns(url);
+            HttpRequestDataMock = new Mock<HttpRequestData>(functionContext);
+            HttpRequestDataMock.Setup(x => x.CreateResponse()).Returns(HttpResponseDataMock.Object);
         }
 
-        public HttpRequestData HttpRequestData => _httpRequestDataMock.Object;
+        public Mock<HttpRequestData> HttpRequestDataMock { get; }
+        public Mock<HttpResponseData> HttpResponseDataMock { get; }
+        public HttpRequestData HttpRequestData => HttpRequestDataMock.Object;
+        public HttpResponseData HttpResponseData => HttpResponseDataMock.Object;
 
 #pragma warning disable
         public static implicit operator HttpRequestData(MockedHttpRequestData mock)
