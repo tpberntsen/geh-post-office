@@ -14,36 +14,36 @@
 
 using System;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.EntryPoint.SubDomain;
-using Microsoft.Azure.Cosmos;
+using Azure.Messaging.ServiceBus;
+using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator;
+using Energinet.DataHub.PostOffice.IntegrationTests.Common;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 
 namespace Energinet.DataHub.PostOffice.IntegrationTests
 {
-    public sealed class InboundIntegrationTestHost : IAsyncDisposable
+    public sealed class MarketOperatorIntegrationTestHost : IAsyncDisposable
     {
-        private const string AzureCosmosEmulatorConnectionString = "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
-        private const string ServiceBusConnectionString = "INSERT CORRECT STRING HERE WHEN WE KNOW WHAT IT IS";
-
         private readonly Startup _startup;
 
-        private InboundIntegrationTestHost()
+        private MarketOperatorIntegrationTestHost()
         {
             _startup = new Startup();
         }
 
-        public static async Task<InboundIntegrationTestHost> InitializeAsync()
+        public static async Task<MarketOperatorIntegrationTestHost> InitializeAsync()
         {
-            await InitCosmosTestDatabaseAsync().ConfigureAwait(false);
-            InitTestServiceBus();
-            var host = new InboundIntegrationTestHost();
+            await CosmosTestIntegration.InitializeAsync().ConfigureAwait(false);
+
+            var host = new MarketOperatorIntegrationTestHost();
 
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton<IConfiguration>(BuildConfig());
             host._startup.ConfigureServices(serviceCollection);
+            InitTestServiceBus(serviceCollection);
             serviceCollection.BuildServiceProvider().UseSimpleInjector(host._startup.Container, o => o.Container.Options.EnableAutoVerification = false);
 
             return host;
@@ -64,28 +64,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
             return new ConfigurationBuilder().AddEnvironmentVariables().Build();
         }
 
-        private static async Task InitCosmosTestDatabaseAsync()
+        private static void InitTestServiceBus(IServiceCollection serviceCollection)
         {
-            Environment.SetEnvironmentVariable("MESSAGES_DB_NAME", "post-office");
-            Environment.SetEnvironmentVariable("MESSAGES_DB_CONNECTION_STRING", AzureCosmosEmulatorConnectionString);
-
-            using var cosmosClient = new CosmosClient(AzureCosmosEmulatorConnectionString);
-            var databaseResponse = await cosmosClient
-                .CreateDatabaseIfNotExistsAsync("post-office")
-                .ConfigureAwait(true);
-
-            var testDatabase = databaseResponse.Database;
-            await testDatabase
-                .CreateContainerIfNotExistsAsync("dataavailable", "/recipient")
-                .ConfigureAwait(true);
-            await testDatabase
-                .CreateContainerIfNotExistsAsync("bundles", "/pk")
-                .ConfigureAwait(true);
-        }
-
-        private static void InitTestServiceBus()
-        {
-            Environment.SetEnvironmentVariable("ServiceBusConnectionString", ServiceBusConnectionString);
+            serviceCollection.Replace(new ServiceDescriptor(
+                typeof(ServiceBusClient),
+                typeof(MockedServiceBusClient),
+                ServiceLifetime.Scoped));
         }
     }
 }

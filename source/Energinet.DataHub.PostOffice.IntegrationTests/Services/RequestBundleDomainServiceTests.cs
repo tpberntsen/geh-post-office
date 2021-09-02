@@ -34,7 +34,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Services
         public async Task RequestData_From_SubDomain_Should_Return_Data()
         {
             // Arrange
-            await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
             var bundleService = scope.GetInstance<IRequestBundleDomainService>();
 

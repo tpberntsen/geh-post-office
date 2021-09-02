@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
@@ -32,7 +32,8 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
 
         public Task<Stream> OpenAsync()
         {
-            throw new NotImplementedException();
+            // TODO: This is for testing only.
+            return Task.FromResult<Stream>(new MemoryStream(Encoding.ASCII.GetBytes(BundleId.ToString())));
         }
     }
 }
