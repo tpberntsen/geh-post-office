@@ -46,14 +46,8 @@ jobs:
   solution_ci:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' || github.ref == 'refs/heads/main' }}
-    name: Solution CI and Code Coverage
+    name: solution_ci
     runs-on: windows-latest
-    strategy:
-      matrix:
-        project: [
-          source/Energinet.DataHub.PostOffice.Tests/Energinet.DataHub.PostOffice.Tests.csproj,
-          source/Energinet.DataHub.PostOffice.IntegrationTests/Energinet.DataHub.PostOffice.IntegrationTests.csproj
-        ]
         
     steps:
       - name: Checkout repository
@@ -78,7 +72,7 @@ jobs:
       - name: Run tests and collect coverage
         run: |
           dotnet tool install --tool-path ./temp/reportgenerator dotnet-reportgenerator-globaltool
-          dotnet test ${{ matrix.project }} --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover 
+          dotnet test ${{ env.SOLUTION_FILE_PATH }} --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
       - name: Upload coverage
         uses: codecov/codecov-action@v1
