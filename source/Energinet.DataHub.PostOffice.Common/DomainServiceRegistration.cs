@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Domain.Services;
-using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.Common
@@ -25,7 +23,6 @@ namespace Energinet.DataHub.PostOffice.Common
         {
             container.Register<IWeightCalculatorDomainService, WeightCalculatorDomainService>(Lifestyle.Scoped);
             container.Register<IMarketOperatorDataDomainService, MarketOperatorDataDomainService>(Lifestyle.Scoped);
-            container.Register<IDataAvailableController, DataAvailableController>(Lifestyle.Scoped);
             container.Register<IRequestBundleDomainService, RequestBundleDomainService>(Lifestyle.Scoped);
         }
     }
