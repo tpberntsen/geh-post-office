@@ -69,7 +69,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public async Task<IBundle> CreateBundleAsync(
             IEnumerable<DataAvailableNotification> dataAvailableNotifications,
-            Uri contentPath)
+            Uri? contentPath)
         {
             var availableNotifications = dataAvailableNotifications.ToList();
 
@@ -83,7 +83,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var recipient = availableNotifications.First().Recipient;
 
-            var messageDocument = BundleMapper.MapToDocument(bundle, recipient);
+            var messageDocument = BundleMapper.MapToDocument(bundle, recipient, contentPath);
 
             var response =
                 await _repositoryContainer.Container
