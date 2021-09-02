@@ -12,25 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.Azure.Cosmos;
-using Moq;
+using System;
+using System.IO;
+using System.Net;
+using Microsoft.Azure.Functions.Worker.Http;
 
-namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
+namespace Energinet.DataHub.PostOffice.Common.Extensions
 {
-    public sealed class CosmosClientWrapper : CosmosClient
+    public static class HttpRequestDataExtensions
     {
-        private readonly Mock<Container> _mockContainer;
-
-        public CosmosClientWrapper(string connectionString,  Mock<Container> mockContainer)
-            : base(connectionString)
+        public static HttpResponseData CreateResponse(this HttpRequestData source, Stream stream)
         {
-            _mockContainer = mockContainer;
-            ClientOptions.AllowBulkExecution = false;
-        }
+            if (source == null) throw new ArgumentNullException(nameof(source));
 
-        public override Container GetContainer(string databaseId, string containerId)
-        {
-            return _mockContainer.Object;
+            var response = source.CreateResponse(HttpStatusCode.OK);
+            response.Body = stream;
+
+            return response;
         }
     }
 }

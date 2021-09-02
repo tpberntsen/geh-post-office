@@ -34,7 +34,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
         public async Task Test_DataAvailable_Integration_Create()
         {
             // Arrange
-            await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
             var dataAvailableCommand = GetDataAvailableCommand();
@@ -54,7 +54,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
         public async Task Test_DataAvailable_Integration_PeekByMessageType()
         {
             // Arrange
-            await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
             var dataAvailableCommand = GetDataAvailableCommand();
@@ -76,7 +76,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
         public async Task Test_DataAvailable_Integration_Dequeue()
         {
             // Arrange
-            await using var host = await InboundIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
             var dataAvailableCommand = GetDataAvailableCommand();

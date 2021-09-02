@@ -14,7 +14,6 @@
 
 using System;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Common.Extensions;
@@ -35,7 +34,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
         }
 
         [Function("Peek")]
-        public async Task<HttpResponseMessage> RunAsync(
+        public async Task<HttpResponseData> RunAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get")]
             HttpRequestData request,
             FunctionContext context)
@@ -51,8 +50,8 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
             var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
 
             return hasContent
-                ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new StreamContent(stream) }
-                : new HttpResponseMessage(HttpStatusCode.NoContent);
+                ? request.CreateResponse(stream)
+                : request.CreateResponse(HttpStatusCode.NoContent);
         }
     }
 }

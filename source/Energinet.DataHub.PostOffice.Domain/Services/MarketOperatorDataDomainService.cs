@@ -65,6 +65,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             var replyData = await _requestBundleDomainService
                 .WaitForReplyFromSubDomainAsync(requestSession, subDomain)
                 .ConfigureAwait(false);
+
             if (!replyData.Success)
                 return null;
 

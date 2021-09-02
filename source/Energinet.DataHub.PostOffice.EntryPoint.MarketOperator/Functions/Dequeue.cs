@@ -14,7 +14,6 @@
 
 using System;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Common.Extensions;
@@ -35,7 +34,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
         }
 
         [Function("Dequeue")]
-        public async Task<HttpResponseMessage> RunAsync(
+        public async Task<HttpResponseData> RunAsync(
             [HttpTrigger(AuthorizationLevel.Function, "delete")]
             HttpRequestData request,
             FunctionContext context)
@@ -50,8 +49,8 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 
             var response = await _mediator.Send(command).ConfigureAwait(false);
             return response.IsDequeued
-                ? new HttpResponseMessage(HttpStatusCode.OK)
-                : new HttpResponseMessage(HttpStatusCode.NotFound);
+                ? request.CreateResponse(HttpStatusCode.OK)
+                : request.CreateResponse(HttpStatusCode.NotFound);
         }
     }
 }
