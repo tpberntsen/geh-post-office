@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 
@@ -28,7 +29,7 @@ namespace GetMessage.Storage
 
         public async Task<System.Uri> CreateBlobRessourceAsync(string blobName, System.BinaryData data)
         {
-            var containerClient = _blobServiceClient.GetBlobContainerClient("timeseries");
+            var containerClient = _blobServiceClient.GetBlobContainerClient(Environment.GetEnvironmentVariable("BlobStorageContainerName"));
             await containerClient.UploadBlobAsync(blobName, data).ConfigureAwait(false);
 
             var blobClient = containerClient.GetBlobClient(blobName);
