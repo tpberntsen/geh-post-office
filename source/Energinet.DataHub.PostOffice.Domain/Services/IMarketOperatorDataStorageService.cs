@@ -12,18 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Domain.Services;
-using Energinet.DataHub.PostOffice.Infrastructure.Services;
-using SimpleInjector;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
-namespace Energinet.DataHub.PostOffice.Common
+namespace Energinet.DataHub.PostOffice.Domain.Services
 {
-    internal static class InfrastructureServiceRegistration
+    /// <summary>
+    /// Service to handle data specific to a market operator.
+    /// </summary>
+    public interface IMarketOperatorDataStorageService
     {
-        public static void AddInfrastructureServices(this Container container)
-        {
-            container.Register<IServiceBusService, ServiceBusService>(Lifestyle.Scoped);
-            container.Register<IMarketOperatorDataStorageService, MarketOperatorDataStorageService>(Lifestyle.Scoped);
-        }
+        /// <summary>
+        /// Download data from storage to a market operator.
+        /// </summary>
+        /// <param name="contentPath">Url to data.</param>
+        /// <returns>A Task containing a Stream that contains the data for the market operator.</returns>
+        public Task<Stream> GetMarkedOperatorDataAsync(Uri contentPath);
     }
 }

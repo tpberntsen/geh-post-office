@@ -14,13 +14,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Azure.Storage.Blobs;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
+using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
@@ -30,13 +29,15 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
     public class BundleRepository : IBundleRepository
     {
-        private static readonly string? _containerName = Environment.GetEnvironmentVariable("BlobStorageContainerName");
-        private static readonly string? _connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
         private readonly IBundleRepositoryContainer _repositoryContainer;
+        private readonly IMarketOperatorDataStorageService _marketOperatorDataStorageService;
 
-        public BundleRepository(IBundleRepositoryContainer repositoryContainer)
+        public BundleRepository(
+            IBundleRepositoryContainer repositoryContainer,
+            IMarketOperatorDataStorageService marketOperatorDataStorageService)
         {
             _repositoryContainer = repositoryContainer;
+            _marketOperatorDataStorageService = marketOperatorDataStorageService;
         }
 
         public async Task<IBundle?> GetNextUnacknowledgedAsync(MarketOperator recipient)
@@ -66,7 +67,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             return new Bundle(
                 new Uuid(document.Id),
                 document.NotificationIds.Select(x => new Uuid(x)),
-                async () => await GetMarkedOperatorDataAsync(new Uri(document.ContentPath)).ConfigureAwait(false));
+                async () => await _marketOperatorDataStorageService.GetMarkedOperatorDataAsync(new Uri(document.ContentPath)).ConfigureAwait(false));
         }
 
         public async Task<IBundle> CreateBundleAsync(
@@ -86,7 +87,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid().ToString()),
                 availableNotifications.Select(x => x.NotificationId),
-                async () => await GetMarkedOperatorDataAsync(contentPath).ConfigureAwait(false));
+                async () => await _marketOperatorDataStorageService.GetMarkedOperatorDataAsync(contentPath).ConfigureAwait(false));
 
             var recipient = availableNotifications.First().Recipient;
 
@@ -132,14 +133,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 if (response.StatusCode != HttpStatusCode.OK)
                     throw new InvalidOperationException("Could not dequeue document in cosmos");
             }
-        }
-
-        private static async Task<Stream> GetMarkedOperatorDataAsync(Uri contentPath)
-        {
-            var container = new BlobContainerClient(_connectionString, _containerName);
-            var blob = container.GetBlobClient(contentPath.Segments.Last());
-            var response = await blob.DownloadStreamingAsync().ConfigureAwait(false);
-            return response.Value.Content;
         }
     }
 }

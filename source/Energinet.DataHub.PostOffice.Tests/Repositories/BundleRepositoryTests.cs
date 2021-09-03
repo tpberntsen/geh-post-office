@@ -16,8 +16,10 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
+using Energinet.DataHub.PostOffice.Infrastructure.Services;
 using Moq;
 using Xunit;
 using Xunit.Categories;
@@ -27,12 +29,14 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
     [UnitTest]
     public class BundleRepositoryTests
     {
+        private IMarketOperatorDataStorageService _marketOperatorDataStorageService = new MarketOperatorDataStorageService();
+
         [Fact]
         public async Task Peek_With_Null_Recipient_ThrowsException()
         {
             // Arrange
             var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
-            var target = new BundleRepository(bundleRepositoryContainer.Object);
+            var target = new BundleRepository(bundleRepositoryContainer.Object, _marketOperatorDataStorageService);
 
             // Act + Assert
             await Assert
@@ -45,7 +49,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         {
             // Arrange
             var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
-            var target = new BundleRepository(bundleRepositoryContainer.Object);
+            var target = new BundleRepository(bundleRepositoryContainer.Object, _marketOperatorDataStorageService);
 
             // Act + Assert
             await Assert
@@ -58,7 +62,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         {
             // Arrange
             var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
-            var target = new BundleRepository(bundleRepositoryContainer.Object);
+            var target = new BundleRepository(bundleRepositoryContainer.Object, _marketOperatorDataStorageService);
 
             // Act + Assert
             await Assert

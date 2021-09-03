@@ -17,9 +17,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Domain.Services.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
+using Energinet.DataHub.PostOffice.Infrastructure.Services;
 using Microsoft.Azure.Cosmos;
 using Xunit;
 using Xunit.Categories;
@@ -30,6 +32,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
     [IntegrationTest]
     public sealed class BundleRepositoryIntegrationTests
     {
+        private IMarketOperatorDataStorageService _marketOperatorDataStorageService = new MarketOperatorDataStorageService();
         [Fact]
         public async Task CreateBundle_Should_Return_Bundle()
         {
@@ -45,7 +48,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 CreateDataAvailableNotifications(recipient, ContentType.TimeSeries)
             };
             var client = scope.GetInstance<CosmosClient>();
-            var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
+            var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client), _marketOperatorDataStorageService);
 
             // Act
             var bundle = await bundleRepository.CreateBundleAsync(dataAvailableNotificationIds, replyData.UriToContent)
@@ -71,7 +74,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
             };
             var client = scope.GetInstance<CosmosClient>();
-            var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
+            var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client), _marketOperatorDataStorageService);
 
             // Act
             var createdBundle = await bundleRepository
@@ -106,7 +109,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 CreateDataAvailableNotifications(recipient, ContentType.TimeSeries)
             };
             var client = scope.GetInstance<CosmosClient>();
-            var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
+            var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client), _marketOperatorDataStorageService);
 
             // Act
             var createdBundle = await bundleRepository
@@ -133,7 +136,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
             };
             var client = scope.GetInstance<CosmosClient>();
-            var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client));
+            var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client), _marketOperatorDataStorageService);
 
             // Act
             var createdBundle = await bundleRepository
