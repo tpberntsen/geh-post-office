@@ -29,9 +29,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
         public async Task<Stream> GetMarkedOperatorDataAsync(Uri contentPath)
         {
             var container = new BlobContainerClient(_connectionString, _containerName);
-            var blob = container.GetBlobClient(contentPath.Segments.Last());
-            var response = await blob.DownloadStreamingAsync().ConfigureAwait(false);
-            return response.Value.Content;
+            if (contentPath is not null)
+            {
+                var blob = container.GetBlobClient(contentPath.Segments.Last());
+                var response = await blob.DownloadStreamingAsync().ConfigureAwait(false);
+                return response.Value.Content;
+            }
+
+            return Stream.Null;
         }
     }
 }
