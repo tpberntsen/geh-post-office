@@ -12,17 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MediatR;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
-namespace Energinet.DataHub.PostOffice.Application.GetMessage.Queries
+namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public record GetMessageQuery : IRequest<string>
-    {
-        public GetMessageQuery(string recipient)
-        {
-            Recipient = recipient;
-        }
-
-        public string Recipient { get; }
-    }
+    public delegate Task<Stream> OpenBundleStreamAsync(Uuid bundleUuid, Uri contentPath);
 }

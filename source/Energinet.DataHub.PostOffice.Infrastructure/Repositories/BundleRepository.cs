@@ -60,14 +60,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     .ConfigureAwait(false);
 
             var document = documentsFromCosmos.FirstOrDefault();
-
             if (document is null)
                 return null;
 
             return new Bundle(
                 new Uuid(document.Id),
+                new Uri(document.ContentPath),
                 document.NotificationIds.Select(x => new Uuid(x)),
-                async () => await _marketOperatorDataStorageService.GetMarkedOperatorDataAsync(new Uri(document.ContentPath)).ConfigureAwait(false));
+                _marketOperatorDataStorageService.GetMarketOperatorDataAsync);
         }
 
         public async Task<IBundle> CreateBundleAsync(
@@ -85,9 +85,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 throw new ArgumentOutOfRangeException(nameof(dataAvailableNotifications));
 
             var bundle = new Bundle(
-                new Uuid(Guid.NewGuid().ToString()),
+                new Uuid(Guid.NewGuid()),
+                contentPath,
                 availableNotifications.Select(x => x.NotificationId),
-                async () => await _marketOperatorDataStorageService.GetMarkedOperatorDataAsync(contentPath).ConfigureAwait(false));
+                _marketOperatorDataStorageService.GetMarketOperatorDataAsync);
 
             var recipient = availableNotifications.First().Recipient;
 

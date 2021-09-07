@@ -12,22 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
+using System;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Domain;
+using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Domain.Services;
 
-namespace Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces
+namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
 {
-    /// <summary>
-    /// Send message to service bus container
-    /// </summary>
-    public interface ISendMessageToServiceBus
+    internal sealed class MockedMarketOperatorDataStorageService : IMarketOperatorDataStorageService
     {
-        /// <summary>
-        /// Sends a message to sub domain that we need to fetch data
-        /// </summary>
-        /// <param name="requestData"></param>
-        /// <param name="sessionId"></param>
-        public Task RequestDataAsync(RequestData requestData, string sessionId);
+        public Task<Stream> GetMarketOperatorDataAsync(Uuid bundleUuid, Uri contentPath)
+        {
+            return Task.FromResult<Stream>(new MemoryStream(Encoding.ASCII.GetBytes(bundleUuid.ToString())));
+        }
     }
 }

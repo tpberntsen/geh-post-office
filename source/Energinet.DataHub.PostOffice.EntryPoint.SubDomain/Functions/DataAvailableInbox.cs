@@ -40,6 +40,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
         public async Task RunAsync(
             [ServiceBusTrigger(
                 "%" + ServiceBusConfig.InboundQueueDataAvailableTopicNameKey + "%", // TODO: Rename configs
+                "%" + ServiceBusConfig.InboundQueueDataAvailableSubscriptionNameKey + "%",
                 Connection = ServiceBusConfig.InboundQueueConnectionStringKey)]
             byte[] message,
             FunctionContext context)

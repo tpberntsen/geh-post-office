@@ -13,10 +13,7 @@
 // limitations under the License.
 
 using Energinet.DataHub.PostOffice.Application.Commands;
-using Energinet.DataHub.PostOffice.Application.GetMessage.Interfaces;
 using Energinet.DataHub.PostOffice.Application.Validation;
-using Energinet.DataHub.PostOffice.Infrastructure.ContentPath;
-using Energinet.DataHub.PostOffice.Infrastructure.GetMessage;
 using FluentValidation;
 using SimpleInjector;
 
@@ -26,12 +23,6 @@ namespace Energinet.DataHub.PostOffice.Common
     {
         public static void AddApplicationServices(this Container container)
         {
-            container.Collection.Append<IGetContentPathStrategy, ContentPathFromSavedResponse>(Lifestyle.Transient);
-            container.Collection.Append<IGetContentPathStrategy, ContentPathFromSubDomain>(Lifestyle.Transient);
-            container.Register<IGetContentPathStrategyFactory, GetContentPathStrategyFactory>(Lifestyle.Scoped);
-            container.Register<IGetPathToDataFromServiceBus, GetPathToDataFromServiceBus>(Lifestyle.Scoped);
-            container.Register<ISendMessageToServiceBus, SendMessageToServiceBus>(Lifestyle.Scoped);
-
             container.Register<IValidator<DataAvailableNotificationCommand>, DataAvailableNotificationCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<PeekCommand>, PeekCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<DequeueCommand>, DequeueCommandRuleSet>(Lifestyle.Scoped);
