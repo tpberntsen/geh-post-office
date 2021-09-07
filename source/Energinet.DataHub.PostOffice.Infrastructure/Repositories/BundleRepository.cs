@@ -19,6 +19,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
+using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
@@ -29,10 +30,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
     public class BundleRepository : IBundleRepository
     {
         private readonly IBundleRepositoryContainer _repositoryContainer;
+        private readonly IMarketOperatorDataStorageService _marketOperatorDataStorageService;
 
-        public BundleRepository(IBundleRepositoryContainer repositoryContainer)
+        public BundleRepository(
+            IBundleRepositoryContainer repositoryContainer,
+            IMarketOperatorDataStorageService marketOperatorDataStorageService)
         {
             _repositoryContainer = repositoryContainer;
+            _marketOperatorDataStorageService = marketOperatorDataStorageService;
         }
 
         public async Task<IBundle?> GetNextUnacknowledgedAsync(MarketOperator recipient)
@@ -42,7 +47,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var documentQuery =
                 new QueryDefinition(
-                    "SELECT * FROM c WHERE c.recipient = @recipient AND c.dequeued = @dequeued ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
+                        "SELECT * FROM c WHERE c.recipient = @recipient AND c.dequeued = @dequeued ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
                     .WithParameter("@recipient", recipient.Gln.Value)
                     .WithParameter("@dequeued", false);
 
@@ -54,16 +59,26 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     .ReadNextAsync()
                     .ConfigureAwait(false);
 
-            var documents = documentsFromCosmos
-                .Select(BundleMapper.MapFromDocument);
+            var document = documentsFromCosmos.FirstOrDefault();
+            if (document is null)
+                return null;
 
-            return documents.FirstOrDefault();
+            return new Bundle(
+                new Uuid(document.Id),
+                new Uri(document.ContentPath),
+                document.NotificationIds.Select(x => new Uuid(x)),
+                _marketOperatorDataStorageService.GetMarketOperatorDataAsync);
         }
 
         public async Task<IBundle> CreateBundleAsync(
             IEnumerable<DataAvailableNotification> dataAvailableNotifications,
-            Uri? contentPath)
+            Uri contentPath)
         {
+            if (contentPath is null)
+            {
+                throw new ArgumentNullException(nameof(contentPath));
+            }
+
             var availableNotifications = dataAvailableNotifications.ToList();
 
             if (!availableNotifications.Any())
@@ -71,7 +86,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                availableNotifications.Select(x => x.NotificationId));
+                contentPath,
+                availableNotifications.Select(x => x.NotificationId),
+                _marketOperatorDataStorageService.GetMarketOperatorDataAsync);
+
             var recipient = availableNotifications.First().Recipient;
 
             var messageDocument = BundleMapper.MapToDocument(bundle, recipient, contentPath);

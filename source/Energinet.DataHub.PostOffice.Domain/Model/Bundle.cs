@@ -12,28 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
     public class Bundle : IBundle
     {
-        public Bundle(Uuid bundleId, IEnumerable<Uuid> notificationIds)
+        private readonly Uri _contentPath;
+        private readonly OpenBundleStreamAsync _openBundleStream;
+
+        public Bundle(
+            Uuid bundleId,
+            Uri contentPath,
+            IEnumerable<Uuid> notificationIds,
+            OpenBundleStreamAsync openBundleStream)
         {
             BundleId = bundleId;
             NotificationIds = notificationIds;
+            _contentPath = contentPath;
+            _openBundleStream = openBundleStream;
         }
 
         public Uuid BundleId { get; }
         public IEnumerable<Uuid> NotificationIds { get; }
 
-        public Task<Stream> OpenAsync()
+        public async Task<Stream> OpenAsync()
         {
-            // TODO: This is for testing only.
-            return Task.FromResult<Stream>(new MemoryStream(Encoding.ASCII.GetBytes(BundleId.ToString())));
+            return await _openBundleStream(BundleId, _contentPath).ConfigureAwait(false);
         }
     }
 }

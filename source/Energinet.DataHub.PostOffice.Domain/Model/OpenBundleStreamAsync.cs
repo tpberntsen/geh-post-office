@@ -12,18 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Domain.Services;
-using Energinet.DataHub.PostOffice.Infrastructure.Services;
-using SimpleInjector;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
-namespace Energinet.DataHub.PostOffice.Common
+namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    internal static class InfrastructureServiceRegistration
-    {
-        public static void AddInfrastructureServices(this Container container)
-        {
-            container.Register<IServiceBusService, ServiceBusService>(Lifestyle.Scoped);
-            container.Register<IMarketOperatorDataStorageService, MarketOperatorDataStorageService>(Lifestyle.Scoped);
-        }
-    }
+    public delegate Task<Stream> OpenBundleStreamAsync(Uuid bundleUuid, Uri contentPath);
 }

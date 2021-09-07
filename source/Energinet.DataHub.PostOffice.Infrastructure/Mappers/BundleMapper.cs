@@ -21,22 +21,15 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
     internal static class BundleMapper
     {
-        public static Bundle MapFromDocument(BundleDocument from)
-        {
-            return new Bundle(
-                new Uuid(from.Id),
-                from.NotificationsIds.Select(x => new Uuid(x)));
-        }
-
-        public static BundleDocument MapToDocument(IBundle from, MarketOperator recipient, Uri? contentPath)
+        public static BundleDocument MapToDocument(IBundle from, MarketOperator recipient, Uri contentPath)
         {
             return new BundleDocument
             {
                 Recipient = recipient.Gln.Value,
                 Id = from.BundleId.ToString(),
-                NotificationsIds = from.NotificationIds.Select(x => x.ToString()).ToList(),
+                NotificationIds = from.NotificationIds.Select(x => x.ToString()).ToList(),
                 Dequeued = false,
-                ContentPath = contentPath?.ToString()
+                ContentPath = contentPath.ToString()
             };
         }
     }

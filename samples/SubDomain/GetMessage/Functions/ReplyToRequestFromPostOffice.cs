@@ -91,14 +91,14 @@ namespace GetMessage.Functions
 
         private DatasetReply CreateFailedResponse(
             RequestDataset requestData,
-            DatasetReply.Types.RequestFailure.Types.Reason failedReson)
+            DatasetReply.Types.RequestFailure.Types.Reason failedReason)
         {
             var proto = new DatasetReply()
             {
                 Failure = new DatasetReply.Types.RequestFailure()
                 {
-                    Reason = failedReson,
-                    FailureDescription = $"Failed with reason: {failedReson}"
+                    Reason = failedReason,
+                    FailureDescription = $"Failed with reason: {failedReason}"
                 }
             };
             proto.Failure.UUID.AddRange(requestData.UUID);
@@ -122,7 +122,7 @@ namespace GetMessage.Functions
 
         private async Task<Uri> SaveDataToBlobStorageAsync(RequestDataset requestData)
         {
-            var blobName = $"blob-ressource-{Environment.GetEnvironmentVariable("QueueListenerName")}-{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss:ff}";
+            var blobName = $"blob-ressource-{Environment.GetEnvironmentVariable("QueueListenerName")}-{DateTime.UtcNow:yyyy-MM-dd-HH-mm-ss-ff}.txt";
             var data = $"<data>{blobName}</data>";
             var blobUri = await _blobStorageController.CreateBlobRessourceAsync(blobName, new BinaryData(data)).ConfigureAwait(false);
             return blobUri;

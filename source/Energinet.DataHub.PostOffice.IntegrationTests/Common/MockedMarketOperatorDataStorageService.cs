@@ -12,18 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
-using Energinet.DataHub.PostOffice.Infrastructure.Services;
-using SimpleInjector;
 
-namespace Energinet.DataHub.PostOffice.Common
+namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
 {
-    internal static class InfrastructureServiceRegistration
+    internal sealed class MockedMarketOperatorDataStorageService : IMarketOperatorDataStorageService
     {
-        public static void AddInfrastructureServices(this Container container)
+        public Task<Stream> GetMarketOperatorDataAsync(Uuid bundleUuid, Uri contentPath)
         {
-            container.Register<IServiceBusService, ServiceBusService>(Lifestyle.Scoped);
-            container.Register<IMarketOperatorDataStorageService, MarketOperatorDataStorageService>(Lifestyle.Scoped);
+            return Task.FromResult<Stream>(new MemoryStream(Encoding.ASCII.GetBytes(bundleUuid.ToString())));
         }
     }
 }

@@ -15,6 +15,7 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
+using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.EntryPoint.SubDomain;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
 using Microsoft.Extensions.Configuration;
@@ -45,6 +46,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
             host._startup.ConfigureServices(serviceCollection);
             InitTestServiceBus(serviceCollection);
             serviceCollection.BuildServiceProvider().UseSimpleInjector(host._startup.Container, o => o.Container.Options.EnableAutoVerification = false);
+            InitTestBlobStorage(host._startup.Container);
 
             return host;
         }
@@ -62,6 +64,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
         private static IConfigurationRoot BuildConfig()
         {
             return new ConfigurationBuilder().AddEnvironmentVariables().Build();
+        }
+
+        private static void InitTestBlobStorage(Container container)
+        {
+            container.Options.AllowOverridingRegistrations = true;
+            container.Register<IMarketOperatorDataStorageService, MockedMarketOperatorDataStorageService>(Lifestyle.Scoped);
         }
 
         private static void InitTestServiceBus(IServiceCollection serviceCollection)
