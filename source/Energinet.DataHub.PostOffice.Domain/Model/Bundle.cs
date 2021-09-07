@@ -21,12 +21,19 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
 {
     public class Bundle : IBundle
     {
-        private readonly Func<Task<Stream>> _getStream;
-        public Bundle(Uuid bundleId, IEnumerable<Uuid> notificationIds, Func<Task<Stream>> getStream)
+        private readonly Uri _contentPath;
+        private readonly OpenBundleStreamAsync _openBundleStream;
+
+        public Bundle(
+            Uuid bundleId,
+            Uri contentPath,
+            IEnumerable<Uuid> notificationIds,
+            OpenBundleStreamAsync openBundleStream)
         {
             BundleId = bundleId;
             NotificationIds = notificationIds;
-            _getStream = getStream;
+            _contentPath = contentPath;
+            _openBundleStream = openBundleStream;
         }
 
         public Uuid BundleId { get; }
@@ -34,7 +41,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
 
         public async Task<Stream> OpenAsync()
         {
-            return await _getStream().ConfigureAwait(false);
+            return await _openBundleStream(BundleId, _contentPath).ConfigureAwait(false);
         }
     }
 }
