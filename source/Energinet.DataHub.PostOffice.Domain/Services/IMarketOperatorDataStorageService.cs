@@ -30,6 +30,6 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         /// <param name="bundleUuid">TODO: This is a temporary parameter, see issue #183.</param>
         /// <param name="contentPath">Url to data.</param>
         /// <returns>A Task containing a Stream that contains the data for the market operator.</returns>
-        public Task<Stream> GetMarkedOperatorDataAsync(Uuid bundleUuid, Uri contentPath);
+        public Task<Stream> GetMarketOperatorDataAsync(Uuid bundleUuid, Uri contentPath);
     }
 }

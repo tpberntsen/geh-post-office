@@ -23,7 +23,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
 {
     internal sealed class MockedMarketOperatorDataStorageService : IMarketOperatorDataStorageService
     {
-        public Task<Stream> GetMarkedOperatorDataAsync(Uuid bundleUuid, Uri contentPath)
+        public Task<Stream> GetMarketOperatorDataAsync(Uuid bundleUuid, Uri contentPath)
         {
             return Task.FromResult<Stream>(new MemoryStream(Encoding.ASCII.GetBytes(bundleUuid.ToString())));
         }

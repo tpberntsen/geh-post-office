@@ -67,7 +67,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 new Uuid(document.Id),
                 new Uri(document.ContentPath),
                 document.NotificationIds.Select(x => new Uuid(x)),
-                _marketOperatorDataStorageService.GetMarkedOperatorDataAsync);
+                _marketOperatorDataStorageService.GetMarketOperatorDataAsync);
         }
 
         public async Task<IBundle> CreateBundleAsync(
@@ -88,7 +88,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 new Uuid(Guid.NewGuid()),
                 contentPath,
                 availableNotifications.Select(x => x.NotificationId),
-                _marketOperatorDataStorageService.GetMarkedOperatorDataAsync);
+                _marketOperatorDataStorageService.GetMarketOperatorDataAsync);
 
             var recipient = availableNotifications.First().Recipient;
 

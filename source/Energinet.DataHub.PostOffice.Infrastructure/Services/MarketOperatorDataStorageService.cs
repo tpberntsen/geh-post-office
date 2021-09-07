@@ -27,7 +27,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
         private static readonly string? _containerName = Environment.GetEnvironmentVariable("BlobStorageContainerName");
         private static readonly string? _connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
 
-        public async Task<Stream> GetMarkedOperatorDataAsync(Uuid bundleUuid, Uri contentPath)
+        public async Task<Stream> GetMarketOperatorDataAsync(Uuid bundleUuid, Uri contentPath)
         {
             if (contentPath is null)
                 throw new ArgumentNullException(nameof(contentPath));
