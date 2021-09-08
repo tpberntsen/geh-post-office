@@ -34,8 +34,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         public async Task Run_DidDequeue_ReturnsStatusOk()
         {
             // Arrange
-            var mockedFunctionContext = new MockedFunctionContext();
-            var mockedRequestData = new MockedHttpRequestData(mockedFunctionContext);
+            var mockedRequestData = new MockedHttpRequestData(new MockedFunctionContext());
             mockedRequestData.HttpRequestDataMock
                 .Setup(x => x.Url)
                 .Returns(_functionRoute);
@@ -49,7 +48,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             var target = new Dequeue(mockedMediator.Object);
 
             // Act
-            var response = await target.RunAsync(mockedRequestData, mockedFunctionContext).ConfigureAwait(false);
+            var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -59,8 +58,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         public async Task Run_DidNotDequeue_ReturnsStatusNotFound()
         {
             // Arrange
-            var mockedFunctionContext = new MockedFunctionContext();
-            var mockedRequestData = new MockedHttpRequestData(mockedFunctionContext);
+            var mockedRequestData = new MockedHttpRequestData(new MockedFunctionContext());
             mockedRequestData.HttpRequestDataMock
                 .Setup(x => x.Url)
                 .Returns(_functionRoute);
@@ -74,7 +72,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             var target = new Dequeue(mockedMediator.Object);
 
             // Act
-            var response = await target.RunAsync(mockedRequestData, mockedFunctionContext).ConfigureAwait(false);
+            var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

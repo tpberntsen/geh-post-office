@@ -42,7 +42,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
 
         /// <summary>
         /// Gets the next unacknowledged notification for the given market operator.
-        /// Returns null, if there are no unacknowledged notifications.
+        /// Returns null if there are no unacknowledged notifications.
         /// </summary>
         /// <param name="recipient">The market operator to get the next notification for.</param>
         /// <returns>The next unacknowledged notification; or null, if there are no unacknowledged notifications.</returns>

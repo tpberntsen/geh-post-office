@@ -15,20 +15,49 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.Common.Extensions
 {
     public static class HttpRequestDataExtensions
     {
-        public static HttpResponseData CreateResponse(this HttpRequestData source, Stream stream)
+        public static HttpResponseData CreateResponse(this HttpRequestData source, Stream stream, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
 
-            var response = source.CreateResponse(HttpStatusCode.OK);
+            var response = source.CreateResponse(statusCode);
             response.Body = stream;
 
             return response;
+        }
+
+        public static async Task<HttpResponseData> ProcessAsync(this HttpRequestData request, Func<Task<HttpResponseData>> worker, [CallerFilePath] string? callerFilePath = null)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            if (worker == null)
+                throw new ArgumentNullException(nameof(worker));
+
+            var callerClass = Path.GetFileNameWithoutExtension(callerFilePath)!;
+            var logger = request.FunctionContext.GetLogger(callerClass);
+
+            try
+            {
+                logger.LogInformation($"Processing {callerClass}");
+                return await worker().ConfigureAwait(false);
+            }
+#pragma warning disable CA1031
+            catch (Exception e)
+#pragma warning restore CA1031
+            {
+                e.Log(logger);
+                return e.AsHttpResponseData(request);
+            }
         }
     }
 }

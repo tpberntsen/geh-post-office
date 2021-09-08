@@ -15,7 +15,11 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Common.Extensions;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Xunit;
@@ -54,6 +58,84 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
 
             // act, assert
             Assert.Throws<ArgumentNullException>(() => request.CreateResponse(new MemoryStream()));
+        }
+
+        [Fact]
+        public async Task ProcessAsync_WorkerFinishesSuccessfully_ReturnsResponseFromWorker()
+        {
+            // arrange
+            var request = new MockedHttpRequestData(new MockedFunctionContext()).HttpRequestData;
+            const string? responseData = "Some data";
+
+            // act
+            var actual = await request.ProcessAsync(() => Task.FromResult(request.CreateResponse(
+                new MemoryStream(Encoding.UTF8.GetBytes(responseData))))).ConfigureAwait(false);
+            var actualResponseMessage = Encoding.UTF8.GetString(((MemoryStream)actual.Body).ToArray());
+
+            // assert
+            Assert.Equal(HttpStatusCode.OK, actual.StatusCode);
+            Assert.Equal(responseData, actualResponseMessage);
+        }
+
+        [Fact]
+        public async Task ProcessAsync_WorkerThrows_ReturnsInternalServerError()
+        {
+            // arrange
+            var request = new MockedHttpRequestData(new MockedFunctionContext()).HttpRequestData;
+            const string? internalServerErrorMessage = "Something's not right";
+
+            // act
+            var actual = await request.ProcessAsync(async () =>
+            {
+                await Task.FromException(new InvalidOperationException(internalServerErrorMessage)).ConfigureAwait(false);
+                return request.CreateResponse(HttpStatusCode.OK);
+            }).ConfigureAwait(false);
+            var actualResponseMessage = Encoding.UTF8.GetString(((MemoryStream)actual.Body).ToArray());
+
+            // assert
+            Assert.Equal(HttpStatusCode.InternalServerError, actual.StatusCode);
+            Assert.NotEmpty(actualResponseMessage);
+            Assert.DoesNotContain(internalServerErrorMessage, actualResponseMessage, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public async Task ProcessAsync_WorkerThrowsValidationException_ReturnsBadRequestWithValidationErrorMessage()
+        {
+            // arrange
+            var request = new MockedHttpRequestData(new MockedFunctionContext()).HttpRequestData;
+            const string? validationErrorMessage = "Something is not right";
+
+            // act
+            var actual = await request.ProcessAsync(async () =>
+            {
+                await Task.FromException(new ValidationException(string.Empty, new[] { new ValidationFailure("propertyName", validationErrorMessage) })).ConfigureAwait(false);
+                return request.CreateResponse(HttpStatusCode.OK);
+            }).ConfigureAwait(false);
+            var actualResponseMessage = Encoding.UTF8.GetString(((MemoryStream)actual.Body).ToArray());
+
+            // assert
+            Assert.Equal(HttpStatusCode.BadRequest, actual.StatusCode);
+            Assert.Contains(validationErrorMessage, actualResponseMessage, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public async Task ProcessAsync_SourceIsNull_Throws()
+        {
+            // arrange, act, assert
+            await Assert.ThrowsAsync<ArgumentNullException>(() =>
+                ((HttpRequestData)null!).ProcessAsync(() =>
+                    Task.FromResult(new MockedHttpRequestData(new MockedFunctionContext()).HttpResponseData))).ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task ProcessAsync_WorkerIsNull_Throws()
+        {
+            // arrange
+            var mockedHttpRequestData = new MockedHttpRequestData(new MockedFunctionContext());
+
+            // act, assert
+            await Assert.ThrowsAsync<ArgumentNullException>(() =>
+                mockedHttpRequestData.HttpRequestData.ProcessAsync(null!)).ConfigureAwait(false);
         }
     }
 }

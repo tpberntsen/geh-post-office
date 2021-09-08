@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
@@ -20,7 +19,6 @@ using Energinet.DataHub.PostOffice.Common.Extensions;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
@@ -34,23 +32,18 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
         }
 
         [Function("Dequeue")]
-        public async Task<HttpResponseData> RunAsync(
+        public Task<HttpResponseData> RunAsync(
             [HttpTrigger(AuthorizationLevel.Function, "delete")]
-            HttpRequestData request,
-            FunctionContext context)
+            HttpRequestData request)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
-
-            var logger = context.GetLogger<Dequeue>();
-            var command = request.Url.ParseQuery<DequeueCommand>();
-
-            logger.LogInformation($"Processing Dequeue query: {command}.");
-
-            var response = await _mediator.Send(command).ConfigureAwait(false);
-            return response.IsDequeued
-                ? request.CreateResponse(HttpStatusCode.OK)
-                : request.CreateResponse(HttpStatusCode.NotFound);
+            return request.ProcessAsync(async () =>
+            {
+                var command = request.Url.ParseQuery<DequeueCommand>();
+                var response = await _mediator.Send(command).ConfigureAwait(false);
+                return response.IsDequeued
+                    ? request.CreateResponse(HttpStatusCode.OK)
+                    : request.CreateResponse(HttpStatusCode.NotFound);
+            });
         }
     }
 }

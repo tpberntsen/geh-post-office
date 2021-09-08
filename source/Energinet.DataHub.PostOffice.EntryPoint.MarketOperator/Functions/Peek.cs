@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
@@ -20,7 +19,6 @@ using Energinet.DataHub.PostOffice.Common.Extensions;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
@@ -34,24 +32,18 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
         }
 
         [Function("Peek")]
-        public async Task<HttpResponseData> RunAsync(
+        public Task<HttpResponseData> RunAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get")]
-            HttpRequestData request,
-            FunctionContext context)
+            HttpRequestData request)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
-
-            var logger = context.GetLogger<Peek>();
-            var command = request.Url.ParseQuery<PeekCommand>();
-
-            logger.LogInformation($"Processing Peek query: {command}.");
-
-            var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
-
-            return hasContent
-                ? request.CreateResponse(stream)
-                : request.CreateResponse(HttpStatusCode.NoContent);
+            return request.ProcessAsync(async () =>
+            {
+                var command = request.Url.ParseQuery<PeekCommand>();
+                var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
+                return hasContent
+                    ? request.CreateResponse(stream)
+                    : request.CreateResponse(HttpStatusCode.NoContent);
+            });
         }
     }
 }
