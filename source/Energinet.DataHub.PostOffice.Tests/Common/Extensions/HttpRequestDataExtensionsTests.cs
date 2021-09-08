@@ -65,7 +65,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
         {
             // arrange
             var request = new MockedHttpRequestData(new MockedFunctionContext()).HttpRequestData;
-            const string? responseData = "Some data";
+            const string responseData = "Some data";
 
             // act
             var actual = await request.ProcessAsync(() => Task.FromResult(request.CreateResponse(
@@ -82,7 +82,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
         {
             // arrange
             var request = new MockedHttpRequestData(new MockedFunctionContext()).HttpRequestData;
-            const string? internalServerErrorMessage = "Something's not right";
+            const string internalServerErrorMessage = "Something's not right";
 
             // act
             var actual = await request.ProcessAsync(async () =>
@@ -103,7 +103,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
         {
             // arrange
             var request = new MockedHttpRequestData(new MockedFunctionContext()).HttpRequestData;
-            const string? validationErrorMessage = "Something is not right";
+            const string validationErrorMessage = "Something is not right";
 
             // act
             var actual = await request.ProcessAsync(async () =>

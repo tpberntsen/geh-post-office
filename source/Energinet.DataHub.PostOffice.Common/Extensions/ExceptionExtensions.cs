@@ -53,7 +53,7 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
             return source switch
             {
                 ValidationException ve => CreateHttpResponseData(request, HttpStatusCode.BadRequest, ve.Errors.Select(x => new ErrorDescriptor(x.ErrorCode, x.ErrorMessage, x.PropertyName))),
-                _ => CreateHttpResponseData(request, HttpStatusCode.InternalServerError, new[] { new ErrorDescriptor("Internal Error", "An error occured while processing the request", null) })
+                _ => CreateHttpResponseData(request, HttpStatusCode.InternalServerError, new[] { new ErrorDescriptor("INTERNAL_ERROR", "An error occured while processing the request", null) })
             };
         }
     }
