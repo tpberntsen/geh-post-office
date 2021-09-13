@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using GreenEnergyHub.Messaging;
@@ -38,22 +39,13 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
             foreach (var type in allTypes)
             {
                 // Check if the type is a ruleset and add it
-                if (TryGetRuleSetDefinition(type, out var ruleSetServiceDescriptor))
-                {
-                    serviceCollection.Add(ruleSetServiceDescriptor);
-                }
+                if (TryGetRuleSetDefinition(type, out var ruleSetServiceDescriptor)) serviceCollection.Add(ruleSetServiceDescriptor);
 
                 // Check if the type is a ruleset and configure the rule engine to support it
-                if (TryGetRuleEngineServiceDescriptor(type, out var ruleEngineServiceDescriptor))
-                {
-                    serviceCollection.Add(ruleEngineServiceDescriptor);
-                }
+                if (TryGetRuleEngineServiceDescriptor(type, out var ruleEngineServiceDescriptor)) serviceCollection.Add(ruleEngineServiceDescriptor);
 
                 // Check if the type is a property rule and add it
-                if (TryGetPropertyRuleServiceDescriptor(type, out var propertyRuleServiceDescriptor))
-                {
-                    serviceCollection.Add(propertyRuleServiceDescriptor);
-                }
+                if (TryGetPropertyRuleServiceDescriptor(type, out var propertyRuleServiceDescriptor)) serviceCollection.Add(propertyRuleServiceDescriptor);
             }
 
             // Add our delegate as a singleton
@@ -62,7 +54,7 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
             return serviceCollection;
         }
 
-        private static bool TryGetRuleSetDefinition(Type type, out ServiceDescriptor serviceDescriptor)
+        private static bool TryGetRuleSetDefinition(Type type, [NotNullWhen(true)] out ServiceDescriptor? serviceDescriptor)
         {
             if (type is null)
                 throw new ArgumentNullException(nameof(type));
@@ -71,7 +63,7 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
             return serviceDescriptor != null;
         }
 
-        private static bool TryGetPropertyRuleServiceDescriptor(Type type, out ServiceDescriptor serviceDescriptor)
+        private static bool TryGetPropertyRuleServiceDescriptor(Type type, [NotNullWhen(true)] out ServiceDescriptor? serviceDescriptor)
         {
             if (type is null)
                 throw new ArgumentNullException(nameof(type));
@@ -81,10 +73,12 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
             return serviceDescriptor != null;
         }
 
-        private static bool TryGetRuleEngineServiceDescriptor(Type type, out ServiceDescriptor serviceDescriptor)
+        private static bool TryGetRuleEngineServiceDescriptor(Type type, [NotNullWhen(true)] out ServiceDescriptor? serviceDescriptor)
         {
-            static ServiceDescriptor Creator(Type baseType, Type messageType, Type implementationType) =>
-                ServiceDescriptor.Singleton(typeof(IRuleEngine<>).MakeGenericType(messageType), typeof(FluentHybridRuleEngine<>).MakeGenericType(messageType));
+            static ServiceDescriptor Creator(Type baseType, Type messageType, Type implementationType)
+            {
+                return ServiceDescriptor.Singleton(typeof(IRuleEngine<>).MakeGenericType(messageType), typeof(FluentHybridRuleEngine<>).MakeGenericType(messageType));
+            }
 
             if (type is null)
                 throw new ArgumentNullException(nameof(type));
@@ -93,21 +87,20 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
             return serviceDescriptor != null;
         }
 
-        private static ServiceDescriptor GetServiceDescriptor(Type type, Type baseType, Func<Type, Type, Type, ServiceDescriptor> creator)
+        private static ServiceDescriptor? GetServiceDescriptor(Type type, Type baseType, Func<Type, Type, Type, ServiceDescriptor> creator)
         {
             var baseTypeIsGenericType = type.BaseType?.IsGenericType ?? false;
             if (!baseTypeIsGenericType)
-                return null!;
+                return null;
 
             var isRuleSetDefinition = type.BaseType?.GetGenericTypeDefinition().IsAssignableFrom(baseType) ?? false;
             if (!isRuleSetDefinition)
-                return null!;
+                return null;
 
             var genericType = type.BaseType?.GetGenericArguments().FirstOrDefault();
-            if (genericType is null)
-                return null!;
-
-            return creator(baseType, genericType, type);
+            return genericType is null
+                ? null
+                : creator(baseType, genericType, type);
         }
 
         private static ServiceDescriptor CreateSingletonGeneric(Type baseType, Type genericType, Type implementationType)

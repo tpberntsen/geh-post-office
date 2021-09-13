@@ -26,7 +26,7 @@ namespace Energinet.DataHub.PostOffice.Common.SimpleInjector
             _container = container;
         }
 
-        public object? GetService(Type serviceType)
+        public object GetService(Type serviceType)
         {
             if (serviceType == null) throw new ArgumentNullException(nameof(serviceType));
 
