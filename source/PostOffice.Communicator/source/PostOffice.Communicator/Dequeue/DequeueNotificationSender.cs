@@ -1,4 +1,4 @@
-// // Copyright 2020 Energinet DataHub A/S
+﻿// // Copyright 2020 Energinet DataHub A/S
 // //
 // // Licensed under the Apache License, Version 2.0 (the "License2");
 // // you may not use this file except in compliance with the License.
@@ -12,13 +12,14 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
+using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 {
-    public class DequeueNotificationSender : IDequeueNotificationSender
+    public class DequeueNotificationSender : IDequeueNotificationSender, IAsyncDisposable
     {
         private readonly ServiceBusClient _serviceBusClient;
 
@@ -30,6 +31,12 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
         public Task SendAsync(DequeueNotificationDto dequeueNotificationDto)
         {
             throw new System.NotImplementedException();
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            GC.SuppressFinalize(this);
+            await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
         }
     }
 }
