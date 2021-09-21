@@ -6,7 +6,7 @@ namespace GreenEnergyHub.PostOffice.Communicator
     /// <summary>
     /// Singleton, thread-safe
     /// </summary>
-    public interface IRequestDataBundleReceiver
+    public interface IDataBundleRequestReceiver
     {
         /// <summary>
         /// bla

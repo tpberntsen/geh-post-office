@@ -20,7 +20,7 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
 {
-    public class DataAvailableNotificationSender : IDataAvailableNotificationSender, IAsyncDisposable
+    public class DataAvailableNotificationSender : IDataAvailableNotificationSender, System.IDisposable
     {
         private readonly ServiceBusClient _serviceBusClient;
 
@@ -33,7 +33,9 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
         private string ServiceBusConnectionString { get; init; }
         public async Task SendAsync(DataAvailableNotificationDto dataAvailableNotificationDto)
         {
-            if (dataAvailableNotificationDto is null) throw new ArgumentNullException(nameof(dataAvailableNotificationDto));
+            if (dataAvailableNotificationDto == null)
+                throw new ArgumentNullException(nameof(dataAvailableNotificationDto));
+
             await using var sender = _serviceBusClient.CreateSender("sbq-dataavailable");
             using var messageBatch = await sender.CreateMessageBatchAsync().ConfigureAwait(false);
             var msg = new Contracts.DataAvailableNotificationContract().ToByteArray();
@@ -48,10 +50,9 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
             await sender.SendMessagesAsync(messageBatch).ConfigureAwait(false);
         }
 
-        public async ValueTask DisposeAsync()
+        public void Dispose()
         {
-            GC.SuppressFinalize(this);
-            await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
+            throw new System.NotImplementedException();
         }
     }
 }
