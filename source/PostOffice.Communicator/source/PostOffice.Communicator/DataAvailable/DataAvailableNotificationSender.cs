@@ -20,7 +20,7 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
 {
-    public class DataAvailableNotificationSender : IDataAvailableNotificationSender, System.IDisposable
+    public class DataAvailableNotificationSender : IDataAvailableNotificationSender, System.IAsyncDisposable
     {
         private readonly ServiceBusClient _serviceBusClient;
         public DataAvailableNotificationSender(string connectionString)
