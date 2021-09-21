@@ -1,18 +1,18 @@
 ﻿using System.Threading.Tasks;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
-namespace GreenEnergyHub.PostOffice.Communicator
+namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 {
     /// <summary>
     /// bla
     /// </summary>
-    public interface IDequeueNotificationSender
+    public interface IDequeueNotificationParser
     {
         /// <summary>
         /// bla
         /// </summary>
-        /// <param name="dequeueNotificationDto"></param>
+        /// <param name="dequeueNotificationContract"></param>
         /// <returns>1</returns>
-        Task SendAsync(DequeueNotificationDto dequeueNotificationDto);
+        DequeueNotificationDto Receive(byte[] dequeueNotificationContract);
     }
 }

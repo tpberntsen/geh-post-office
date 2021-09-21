@@ -1,6 +1,4 @@
 ﻿namespace GreenEnergyHub.PostOffice.Communicator.Model
 {
-    public sealed class DequeueNotificationDto
-    {
-    }
+    public sealed record DequeueNotificationDto(string BundleId, string Recipient);
 }
