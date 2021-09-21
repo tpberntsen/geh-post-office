@@ -12,8 +12,6 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
-using System.IO;
-using System.Threading.Tasks;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
