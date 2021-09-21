@@ -3,9 +3,16 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator
 {
-    // Singleton, thread-safe
+    /// <summary>
+    /// Singleton, thread-safe
+    /// </summary>
     public interface IRequestDataBundleReceiver
     {
+        /// <summary>
+        /// bla
+        /// </summary>
+        /// <param name="dataBundleRequestContract"></param>
+        /// <returns>1</returns>
         Task<DataBundleRequestDto> ReceiveAsync(byte[] dataBundleRequestContract);
     }
 }

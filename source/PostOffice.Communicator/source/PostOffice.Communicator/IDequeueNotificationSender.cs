@@ -3,8 +3,16 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator
 {
+    /// <summary>
+    /// bla
+    /// </summary>
     public interface IDequeueNotificationSender
     {
+        /// <summary>
+        /// bla
+        /// </summary>
+        /// <param name="dequeueNotificationDto"></param>
+        /// <returns>1</returns>
         Task SendAsync(DequeueNotificationDto dequeueNotificationDto);
     }
 }

@@ -7,9 +7,16 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator
 {
-    // Singleton, thread-safe
+    /// <summary>
+    /// Singleton, thread-safe
+    /// </summary>
     public interface IDataAvailableNotificationSender
     {
+        /// <summary>
+        /// bla
+        /// </summary>
+        /// <param name="dataAvailableNotificationDto"></param>
+        /// <returns>1</returns>
         Task SendAsync(DataAvailableNotificationDto dataAvailableNotificationDto);
     }
 }
