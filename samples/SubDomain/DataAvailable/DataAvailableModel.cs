@@ -29,7 +29,7 @@ namespace DataAvailableNotification
             {
                 UUID = messageId,
                 Recipient = recipient,
-                MessageType = "DataAvailable",
+                MessageType = "timeseries",
                 Origin = origin,
                 SupportsBundling = false,
                 RelativeWeight = 1,

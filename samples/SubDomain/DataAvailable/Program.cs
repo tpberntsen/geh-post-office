@@ -32,7 +32,7 @@ namespace DataAvailableNotification
             await using var sender = client.CreateSender(queueName);
             using var messageBatch = await sender.CreateMessageBatchAsync().ConfigureAwait(false);
 
-            var msg = DataAvailableModel.CreateProtoContract(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), SubDomainOrigin.Charges);
+            var msg = DataAvailableModel.CreateProtoContract(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), SubDomainOrigin.TimeSeries);
             var bytearray = msg.ToByteArray();
 
             if (!messageBatch.TryAddMessage(new ServiceBusMessage(new BinaryData(bytearray))))

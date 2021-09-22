@@ -11,11 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-module "sbq_messagereply" {
+module "sbq_timeseries" {
   source              = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-queue?ref=1.8.0"
-  name                = "messagereply"
-  namespace_name      = module.sbn_outbound.name
+  name                = "sbq-timeseries"
+  namespace_name      = module.sbn_marketoperator.name
   resource_group_name = data.azurerm_resource_group.postoffice.name
   requires_session    = true
-  dependencies        = [module.sbn_outbound]
+  dependencies        = [module.sbn_marketoperator]
+}
+
+module "sbq_timeseries_reply" {
+  source              = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-queue?ref=1.8.0"
+  name                = "sbq-timeseries-reply"
+  namespace_name      = module.sbn_marketoperator.name
+  resource_group_name = data.azurerm_resource_group.postoffice.name
+  requires_session    = true
+  dependencies        = [module.sbn_marketoperator]
 }
