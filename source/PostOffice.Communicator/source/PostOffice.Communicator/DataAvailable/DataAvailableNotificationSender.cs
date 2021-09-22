@@ -42,7 +42,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
             }
 
             Console.WriteLine(
-                $"Message added to batch, uuid: {dataAvailableNotificationDto.UUID}, recipient: {dataAvailableNotificationDto.Recipient} ");
+                $"Message added to batch, uuid: {dataAvailableNotificationDto.Uuid}, recipient: {dataAvailableNotificationDto.Recipient} ");
 
             await sender.SendMessagesAsync(messageBatch).ConfigureAwait(false);
         }

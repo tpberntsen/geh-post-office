@@ -18,15 +18,14 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
 {
     /// <summary>
-    /// Singleton, thread-safe
+    /// Communicates DataAvailableNotifications to the post office.
     /// </summary>
     public interface IDataAvailableNotificationSender
     {
         /// <summary>
-        /// bla
+        /// Encodes the specified DataAvailableNotification and places it onto the post office DataAvailable queue.
         /// </summary>
-        /// <param name="dataAvailableNotificationDto"></param>
-        /// <returns>1</returns>
+        /// <param name="dataAvailableNotificationDto">The notification to send to the post office.</param>
         Task SendAsync(DataAvailableNotificationDto dataAvailableNotificationDto);
     }
 }
