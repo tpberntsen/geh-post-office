@@ -15,9 +15,9 @@
 
 syntax = "proto3";
 
-option csharp_namespace = "Energinet.DataHub.PostOffice.Contracts";
+option csharp_namespace = "GreenEnergyHub.PostOffice.Communicator.Contracts";
 
-message DataAvailable {
+message DataAvailableNotificationContract {
     string UUID = 1; // Unique dataset identification
     string recipient = 2; // Dataset recipient
     string messageType = 3; // Dataset message type
