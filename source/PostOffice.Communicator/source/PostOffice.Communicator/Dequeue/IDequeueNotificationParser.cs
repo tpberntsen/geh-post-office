@@ -15,18 +15,18 @@
 using System.Threading.Tasks;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
-namespace GreenEnergyHub.PostOffice.Communicator
+namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 {
     /// <summary>
-    /// Singleton, thread-safe
+    /// bla
     /// </summary>
-    public interface IRequestDataBundleReceiver
+    public interface IDequeueNotificationParser
     {
         /// <summary>
         /// bla
         /// </summary>
-        /// <param name="dataBundleRequestContract"></param>
+        /// <param name="dequeueNotificationContract"></param>
         /// <returns>1</returns>
-        Task<DataBundleRequestDto> ReceiveAsync(byte[] dataBundleRequestContract);
+        DequeueNotificationDto Receive(byte[] dequeueNotificationContract);
     }
 }

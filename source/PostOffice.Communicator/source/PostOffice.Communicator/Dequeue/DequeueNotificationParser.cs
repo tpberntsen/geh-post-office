@@ -12,22 +12,19 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
+using System.Linq;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
-namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
+namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 {
-    public class DataAvailableNotificationParser : IDataAvailableNotificationParser
+    public class DequeueNotificationParser : IDequeueNotificationParser
     {
-        public DataAvailableNotificationDto Parse(byte[] dataAvailableContract)
+        public DequeueNotificationDto Receive(byte[] dequeueNotificationContract)
         {
-            var dataAvailable = Contracts.DataAvailableNotificationContract.Parser.ParseFrom(dataAvailableContract);
-            return new DataAvailableNotificationDto(
-                UUID: dataAvailable.UUID,
-                Recipient: dataAvailable.Recipient,
-                MessageType: dataAvailable.MessageType,
-                Origin: dataAvailable.Origin,
-                SupportsBundling: dataAvailable.SupportsBundling,
-                RelativeWeight: dataAvailable.RelativeWeight);
+            var dequeueContract = Contracts.DequeueContractContract.Parser.ParseFrom(dequeueNotificationContract);
+            return new DequeueNotificationDto(
+                DatasAvailableIds: dequeueContract.DataAvailableIds,
+                Recipient: dequeueContract.Recipient);
         }
     }
 }
