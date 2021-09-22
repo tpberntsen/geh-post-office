@@ -41,7 +41,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 
             var contract = new Contracts.DequeueContractContract()
             {
-                Datasetids = { dequeueNotificationDto.DatasetIds },
+                DataAvailableIds = { dequeueNotificationDto.DatasAvailableIds },
                 Recipient = dequeueNotificationDto.Recipient
             };
 

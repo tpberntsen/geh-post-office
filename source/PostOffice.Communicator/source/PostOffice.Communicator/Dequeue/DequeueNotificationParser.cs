@@ -23,7 +23,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
         {
             var dequeueContract = Contracts.DequeueContractContract.Parser.ParseFrom(dequeueNotificationContract);
             return new DequeueNotificationDto(
-                DatasetIds: dequeueContract.Datasetids,
+                DatasAvailableIds: dequeueContract.DataAvailableIds,
                 Recipient: dequeueContract.Recipient);
         }
     }

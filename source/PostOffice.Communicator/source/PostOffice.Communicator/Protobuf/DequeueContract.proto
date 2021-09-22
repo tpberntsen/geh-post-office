@@ -18,6 +18,6 @@ syntax = "proto3";
 option csharp_namespace = "GreenEnergyHub.PostOffice.Communicator.Contracts";
 
 message DequeueContractContract {
-    repeated string datasetids = 1; // Unique datasets that are dequeued
+    repeated string dataAvailableIds = 1; // Unique datasets that are dequeued
     string recipient = 2; // Dataset recipient
 }
