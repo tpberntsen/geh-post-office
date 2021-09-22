@@ -41,7 +41,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Services
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var dataAvailableNotifications = new List<DataAvailableNotification>
             {
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
+                CreateDataAvailableNotifications(recipient, new ContentType("timeseries")),
             };
 
             // Act

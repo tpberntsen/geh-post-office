@@ -32,7 +32,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
     [IntegrationTest]
     public sealed class BundleRepositoryIntegrationTests
     {
-        private IMarketOperatorDataStorageService _marketOperatorDataStorageService = new MarketOperatorDataStorageService();
+        private readonly IMarketOperatorDataStorageService _marketOperatorDataStorageService = new MarketOperatorDataStorageService();
+
         [Fact]
         public async Task CreateBundle_Should_Return_Bundle()
         {
@@ -43,9 +44,9 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var replyData = new SubDomainReply { Success = true, UriToContent = new Uri("https://test.test.dk") };
             var dataAvailableNotificationIds = new List<DataAvailableNotification>
             {
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries)
+                CreateDataAvailableNotifications(recipient, new ContentType("timeseries")),
+                CreateDataAvailableNotifications(recipient, new ContentType("timeseries")),
+                CreateDataAvailableNotifications(recipient, new ContentType("timeseries"))
             };
             var client = scope.GetInstance<CosmosClient>();
             var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client), _marketOperatorDataStorageService);
@@ -69,9 +70,9 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var replyData = new SubDomainReply { Success = true, UriToContent = new Uri("https://test.test.dk") };
             var dataAvailableNotifications = new List<DataAvailableNotification>
             {
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
+                CreateDataAvailableNotifications(recipient, new ContentType("timeseries")),
+                CreateDataAvailableNotifications(recipient, new ContentType("timeseries")),
+                CreateDataAvailableNotifications(recipient, new ContentType("timeseries")),
             };
             var client = scope.GetInstance<CosmosClient>();
             var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client), _marketOperatorDataStorageService);
@@ -106,7 +107,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var replyData = new SubDomainReply { Success = true, UriToContent = new Uri("https://test.test.dk") };
             var dataAvailableNotifications = new List<DataAvailableNotification>
             {
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries)
+                CreateDataAvailableNotifications(recipient, new ContentType("timeseries"))
             };
             var client = scope.GetInstance<CosmosClient>();
             var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client), _marketOperatorDataStorageService);
@@ -133,7 +134,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var replyData = new SubDomainReply { Success = true, UriToContent = new Uri("https://test.test.dk") };
             var dataAvailableNotifications = new List<DataAvailableNotification>
             {
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
+                CreateDataAvailableNotifications(recipient, new ContentType("timeseries")),
             };
             var client = scope.GetInstance<CosmosClient>();
             var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client), _marketOperatorDataStorageService);

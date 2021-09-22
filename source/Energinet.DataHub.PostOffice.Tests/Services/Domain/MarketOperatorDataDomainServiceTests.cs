@@ -65,15 +65,15 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             // Arrange
             var recipient = new MarketOperator(new GlobalLocationNumber("fake_value"));
 
-            var dataAvailableNotificationFirst = CreateDataAvailableNotification(recipient, ContentType.TimeSeries);
+            var dataAvailableNotificationFirst = CreateDataAvailableNotification(recipient, new ContentType("timeseries"));
             var allDataAvailableNotificationsForMessageType = new[]
             {
                 dataAvailableNotificationFirst,
-                CreateDataAvailableNotification(recipient, ContentType.TimeSeries),
-                CreateDataAvailableNotification(recipient, ContentType.TimeSeries),
-                CreateDataAvailableNotification(recipient, ContentType.TimeSeries)
+                CreateDataAvailableNotification(recipient, new ContentType("timeseries")),
+                CreateDataAvailableNotification(recipient, new ContentType("timeseries")),
+                CreateDataAvailableNotification(recipient, new ContentType("timeseries"))
             };
-            var requestSession = new RequestDataSession() { Id = new Uuid(System.Guid.NewGuid().ToString()) };
+            var requestSession = new RequestDataSession() { Id = new Uuid(Guid.NewGuid().ToString()) };
             var replyData = new SubDomainReply() { Success = true, UriToContent = new Uri("https://test.test.dk") };
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -84,11 +84,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
             contentTypeWeightMapMock
-                .Setup(x => x.CalculateMaxWeight(ContentType.TimeSeries))
+                .Setup(x => x.CalculateMaxWeight(DomainOrigin.TimeSeries))
                 .Returns(weight);
 
             dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, ContentType.TimeSeries, weight))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, new ContentType("timeseries"), weight))
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleMock = new Mock<IBundle>();

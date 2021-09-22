@@ -45,7 +45,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             {
                 Uuid = dataAvailableNotification.NotificationId.ToString(),
                 Recipient = dataAvailableNotification.Recipient.Gln.Value,
-                ContentType = dataAvailableNotification.ContentType.ToString(),
+                ContentType = dataAvailableNotification.ContentType.Value,
                 Origin = dataAvailableNotification.Origin.ToString(),
                 RelativeWeight = dataAvailableNotification.Weight.Value,
                 Priority = 1M,
@@ -61,8 +61,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             if (recipient is null)
                 throw new ArgumentNullException(nameof(recipient));
 
+            if (contentType is null)
+                throw new ArgumentNullException(nameof(contentType));
+
             const string queryString = "SELECT * FROM c WHERE c.recipient = @recipient AND c.acknowledge = false AND c.contentType = @contentType ORDER BY c._ts ASC OFFSET 0 LIMIT 1";
-            var parameters = new List<KeyValuePair<string, string>> { new("recipient", recipient.Gln.Value), new("contentType", contentType.ToString()) };
+            var parameters = new List<KeyValuePair<string, string>> { new("recipient", recipient.Gln.Value), new("contentType", contentType.Value) };
 
             var documents = await GetDocumentsAsync(queryString, parameters).ConfigureAwait(false);
             return documents;
@@ -122,7 +125,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     .Select(document => new DataAvailableNotification(
                         new Uuid(document.Uuid),
                         new MarketOperator(new GlobalLocationNumber(document.Recipient)),
-                        Enum.Parse<ContentType>(document.ContentType, true),
+                        new ContentType(document.ContentType),
                         Enum.Parse<DomainOrigin>(document.Origin, true),
                         new Weight(document.RelativeWeight)));
 

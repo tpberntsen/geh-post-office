@@ -51,7 +51,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 .GetNextUnacknowledgedAsync(
                     recipient,
                     dataAvailableNotification.ContentType,
-                    _weightCalculatorDomainService.CalculateMaxWeight(dataAvailableNotification.ContentType))
+                    _weightCalculatorDomainService.CalculateMaxWeight(dataAvailableNotification.Origin))
                 .ConfigureAwait(false);
 
             var subDomain = dataAvailableNotification.Origin;
