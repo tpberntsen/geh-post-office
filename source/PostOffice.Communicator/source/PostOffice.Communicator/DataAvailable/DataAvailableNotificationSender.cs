@@ -37,7 +37,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
             using var messageBatch = await sender.CreateMessageBatchAsync().ConfigureAwait(false);
 
             var contract = new Contracts.DataAvailableNotificationContract();
-            contract.UUID = dataAvailableNotificationDto.UUID;
+            contract.UUID = dataAvailableNotificationDto.Uuid;
             contract.MessageType = dataAvailableNotificationDto.MessageType;
             contract.Origin = dataAvailableNotificationDto.Origin;
             contract.Recipient = dataAvailableNotificationDto.Recipient;
@@ -51,7 +51,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
             }
 
             Console.WriteLine(
-                $"Message added to batch, uuid: {dataAvailableNotificationDto.UUID}, recipient: {dataAvailableNotificationDto.Recipient} ");
+                $"Message added to batch, uuid: {dataAvailableNotificationDto.Uuid}, recipient: {dataAvailableNotificationDto.Recipient} ");
 
             await sender.SendMessagesAsync(messageBatch).ConfigureAwait(false);
         }

@@ -18,15 +18,14 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 {
     /// <summary>
-    /// bla
+    /// Communicates DequeueNotifications to the domain post offices.
     /// </summary>
     public interface IDequeueNotificationSender
     {
         /// <summary>
-        /// bla
+        /// Encodes the specified DequeueNotification and places it onto the domain post office DequeueNotification queue.
         /// </summary>
-        /// <param name="dequeueNotificationDto"></param>
-        /// <returns>1</returns>
+        /// <param name="dequeueNotificationDto">The notification to send to the domain post office.</param>
         Task SendAsync(DequeueNotificationDto dequeueNotificationDto);
     }
 }

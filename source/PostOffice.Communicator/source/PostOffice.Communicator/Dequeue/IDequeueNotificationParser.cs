@@ -1,4 +1,4 @@
-﻿// Copyright 2020 Energinet DataHub A/S
+// Copyright 2020 Energinet DataHub A/S
 //
 // Licensed under the Apache License, Version 2.0 (the "License2");
 // you may not use this file except in compliance with the License.
@@ -13,20 +13,24 @@
 // limitations under the License.
 
 using System.Threading.Tasks;
+using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 {
     /// <summary>
-    /// bla
+    /// Parses the DequeueNotification protobuf contract.
     /// </summary>
     public interface IDequeueNotificationParser
     {
         /// <summary>
-        /// bla
+        /// Parses the DequeueNotification protobuf contract.
         /// </summary>
-        /// <param name="dequeueNotificationContract"></param>
-        /// <returns>1</returns>
+        /// <param name="dequeueNotificationContract">A byte array containing the DequeueNotification protobuf contract.</param>
+        /// <returns>The parsed DequeueNotificationDto.</returns>
+        /// <exception cref="InvalidProtocolBufferException">
+        /// Throws an exception if byte array cannot be parsed.
+        /// </exception>
         DequeueNotificationDto Receive(byte[] dequeueNotificationContract);
     }
 }
