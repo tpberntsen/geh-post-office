@@ -1,4 +1,4 @@
-// // Copyright 2020 Energinet DataHub A/S
+﻿// // Copyright 2020 Energinet DataHub A/S
 // //
 // // Licensed under the Apache License, Version 2.0 (the "License2");
 // // you may not use this file except in compliance with the License.
@@ -12,24 +12,52 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
+using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
+using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 {
-    public class DequeueNotificationSender : IDequeueNotificationSender
+    public class DequeueNotificationSender : IDequeueNotificationSender, IAsyncDisposable
     {
         private readonly ServiceBusClient _serviceBusClient;
+        private readonly string _queueName;
 
-        public DequeueNotificationSender(string connectionString)
+        public DequeueNotificationSender(string connectionString, string queueName)
         {
+            _queueName = queueName;
             _serviceBusClient = new ServiceBusClient(connectionString);
         }
 
-        public Task SendAsync(DequeueNotificationDto dequeueNotificationDto)
+        public async Task SendAsync(DequeueNotificationDto dequeueNotificationDto)
         {
-            throw new System.NotImplementedException();
+            if (dequeueNotificationDto is null)
+                throw new ArgumentNullException(nameof(dequeueNotificationDto));
+
+            await using var sender = _serviceBusClient.CreateSender(_queueName);
+            using var messageBatch = await sender.CreateMessageBatchAsync().ConfigureAwait(false);
+
+            var contract = new Contracts.DequeueContractContract()
+            {
+                DataAvailableIds = { dequeueNotificationDto.DatasAvailableIds },
+                Recipient = dequeueNotificationDto.Recipient
+            };
+
+            var msgBytes = contract.ToByteArray();
+            if (!messageBatch.TryAddMessage(new ServiceBusMessage(new BinaryData(msgBytes))))
+            {
+                throw new InvalidOperationException("The message is too large to fit in the batch.");
+            }
+
+            await sender.SendMessagesAsync(messageBatch).ConfigureAwait(false);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            GC.SuppressFinalize(this);
+            await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
         }
     }
 }
