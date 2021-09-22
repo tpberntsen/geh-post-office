@@ -15,12 +15,14 @@
 using System;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using GreenEnergyHub.PostOffice.Communicator.Contracts;
+using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
-    public sealed class DataAvailableMapper : IMapper<Contracts.DataAvailable, DataAvailableNotificationCommand>
+    public sealed class DataAvailableMapper : IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand>
     {
-        public DataAvailableNotificationCommand Map(Contracts.DataAvailable obj)
+        public DataAvailableNotificationCommand Map(DataAvailableNotificationDto obj)
         {
             if (obj is null) throw new ArgumentNullException(nameof(obj));
 

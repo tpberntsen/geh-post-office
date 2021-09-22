@@ -14,7 +14,6 @@
 
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
-using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions;
 using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Parsing;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
@@ -40,13 +39,26 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain
             var contractParser = new DataAvailableContractParser(new DataAvailableMapper());
             var target = new DataAvailableInbox(mockedMediator.Object, contractParser);
 
-            var protobufMessage = new DataAvailable();
+            var protobufMessage = CreateProtoContract();
 
             // Act
             await target.RunAsync(protobufMessage.ToByteArray(), mockedFunctionContext).ConfigureAwait(false);
 
             // Assert
             mockedMediator.Verify(mediator => mediator.Send(It.IsAny<DataAvailableNotificationCommand>(), default));
+        }
+
+        private static GreenEnergyHub.PostOffice.Communicator.Contracts.DataAvailableNotificationContract CreateProtoContract()
+        {
+            return new()
+            {
+                UUID = "SomeGuid",
+                Recipient = "recipient",
+                MessageType = "DataAvailable",
+                Origin = "origin",
+                SupportsBundling = false,
+                RelativeWeight = 1,
+            };
         }
 
         //[Fact]

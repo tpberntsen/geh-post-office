@@ -23,6 +23,7 @@ limitations under the License.
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="GreenEnergyHub.PostOffice.Communicator" Version="1.0.0-CI-01" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="4.2.1" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.5.1" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.0.4" />
