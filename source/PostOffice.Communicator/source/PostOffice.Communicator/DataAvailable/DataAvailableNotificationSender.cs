@@ -35,8 +35,17 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
 
             await using var sender = _serviceBusClient.CreateSender("sbq-dataavailable");
             using var messageBatch = await sender.CreateMessageBatchAsync().ConfigureAwait(false);
-            var msg = new Contracts.DataAvailableNotificationContract().ToByteArray();
-            if (!messageBatch.TryAddMessage(new ServiceBusMessage(new BinaryData(msg))))
+
+            var contract = new Contracts.DataAvailableNotificationContract();
+            contract.UUID = dataAvailableNotificationDto.UUID;
+            contract.MessageType = dataAvailableNotificationDto.MessageType;
+            contract.Origin = dataAvailableNotificationDto.Origin;
+            contract.Recipient = dataAvailableNotificationDto.Recipient;
+            contract.SupportsBundling = dataAvailableNotificationDto.SupportsBundling;
+            contract.RelativeWeight = dataAvailableNotificationDto.RelativeWeight;
+
+            var msgBytes = contract.ToByteArray();
+            if (!messageBatch.TryAddMessage(new ServiceBusMessage(new BinaryData(msgBytes))))
             {
                 throw new InvalidOperationException("The message is too large to fit in the batch.");
             }
