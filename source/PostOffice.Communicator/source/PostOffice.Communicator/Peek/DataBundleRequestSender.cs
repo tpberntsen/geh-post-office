@@ -15,8 +15,6 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Google.Protobuf;
-using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
@@ -48,9 +46,11 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             if (dataBundleRequestDto == null)
                 throw new ArgumentNullException(nameof(dataBundleRequestDto));
 
+            if (!_requestBundleRequestParser.TryParse(dataBundleRequestDto, out var bytes))
+                throw new InvalidOperationException("Could not parse Bundle request");
+
             var sessionId = Guid.NewGuid().ToString();
-            var message = new RequestBundleRequest { IdempotencyId = dataBundleRequestDto.IdempotencyId, UUID = { dataBundleRequestDto.DataAvailableNotificationIds } };
-            var serviceBusMessage = new ServiceBusMessage(message.ToByteArray()) { SessionId = sessionId, ReplyToSessionId = sessionId, ReplyTo = _replyQueue };
+            var serviceBusMessage = new ServiceBusMessage(bytes) { SessionId = sessionId, ReplyToSessionId = sessionId, ReplyTo = _replyQueue };
 
             await using var sender = _serviceBusClient.CreateSender(_queue);
             await sender.SendMessageAsync(serviceBusMessage).ConfigureAwait(false);
@@ -58,14 +58,13 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             await using var receiver = await _serviceBusClient.AcceptSessionAsync(_replyQueue, sessionId).ConfigureAwait(false);
             var response = await receiver.ReceiveMessageAsync(_requestBundleTimout).ConfigureAwait(false);
 
-            if (response is null)
+            if (response == null)
                 return null;
 
-            var bundleResponse = RequestBundleResponse.Parser.ParseFrom(response.Body.ToArray());
+            if (!_requestBundleRequestParser.TryParse(response.Body.ToArray(), out var dto))
+                throw new InvalidOperationException("Could not parse Bundle response");
 
-            return bundleResponse.ReplyCase != RequestBundleResponse.ReplyOneofCase.Success
-                ? null
-                : new RequestDataBundleResponseDto(new Uri(bundleResponse.Success.Uri));
+            return dto;
         }
     }
 }
