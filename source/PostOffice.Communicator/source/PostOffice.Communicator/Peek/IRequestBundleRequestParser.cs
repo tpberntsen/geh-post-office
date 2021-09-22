@@ -1,6 +1,6 @@
 ﻿using GreenEnergyHub.PostOffice.Communicator.Model;
 
-namespace GreenEnergyHub.PostOffice.Communicator
+namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     /// <summary>
     /// bla
