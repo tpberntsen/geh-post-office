@@ -1,6 +1,6 @@
-﻿namespace GreenEnergyHub.PostOffice.Communicator.Model
+﻿using System.Collections.Generic;
+
+namespace GreenEnergyHub.PostOffice.Communicator.Model
 {
-    public sealed class DataBundleRequestDto
-    {
-    }
+    public sealed record DataBundleRequestDto(string IdempotencyId, IEnumerable<string> DataAvailableNotificationIds);
 }

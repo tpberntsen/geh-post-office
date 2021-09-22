@@ -6,13 +6,13 @@ namespace GreenEnergyHub.PostOffice.Communicator
     /// <summary>
     /// bla
     /// </summary>
-    public interface IDataBundleReplySender
+    public interface IDataBundleResponseSender
     {
         /// <summary>
         /// bla
         /// </summary>
-        /// <param name="dataBundleReplyDto"></param>
+        /// <param name="requestDataBundleResponseDto"></param>
         /// <returns>1</returns>
-        Task SendAsync(DataBundleReplyDto dataBundleReplyDto);
+        Task SendAsync(RequestDataBundleResponseDto requestDataBundleResponseDto);
     }
 }

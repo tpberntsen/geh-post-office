@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
-namespace GreenEnergyHub.PostOffice.Communicator
+namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     /// <summary>
     /// Singleton, thread-safe
@@ -13,6 +13,6 @@ namespace GreenEnergyHub.PostOffice.Communicator
         /// </summary>
         /// <param name="dataBundleRequestDto"></param>
         /// <returns>1</returns>
-        Task<DataBundleReplyDto?> SendAsync(DataBundleRequestDto dataBundleRequestDto);
+        Task<RequestDataBundleResponseDto?> SendAsync(DataBundleRequestDto dataBundleRequestDto);
     }
 }
