@@ -39,6 +39,7 @@ jobs:
           github_token: ${{ github.token }}
           paths: '[
             "source/**",
+            ".github/workflows/solution-ci.yml",
             ".github/workflows/package-ci.yml"
           ]'
 
@@ -63,7 +64,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Build package
-        run: dotnet build ${{ env.SOLUTION_FILE_PATH }} --configuration Release --output '${{ github.workspace }}/output'
+        run: dotnet build ${{ env.SOLUTION_FILE_PATH }} --configuration Release --output '${{ github.workspace }}/package/output'
 
       - name: Run tests and collect coverage
         run: |
@@ -81,4 +82,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: drop
-          path: '${{ github.workspace }}/output'
+          path: '${{ github.workspace }}/package/output'
