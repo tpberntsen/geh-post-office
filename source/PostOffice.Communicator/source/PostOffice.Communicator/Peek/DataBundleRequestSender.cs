@@ -21,15 +21,15 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     public sealed class DataBundleRequestSender : IDataBundleRequestSender, IAsyncDisposable
     {
-        private readonly IRequestBundleRequestParser _requestBundleRequestParser;
+        private readonly IRequestBundleParser _requestBundleParser;
         private readonly ServiceBusClient _serviceBusClient;
         private readonly string _queue;
         private readonly string _replyQueue;
         private readonly TimeSpan _requestBundleTimout;
 
-        public DataBundleRequestSender(IRequestBundleRequestParser requestBundleRequestParser, string connectionString, DomainOrigin domainOrigin, TimeSpan requestBundleTimout)
+        public DataBundleRequestSender(IRequestBundleParser requestBundleParser, string connectionString, DomainOrigin domainOrigin, TimeSpan requestBundleTimout)
         {
-            _requestBundleRequestParser = requestBundleRequestParser;
+            _requestBundleParser = requestBundleParser;
             _serviceBusClient = new ServiceBusClient(connectionString);
             _queue = $"sbq-{domainOrigin.ToString()}";
             _replyQueue = $"sbq-{domainOrigin.ToString()}-reply";
@@ -46,7 +46,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             if (dataBundleRequestDto == null)
                 throw new ArgumentNullException(nameof(dataBundleRequestDto));
 
-            if (!_requestBundleRequestParser.TryParse(dataBundleRequestDto, out var bytes))
+            if (!_requestBundleParser.TryParse(dataBundleRequestDto, out var bytes))
                 throw new InvalidOperationException("Could not parse Bundle request");
 
             var sessionId = Guid.NewGuid().ToString();
@@ -61,7 +61,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             if (response == null)
                 return null;
 
-            if (!_requestBundleRequestParser.TryParse(response.Body.ToArray(), out var dto))
+            if (!_requestBundleParser.TryParse(response.Body.ToArray(), out var dto))
                 throw new InvalidOperationException("Could not parse Bundle response");
 
             return dto;

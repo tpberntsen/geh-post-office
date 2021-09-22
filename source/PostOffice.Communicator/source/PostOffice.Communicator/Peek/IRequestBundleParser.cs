@@ -20,7 +20,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
     /// <summary>
     /// bla
     /// </summary>
-    public interface IRequestBundleRequestParser
+    public interface IRequestBundleParser
     {
         /// <summary>
         /// bla
