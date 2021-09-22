@@ -37,7 +37,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
             using var messageBatch = await sender.CreateMessageBatchAsync().ConfigureAwait(false);
 
             var contract = new Contracts.DataAvailableNotificationContract();
-            contract.UUID = dataAvailableNotificationDto.UUID;
+            contract.UUID = dataAvailableNotificationDto.Uuid;
             contract.MessageType = dataAvailableNotificationDto.MessageType;
             contract.Origin = dataAvailableNotificationDto.Origin;
             contract.Recipient = dataAvailableNotificationDto.Recipient;
