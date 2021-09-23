@@ -12,9 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
+using System.Threading.Tasks;
+using GreenEnergyHub.PostOffice.Communicator.Model;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Model
+namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
-    public sealed record DataBundleRequestDto(string IdempotencyId, IEnumerable<string> DataAvailableNotificationIds);
+    /// <summary>
+    /// Singleton, thread-safe
+    /// </summary>
+    public interface IDataBundleRequestSender
+    {
+        /// <summary>
+        /// bla
+        /// </summary>
+        /// <param name="dataBundleRequestDto"></param>
+        /// <returns>1</returns>
+        Task<RequestDataBundleResponseDto?> SendAsync(DataBundleRequestDto dataBundleRequestDto);
+    }
 }

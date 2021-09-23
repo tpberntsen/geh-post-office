@@ -12,21 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
-namespace GreenEnergyHub.PostOffice.Communicator
+namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     /// <summary>
     /// bla
     /// </summary>
-    internal interface IDataBundleReplyReceiver
+    public interface IRequestBundleParser
     {
         /// <summary>
         /// bla
         /// </summary>
         /// <param name="dataBundleReplyContract"></param>
-        /// <returns>1</returns>
-        Task<DataBundleReplyDto> ReceiveAsync(byte[] dataBundleReplyContract);
+        /// <param name="response"></param>
+        /// <returns><see cref="bool"/></returns>
+        bool TryParse(byte[] dataBundleReplyContract, [NotNullWhen(true)] out RequestDataBundleResponseDto? response);
+
+        /// <summary>
+        /// bla
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="bytes"></param>
+        /// <returns><see cref="bool"/></returns>
+        bool TryParse(DataBundleRequestDto request, [NotNullWhen(true)] out byte[]? bytes);
     }
 }

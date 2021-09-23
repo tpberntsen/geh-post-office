@@ -15,18 +15,18 @@
 using System.Threading.Tasks;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
-namespace GreenEnergyHub.PostOffice.Communicator
+namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     /// <summary>
-    /// Singleton, thread-safe
+    /// bla
     /// </summary>
-    public interface IDataBundleRequestReceiver
+    public interface IDataBundleResponseSender
     {
         /// <summary>
         /// bla
         /// </summary>
-        /// <param name="dataBundleRequestContract"></param>
+        /// <param name="requestDataBundleResponseDto"></param>
         /// <returns>1</returns>
-        Task<DataBundleRequestDto> ReceiveAsync(byte[] dataBundleRequestContract);
+        Task SendAsync(RequestDataBundleResponseDto requestDataBundleResponseDto);
     }
 }
