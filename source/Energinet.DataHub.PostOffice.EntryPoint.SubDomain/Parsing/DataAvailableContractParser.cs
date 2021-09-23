@@ -16,14 +16,18 @@ using System;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Contracts;
+using Energinet.DataHub.PostOffice.Domain.Model;
+using GreenEnergyHub.PostOffice.Communicator.DataAvailable;
+using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Parsing
 {
     public class DataAvailableContractParser
     {
-        private readonly IMapper<DataAvailable, DataAvailableNotificationCommand> _mapper;
+        private readonly IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand> _mapper;
+        private readonly IDataAvailableNotificationParser _dataAvailableNotificationParser = new DataAvailableNotificationParser();
 
-        public DataAvailableContractParser(IMapper<DataAvailable, DataAvailableNotificationCommand> mapper)
+        public DataAvailableContractParser(IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand> mapper)
         {
             _mapper = mapper;
         }
@@ -32,7 +36,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Parsing
         {
             if (bytes is null) throw new ArgumentNullException(nameof(bytes));
 
-            var dataAvailableContract = DataAvailable.Parser.ParseFrom(bytes);
+            var dataAvailableContract = _dataAvailableNotificationParser.Parse(bytes);
 
             return _mapper.Map(dataAvailableContract);
         }

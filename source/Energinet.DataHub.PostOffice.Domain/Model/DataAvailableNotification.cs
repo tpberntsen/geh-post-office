@@ -21,12 +21,14 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             MarketOperator recipient,
             ContentType contentType,
             DomainOrigin origin,
+            SupportsBundling supportsBundling,
             Weight weight)
         {
             NotificationId = notificationId;
             Recipient = recipient;
             ContentType = contentType;
             Origin = origin;
+            SupportsBundling = supportsBundling;
             Weight = weight;
         }
 
@@ -34,6 +36,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
         public MarketOperator Recipient { get; }
         public ContentType ContentType { get; }
         public DomainOrigin Origin { get; }
+        public SupportsBundling SupportsBundling { get; }
         public Weight Weight { get; }
     }
 }

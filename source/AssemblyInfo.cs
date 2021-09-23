@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Model
-{
-    public sealed record DataBundleRequestDto(string IdempotencyId, IEnumerable<string> DataAvailableNotificationIds);
-}
+[assembly: InternalsVisibleTo("Energinet.DataHub.PostOffice.IntegrationTests")]
+[assembly: InternalsVisibleTo("Energinet.DataHub.PostOffice.Tests")]
