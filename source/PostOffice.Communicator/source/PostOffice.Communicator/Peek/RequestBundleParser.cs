@@ -14,6 +14,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Model;
@@ -30,7 +31,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
 
                 response = bundleResponse.ReplyCase != RequestBundleResponse.ReplyOneofCase.Success
                     ? null
-                    : new RequestDataBundleResponseDto(new Uri(bundleResponse.Success.Uri));
+                    : new RequestDataBundleResponseDto(new Uri(bundleResponse.Success.Uri), bundleResponse.Success.UUID.AsEnumerable());
             }
 #pragma warning disable CA1031
             catch (Exception)
