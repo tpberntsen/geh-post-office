@@ -17,6 +17,9 @@
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PostOffice.Communicator", "PostOffice.Communicator", "{D79C7D37-ADE1-42D3-9FED-1E5D784E6E7D}"
+ProjectSection(SolutionItems) = preProject
+	AssemblyInfo.cs = AssemblyInfo.cs
+EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{2BF2F6B8-E02B-4D7F-99BC-D28B3B3643A9}"
 EndProject
