@@ -15,6 +15,7 @@
 using System;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Infrastructure;
+using GreenEnergyHub.PostOffice.Communicator.Dequeue;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Configuration;
@@ -83,6 +84,18 @@ namespace Energinet.DataHub.PostOffice.Common
                     configuration.GetValue<string>(ServiceBusConfig.InboundQueueDataAvailableTopicNameKey),
                     configuration.GetValue<string>(ServiceBusConfig.InboundQueueDataAvailableSubscriptionNameKey),
                     configuration.GetValue<string>(ServiceBusConfig.InboundQueueConnectionStringKey));
+            });
+        }
+
+        public static void AddDequeueNotificationSender(this IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddScoped<IDequeueNotificationSender>(serviceProvider =>
+            {
+                var configuration = serviceProvider.GetService<IConfiguration>();
+
+                return new DequeueNotificationSender(
+                    connectionString: configuration.GetValue<string>("ServiceBusConnectionString"),
+                    queueName: configuration.GetValue<string>("ServiceBusDequeueQueueName"));
             });
         }
     }

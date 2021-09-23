@@ -73,15 +73,15 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 .ConfigureAwait(false);
         }
 
-        public async Task<bool> TryAcknowledgeAsync(MarketOperator recipient, Uuid bundleId)
+        public async Task<(bool IsAcknowledged, IBundle? AcknowledgedBundle)> TryAcknowledgeAsync(MarketOperator recipient, Uuid bundleId)
         {
             var bundle = await _bundleRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
             if (bundle == null || bundle.BundleId != bundleId)
-                return false;
+                return (false, null);
 
             await _dataAvailableNotificationRepository.AcknowledgeAsync(bundle.NotificationIds).ConfigureAwait(false);
             await _bundleRepository.AcknowledgeAsync(bundle.BundleId).ConfigureAwait(false);
-            return true;
+            return (true, bundle);
         }
     }
 }

@@ -19,6 +19,7 @@ using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.Handlers;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
+using GreenEnergyHub.PostOffice.Communicator.Dequeue;
 using Moq;
 using Xunit;
 using Xunit.Categories;
@@ -33,7 +34,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         {
             // Arrange
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
-            var target = new DequeueHandler(warehouseDomainServiceMock.Object);
+            var dequeueNotificationSenderMock = new Mock<IDequeueNotificationSender>();
+            var target = new DequeueHandler(warehouseDomainServiceMock.Object, dequeueNotificationSenderMock.Object);
 
             // Act + Assert
             await Assert
@@ -51,9 +53,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             warehouseDomainServiceMock.Setup(x => x.TryAcknowledgeAsync(
                     It.Is<MarketOperator>(r => string.Equals(r.Gln.Value, request.Recipient, StringComparison.OrdinalIgnoreCase)),
                     It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleUuid, StringComparison.OrdinalIgnoreCase))))
-                .ReturnsAsync(true);
-
-            var target = new DequeueHandler(warehouseDomainServiceMock.Object);
+                .ReturnsAsync((true, null));
+            var dequeueNotificationSenderMock = new Mock<IDequeueNotificationSender>();
+            var target = new DequeueHandler(warehouseDomainServiceMock.Object, dequeueNotificationSenderMock.Object);
 
             // Act
             var response = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
@@ -73,9 +75,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             warehouseDomainServiceMock.Setup(x => x.TryAcknowledgeAsync(
                     It.Is<MarketOperator>(r => string.Equals(r.Gln.Value, request.Recipient, StringComparison.OrdinalIgnoreCase)),
                     It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleUuid, StringComparison.OrdinalIgnoreCase))))
-                .ReturnsAsync(false);
-
-            var target = new DequeueHandler(warehouseDomainServiceMock.Object);
+                .ReturnsAsync((false, null));
+            var dequeueNotificationSenderMock = new Mock<IDequeueNotificationSender>();
+            var target = new DequeueHandler(warehouseDomainServiceMock.Object, dequeueNotificationSenderMock.Object);
 
             // Act
             var response = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);

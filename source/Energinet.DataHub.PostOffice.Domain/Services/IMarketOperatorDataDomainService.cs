@@ -37,6 +37,6 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         /// <param name="recipient">The market operator that is the recipient of the bundle.</param>
         /// <param name="bundleId">The id of the bundle that is being acknowledged.</param>
         /// <returns>true is the bundle was acknowledged; false if the id is incorrect or there is nothing to acknowledge.</returns>
-        Task<bool> TryAcknowledgeAsync(MarketOperator recipient, Uuid bundleId);
+        Task<(bool IsAcknowledged, IBundle? AcknowledgedBundle)> TryAcknowledgeAsync(MarketOperator recipient, Uuid bundleId);
     }
 }

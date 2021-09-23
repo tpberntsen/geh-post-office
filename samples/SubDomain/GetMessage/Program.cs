@@ -15,6 +15,7 @@
 using System;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
+using GreenEnergyHub.PostOffice.Communicator.Dequeue;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -37,7 +38,6 @@ namespace GetMessage
                     services.AddLogging();
 
                     var serviceBusConnectionString = Environment.GetEnvironmentVariable("ServiceBusConnectionString");
-
                     var blobStorageConnectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
 
                     // Add custom services
@@ -45,7 +45,7 @@ namespace GetMessage
                         new ServiceBusClient(serviceBusConnectionString));
                     services.AddSingleton<BlobServiceClient>(_ =>
                         new BlobServiceClient(blobStorageConnectionString));
-
+                    services.AddScoped(typeof(IDequeueNotificationParser), typeof(DequeueNotificationParser));
                     services.AddScoped(typeof(Storage.StorageController), typeof(Storage.StorageController));
                 })
                 .Build();
