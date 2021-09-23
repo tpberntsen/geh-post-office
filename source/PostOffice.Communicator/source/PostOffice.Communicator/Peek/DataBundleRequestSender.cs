@@ -15,6 +15,7 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
@@ -27,10 +28,13 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
         private readonly string _replyQueue;
         private readonly TimeSpan _requestBundleTimout;
 
-        public DataBundleRequestSender(IRequestBundleParser requestBundleParser, string connectionString, DomainOrigin domainOrigin, TimeSpan requestBundleTimout)
+        public DataBundleRequestSender(IRequestBundleParser requestBundleParser, IServiceBusClientFactory serviceBusClientFactory, DomainOrigin domainOrigin, TimeSpan requestBundleTimout)
         {
+            if (serviceBusClientFactory == null)
+                throw new ArgumentNullException(nameof(serviceBusClientFactory));
+
             _requestBundleParser = requestBundleParser;
-            _serviceBusClient = new ServiceBusClient(connectionString);
+            _serviceBusClient = serviceBusClientFactory.Create();
             _queue = $"sbq-{domainOrigin.ToString()}";
             _replyQueue = $"sbq-{domainOrigin.ToString()}-reply";
             _requestBundleTimout = requestBundleTimout;
