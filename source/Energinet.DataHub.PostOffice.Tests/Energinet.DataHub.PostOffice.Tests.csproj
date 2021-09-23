@@ -33,8 +33,9 @@ limitations under the License.
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.2.1" />
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.3.0" />
     <PackageReference Include="Bogus" Version="33.0.2" />
+    <PackageReference Include="GreenEnergyHub.PostOffice.Communicator" Version="1.0.0-CI-01" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="NodaTime.Serialization.JsonNet" Version="3.0.0" />
     <PackageReference Include="NodaTime.Serialization.SystemTextJson" Version="1.0.0" />
@@ -53,7 +54,7 @@ limitations under the License.
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.17.3" />
+    <PackageReference Include="Google.Protobuf" Version="3.18.0" />
     <PackageReference Include="Grpc.Tools" Version="2.39.1" PrivateAssets="All" />
     <PackageReference Include="NodaTime.Serialization.Protobuf" Version="2.0.0" />
   </ItemGroup>

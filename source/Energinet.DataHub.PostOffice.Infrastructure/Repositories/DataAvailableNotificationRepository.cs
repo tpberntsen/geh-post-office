@@ -124,6 +124,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                         new MarketOperator(new GlobalLocationNumber(document.Recipient)),
                         Enum.Parse<ContentType>(document.ContentType, true),
                         Enum.Parse<DomainOrigin>(document.Origin, true),
+                        new SupportsBundling(document.SupportsBundling),
                         new Weight(document.RelativeWeight)));
 
                 documentsResult.AddRange(documents);

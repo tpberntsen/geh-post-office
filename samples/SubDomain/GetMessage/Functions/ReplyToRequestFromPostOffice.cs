@@ -86,7 +86,7 @@ namespace GetMessage.Functions
             else if (requestData.UUID.Contains("befdcf5a-f58d-493b-9a17-e5231609c8f6"))
                 return CreateFailedResponse(requestData, DatasetReply.Types.RequestFailure.Types.Reason.InternalError);
 
-            return await CreateSuccessResponse(requestData).ConfigureAwait(false);
+            return await CreateSuccessResponseAsync(requestData).ConfigureAwait(false);
         }
 
         private DatasetReply CreateFailedResponse(
@@ -105,7 +105,7 @@ namespace GetMessage.Functions
             return proto;
         }
 
-        private async Task<DatasetReply> CreateSuccessResponse(RequestDataset requestData)
+        private async Task<DatasetReply> CreateSuccessResponseAsync(RequestDataset requestData)
         {
             var ressourceUrl = await SaveDataToBlobStorageAsync(requestData).ConfigureAwait(false);
 

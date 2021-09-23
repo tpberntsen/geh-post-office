@@ -23,6 +23,7 @@ using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Parsing;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using FluentAssertions;
 using Google.Protobuf;
+using GreenEnergyHub.PostOffice.Communicator.Model;
 using Moq;
 using Xunit;
 using Xunit.Categories;
@@ -61,7 +62,7 @@ namespace Energinet.DataHub.PostOffice.Tests
         public void Validate_DataAvailable_Protobuf_Contract_Parser()
         {
             // Arrange
-            IMapper<Contracts.DataAvailable, DataAvailableNotificationCommand> mapper = new DataAvailableMapper();
+            IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand> mapper = new DataAvailableMapper();
             var dataAvailableContractParser = new DataAvailableContractParser(mapper);
             var dataContract = GetDataAvailableProtobufContract();
             var inputContractBytes = dataContract.ToByteArray();

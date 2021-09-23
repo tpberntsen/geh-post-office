@@ -66,6 +66,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Services
                 recipient,
                 contentType,
                 DomainOrigin.TimeSeries,
+                new SupportsBundling(false),
                 new Weight(1));
         }
     }

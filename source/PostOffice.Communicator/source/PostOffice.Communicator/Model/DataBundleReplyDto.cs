@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-
 namespace GreenEnergyHub.PostOffice.Communicator.Model
 {
-    public sealed record DataBundleRequestDto(string IdempotencyId, IEnumerable<string> DataAvailableNotificationIds);
+    public sealed class DataBundleReplyDto
+    {
+    }
 }

@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-
-namespace GreenEnergyHub.PostOffice.Communicator.Model
+namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public sealed record DataBundleRequestDto(string IdempotencyId, IEnumerable<string> DataAvailableNotificationIds);
+    public record SupportsBundling(bool Value);
 }
