@@ -15,6 +15,7 @@
 using System;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
+using GreenEnergyHub.PostOffice.Communicator.Model;
 using GreenEnergyHub.PostOffice.Communicator.Peek;
 using Xunit;
 
@@ -37,7 +38,7 @@ namespace PostOffice.Communicator.Tests.Peek
             }.ToByteArray();
 
             // act
-            var actual = target.TryParse(validBytes, out var actualBytes);
+            var actual = target.TryParse(validBytes, out RequestDataBundleResponseDto actualBytes);
 
             // assert
             Assert.True(actual);
@@ -58,7 +59,7 @@ namespace PostOffice.Communicator.Tests.Peek
             }.ToByteArray();
 
             // act
-            var actual = target.TryParse(validBytes, out var actualBytes);
+            var actual = target.TryParse(validBytes, out RequestDataBundleResponseDto actualBytes);
 
             // assert
             Assert.False(actual);
@@ -73,7 +74,7 @@ namespace PostOffice.Communicator.Tests.Peek
             var corruptBytes = Array.Empty<byte>();
 
             // act
-            var actual = target.TryParse(corruptBytes, out var actualBytes);
+            var actual = target.TryParse(corruptBytes, out RequestDataBundleResponseDto actualBytes);
 
             // assert
             Assert.False(actual);

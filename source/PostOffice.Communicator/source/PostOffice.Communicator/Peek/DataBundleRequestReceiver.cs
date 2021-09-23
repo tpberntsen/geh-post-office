@@ -17,16 +17,19 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
-    /// <summary>
-    /// Singleton, thread-safe
-    /// </summary>
-    public interface IDataBundleRequestReceiver
+    public class DataBundleRequestReceiver : IDataBundleRequestReceiver
     {
-        /// <summary>
-        /// bla
-        /// </summary>
-        /// <param name="dataBundleRequestContract"></param>
-        /// <returns>1</returns>
-        DataBundleRequestDto? Receive(byte[] dataBundleRequestContract);
+        private readonly IRequestBundleParser _requestBundleParser;
+
+        public DataBundleRequestReceiver(IRequestBundleParser requestBundleParser)
+        {
+            _requestBundleParser = requestBundleParser;
+        }
+
+        public DataBundleRequestDto? Receive(byte[] dataBundleRequestContract)
+        {
+            var parsedSuccess = _requestBundleParser.TryParse(dataBundleRequestContract, out DataBundleRequestDto? requestDto);
+            return requestDto;
+        }
     }
 }

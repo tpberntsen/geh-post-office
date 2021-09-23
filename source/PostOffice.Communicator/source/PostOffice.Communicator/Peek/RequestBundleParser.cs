@@ -60,5 +60,23 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
 
             return bytes != null;
         }
+
+        public bool TryParse(byte[] dataBundleRequestContract, [NotNullWhen(true)] out DataBundleRequestDto? request)
+        {
+            try
+            {
+                var bundleResponse = RequestBundleRequest.Parser.ParseFrom(dataBundleRequestContract);
+
+                request = new DataBundleRequestDto(bundleResponse.IdempotencyId, bundleResponse.UUID);
+            }
+#pragma warning disable CA1031
+            catch (Exception)
+#pragma warning restore CA1031
+            {
+                request = null;
+            }
+
+            return request != null;
+        }
     }
 }
