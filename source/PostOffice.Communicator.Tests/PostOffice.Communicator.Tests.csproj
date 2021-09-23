@@ -38,4 +38,8 @@ limitations under the License.
     <ProjectReference Include="..\PostOffice.Communicator\source\PostOffice.Communicator\PostOffice.Communicator.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Factories" />
+  </ItemGroup>
+
 </Project>
