@@ -61,7 +61,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             return null;
         }
 
-        public async Task<(bool IsAcknowledged, IBundle? AcknowledgedBundle)> TryAcknowledgeAsync(MarketOperator recipient, Uuid bundleId)
+        public async Task<(bool IsAcknowledged, Bundle? AcknowledgedBundle)> TryAcknowledgeAsync(MarketOperator recipient, Uuid bundleId)
         {
             var bundle = await _bundleRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
             if (bundle == null || bundle.BundleId != bundleId)

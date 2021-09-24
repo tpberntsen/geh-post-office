@@ -27,7 +27,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
             if (obj is null) throw new ArgumentNullException(nameof(obj));
 
             var dataAvailableCommand = new DataAvailableNotificationCommand(
-                obj.UUID,
+                obj.Uuid,
                 obj.Recipient,
                 obj.MessageType,
                 obj.Origin,

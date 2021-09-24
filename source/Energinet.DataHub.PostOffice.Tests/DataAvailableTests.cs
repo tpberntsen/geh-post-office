@@ -27,6 +27,7 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 using Moq;
 using Xunit;
 using Xunit.Categories;
+using DomainOrigin = GreenEnergyHub.PostOffice.Communicator.Model.DomainOrigin;
 
 namespace Energinet.DataHub.PostOffice.Tests
 {
