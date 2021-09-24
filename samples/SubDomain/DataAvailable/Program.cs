@@ -13,50 +13,51 @@
 // limitations under the License.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Azure.Messaging.ServiceBus;
-using Google.Protobuf;
+using GreenEnergyHub.PostOffice.Communicator.DataAvailable;
+using GreenEnergyHub.PostOffice.Communicator.Model;
 using Microsoft.Extensions.Configuration;
 
 namespace DataAvailableNotification
 {
     public static class Program
     {
-        public static async Task Main()
+        public static async Task Main(string[] args)
         {
-            var configuration = BuildConfiguration();
+            var configuration = BuildConfiguration(args);
             var connectionString = configuration.GetSection("Values")["ServiceBusConnectionString"];
-            var queueName = configuration.GetSection("Values")["DataAvailableQueueName"];
+            var recipient = configuration["recipient"];
+            var origin = configuration["origin"];
+            var messageType = configuration["type"];
+            var interval = int.TryParse(configuration["interval"], out var intervalParsed) ? intervalParsed : 1;
 
-            await using var client = new ServiceBusClient(connectionString);
-            await using var sender = client.CreateSender(queueName);
-            using var messageBatch = await sender.CreateMessageBatchAsync().ConfigureAwait(false);
-
-            var msg = DataAvailableModel.CreateProtoContract(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), SubDomainOrigin.TimeSeries);
-            var bytearray = msg.ToByteArray();
-
-            if (!messageBatch.TryAddMessage(new ServiceBusMessage(new BinaryData(bytearray))))
+            for (var i = 0; i < interval; i++)
             {
-                throw new Exception("The message is too large to fit in the batch.");
-            }
-            else
-            {
-                Console.WriteLine($"Message added to batch, uuid: {msg.UUID}, recipient: {msg.Recipient} ");
+                var dataAvailableNotificationSender = new DataAvailableNotificationSender(connectionString);
+
+                var msgDto = CreateDto(origin ?? SubDomainOrigin.TimeSeries, messageType, recipient);
+
+                await dataAvailableNotificationSender.SendAsync(msgDto).ConfigureAwait(false);
+
+                if (i + 1 < interval) Thread.Sleep(5000);
             }
 
-            await sender.SendMessagesAsync(messageBatch).ConfigureAwait(false);
             Console.WriteLine($"A batch of messages has been published to the queue.");
-
-            Console.WriteLine("Press any key to end the application");
-
-            Console.ReadKey();
         }
 
-        private static IConfiguration BuildConfiguration()
+        private static DataAvailableNotificationDto CreateDto(string origin, string messageType, string recipient)
+        {
+            var msgDto = DataAvailableNotificationFactory.CreateOriginDto(origin, messageType, recipient);
+            return msgDto;
+        }
+
+        private static IConfiguration BuildConfiguration(string[] args)
         {
             var builder = new ConfigurationBuilder()
                 .AddJsonFile("local.settings.json", false, true)
-                .AddEnvironmentVariables();
+                .AddEnvironmentVariables()
+                .AddCommandLine(args);
             var configuration = builder.Build();
             return configuration;
         }
