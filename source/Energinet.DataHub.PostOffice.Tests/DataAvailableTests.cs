@@ -44,7 +44,7 @@ namespace Energinet.DataHub.PostOffice.Tests
             var command = new DataAvailableNotificationCommand(
                 "A028855E-ED72-4359-91D0-24DCB58E1994",
                 It.IsAny<string>(),
-                ContentType.TimeSeries.ToString(),
+                "timeseries",
                 DomainOrigin.Charges.ToString(),
                 It.IsAny<bool>(),
                 It.IsAny<int>());

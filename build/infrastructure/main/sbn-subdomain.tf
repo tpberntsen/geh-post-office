@@ -11,29 +11,29 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-module "sbn_inbound" {
+module "sbn_subdomain" {
   source              = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-namespace?ref=1.8.0"
-  name                = "sbn-inbound-${var.project}-${var.organisation}-${var.environment}"
+  name                = "sbn-subdomain-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name = data.azurerm_resource_group.postoffice.name
   location            = data.azurerm_resource_group.postoffice.location
   sku                 = "basic"
   tags                = data.azurerm_resource_group.postoffice.tags
 }
 
-module "sbnar_inbound_listener" {
+module "sbnar_subdomain_listener" {
   source                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-namespace-auth-rule?ref=1.8.0"
-  name                      = "sbnar-inbound-listener"
-  namespace_name            = module.sbn_inbound.name
+  name                      = "sbnar-subdomain-listener"
+  namespace_name            = module.sbn_subdomain.name
   resource_group_name       = data.azurerm_resource_group.postoffice.name
   listen                    = true
-  dependencies              = [module.sbn_inbound]
+  dependencies              = [module.sbn_subdomain]
 }
 
-module "sbnar_inbound_sender" {
+module "sbnar_subdomain_sender" {
   source                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//service-bus-namespace-auth-rule?ref=1.8.0"
-  name                      = "sbnar-inbound-sender"
-  namespace_name            = module.sbn_inbound.name
+  name                      = "sbnar-subdomain-sender"
+  namespace_name            = module.sbn_subdomain.name
   resource_group_name       = data.azurerm_resource_group.postoffice.name
-  send                      = true
-  dependencies              = [module.sbn_inbound]
+  send                    = true
+  dependencies              = [module.sbn_subdomain]
 }

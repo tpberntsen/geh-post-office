@@ -110,7 +110,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
                 serviceCollection.Replace(
                     new ServiceDescriptor(
                         typeof(ServiceBusConfig),
-                        _ => new ServiceBusConfig("fake_value", "fake_value", "fake_value"),
+                        _ => new ServiceBusConfig("fake_value", "fake_value"),
                         ServiceLifetime.Singleton));
 
                 serviceCollection.Replace(

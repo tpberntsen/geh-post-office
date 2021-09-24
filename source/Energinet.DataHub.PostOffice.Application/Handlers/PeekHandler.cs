@@ -41,8 +41,8 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 .GetNextUnacknowledgedAsync(new MarketOperator(new GlobalLocationNumber(request.Recipient)))
                 .ConfigureAwait(false);
 
-            return bundle is not null
-                ? new PeekResponse(true, await bundle.OpenAsync().ConfigureAwait(false))
+            return bundle != null && bundle.TryGetContent(out var bundleContent)
+                ? new PeekResponse(true, await bundleContent.OpenAsync().ConfigureAwait(false))
                 : new PeekResponse(false, Stream.Null);
         }
     }

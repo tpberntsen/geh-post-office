@@ -25,7 +25,7 @@ using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
-    public class DequeueHandler : IRequestHandler<Commands.DequeueCommand, DequeueResponse>
+    public class DequeueHandler : IRequestHandler<DequeueCommand, DequeueResponse>
     {
         private readonly IMarketOperatorDataDomainService _marketOperatorDataDomainService;
         private readonly IDequeueNotificationSender _dequeueNotificationSender;
@@ -38,7 +38,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             _dequeueNotificationSender = dequeueNotificationSender;
         }
 
-        public async Task<DequeueResponse> Handle(Commands.DequeueCommand request, CancellationToken cancellationToken)
+        public async Task<DequeueResponse> Handle(DequeueCommand request, CancellationToken cancellationToken)
         {
             if (request is null)
                 throw new ArgumentNullException(nameof(request));

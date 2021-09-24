@@ -18,28 +18,22 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 {
     public class ServiceBusConfig
     {
-        public const string InboundQueueDataAvailableTopicNameKey = "INBOUND_QUEUE_DATAAVAILABLE_TOPIC_NAME";
-        public const string InboundQueueDataAvailableSubscriptionNameKey = "INBOUND_QUEUE_DATAAVAILABLE_SUBSCRIPTION_NAME";
-        public const string InboundQueueConnectionStringKey = "INBOUND_QUEUE_CONNECTION_STRING";
+        public const string DataAvailableQueueNameKey = "DATAAVAILABLE_QUEUE_NAME";
+        public const string DataAvailableQueueConnectionStringKey = "DATAAVAILABLE_QUEUE_CONNECTION_STRING";
 
-        public ServiceBusConfig(string inboundQueueDataAvailableTopicName, string inboundQueueDataAvailableSubscriptionName, string inboundQueueConnectionString)
+        public ServiceBusConfig(string dataAvailableQueueName, string dataAvailableQueueConnectionString)
         {
-            if (string.IsNullOrWhiteSpace(inboundQueueDataAvailableTopicName))
-                throw new ArgumentException($"{nameof(inboundQueueDataAvailableTopicName)} must be specified in {nameof(ServiceBusConfig)}", nameof(inboundQueueDataAvailableTopicName));
+            if (string.IsNullOrWhiteSpace(dataAvailableQueueName))
+                throw new ArgumentException($"{nameof(dataAvailableQueueName)} must be specified in {nameof(ServiceBusConfig)}", nameof(dataAvailableQueueName));
 
-            if (string.IsNullOrWhiteSpace(inboundQueueDataAvailableSubscriptionName))
-                throw new ArgumentException($"{nameof(inboundQueueDataAvailableSubscriptionName)} must be specified in {nameof(ServiceBusConfig)}", nameof(inboundQueueDataAvailableSubscriptionName));
+            if (string.IsNullOrWhiteSpace(dataAvailableQueueConnectionString))
+                throw new ArgumentException($"{nameof(dataAvailableQueueConnectionString)} must be specified in {nameof(ServiceBusConfig)}", nameof(dataAvailableQueueConnectionString));
 
-            if (string.IsNullOrWhiteSpace(inboundQueueConnectionString))
-                throw new ArgumentException($"{nameof(inboundQueueConnectionString)} must be specified in {nameof(ServiceBusConfig)}", nameof(inboundQueueConnectionString));
-
-            InboundQueueDataAvailableTopicName = inboundQueueDataAvailableTopicName;
-            InboundQueueDataAvailableSubscriptionName = inboundQueueDataAvailableSubscriptionName;
-            InboundQueueConnectionString = inboundQueueConnectionString;
+            DataAvailableQueueName = dataAvailableQueueName;
+            DataAvailableQueueConnectionString = dataAvailableQueueConnectionString;
         }
 
-        public string InboundQueueDataAvailableTopicName { get; }
-        public string InboundQueueDataAvailableSubscriptionName { get; }
-        public string InboundQueueConnectionString { get; }
+        public string DataAvailableQueueName { get; }
+        public string DataAvailableQueueConnectionString { get; }
     }
 }

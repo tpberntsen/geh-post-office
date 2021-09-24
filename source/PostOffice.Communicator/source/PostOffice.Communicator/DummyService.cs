@@ -16,5 +16,9 @@ namespace GreenEnergyHub.PostOffice.Communicator
 {
     public class DummyService
     {
+        public int DummyTestValue()
+        {
+            return GetHashCode();
+        }
     }
 }

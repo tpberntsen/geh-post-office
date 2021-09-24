@@ -33,12 +33,13 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
         public async Task<DataAvailableNotificationResponse> Handle(DataAvailableNotificationCommand request, CancellationToken cancellationToken)
         {
-            if (request is null) throw new ArgumentNullException(nameof(request));
+            if (request is null)
+                throw new ArgumentNullException(nameof(request));
 
             var dataAvailableNotification = new DataAvailableNotification(
                 new Uuid(request.Uuid),
                 new MarketOperator(new GlobalLocationNumber(request.Recipient)),
-                Enum.Parse<ContentType>(request.ContentType, true),
+                new ContentType(request.ContentType),
                 Enum.Parse<DomainOrigin>(request.Origin, true),
                 new SupportsBundling(request.SupportsBundling),
                 new Weight(request.Weight));

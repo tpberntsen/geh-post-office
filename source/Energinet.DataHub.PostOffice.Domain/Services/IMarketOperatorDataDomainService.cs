@@ -27,8 +27,8 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         /// Returns null when there is no new unacknowledged data to get.
         /// </summary>
         /// <param name="recipient">The market operator to get the next unacknowledged bundle for.</param>
-        /// <returns>The next unacknowledged bundle; or null, if there are no new data.</returns>
-        Task<IBundle?> GetNextUnacknowledgedAsync(MarketOperator recipient);
+        /// <returns>The next unacknowledged bundle; or null, if there is no new data.</returns>
+        Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient);
 
         /// <summary>
         /// Acknowledges the current bundle, as returned by GetNextUnacknowledgedAsync.
