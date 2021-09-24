@@ -105,7 +105,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
         [InlineData("", false)]
         [InlineData(null, false)]
         [InlineData("  ", false)]
-        [InlineData("Unknown", false)]
+        [InlineData("Unknown", true)]
         [InlineData("TimeSeries", true)]
         [InlineData("timeseries", true)]
         public async Task Validate_ContentType_ValidatesProperty(string value, bool isValid)

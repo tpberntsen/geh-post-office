@@ -14,9 +14,5 @@
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public enum ContentType
-    {
-        Unknown = 0,
-        TimeSeries = 1,
-    }
+    public record ContentType(string Value);
 }

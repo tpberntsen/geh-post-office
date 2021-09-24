@@ -27,7 +27,7 @@ namespace GetMessage.Storage
             _blobServiceClient = blobServiceClient;
         }
 
-        public async Task<System.Uri> CreateBlobRessourceAsync(string blobName, System.BinaryData data)
+        public async Task<System.Uri> CreateBlobResourceAsync(string blobName, System.BinaryData data)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(Environment.GetEnvironmentVariable("BlobStorageContainerName"));
             await containerClient.UploadBlobAsync(blobName, data).ConfigureAwait(false);

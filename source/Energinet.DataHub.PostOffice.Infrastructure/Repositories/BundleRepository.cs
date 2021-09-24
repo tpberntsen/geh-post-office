@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -22,12 +21,13 @@ using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
+using Energinet.DataHub.PostOffice.Infrastructure.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
-    public class BundleRepository : IBundleRepository
+    public sealed class BundleRepository : IBundleRepository
     {
         private readonly IBundleRepositoryContainer _repositoryContainer;
         private readonly IMarketOperatorDataStorageService _marketOperatorDataStorageService;
@@ -40,7 +40,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             _marketOperatorDataStorageService = marketOperatorDataStorageService;
         }
 
-        public async Task<IBundle?> GetNextUnacknowledgedAsync(MarketOperator recipient)
+        public async Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient)
         {
             if (recipient is null)
                 throw new ArgumentNullException(nameof(recipient));
@@ -63,46 +63,46 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             if (document is null)
                 return null;
 
-            return new Bundle(
-                new Uuid(document.Id),
-                new Uri(document.ContentPath),
-                document.NotificationIds.Select(x => new Uuid(x)),
-                _marketOperatorDataStorageService.GetMarketOperatorDataAsync);
-        }
+            IBundleContent? bundleContent = null;
 
-        public async Task<IBundle> CreateBundleAsync(
-            IEnumerable<DataAvailableNotification> dataAvailableNotifications,
-            Uri contentPath)
-        {
-            if (contentPath is null)
+            if (!string.IsNullOrWhiteSpace(document.ContentPath))
             {
-                throw new ArgumentNullException(nameof(contentPath));
+                bundleContent = new AzureBlobBundleContent(
+                   _marketOperatorDataStorageService,
+                   new Uuid(document.Id),
+                   new Uri(document.ContentPath));
             }
 
-            var availableNotifications = dataAvailableNotifications.ToList();
+            return new Bundle(
+                new Uuid(document.Id),
+                Enum.Parse<DomainOrigin>(document.Origin),
+                recipient,
+                document.NotificationIds.Select(x => new Uuid(x)).ToList(),
+                bundleContent);
+        }
 
-            if (!availableNotifications.Any())
-                throw new ArgumentOutOfRangeException(nameof(dataAvailableNotifications));
+        public async Task<bool> TryAddNextUnacknowledgedAsync(Bundle bundle)
+        {
+            if (bundle == null)
+                throw new ArgumentNullException(nameof(bundle));
 
-            var bundle = new Bundle(
-                new Uuid(Guid.NewGuid()),
-                contentPath,
-                availableNotifications.Select(x => x.NotificationId),
-                _marketOperatorDataStorageService.GetMarketOperatorDataAsync);
+            var messageDocument = BundleMapper.MapToDocument(bundle);
+            var requestOptions = new ItemRequestOptions
+            {
+                PostTriggers = new[] { "EnsureSingleUnacknowledgedBundle" }
+            };
 
-            var recipient = availableNotifications.First().Recipient;
-
-            var messageDocument = BundleMapper.MapToDocument(bundle, recipient, contentPath);
-
-            var response =
+            try
+            {
                 await _repositoryContainer.Container
-                    .CreateItemAsync(messageDocument)
+                    .CreateItemAsync(messageDocument, requestOptions: requestOptions)
                     .ConfigureAwait(false);
-
-            if (response.StatusCode != HttpStatusCode.Created)
-                throw new InvalidOperationException("Could not create document in cosmos");
-
-            return bundle;
+                return true;
+            }
+            catch (CosmosException ex) when (IsConcurrencyError(ex))
+            {
+                return false;
+            }
         }
 
         public async Task AcknowledgeAsync(Uuid bundleId)
@@ -134,6 +134,23 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 if (response.StatusCode != HttpStatusCode.OK)
                     throw new InvalidOperationException("Could not dequeue document in cosmos");
             }
+        }
+
+        public async Task SaveAsync(Bundle bundle)
+        {
+            if (bundle == null)
+                throw new ArgumentNullException(nameof(bundle));
+
+            var messageDocument = BundleMapper.MapToDocument(bundle);
+
+            await _repositoryContainer.Container
+                .ReplaceItemAsync(messageDocument, messageDocument.Id)
+                .ConfigureAwait(false);
+        }
+
+        private static bool IsConcurrencyError(CosmosException ex)
+        {
+            return ex.ResponseBody.Contains("SingleBundleViolation", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

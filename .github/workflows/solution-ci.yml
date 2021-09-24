@@ -39,8 +39,8 @@ jobs:
           github_token: ${{ github.token }}
           paths: '[
             "source/**",
-            "Energinet.DataHub.PostOffice.sln",
-            ".github/workflows/solution-ci.yml"
+            ".github/workflows/solution-ci.yml",
+            ".github/workflows/package-ci.yml"
           ]'
 
   solution_ci:

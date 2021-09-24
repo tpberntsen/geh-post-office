@@ -12,5 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 locals {
-  message_db_connection_string = "AccountEndpoint=${azurerm_cosmosdb_account.messages.endpoint}/;AccountKey=${azurerm_cosmosdb_account.messages.primary_key};"
+  message_db_connection_string = "AccountEndpoint=${azurerm_cosmosdb_account.post_office.endpoint}/;AccountKey=${azurerm_cosmosdb_account.post_office.primary_key};"
 }

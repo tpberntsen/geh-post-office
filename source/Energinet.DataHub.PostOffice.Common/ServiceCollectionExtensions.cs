@@ -80,9 +80,8 @@ namespace Energinet.DataHub.PostOffice.Common
                 var configuration = serviceProvider.GetService<IConfiguration>();
 
                 return new ServiceBusConfig(
-                    configuration.GetValue<string>(ServiceBusConfig.InboundQueueDataAvailableTopicNameKey),
-                    configuration.GetValue<string>(ServiceBusConfig.InboundQueueDataAvailableSubscriptionNameKey),
-                    configuration.GetValue<string>(ServiceBusConfig.InboundQueueConnectionStringKey));
+                    configuration.GetValue<string>(ServiceBusConfig.DataAvailableQueueNameKey),
+                    configuration.GetValue<string>(ServiceBusConfig.DataAvailableQueueConnectionStringKey));
             });
         }
     }

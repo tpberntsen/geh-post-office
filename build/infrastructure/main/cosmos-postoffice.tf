@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-resource "azurerm_cosmosdb_account" "messages" {
+resource "azurerm_cosmosdb_account" "post_office" {
   name                = "cosmos-messages-${var.project}-${var.organisation}-${var.environment}"
   resource_group_name = data.azurerm_resource_group.postoffice.name
   location            = data.azurerm_resource_group.postoffice.location
@@ -33,39 +33,23 @@ resource "azurerm_cosmosdb_account" "messages" {
 }
 
 resource "azurerm_cosmosdb_sql_database" "db" {
-  name                = "messages"
+  name                = "post-office"
   resource_group_name = data.azurerm_resource_group.postoffice.name
-  account_name        = azurerm_cosmosdb_account.messages.name
-}
-
-resource "azurerm_cosmosdb_sql_container" "collection_timeseries" {
-  name                = "timeseries"
-  resource_group_name = var.resource_group_name
-  account_name        = azurerm_cosmosdb_account.messages.name
-  database_name       = azurerm_cosmosdb_sql_database.db.name
-  partition_key_path  = "/recipient"
-}
-
-resource "azurerm_cosmosdb_sql_container" "collection_marketdata" {
-  name                = "marketdata"
-  resource_group_name = var.resource_group_name
-  account_name        = azurerm_cosmosdb_account.messages.name
-  database_name       = azurerm_cosmosdb_sql_database.db.name
-  partition_key_path  = "/recipient"
-}
-
-resource "azurerm_cosmosdb_sql_container" "collection_aggregations" {
-  name                = "aggregations"
-  resource_group_name = var.resource_group_name
-  account_name        = azurerm_cosmosdb_account.messages.name
-  database_name       = azurerm_cosmosdb_sql_database.db.name
-  partition_key_path  = "/recipient"
+  account_name        = azurerm_cosmosdb_account.post_office.name
 }
 
 resource "azurerm_cosmosdb_sql_container" "collection_dataavailable" {
   name                = "dataavailable"
   resource_group_name = var.resource_group_name
-  account_name        = azurerm_cosmosdb_account.messages.name
+  account_name        = azurerm_cosmosdb_account.post_office.name
+  database_name       = azurerm_cosmosdb_sql_database.db.name
+  partition_key_path  = "/recipient"
+}
+
+resource "azurerm_cosmosdb_sql_container" "collection_bundles" {
+  name                = "bundles"
+  resource_group_name = var.resource_group_name
+  account_name        = azurerm_cosmosdb_account.post_office.name
   database_name       = azurerm_cosmosdb_sql_database.db.name
   partition_key_path  = "/recipient"
 }

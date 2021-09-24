@@ -26,7 +26,8 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
         /// bla
         /// </summary>
         /// <param name="requestDataBundleResponseDto"></param>
+        /// <param name="sessionId">ServiceBusClient response sessionId</param>
         /// <returns>1</returns>
-        Task SendAsync(RequestDataBundleResponseDto requestDataBundleResponseDto);
+        Task SendAsync(RequestDataBundleResponseDto requestDataBundleResponseDto, string sessionId);
     }
 }

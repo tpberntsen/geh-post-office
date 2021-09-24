@@ -27,6 +27,6 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
         /// </summary>
         /// <param name="dataBundleRequestContract"></param>
         /// <returns>1</returns>
-        Task<DataBundleRequestDto> ReceiveAsync(byte[] dataBundleRequestContract);
+        DataBundleRequestDto? Receive(byte[] dataBundleRequestContract);
     }
 }

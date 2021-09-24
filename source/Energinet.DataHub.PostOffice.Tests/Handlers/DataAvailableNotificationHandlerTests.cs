@@ -19,7 +19,6 @@ using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.Handlers;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
-using Energinet.DataHub.PostOffice.Domain.Services;
 using Moq;
 using Xunit;
 using Xunit.Categories;
@@ -45,9 +44,16 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         public async Task Handle_WithData_ReturnsTrue()
         {
             // Arrange
-            var request = new DataAvailableNotificationCommand("F8FC4D49-5245-4924-80D3-F1FB81FA3903", "06E45497-B653-468E-99A7-911E3F3CD38A", "timeseries", "timeseries", false, 1);
             var repository = new Mock<IDataAvailableNotificationRepository>();
             var target = new DataAvailableNotificationHandler(repository.Object);
+
+            var request = new DataAvailableNotificationCommand(
+                "F8FC4D49-5245-4924-80D3-F1FB81FA3903",
+                "06E45497-B653-468E-99A7-911E3F3CD38A",
+                "timeseries",
+                "timeseries",
+                false,
+                1);
 
             // Act
             var response = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
@@ -58,7 +64,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 x.Recipient.Gln.Value == request.Recipient &&
                 x.Origin == DomainOrigin.TimeSeries &&
                 x.Weight.Value == request.Weight &&
-                x.ContentType == ContentType.TimeSeries &&
+                x.ContentType.Value == "timeseries" &&
                 x.NotificationId == new Uuid(request.Uuid))));
         }
     }

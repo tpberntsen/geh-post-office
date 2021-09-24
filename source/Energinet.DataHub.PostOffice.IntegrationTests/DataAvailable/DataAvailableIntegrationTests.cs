@@ -61,7 +61,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
 
             var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
             var recipient = new MarketOperator(new GlobalLocationNumber(dataAvailableCommand.Recipient));
-            const ContentType contentType = ContentType.TimeSeries;
+            var contentType = new ContentType("timeseries");
 
             // Act
             var result = await mediator.Send(dataAvailableCommand, CancellationToken.None).ConfigureAwait(false);
@@ -101,7 +101,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
             return new(
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
-                ContentType.TimeSeries.ToString(),
+                "timeseries",
                 DomainOrigin.Charges.ToString(),
                 false,
                 1);

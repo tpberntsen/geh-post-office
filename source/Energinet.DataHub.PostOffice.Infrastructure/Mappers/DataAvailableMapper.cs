@@ -15,7 +15,6 @@
 using System;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.Commands;
-using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
@@ -24,10 +23,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
     {
         public DataAvailableNotificationCommand Map(DataAvailableNotificationDto obj)
         {
-            if (obj is null) throw new ArgumentNullException(nameof(obj));
+            if (obj is null)
+                throw new ArgumentNullException(nameof(obj));
 
             var dataAvailableCommand = new DataAvailableNotificationCommand(
-                obj.UUID,
+                obj.Uuid,
                 obj.Recipient,
                 obj.MessageType,
                 obj.Origin,

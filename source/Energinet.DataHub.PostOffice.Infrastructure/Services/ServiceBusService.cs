@@ -21,27 +21,32 @@ using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Domain.Services.Model;
+using Energinet.DataHub.PostOffice.Infrastructure.Model;
 using Google.Protobuf;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 {
     public class ServiceBusService : IServiceBusService
     {
+        private readonly IMarketOperatorDataStorageService _marketOperatorDataStorageService;
         private readonly ServiceBusClient _serviceBusClient;
 
-        public ServiceBusService(ServiceBusClient serviceBusClient)
+        public ServiceBusService(
+            IMarketOperatorDataStorageService marketOperatorDataStorageService,
+            ServiceBusClient serviceBusClient)
         {
+            _marketOperatorDataStorageService = marketOperatorDataStorageService;
             _serviceBusClient = serviceBusClient;
         }
 
-        public async Task<RequestDataSession> RequestBundledDataFromSubDomainAsync(IEnumerable<DataAvailableNotification> notifications, DomainOrigin domainOrigin)
+        public async Task<RequestDataSession> RequestBundledDataFromSubDomainAsync(IEnumerable<Uuid> notificationIds, DomainOrigin domainOrigin)
         {
             var sender = GetServiceBusSender(domainOrigin);
             var requestDataSession = new RequestDataSession() { Id = new Uuid(Guid.NewGuid().ToString()) };
             var requestDatasetMessage = new RequestDataset()
-                {
-                    UUID = { notifications.Select(x => x.NotificationId.ToString()) }
-                };
+            {
+                UUID = { notificationIds.Select(x => x.ToString()) }
+            };
             var message =
                 new ServiceBusMessage(requestDatasetMessage.ToByteArray()) { SessionId = requestDataSession.Id.ToString() };
 
@@ -51,7 +56,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
             return requestDataSession;
         }
 
-        public async Task<SubDomainReply> WaitForReplyFromSubDomainAsync(RequestDataSession session, DomainOrigin domainOrigin)
+        public async Task<IBundleContent?> WaitForReplyFromSubDomainAsync(Uuid bundleId, RequestDataSession session, DomainOrigin domainOrigin)
         {
             if (session is null)
                 throw new ArgumentNullException(nameof(session));
@@ -63,29 +68,22 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
                 .ConfigureAwait(false);
 
             if (received is null)
-                return new SubDomainReply() { Success = false };
+                return null;
 
             var replyMessage = DatasetReply.Parser.ParseFrom(received.Body.ToArray());
             if (replyMessage.ReplyCase == DatasetReply.ReplyOneofCase.Success)
             {
-                return new SubDomainReply()
-                {
-                    Success = true,
-                    UriToContent = new Uri(replyMessage.Success.Uri)
-                };
+                return new AzureBlobBundleContent(_marketOperatorDataStorageService, bundleId, new Uri(replyMessage.Success.Uri));
             }
 
-            return new SubDomainReply()
-            {
-                Success = false
-            };
+            return null;
         }
 
         private ServiceBusSender GetServiceBusSender(DomainOrigin domainOrigin) => domainOrigin switch
         {
             DomainOrigin.Aggregations => _serviceBusClient.CreateSender($"sbq-{nameof(DomainOrigin.Aggregations)}"),
             DomainOrigin.Charges => _serviceBusClient.CreateSender($"sbq-{nameof(DomainOrigin.Charges)}"),
-            DomainOrigin.TimeSeries =>_serviceBusClient.CreateSender($"sbq-{nameof(DomainOrigin.TimeSeries)}"),
+            DomainOrigin.TimeSeries => _serviceBusClient.CreateSender($"sbq-{nameof(DomainOrigin.TimeSeries)}"),
             _ => throw new ArgumentException($"Unknown Origin: {domainOrigin}", nameof(domainOrigin)),
         };
 

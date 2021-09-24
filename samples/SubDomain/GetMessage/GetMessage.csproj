@@ -22,9 +22,10 @@ limitations under the License.
         <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.2.1" />
+        <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.3.0" />
         <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0-beta.2" />
-        <PackageReference Include="Google.Protobuf" Version="3.17.3" />
+        <PackageReference Include="Google.Protobuf" Version="3.18.0" />
+        <PackageReference Include="GreenEnergyHub.PostOffice.Communicator" Version="1.0.0-CI-01" />
         <PackageReference Include="Grpc.Tools" Version="2.38.1">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

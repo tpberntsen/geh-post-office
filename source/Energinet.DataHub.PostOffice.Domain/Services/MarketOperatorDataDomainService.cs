@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
@@ -37,40 +39,26 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             _weightCalculatorDomainService = weightCalculatorDomainService;
         }
 
-        public async Task<IBundle?> GetNextUnacknowledgedAsync(MarketOperator recipient)
+        public async Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient)
         {
-            var bundle = await _bundleRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
-            if (bundle != null)
-                return bundle;
+            var existingBundle = await _bundleRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
+            if (existingBundle != null)
+                return await AskSubDomainForContentAsync(existingBundle).ConfigureAwait(false);
 
             var dataAvailableNotification = await _dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
             if (dataAvailableNotification == null)
-                return null;
+                return null; // No new data.
 
-            var dataAvailableNotifications = await _dataAvailableNotificationRepository
-                .GetNextUnacknowledgedAsync(
-                    recipient,
-                    dataAvailableNotification.ContentType,
-                    _weightCalculatorDomainService.CalculateMaxWeight(dataAvailableNotification.ContentType))
-                .ConfigureAwait(false);
+            var newBundle = await CreateNextBundleAsync(
+                    dataAvailableNotification.Recipient,
+                    dataAvailableNotification.Origin,
+                    dataAvailableNotification.ContentType).ConfigureAwait(false);
 
-            var subDomain = dataAvailableNotification.Origin;
-            var requestSession = await
-                _requestBundleDomainService.RequestBundledDataFromSubDomainAsync(
-                    dataAvailableNotifications,
-                    subDomain)
-                    .ConfigureAwait(false);
+            if (await _bundleRepository.TryAddNextUnacknowledgedAsync(newBundle).ConfigureAwait(false))
+                return await AskSubDomainForContentAsync(newBundle).ConfigureAwait(false);
 
-            var replyData = await _requestBundleDomainService
-                .WaitForReplyFromSubDomainAsync(requestSession, subDomain)
-                .ConfigureAwait(false);
-
-            if (!replyData.Success)
-                return null;
-
-            return await _bundleRepository
-                .CreateBundleAsync(dataAvailableNotifications, replyData.UriToContent)
-                .ConfigureAwait(false);
+            // Concurrent peek in progress; response is "no new data".
+            return null;
         }
 
         public async Task<bool> TryAcknowledgeAsync(MarketOperator recipient, Uuid bundleId)
@@ -82,6 +70,46 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             await _dataAvailableNotificationRepository.AcknowledgeAsync(bundle.NotificationIds).ConfigureAwait(false);
             await _bundleRepository.AcknowledgeAsync(bundle.BundleId).ConfigureAwait(false);
             return true;
+        }
+
+        private async Task<Bundle?> AskSubDomainForContentAsync(Bundle bundle)
+        {
+            if (bundle.TryGetContent(out _))
+                return bundle;
+
+            var bundleContent = await _requestBundleDomainService
+                .WaitForBundleContentFromSubDomainAsync(bundle)
+                .ConfigureAwait(false);
+
+            if (bundleContent == null)
+                return null; // Timeout or error. Currently returned as "no new data".
+
+            bundle.AssignContent(bundleContent);
+            await _bundleRepository.SaveAsync(bundle).ConfigureAwait(false);
+            return bundle;
+        }
+
+        private async Task<Bundle> CreateNextBundleAsync(
+            MarketOperator recipient,
+            DomainOrigin domainOrigin,
+            ContentType contentType)
+        {
+            var maxWeight = _weightCalculatorDomainService.CalculateMaxWeight(domainOrigin);
+
+            var dataAvailableNotifications = await _dataAvailableNotificationRepository
+                .GetNextUnacknowledgedAsync(recipient, contentType, maxWeight)
+                .ConfigureAwait(false);
+
+            var notificationIds = dataAvailableNotifications
+                .Select(x => x.NotificationId)
+                .ToList();
+
+            var bundleId = new Uuid(Guid.NewGuid());
+            return new Bundle(
+                bundleId,
+                domainOrigin,
+                recipient,
+                notificationIds);
         }
     }
 }

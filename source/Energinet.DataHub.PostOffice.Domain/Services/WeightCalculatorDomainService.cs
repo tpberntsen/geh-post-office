@@ -19,14 +19,19 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 {
     public class WeightCalculatorDomainService : IWeightCalculatorDomainService
     {
-        public Weight CalculateMaxWeight(ContentType contentType)
+        public Weight CalculateMaxWeight(DomainOrigin domainOrigin)
         {
-            return contentType switch
+            switch (domainOrigin)
             {
-                ContentType.TimeSeries => new Weight(1),
-                ContentType.Unknown => throw new InvalidOperationException($"Mapping of enum {nameof(ContentType)}.{nameof(ContentType.Unknown)} to type {nameof(Weight)} is undefined"),
-                _ => throw new ArgumentOutOfRangeException(nameof(contentType), contentType, null)
-            };
+                case DomainOrigin.Aggregations:
+                case DomainOrigin.TimeSeries:
+                case DomainOrigin.Charges:
+                    return new Weight(1);
+                case DomainOrigin.Unknown:
+                    throw new InvalidOperationException($"Mapping of enum {nameof(DomainOrigin)}.{nameof(DomainOrigin.Unknown)} to type {nameof(Weight)} is undefined.");
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(domainOrigin), domainOrigin, null);
+            }
         }
     }
 }

@@ -26,37 +26,25 @@ namespace Energinet.DataHub.PostOffice.Tests.Infrastructure
         public void Ctor_ParamsNotNull_SetsProperties()
         {
             // arrange
-            const string topicName = "topicName";
-            const string subscriptionName = "subscriptionName";
+            const string queueName = "queueName";
             const string connectionString = "connectionString";
 
             // act
-            var actual = new ServiceBusConfig(topicName, subscriptionName, connectionString);
+            var actual = new ServiceBusConfig(queueName,  connectionString);
 
             // assert
-            Assert.Equal(topicName, actual.InboundQueueDataAvailableTopicName);
-            Assert.Equal(subscriptionName, actual.InboundQueueDataAvailableSubscriptionName);
-            Assert.Equal(connectionString, actual.InboundQueueConnectionString);
+            Assert.Equal(queueName, actual.DataAvailableQueueName);
+            Assert.Equal(connectionString, actual.DataAvailableQueueConnectionString);
         }
 
         [Theory]
         [InlineData(null)]
         [InlineData("")]
         [InlineData("     ")]
-        public void Ctor_TopicNameNullOrWhitespace_Throws(string value)
+        public void Ctor_QueueNameNullOrWhitespace_Throws(string value)
         {
             // arrange, act, assert
-            Assert.Throws<ArgumentException>(() => new ServiceBusConfig(value, "b", "c"));
-        }
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("     ")]
-        public void Ctor_SubsctiptionNameNullOrWhitespace_Throws(string value)
-        {
-            // arrange, act, assert
-            Assert.Throws<ArgumentException>(() => new ServiceBusConfig("a", value, "c"));
+            Assert.Throws<ArgumentException>(() => new ServiceBusConfig(value, "b"));
         }
 
         [Theory]
@@ -66,7 +54,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Infrastructure
         public void Ctor_ConnectionStringNullOrWhitespace_Throws(string value)
         {
             // arrange, act, assert
-            Assert.Throws<ArgumentException>(() => new ServiceBusConfig("a", "b", value));
+            Assert.Throws<ArgumentException>(() => new ServiceBusConfig("a", value));
         }
     }
 }
