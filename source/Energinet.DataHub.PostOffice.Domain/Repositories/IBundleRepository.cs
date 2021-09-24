@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 
@@ -29,20 +27,26 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// </summary>
         /// <param name="recipient">The market operator to retrieve the next bundle for.</param>
         /// <returns>The next unacknowledged bundle; or null, if none is available.</returns>
-        Task<IBundle?> GetNextUnacknowledgedAsync(MarketOperator recipient);
-
-        /// <summary>
-        /// Create a new bundle containing supplied dataAvailableNotifications
-        /// </summary>
-        /// <param name="dataAvailableNotifications">The notifications included in the bundle</param>
-        /// <param name="contentPath">The path to the content in blob storage</param>
-        /// <returns>Bundle</returns>
-        Task<IBundle> CreateBundleAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications, Uri contentPath);
+        Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient);
 
         /// <summary>
         /// Acknowledges the bundle with the specified bundle id.
         /// </summary>
         /// <param name="bundleId">The bundle id to acknowledge.</param>
         Task AcknowledgeAsync(Uuid bundleId);
+
+        /// <summary>
+        /// Adds the specified bundle as the next unacknowledged bundle,
+        /// ensuring that only one bundle can be unacknowledged at a time.
+        /// </summary>
+        /// <param name="bundle">The bundle to add.</param>
+        /// <returns>Returns true if the bundle was successfully added; false, if another bundle aready exists.</returns>
+        Task<bool> TryAddNextUnacknowledgedAsync(Bundle bundle);
+
+        /// <summary>
+        /// Saves the bundle.
+        /// </summary>
+        /// <param name="bundle">The bundle to save.</param>
+        Task SaveAsync(Bundle bundle);
     }
 }

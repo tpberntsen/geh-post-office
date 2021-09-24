@@ -14,34 +14,57 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public class Bundle : IBundle
+    public sealed class Bundle
     {
-        private readonly Uri _contentPath;
-        private readonly OpenBundleStreamAsync _openBundleStream;
+        private IBundleContent? _bundleContent;
 
         public Bundle(
             Uuid bundleId,
-            Uri contentPath,
-            IEnumerable<Uuid> notificationIds,
-            OpenBundleStreamAsync openBundleStream)
+            DomainOrigin origin,
+            MarketOperator recipient,
+            IReadOnlyCollection<Uuid> notificationIds)
         {
             BundleId = bundleId;
+            Origin = origin;
+            Recipient = recipient;
             NotificationIds = notificationIds;
-            _contentPath = contentPath;
-            _openBundleStream = openBundleStream;
+        }
+
+        public Bundle(
+            Uuid bundleId,
+            DomainOrigin origin,
+            MarketOperator recipient,
+            IReadOnlyCollection<Uuid> notificationIds,
+            IBundleContent? bundleContent)
+        {
+            BundleId = bundleId;
+            Origin = origin;
+            Recipient = recipient;
+            NotificationIds = notificationIds;
+            _bundleContent = bundleContent;
         }
 
         public Uuid BundleId { get; }
-        public IEnumerable<Uuid> NotificationIds { get; }
+        public DomainOrigin Origin { get; }
+        public MarketOperator Recipient { get; }
+        public IReadOnlyCollection<Uuid> NotificationIds { get; }
 
-        public async Task<Stream> OpenAsync()
+        public bool TryGetContent([NotNullWhen(true)] out IBundleContent? bundleContent)
         {
-            return await _openBundleStream(BundleId, _contentPath).ConfigureAwait(false);
+            bundleContent = _bundleContent;
+            return _bundleContent != null;
+        }
+
+        public void AssignContent(IBundleContent bundleContent)
+        {
+            if (_bundleContent != null)
+                throw new InvalidOperationException("Content has already been set.");
+
+            _bundleContent = bundleContent;
         }
     }
 }
