@@ -37,5 +37,13 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
         /// <param name="bytes"></param>
         /// <returns><see cref="bool"/></returns>
         bool TryParse(DataBundleRequestDto request, [NotNullWhen(true)] out byte[]? bytes);
+
+        /// <summary>
+        /// bla
+        /// </summary>
+        /// <param name="dataBundleRequestContract"></param>
+        /// <param name="request"></param>
+        /// <returns><see cref="bool"/></returns>
+        bool TryParse(byte[] dataBundleRequestContract, [NotNullWhen(true)] out DataBundleRequestDto? request);
     }
 }

@@ -12,22 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
-using GreenEnergyHub.PostOffice.Communicator.Model;
-
-namespace GreenEnergyHub.PostOffice.Communicator.Peek
+namespace GreenEnergyHub.PostOffice.Communicator.Model
 {
-    /// <summary>
-    /// bla
-    /// </summary>
-    public interface IDataBundleResponseSender
+    public enum DataBundleResponseErrorReason
     {
-        /// <summary>
-        /// bla
-        /// </summary>
-        /// <param name="requestDataBundleResponseDto"></param>
-        /// <param name="sessionId">ServiceBusClient response sessionId</param>
-        /// <returns>1</returns>
-        Task SendAsync(RequestDataBundleResponseDto requestDataBundleResponseDto, string sessionId);
+        DatasetNotFound = 0, // Dataset was not found
+        DatasetNotAvailable = 1, // Data found, but not ready yet - try again later
+        InternalError = 15
     }
 }

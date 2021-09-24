@@ -12,22 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
-using GreenEnergyHub.PostOffice.Communicator.Model;
+using System.Runtime.CompilerServices;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Peek
-{
-    /// <summary>
-    /// bla
-    /// </summary>
-    public interface IDataBundleResponseSender
-    {
-        /// <summary>
-        /// bla
-        /// </summary>
-        /// <param name="requestDataBundleResponseDto"></param>
-        /// <param name="sessionId">ServiceBusClient response sessionId</param>
-        /// <returns>1</returns>
-        Task SendAsync(RequestDataBundleResponseDto requestDataBundleResponseDto, string sessionId);
-    }
-}
+[assembly: InternalsVisibleTo("Energinet.DataHub.PostOffice.IntegrationTests")]
+[assembly: InternalsVisibleTo("Energinet.DataHub.PostOffice.Tests")]

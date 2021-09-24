@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     /// <summary>
-    /// bla
+    /// Response bundle parser
     /// </summary>
-    public interface IDataBundleResponseSender
+    public interface IResponseBundleParser
     {
         /// <summary>
-        /// bla
+        /// Parsing from dto to byte array
         /// </summary>
         /// <param name="requestDataBundleResponseDto"></param>
-        /// <param name="sessionId">ServiceBusClient response sessionId</param>
-        /// <returns>1</returns>
-        Task SendAsync(RequestDataBundleResponseDto requestDataBundleResponseDto, string sessionId);
+        /// <param name="bytes"></param>
+        /// <returns><see cref="bool"/></returns>
+        bool TryParse(RequestDataBundleResponseDto requestDataBundleResponseDto, [NotNullWhen(true)] out byte[]? bytes);
     }
 }

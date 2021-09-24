@@ -14,6 +14,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Model;
@@ -30,7 +31,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
 
                 response = bundleResponse.ReplyCase != RequestBundleResponse.ReplyOneofCase.Success
                     ? null
-                    : new RequestDataBundleResponseDto(new Uri(bundleResponse.Success.Uri));
+                    : new RequestDataBundleResponseDto(new Uri(bundleResponse.Success.Uri), bundleResponse.Success.UUID.AsEnumerable());
             }
 #pragma warning disable CA1031
             catch (Exception)
@@ -58,6 +59,24 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             }
 
             return bytes != null;
+        }
+
+        public bool TryParse(byte[] dataBundleRequestContract, [NotNullWhen(true)] out DataBundleRequestDto? request)
+        {
+            try
+            {
+                var bundleResponse = RequestBundleRequest.Parser.ParseFrom(dataBundleRequestContract);
+
+                request = new DataBundleRequestDto(bundleResponse.IdempotencyId, bundleResponse.UUID);
+            }
+#pragma warning disable CA1031
+            catch (Exception)
+#pragma warning restore CA1031
+            {
+                request = null;
+            }
+
+            return request != null;
         }
     }
 }

@@ -65,7 +65,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             if (response == null)
                 return null;
 
-            if (!_requestBundleParser.TryParse(response.Body.ToArray(), out var dto))
+            if (!_requestBundleParser.TryParse(response.Body.ToArray(), out RequestDataBundleResponseDto? dto))
                 throw new InvalidOperationException("Could not parse Bundle response");
 
             return dto;
