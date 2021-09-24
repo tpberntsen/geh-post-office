@@ -12,23 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Xunit;
+using System;
+using System.Reflection;
+using Azure.Messaging.ServiceBus;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Factories
+namespace PostOffice.Communicator.Tests.Peek
 {
-    public sealed class ServiceBusClientFactoryTests
+    public static class MockedServiceBusReceivedMessage
     {
-        [Fact]
-        public void Create_ReturnsServiceBusClient()
+        public static ServiceBusReceivedMessage Create(byte[] bytes)
         {
-            // arrange
-            var target = new ServiceBusClientFactory("Endpoint=sb://sbn-postoffice.servicebus.windows.net/;SharedAccessKeyName=Hello;SharedAccessKey=there");
-
-            // act
-            var actual = target.Create();
-
-            // assert
-            Assert.NotNull(actual);
+            var rm = new ReadOnlyMemory<byte>(bytes);
+            var ctor = typeof(ServiceBusReceivedMessage).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(ReadOnlyMemory<byte>) }, null);
+            var obj = ctor!.Invoke(new object[] { rm });
+            return (ServiceBusReceivedMessage)obj;
         }
     }
 }
