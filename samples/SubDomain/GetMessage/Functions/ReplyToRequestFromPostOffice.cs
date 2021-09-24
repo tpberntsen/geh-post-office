@@ -14,11 +14,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.PostOffice.Contracts;
 using GetMessage.Storage;
-using Google.Protobuf;
+using GreenEnergyHub.PostOffice.Communicator.Model;
+using GreenEnergyHub.PostOffice.Communicator.Peek;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -27,13 +27,18 @@ namespace GetMessage.Functions
 {
     public class ReplyToRequestFromPostOffice
     {
-        private readonly ServiceBusClient _serviceBusClient;
         private readonly StorageController _blobStorageController;
+        private readonly IDataBundleRequestReceiver _requestReceiver;
+        private readonly IDataBundleResponseSender _responseSender;
 
-        public ReplyToRequestFromPostOffice(ServiceBusClient serviceBusClient, StorageController blobStorageController)
+        public ReplyToRequestFromPostOffice(
+            StorageController blobStorageController,
+            IDataBundleRequestReceiver requestReceiver,
+            IDataBundleResponseSender responseSender)
         {
-            _serviceBusClient = serviceBusClient;
             _blobStorageController = blobStorageController;
+            _requestReceiver = requestReceiver;
+            _responseSender = responseSender;
         }
 
         [Function("ReplyToRequestFromPostOffice")]
@@ -50,26 +55,17 @@ namespace GetMessage.Functions
 
             try
             {
-                var queueNameForResponse = context.BindingContext.BindingData["ReplyTo"]?.ToString();
-
-                await using var sender = _serviceBusClient.CreateSender(queueNameForResponse);
+                var bundleRequestDto = _requestReceiver.Receive(message);
 
                 var session = context.BindingContext.BindingData["MessageSession"] as string;
 
                 var sessionData = JsonConvert.DeserializeObject<Dictionary<string, object>>(session ?? string.Empty);
 
-                var requestData = RequestDataset.Parser.ParseFrom(message);
+                var sessionId = sessionData?["SessionId"] as string;
 
-                var protoResponse = await CreateResponseAsync(requestData).ConfigureAwait(false);
+                var requestDataBundleResponseDto = await CreateResponseAsync(bundleRequestDto).ConfigureAwait(false);
 
-                var reply = new ServiceBusMessage
-                {
-                    Body = new BinaryData(protoResponse.ToByteArray()), SessionId = sessionData?["SessionId"] as string
-                };
-
-                logger.LogInformation("Reply to session {sessionId}", reply.SessionId);
-
-                await sender.SendMessageAsync(reply).ConfigureAwait(false);
+                await _responseSender.SendAsync(requestDataBundleResponseDto, sessionId ?? string.Empty);
             }
             catch (Exception e)
             {
@@ -77,54 +73,47 @@ namespace GetMessage.Functions
             }
         }
 
-        private async Task<DatasetReply> CreateResponseAsync(RequestDataset requestData)
+        private async Task<RequestDataBundleResponseDto> CreateResponseAsync(DataBundleRequestDto requestDto)
         {
-            if (requestData.UUID.Contains("0ae6c542-385f-4d89-bfba-d6c451915a1b"))
-                return CreateFailedResponse(requestData, DatasetReply.Types.RequestFailure.Types.Reason.DatasetNotFound);
-            else if (requestData.UUID.Contains("3cfce64e-aa1d-4003-924d-69c8739e73a6"))
-                return CreateFailedResponse(requestData, DatasetReply.Types.RequestFailure.Types.Reason.DatasetNotAvailable);
-            else if (requestData.UUID.Contains("befdcf5a-f58d-493b-9a17-e5231609c8f6"))
-                return CreateFailedResponse(requestData, DatasetReply.Types.RequestFailure.Types.Reason.InternalError);
+            if (requestDto.DataAvailableNotificationIds.Contains("0ae6c542-385f-4d89-bfba-d6c451915a1b"))
+                return CreateFailedResponse(requestDto, DataBundleResponseErrorReason.DatasetNotFound);
+            else if (requestDto.DataAvailableNotificationIds.Contains("3cfce64e-aa1d-4003-924d-69c8739e73a6"))
+                return CreateFailedResponse(requestDto, DataBundleResponseErrorReason.DatasetNotAvailable);
+            else if (requestDto.DataAvailableNotificationIds.Contains("befdcf5a-f58d-493b-9a17-e5231609c8f6"))
+                return CreateFailedResponse(requestDto, DataBundleResponseErrorReason.InternalError);
 
-            return await CreateSuccessResponse(requestData).ConfigureAwait(false);
+            return await CreateSuccessResponseAsync(requestDto).ConfigureAwait(false);
         }
 
-        private DatasetReply CreateFailedResponse(
-            RequestDataset requestData,
-            DatasetReply.Types.RequestFailure.Types.Reason failedReason)
+        private RequestDataBundleResponseDto CreateFailedResponse(
+            DataBundleRequestDto requestDto,
+            DataBundleResponseErrorReason failedReason)
         {
-            var proto = new DatasetReply()
+            var responseDto = new RequestDataBundleResponseDto(
+                new DataBundleResponseError()
             {
-                Failure = new DatasetReply.Types.RequestFailure()
-                {
-                    Reason = failedReason,
-                    FailureDescription = $"Failed with reason: {failedReason}"
-                }
-            };
-            proto.Failure.UUID.AddRange(requestData.UUID);
-            return proto;
+                Reason = failedReason,
+                FailureDescription = failedReason.ToString()
+            },
+                requestDto.DataAvailableNotificationIds);
+
+            return responseDto;
         }
 
-        private async Task<DatasetReply> CreateSuccessResponse(RequestDataset requestData)
+        private async Task<RequestDataBundleResponseDto> CreateSuccessResponseAsync(DataBundleRequestDto requestDto)
         {
-            var ressourceUrl = await SaveDataToBlobStorageAsync(requestData).ConfigureAwait(false);
+            var resourceUrl = await SaveDataToBlobStorageAsync(requestDto).ConfigureAwait(false);
 
-            var proto = new DatasetReply()
-            {
-                Success = new DatasetReply.Types.FileResource()
-                {
-                    Uri = ressourceUrl.AbsoluteUri,
-                }
-            };
-            proto.Success.UUID.AddRange(requestData.UUID);
-            return proto;
+            var responseDto = new RequestDataBundleResponseDto(new Uri(resourceUrl.AbsoluteUri), requestDto.DataAvailableNotificationIds);
+
+            return responseDto;
         }
 
-        private async Task<Uri> SaveDataToBlobStorageAsync(RequestDataset requestData)
+        private async Task<Uri> SaveDataToBlobStorageAsync(DataBundleRequestDto requestDto)
         {
-            var blobName = $"blob-ressource-{Environment.GetEnvironmentVariable("QueueListenerName")}-{DateTime.UtcNow:yyyy-MM-dd-HH-mm-ss-ff}.txt";
-            var data = $"<data>{blobName}</data>";
-            var blobUri = await _blobStorageController.CreateBlobRessourceAsync(blobName, new BinaryData(data)).ConfigureAwait(false);
+            var blobName = $"blob-resource-{Environment.GetEnvironmentVariable("QueueListenerName")}-{DateTime.UtcNow:yyyy-MM-dd-HH-mm-ss-ff}.txt";
+            var data = $"<data><uuid>{requestDto.IdempotencyId}<uuid><blobname>{blobName}</blobname></data>";
+            var blobUri = await _blobStorageController.CreateBlobResourceAsync(blobName, new BinaryData(data)).ConfigureAwait(false);
             return blobUri;
         }
     }
