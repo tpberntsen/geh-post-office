@@ -18,6 +18,7 @@ using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -77,6 +78,11 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
             serviceCollection.Replace(new ServiceDescriptor(
                 typeof(ServiceBusClient),
                 typeof(MockedServiceBusClient),
+                ServiceLifetime.Scoped));
+
+            serviceCollection.Replace(new ServiceDescriptor(
+                typeof(IServiceBusClientFactory),
+                typeof(MockedServiceBusClientFactory),
                 ServiceLifetime.Scoped));
         }
     }

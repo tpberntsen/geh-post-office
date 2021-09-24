@@ -12,18 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Domain.Services;
-using Energinet.DataHub.PostOffice.Infrastructure.Services;
-using SimpleInjector;
+using Azure.Messaging.ServiceBus;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
 
-namespace Energinet.DataHub.PostOffice.Common
+namespace Energinet.DataHub.PostOffice.Tests.Common
 {
-    internal static class InfrastructureServiceRegistration
+    internal sealed class MockedServiceBusClientFactory : IServiceBusClientFactory
     {
-        public static void AddInfrastructureServices(this Container container)
+        public ServiceBusClient Create()
         {
-            container.Register<IBundleContentRequestService, BundleContentRequestService>(Lifestyle.Scoped);
-            container.Register<IMarketOperatorDataStorageService, MarketOperatorDataStorageService>(Lifestyle.Scoped);
+            return null!;
         }
     }
 }

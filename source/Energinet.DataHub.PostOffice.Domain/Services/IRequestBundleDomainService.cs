@@ -18,7 +18,7 @@ using Energinet.DataHub.PostOffice.Domain.Model;
 namespace Energinet.DataHub.PostOffice.Domain.Services
 {
     /// <summary>
-    /// Handles communication with sub-domains
+    /// Provides access to bundle contents from other domains.
     /// </summary>
     public interface IRequestBundleDomainService
     {

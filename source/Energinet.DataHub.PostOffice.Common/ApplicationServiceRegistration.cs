@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.Validation;
 using FluentValidation;
+using GreenEnergyHub.PostOffice.Communicator.DataAvailable;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
+using GreenEnergyHub.PostOffice.Communicator.Peek;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.Common
@@ -26,6 +30,20 @@ namespace Energinet.DataHub.PostOffice.Common
             container.Register<IValidator<DataAvailableNotificationCommand>, DataAvailableNotificationCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<PeekCommand>, PeekCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<DequeueCommand>, DequeueCommandRuleSet>(Lifestyle.Scoped);
+
+            container.Register<IDataAvailableNotificationParser, DataAvailableNotificationParser>();
+            container.Register<IRequestBundleParser, RequestBundleParser>();
+
+            container.Register<IDataBundleRequestSender>(() =>
+            {
+                var requestBundleParser = container.GetInstance<IRequestBundleParser>();
+                var serviceBusClientFactory = container.GetInstance<IServiceBusClientFactory>();
+
+                return new DataBundleRequestSender(
+                    requestBundleParser,
+                    serviceBusClientFactory,
+                    TimeSpan.FromSeconds(5));
+            });
         }
     }
 }

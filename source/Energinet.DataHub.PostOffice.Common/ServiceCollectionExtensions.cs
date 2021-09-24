@@ -15,6 +15,8 @@
 using System;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Infrastructure;
+using GreenEnergyHub.PostOffice.Communicator.Dequeue;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Configuration;
@@ -58,6 +60,28 @@ namespace Energinet.DataHub.PostOffice.Common
                 }
 
                 return new ServiceBusClient(connectionString);
+            });
+
+            serviceCollection.AddScoped<IServiceBusClientFactory>(serviceProvider =>
+            {
+                var configuration = serviceProvider.GetService<IConfiguration>();
+                var connectionString = configuration.GetConnectionStringOrSetting("ServiceBusConnectionString");
+
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException(
+                        "Please specify a valid ServiceBus in the appSettings.json file or your Azure Functions Settings.");
+                }
+
+                return new ServiceBusClientFactory(connectionString);
+            });
+
+            serviceCollection.AddScoped(serviceProvider =>
+            {
+                var configuration = serviceProvider.GetService<IConfiguration>();
+                var connectionString = configuration.GetConnectionStringOrSetting("ServiceBusConnectionString");
+
+                return new DequeueNotificationSender(connectionString, "TODO:QUEUE_NAME");
             });
         }
 

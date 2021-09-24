@@ -64,6 +64,18 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
                 receiver.EnqueueMockedMessage();
                 return Task.CompletedTask;
             }
+
+            public override async ValueTask DisposeAsync()
+            {
+                try
+                {
+                    await base.DisposeAsync().ConfigureAwait(false);
+                }
+                catch (NullReferenceException)
+                {
+                    // Dispose error during integration test.
+                }
+            }
         }
 
         private sealed class MockedServiceBusSessionReceiver : ServiceBusSessionReceiver
@@ -92,6 +104,18 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
                 return _queue.TryDequeue(out var message)
                     ? Task.FromResult<ServiceBusReceivedMessage?>(message)
                     : Task.FromResult<ServiceBusReceivedMessage?>(null);
+            }
+
+            public override async ValueTask DisposeAsync()
+            {
+                try
+                {
+                    await base.DisposeAsync().ConfigureAwait(false);
+                }
+                catch (NullReferenceException)
+                {
+                    // Dispose error during integration test.
+                }
             }
         }
     }
