@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-name: Solution CI and Code Coverage
+name: Package CI and Code Coverage
 
 on:
   push:
@@ -23,7 +23,7 @@ on:
   workflow_dispatch: {}
 
 env:
-  SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.sln'
+  SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Libraries.sln'
   DOTNET_VERSION: '5.0'
   
 jobs:
@@ -43,12 +43,12 @@ jobs:
             ".github/workflows/package-ci.yml"
           ]'
 
-  solution_ci:
+  package_ci:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' || github.ref == 'refs/heads/main' }}
-    name: solution_ci
-    runs-on: windows-latest
-        
+    name: package_ci
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@master
@@ -63,11 +63,8 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Build solution
-        run: dotnet build ${{ env.SOLUTION_FILE_PATH }} --configuration Release --output '${{ github.workspace }}/output'
-
-      - name: Setup Azure Cosmos DB Emulator
-        uses: southpolesteve/cosmos-emulator-github-action@v1
+      - name: Build package
+        run: dotnet build ${{ env.SOLUTION_FILE_PATH }} --configuration Release --output '${{ github.workspace }}/package/output'
 
       - name: Run tests and collect coverage
         run: |
@@ -85,4 +82,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: drop
-          path: '${{ github.workspace }}/output'
+          path: '${{ github.workspace }}/package/output'

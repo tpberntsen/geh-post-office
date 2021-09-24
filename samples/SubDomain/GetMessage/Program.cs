@@ -15,6 +15,9 @@
 using System;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
+using GreenEnergyHub.PostOffice.Communicator.Model;
+using GreenEnergyHub.PostOffice.Communicator.Peek;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -45,6 +48,9 @@ namespace GetMessage
                         new ServiceBusClient(serviceBusConnectionString));
                     services.AddSingleton<BlobServiceClient>(_ =>
                         new BlobServiceClient(blobStorageConnectionString));
+
+                    services.AddScoped<IDataBundleRequestReceiver>(_ => new DataBundleRequestReceiver(new RequestBundleParser()));
+                    services.AddScoped<IDataBundleResponseSender>(_ => new DataBundleResponseSender(new ResponseBundleParser(), new ServiceBusClientFactory(serviceBusConnectionString), DomainOrigin.TimeSeries));
 
                     services.AddScoped(typeof(Storage.StorageController), typeof(Storage.StorageController));
                 })

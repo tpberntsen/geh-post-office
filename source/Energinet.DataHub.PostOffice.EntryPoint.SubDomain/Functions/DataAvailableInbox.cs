@@ -14,8 +14,11 @@
 
 using System;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Parsing;
+using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Infrastructure;
+using GreenEnergyHub.PostOffice.Communicator.DataAvailable;
+using GreenEnergyHub.PostOffice.Communicator.Model;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -25,37 +28,39 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
     public class DataAvailableInbox
     {
         private const string FunctionName = "DataAvailableInbox";
-        private readonly DataAvailableContractParser _dataAvailableContractParser;
+
         private readonly IMediator _mediator;
+        private readonly IDataAvailableNotificationParser _dataAvailableNotificationParser;
+        private readonly IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand> _dataAvailableNotificationMapper;
 
         public DataAvailableInbox(
             IMediator mediator,
-            DataAvailableContractParser dataAvailableContractParser)
+            IDataAvailableNotificationParser dataAvailableNotificationParser,
+            IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand> dataAvailableNotificationMapper)
         {
             _mediator = mediator;
-            _dataAvailableContractParser = dataAvailableContractParser;
+            _dataAvailableNotificationParser = dataAvailableNotificationParser;
+            _dataAvailableNotificationMapper = dataAvailableNotificationMapper;
         }
 
         [Function(FunctionName)]
         public async Task RunAsync(
             [ServiceBusTrigger(
-                "%" + ServiceBusConfig.InboundQueueDataAvailableTopicNameKey + "%", // TODO: Rename configs
-                "%" + ServiceBusConfig.InboundQueueDataAvailableSubscriptionNameKey + "%",
-                Connection = ServiceBusConfig.InboundQueueConnectionStringKey)]
+                "%" + ServiceBusConfig.DataAvailableQueueNameKey + "%", // TODO: Rename configs
+                Connection = ServiceBusConfig.DataAvailableQueueConnectionStringKey)]
             byte[] message,
             FunctionContext context)
         {
             if (message is null)
                 throw new ArgumentNullException(nameof(message));
 
-            var logger = context.GetLogger(nameof(DataAvailableInbox));
-            logger.LogInformation(
-                "C# ServiceBus topic trigger function processed message in {FunctionName}",
-                FunctionName);
+            var logger = context.GetLogger<DataAvailableInbox>();
+            logger.LogInformation($"C# ServiceBus topic trigger function processed message in {FunctionName}");
 
             try
             {
-                var dataAvailableCommand = _dataAvailableContractParser.Parse(message);
+                var dataAvailableNotification = _dataAvailableNotificationParser.Parse(message);
+                var dataAvailableCommand = _dataAvailableNotificationMapper.Map(dataAvailableNotification);
                 await _mediator.Send(dataAvailableCommand).ConfigureAwait(false);
             }
             catch (Exception exception)

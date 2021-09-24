@@ -13,16 +13,13 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
-using Energinet.DataHub.PostOffice.Domain.Services.Model;
+using Energinet.DataHub.PostOffice.Infrastructure.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
-using Energinet.DataHub.PostOffice.Infrastructure.Services;
-using Microsoft.Azure.Cosmos;
 using Xunit;
 using Xunit.Categories;
 
@@ -32,141 +29,203 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
     [IntegrationTest]
     public sealed class BundleRepositoryIntegrationTests
     {
-        private IMarketOperatorDataStorageService _marketOperatorDataStorageService = new MarketOperatorDataStorageService();
+        private static readonly Uri _contentPathUri = new("https://test.test.dk");
+
         [Fact]
-        public async Task CreateBundle_Should_Return_Bundle()
+        public async Task GetNextUnacknowledgedAsync_NoBundle_ReturnsNull()
         {
             // Arrange
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
-            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
-            var replyData = new SubDomainReply { Success = true, UriToContent = new Uri("https://test.test.dk") };
-            var dataAvailableNotificationIds = new List<DataAvailableNotification>
-            {
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries)
-            };
-            var client = scope.GetInstance<CosmosClient>();
-            var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client), _marketOperatorDataStorageService);
+
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
+
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
 
             // Act
-            var bundle = await bundleRepository.CreateBundleAsync(dataAvailableNotificationIds, replyData.UriToContent)
-                .ConfigureAwait(false);
+            var bundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
+
+            // Assert
+            Assert.Null(bundle);
+        }
+
+        [Fact]
+        public async Task GetNextUnacknowledgedAsync_HasBundle_ReturnsBundle()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
+
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var setupBundle = new Bundle(
+                new Uuid(Guid.NewGuid()),
+                DomainOrigin.TimeSeries,
+                recipient,
+                new[] { new Uuid(Guid.NewGuid()) });
+
+            await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+
+            // Act
+            var bundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
 
             // Assert
             Assert.NotNull(bundle);
-            Assert.Equal(3, bundle.NotificationIds.Count());
+            Assert.Equal(setupBundle.BundleId, bundle!.BundleId);
+            Assert.Equal(setupBundle.Origin, bundle.Origin);
+            Assert.Equal(setupBundle.Recipient, bundle.Recipient);
+            Assert.Equal(setupBundle.NotificationIds.Single(), bundle.NotificationIds.Single());
+            Assert.False(bundle.TryGetContent(out _));
         }
 
         [Fact]
-        public async Task Peek_Should_Return_Bundle_Created_For_Same_Recipient()
+        public async Task GetNextUnacknowledgedAsync_HasBundleAndContent_ReturnsBundleContent()
         {
             // Arrange
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
-            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
             var scope = host.BeginScope();
-            var replyData = new SubDomainReply { Success = true, UriToContent = new Uri("https://test.test.dk") };
-            var dataAvailableNotifications = new List<DataAvailableNotification>
-            {
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
-            };
-            var client = scope.GetInstance<CosmosClient>();
-            var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client), _marketOperatorDataStorageService);
 
-            // Act
-            var createdBundle = await bundleRepository
-                .CreateBundleAsync(dataAvailableNotifications, replyData.UriToContent)
-                .ConfigureAwait(false);
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
 
-            var peakBundle = await bundleRepository
-                .GetNextUnacknowledgedAsync(recipient)
-                .ConfigureAwait(false);
-
-            // Assert
-            Assert.NotNull(createdBundle);
-            Assert.NotNull(peakBundle);
-            Assert.Equal(createdBundle.BundleId, peakBundle?.BundleId);
-            Assert.Equal(createdBundle.NotificationIds.Count(), peakBundle?.NotificationIds.Count());
-            Assert.True(createdBundle.NotificationIds.All(x => peakBundle!.NotificationIds.Contains(x)));
-        }
-
-        [Fact]
-        public async Task Peek_Should_Not_Return_Bundle_Created_For_Another_Recipient()
-        {
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
-            var peakRecipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
-            await using var host = await SubDomainIntegrationTestHost
-                .InitializeAsync()
-                .ConfigureAwait(false);
-
-            var scope = host.BeginScope();
-            var replyData = new SubDomainReply { Success = true, UriToContent = new Uri("https://test.test.dk") };
-            var dataAvailableNotifications = new List<DataAvailableNotification>
-            {
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries)
-            };
-            var client = scope.GetInstance<CosmosClient>();
-            var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client), _marketOperatorDataStorageService);
-
-            // Act
-            var createdBundle = await bundleRepository
-                .CreateBundleAsync(dataAvailableNotifications, replyData.UriToContent)
-                .ConfigureAwait(false);
-            var peakBundle = await bundleRepository
-                .GetNextUnacknowledgedAsync(peakRecipient)
-                .ConfigureAwait(false);
-
-            // Assert
-            Assert.NotNull(createdBundle);
-            Assert.Null(peakBundle);
-        }
-
-        [Fact]
-        public async Task Dequeue_Should_Set_Bundle_Dequeued()
-        {
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
-            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
-            var scope = host.BeginScope();
-            var replyData = new SubDomainReply { Success = true, UriToContent = new Uri("https://test.test.dk") };
-            var dataAvailableNotifications = new List<DataAvailableNotification>
-            {
-                CreateDataAvailableNotifications(recipient, ContentType.TimeSeries),
-            };
-            var client = scope.GetInstance<CosmosClient>();
-            var bundleRepository = new BundleRepository(new BundleRepositoryContainer(client), _marketOperatorDataStorageService);
-
-            // Act
-            var createdBundle = await bundleRepository
-                .CreateBundleAsync(dataAvailableNotifications, replyData.UriToContent)
-                .ConfigureAwait(false);
-
-            await bundleRepository
-                .AcknowledgeAsync(createdBundle.BundleId)
-                .ConfigureAwait(false);
-
-            var peakResult = await bundleRepository
-                .GetNextUnacknowledgedAsync(recipient)
-                .ConfigureAwait(false);
-
-            // Assert
-            Assert.NotNull(createdBundle);
-            Assert.Null(peakResult);
-        }
-
-        private static DataAvailableNotification CreateDataAvailableNotifications(
-            MarketOperator recipient,
-            ContentType contentType)
-        {
-            return new(
-                new Uuid(Guid.NewGuid()),
+            var setupBundle = CreateBundle(
                 recipient,
-                contentType,
+                new AzureBlobBundleContent(
+                    storageService,
+                    new Uuid(Guid.Empty),
+                    _contentPathUri));
+
+            await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+
+            // Act
+            var bundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(bundle);
+            Assert.Equal(setupBundle.BundleId, bundle!.BundleId);
+            Assert.Equal(setupBundle.Origin, bundle.Origin);
+            Assert.Equal(setupBundle.Recipient, bundle.Recipient);
+            Assert.Equal(setupBundle.NotificationIds.Single(), bundle.NotificationIds.Single());
+            Assert.True(bundle.TryGetContent(out var actualBundleContent));
+            Assert.Equal(_contentPathUri, ((AzureBlobBundleContent)actualBundleContent!).ContentPath);
+        }
+
+        [Fact]
+        public async Task AcknowledgeAsync_BundleAcknowledged_ReturnsNoNextBundle()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
+
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var setupBundle = CreateBundle(recipient);
+
+            var beforeAdd = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
+            await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+            var afterAdd = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
+
+            // Act
+            await target.AcknowledgeAsync(setupBundle.BundleId).ConfigureAwait(false);
+
+            // Assert
+            Assert.Null(beforeAdd);
+            Assert.NotNull(afterAdd);
+            Assert.Null(await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false));
+        }
+
+        [Fact]
+        public async Task TryAddNextUnacknowledgedAsync_NoExistingBundle_ReturnsTrue()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
+
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var setupBundle = CreateBundle(recipient);
+
+            // Act
+            var couldAdd = await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+
+            // Assert
+            Assert.True(couldAdd);
+            Assert.NotNull(await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false));
+        }
+
+        [Fact]
+        public async Task TryAddNextUnacknowledgedAsync_HasExistingBundle_ReturnsFalse()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
+
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var setupBundle = CreateBundle(recipient);
+
+            var existingBundle = CreateBundle(recipient);
+            await target.TryAddNextUnacknowledgedAsync(existingBundle).ConfigureAwait(false);
+
+            // Act
+            var couldAdd = await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+
+            // Assert
+            Assert.False(couldAdd);
+        }
+
+        [Fact]
+        public async Task SaveAsync_WithContentPath_ReturnsBundleContent()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
+
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var bundleContent = new AzureBlobBundleContent(storageService, new Uuid(Guid.Empty), _contentPathUri);
+
+            await target.TryAddNextUnacknowledgedAsync(CreateBundle(recipient)).ConfigureAwait(false);
+            var modifiedBundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
+            modifiedBundle!.AssignContent(bundleContent);
+
+            // Act
+            await target.SaveAsync(modifiedBundle).ConfigureAwait(false);
+
+            // Assert
+            var actualBundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
+            Assert.NotNull(actualBundle);
+            Assert.True(actualBundle!.TryGetContent(out var actualBundleContent));
+            Assert.Equal(_contentPathUri, ((AzureBlobBundleContent)actualBundleContent!).ContentPath);
+        }
+
+        private static Bundle CreateBundle(MarketOperator recipient, IBundleContent? bundleContent = null)
+        {
+            return new Bundle(
+                new Uuid(Guid.NewGuid()),
                 DomainOrigin.TimeSeries,
-                new SupportsBundling(false),
-                new Weight(1));
+                recipient,
+                new[] { new Uuid(Guid.NewGuid()) },
+                bundleContent);
         }
     }
 }

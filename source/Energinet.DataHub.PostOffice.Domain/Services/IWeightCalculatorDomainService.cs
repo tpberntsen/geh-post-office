@@ -17,15 +17,15 @@ using Energinet.DataHub.PostOffice.Domain.Model;
 namespace Energinet.DataHub.PostOffice.Domain.Services
 {
     /// <summary>
-    /// Maps <see cref="ContentType"/> to <see cref="Weight"/>
+    /// Performs calculation and transformation of <see cref="Weight"/>.
     /// </summary>
     public interface IWeightCalculatorDomainService
     {
         /// <summary>
-        /// Maps a given <see cref="ContentType"/> to its <see cref="Weight"/>
+        /// Maps a given <see cref="DomainOrigin"/> to its maximum <see cref="Weight"/>.
         /// </summary>
-        /// <param name="contentType">The <see cref="ContentType"/> for which a <see cref="Weight"/> is found and returned</param>
-        /// <returns><see cref="Weight"/></returns>
-        Weight CalculateMaxWeight(ContentType contentType);
+        /// <param name="domainOrigin">The <see cref="DomainOrigin"/> for which a maximum <see cref="Weight"/> is found and returned.</param>
+        /// <returns>The maximum <see cref="Weight"/>.</returns>
+        Weight CalculateMaxWeight(DomainOrigin domainOrigin);
     }
 }

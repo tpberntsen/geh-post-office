@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions;
-using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Parsing;
-using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using Energinet.DataHub.PostOffice.Tests.Common;
-using Google.Protobuf;
+using GreenEnergyHub.PostOffice.Communicator.DataAvailable;
+using GreenEnergyHub.PostOffice.Communicator.Model;
 using MediatR;
 using Moq;
 using Xunit;
@@ -34,31 +35,24 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain
         {
             // Arrange
             var mockedMediator = new Mock<IMediator>();
+            var mockedParser = new Mock<IDataAvailableNotificationParser>();
+            var mockedMapper = new Mock<IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand>>();
             var mockedFunctionContext = new MockedFunctionContext();
 
-            var contractParser = new DataAvailableContractParser(new DataAvailableMapper());
-            var target = new DataAvailableInbox(mockedMediator.Object, contractParser);
+            var target = new DataAvailableInbox(mockedMediator.Object, mockedParser.Object, mockedMapper.Object);
 
-            var protobufMessage = CreateProtoContract();
+            var fakeProtobuf = Array.Empty<byte>();
+            var fakeDto = new DataAvailableNotificationDto("fake_value", "fake_value", "fake_value", "fake_value", false, 0);
+            var fakeCommand = new DataAvailableNotificationCommand("fake_value", "fake_value", "fake_value", "fake_value", false, 0);
+
+            mockedParser.Setup(x => x.Parse(fakeProtobuf)).Returns(fakeDto);
+            mockedMapper.Setup(x => x.Map(fakeDto)).Returns(fakeCommand);
 
             // Act
-            await target.RunAsync(protobufMessage.ToByteArray(), mockedFunctionContext).ConfigureAwait(false);
+            await target.RunAsync(fakeProtobuf, mockedFunctionContext).ConfigureAwait(false);
 
             // Assert
             mockedMediator.Verify(mediator => mediator.Send(It.IsAny<DataAvailableNotificationCommand>(), default));
-        }
-
-        private static GreenEnergyHub.PostOffice.Communicator.Contracts.DataAvailableNotificationContract CreateProtoContract()
-        {
-            return new()
-            {
-                UUID = "SomeGuid",
-                Recipient = "recipient",
-                MessageType = "DataAvailable",
-                Origin = "origin",
-                SupportsBundling = false,
-                RelativeWeight = 1,
-            };
         }
 
         //[Fact]

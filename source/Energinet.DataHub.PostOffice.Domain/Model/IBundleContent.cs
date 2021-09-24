@@ -12,27 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
     /// <summary>
-    /// Represents potentially bundled data returned from a sub domain.
+    /// Represents data for a specific bundle.
     /// </summary>
-    public interface IBundle
+    public interface IBundleContent
     {
-        /// <summary>
-        /// Uniquely indentifies a bundle in the entire system.
-        /// </summary>
-        Uuid BundleId { get; }
-
-        /// <summary>
-        /// Notifications contained in the bundle.
-        /// </summary>
-        IEnumerable<Uuid> NotificationIds { get; }
-
         /// <summary>
         /// Opens a stream to the content contained within the bundle.
         /// It is the responsibility of the caller to close the stream after use.

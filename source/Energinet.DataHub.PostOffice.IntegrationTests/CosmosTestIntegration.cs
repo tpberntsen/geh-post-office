@@ -13,8 +13,10 @@
 // limitations under the License.
 
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Scripts;
 
 namespace Energinet.DataHub.PostOffice.IntegrationTests
 {
@@ -40,9 +42,49 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
                 .CreateContainerIfNotExistsAsync("dataavailable", "/recipient")
                 .ConfigureAwait(true);
 
-            await testDatabase
+            var bundlesResponse = await testDatabase
                 .CreateContainerIfNotExistsAsync("bundles", "/pk")
                 .ConfigureAwait(true);
+
+            var singleBundleViolationTrigger = new TriggerProperties
+            {
+                Id = "EnsureSingleUnacknowledgedBundle",
+                TriggerOperation = TriggerOperation.Create,
+                TriggerType = TriggerType.Post,
+                Body = @"
+function trigger() {
+
+    var context = getContext();
+    var container = context.getCollection();
+    var response = context.getResponse();
+    var createdItem = response.getBody();
+
+    // Query for checking if there are other unacknowledged bundles for market operator.
+    var filterQuery = `SELECT * FROM bundles b WHERE b.recipient = '${createdItem.recipient}' and b.dequeued = false`
+    
+    var accept = container.queryDocuments(container.getSelfLink(), filterQuery, function(err, items, options)
+    {
+        if (err) throw err;
+        if (items.length !== 0) throw 'SingleBundleViolation';
+    });
+
+    if (!accept) throw 'queryDocuments in trigger failed.';
+}"
+            };
+
+            var bundles = bundlesResponse.Container;
+            var scripts = bundles.Scripts;
+
+            try
+            {
+                await scripts.DeleteTriggerAsync(singleBundleViolationTrigger.Id).ConfigureAwait(false);
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                // Trigger not there, ignore.
+            }
+
+            await scripts.CreateTriggerAsync(singleBundleViolationTrigger).ConfigureAwait(false);
         }
     }
 }
