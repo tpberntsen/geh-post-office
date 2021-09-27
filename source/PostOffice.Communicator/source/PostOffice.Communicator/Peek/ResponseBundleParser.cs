@@ -53,7 +53,6 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             catch (Exception)
             {
                 bytes = null;
-                throw;
             }
 
             return bytes != null;
