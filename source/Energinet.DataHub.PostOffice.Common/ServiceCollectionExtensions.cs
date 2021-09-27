@@ -62,7 +62,7 @@ namespace Energinet.DataHub.PostOffice.Common
                 return new ServiceBusClient(connectionString);
             });
 
-            serviceCollection.AddScoped<IServiceBusClientFactory>(serviceProvider =>
+            serviceCollection.AddSingleton<IServiceBusClientFactory>(serviceProvider =>
             {
                 var configuration = serviceProvider.GetService<IConfiguration>();
                 var connectionString = configuration.GetConnectionStringOrSetting("ServiceBusConnectionString");
@@ -76,7 +76,7 @@ namespace Energinet.DataHub.PostOffice.Common
                 return new ServiceBusClientFactory(connectionString);
             });
 
-            serviceCollection.AddScoped(serviceProvider =>
+            serviceCollection.AddSingleton(serviceProvider =>
             {
                 var configuration = serviceProvider.GetService<IConfiguration>();
                 var connectionString = configuration.GetConnectionStringOrSetting("ServiceBusConnectionString");
