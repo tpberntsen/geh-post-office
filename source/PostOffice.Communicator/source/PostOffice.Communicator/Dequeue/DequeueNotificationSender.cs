@@ -24,6 +24,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
     public sealed class DequeueNotificationSender : IDequeueNotificationSender, IAsyncDisposable
     {
         private readonly ServiceBusClient _serviceBusClient;
+
         public DequeueNotificationSender(string connectionString)
         {
             _serviceBusClient = new ServiceBusClient(connectionString);
