@@ -17,6 +17,9 @@ using System.Collections.Generic;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Model
 {
+    /// <summary>
+    /// Contains the result of the request for bundle contents.
+    /// </summary>
     public sealed class RequestDataBundleResponseDto
     {
         public RequestDataBundleResponseDto(Uri contentUri, IEnumerable<string> dataAvailableNotificationIds)

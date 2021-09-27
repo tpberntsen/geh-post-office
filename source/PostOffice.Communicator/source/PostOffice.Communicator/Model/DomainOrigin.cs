@@ -14,6 +14,9 @@
 
 namespace GreenEnergyHub.PostOffice.Communicator.Model
 {
+    /// <summary>
+    /// Indentifies the sub-domain used in a given context.
+    /// </summary>
     public enum DomainOrigin
     {
         Unknown = 0,
