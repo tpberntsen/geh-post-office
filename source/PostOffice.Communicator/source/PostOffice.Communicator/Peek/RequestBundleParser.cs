@@ -24,7 +24,8 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
     {
         public bool TryParse(DataBundleRequestDto request, [NotNullWhen(true)] out byte[]? bytes)
         {
-            if (request == null) throw new ArgumentNullException(nameof(request));
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
             try
             {
                 var message = new RequestBundleRequest { IdempotencyId = request.IdempotencyId, UUID = { request.DataAvailableNotificationIds } };
@@ -45,7 +46,6 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             try
             {
                 var bundleResponse = RequestBundleRequest.Parser.ParseFrom(dataBundleRequestContract);
-
                 request = new DataBundleRequestDto(bundleResponse.IdempotencyId, bundleResponse.UUID);
             }
 #pragma warning disable CA1031
