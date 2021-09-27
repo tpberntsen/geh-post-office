@@ -41,7 +41,10 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
         public async ValueTask DisposeAsync()
         {
             if (_serviceBusClient != null)
+            {
                 await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
+                _serviceBusClient = null;
+            }
         }
 
         public async Task<RequestDataBundleResponseDto?> SendAsync(

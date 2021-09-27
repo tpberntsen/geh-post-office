@@ -20,20 +20,21 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
-    public class DataBundleResponseSender : IDataBundleResponseSender
+    public sealed class DataBundleResponseSender : IDataBundleResponseSender, IAsyncDisposable
     {
         private readonly IResponseBundleParser _responseBundleParser;
-        private readonly ServiceBusClient _serviceBusClient;
+        private readonly IServiceBusClientFactory _serviceBusClientFactory;
         private readonly string _replyQueue;
+        private ServiceBusClient? _serviceBusClient;
 
-        public DataBundleResponseSender(IResponseBundleParser responseBundleParser, IServiceBusClientFactory serviceBusClientFactory, DomainOrigin domainOrigin)
+        public DataBundleResponseSender(
+            IResponseBundleParser responseBundleParser,
+            IServiceBusClientFactory serviceBusClientFactory,
+            DomainOrigin domainOrigin)
         {
-            if (serviceBusClientFactory == null)
-                throw new ArgumentNullException(nameof(serviceBusClientFactory));
-
             _responseBundleParser = responseBundleParser;
-            _serviceBusClient = serviceBusClientFactory.Create();
-            _replyQueue = $"sbq-{domainOrigin.ToString()}-reply";
+            _serviceBusClientFactory = serviceBusClientFactory;
+            _replyQueue = $"sbq-{domainOrigin}-reply";
         }
 
         public async Task SendAsync(RequestDataBundleResponseDto requestDataBundleResponseDto, string sessionId)
@@ -52,8 +53,19 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
                 SessionId = sessionId,
             };
 
+            _serviceBusClient ??= _serviceBusClientFactory.Create();
+
             await using var sender = _serviceBusClient.CreateSender(_replyQueue);
             await sender.SendMessageAsync(serviceBusReplyMessage).ConfigureAwait(false);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_serviceBusClient != null)
+            {
+                await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
+                _serviceBusClient = null;
+            }
         }
     }
 }
