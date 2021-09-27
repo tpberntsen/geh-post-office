@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
@@ -20,7 +21,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
     {
         public DataAvailableNotificationDto Parse(byte[] dataAvailableContract)
         {
-            var dataAvailable = Contracts.DataAvailableNotificationContract.Parser.ParseFrom(dataAvailableContract);
+            var dataAvailable = DataAvailableNotificationContract.Parser.ParseFrom(dataAvailableContract);
             return new DataAvailableNotificationDto(
                 Uuid: dataAvailable.UUID,
                 Recipient: dataAvailable.Recipient,

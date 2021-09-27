@@ -27,7 +27,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             if (requestDataBundleResponseDto == null) throw new ArgumentNullException(nameof(requestDataBundleResponseDto));
             try
             {
-                var contract = new Contracts.RequestBundleResponse();
+                var contract = new RequestBundleResponse();
 
                 if (requestDataBundleResponseDto.ContentUri is not null)
                 {
