@@ -22,37 +22,22 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     public class ResponseBundleParser : IResponseBundleParser
     {
-        public bool TryParse(RequestDataBundleResponseDto requestDataBundleResponseDto,  [NotNullWhen(true)] out byte[]? bytes)
+        public bool TryParse(RequestDataBundleResponseDto requestDataBundleResponseDto, [NotNullWhen(true)] out byte[]? bytes)
         {
             if (requestDataBundleResponseDto == null) throw new ArgumentNullException(nameof(requestDataBundleResponseDto));
-            try
+
+            var contract = new RequestBundleResponse();
+
+            if (!requestDataBundleResponseDto.IsErrorResponse)
             {
-                var contract = new RequestBundleResponse();
-
-                if (requestDataBundleResponseDto.ContentUri is not null)
-                {
-                    contract.Success = new RequestBundleResponse.Types.FileResource() { Uri = requestDataBundleResponseDto.ContentUri.AbsoluteUri };
-                }
-                else if (requestDataBundleResponseDto.ResponseError is not null)
-                {
-                    var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError.Reason);
-                    contract.Failure = new RequestBundleResponse.Types.RequestFailure()
-                    {
-                        Reason = contractErrorReason,
-                        FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription
-                    };
-                }
-                else
-                {
-                    bytes = null;
-                }
-
+                contract.Success = new RequestBundleResponse.Types.FileResource { Uri = requestDataBundleResponseDto.ContentUri.AbsoluteUri };
                 bytes = contract.ToByteArray();
             }
-            catch (Exception)
+            else
             {
-                Console.WriteLine();
-                throw;
+                var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError.Reason);
+                contract.Failure = new RequestBundleResponse.Types.RequestFailure { Reason = contractErrorReason, FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription };
+                bytes = contract.ToByteArray();
             }
 
             return bytes != null;
