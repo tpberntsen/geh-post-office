@@ -16,6 +16,7 @@ using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Google.Protobuf;
+using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
@@ -36,7 +37,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
             await using var sender = _serviceBusClient.CreateSender($"sbq-{domainOrigin.ToString()}-dequeue");
             using var messageBatch = await sender.CreateMessageBatchAsync().ConfigureAwait(false);
 
-            var contract = new Contracts.DequeueContractContract()
+            var contract = new DequeueContract()
             {
                 DataAvailableIds = { dequeueNotificationDto.DataAvailableNotificationIds },
                 Recipient = dequeueNotificationDto.Recipient

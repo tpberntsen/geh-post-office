@@ -21,7 +21,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
     {
         public DequeueNotificationDto Receive(byte[] dequeueNotificationContract)
         {
-            var dequeueContract = DequeueContractContract.Parser.ParseFrom(dequeueNotificationContract);
+            var dequeueContract = DequeueContract.Parser.ParseFrom(dequeueNotificationContract);
             return new DequeueNotificationDto(
                 dequeueContract.DataAvailableIds,
                 dequeueContract.Recipient);
