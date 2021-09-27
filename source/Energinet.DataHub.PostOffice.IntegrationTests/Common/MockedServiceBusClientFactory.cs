@@ -12,20 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using GreenEnergyHub.PostOffice.Communicator.Model;
+using Azure.Messaging.ServiceBus;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Peek
+namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
 {
-    /// <summary>
-    /// Singleton, thread-safe
-    /// </summary>
-    public interface IDataBundleRequestReceiver
+    internal sealed class MockedServiceBusClientFactory : IServiceBusClientFactory
     {
-        /// <summary>
-        /// bla
-        /// </summary>
-        /// <param name="dataBundleRequestContract"></param>
-        /// <returns>1</returns>
-        DataBundleRequestDto? Receive(byte[] dataBundleRequestContract);
+        public ServiceBusClient Create()
+        {
+            return new MockedServiceBusClient();
+        }
     }
 }

@@ -24,19 +24,15 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
     {
         private readonly IRequestBundleParser _requestBundleParser;
         private readonly ServiceBusClient _serviceBusClient;
-        private readonly string _queue;
-        private readonly string _replyQueue;
         private readonly TimeSpan _requestBundleTimout;
 
-        public DataBundleRequestSender(IRequestBundleParser requestBundleParser, IServiceBusClientFactory serviceBusClientFactory, DomainOrigin domainOrigin, TimeSpan requestBundleTimout)
+        public DataBundleRequestSender(IRequestBundleParser requestBundleParser, IServiceBusClientFactory serviceBusClientFactory, TimeSpan requestBundleTimout)
         {
             if (serviceBusClientFactory == null)
                 throw new ArgumentNullException(nameof(serviceBusClientFactory));
 
             _requestBundleParser = requestBundleParser;
             _serviceBusClient = serviceBusClientFactory.Create();
-            _queue = $"sbq-{domainOrigin.ToString()}";
-            _replyQueue = $"sbq-{domainOrigin.ToString()}-reply";
             _requestBundleTimout = requestBundleTimout;
         }
 
@@ -45,7 +41,9 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
         }
 
-        public async Task<RequestDataBundleResponseDto?> SendAsync(DataBundleRequestDto dataBundleRequestDto)
+        public async Task<RequestDataBundleResponseDto?> SendAsync(
+            DataBundleRequestDto dataBundleRequestDto,
+            DomainOrigin domainOrigin)
         {
             if (dataBundleRequestDto == null)
                 throw new ArgumentNullException(nameof(dataBundleRequestDto));
@@ -54,12 +52,20 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
                 throw new InvalidOperationException("Could not parse Bundle request");
 
             var sessionId = Guid.NewGuid().ToString();
-            var serviceBusMessage = new ServiceBusMessage(bytes) { SessionId = sessionId, ReplyToSessionId = sessionId, ReplyTo = _replyQueue };
+            var serviceBusMessage = new ServiceBusMessage(bytes)
+            {
+                SessionId = sessionId,
+                ReplyToSessionId = sessionId,
+                ReplyTo = $"sbq-{domainOrigin.ToString()}-reply"
+            };
 
-            await using var sender = _serviceBusClient.CreateSender(_queue);
+            await using var sender = _serviceBusClient.CreateSender($"sbq-{domainOrigin.ToString()}");
             await sender.SendMessageAsync(serviceBusMessage).ConfigureAwait(false);
 
-            await using var receiver = await _serviceBusClient.AcceptSessionAsync(_replyQueue, sessionId).ConfigureAwait(false);
+            await using var receiver = await _serviceBusClient.AcceptSessionAsync(
+                    $"sbq-{domainOrigin.ToString()}-reply",
+                    sessionId)
+                .ConfigureAwait(false);
             var response = await receiver.ReceiveMessageAsync(_requestBundleTimout).ConfigureAwait(false);
 
             if (response == null)

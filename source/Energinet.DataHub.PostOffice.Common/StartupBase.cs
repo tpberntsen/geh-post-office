@@ -49,7 +49,6 @@ namespace Energinet.DataHub.PostOffice.Common
             services.AddServiceBusConfig();
             services.AddCosmosClientBuilder(false);
             services.AddServiceBus();
-            services.AddDequeueNotificationSender();
 
             // FluentValidation
             services.DiscoverValidation(new[] { typeof(ApplicationAssemblyReference).Assembly });

@@ -12,20 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using GreenEnergyHub.PostOffice.Communicator.Model;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
+using Xunit;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Peek
+namespace PostOffice.Communicator.Tests.Factories
 {
-    /// <summary>
-    /// Singleton, thread-safe
-    /// </summary>
-    public interface IDataBundleRequestReceiver
+    public sealed class ServiceBusClientFactoryTests
     {
-        /// <summary>
-        /// bla
-        /// </summary>
-        /// <param name="dataBundleRequestContract"></param>
-        /// <returns>1</returns>
-        DataBundleRequestDto? Receive(byte[] dataBundleRequestContract);
+        [Fact]
+        public void Create_ReturnsServiceBusClient()
+        {
+            // arrange
+            var target = new ServiceBusClientFactory("Endpoint=sb://sbn-postoffice.servicebus.windows.net/;SharedAccessKeyName=Hello;SharedAccessKey=there");
+
+            // act
+            var actual = target.Create();
+
+            // assert
+            Assert.NotNull(actual);
+        }
     }
 }

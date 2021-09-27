@@ -12,7 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Runtime.CompilerServices;
+using Azure.Messaging.ServiceBus;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
 
-[assembly: InternalsVisibleTo("Energinet.DataHub.PostOffice.IntegrationTests")]
-[assembly: InternalsVisibleTo("Energinet.DataHub.PostOffice.Tests")]
+namespace Energinet.DataHub.PostOffice.Tests.Common
+{
+    internal sealed class MockedServiceBusClientFactory : IServiceBusClientFactory
+    {
+        public ServiceBusClient Create()
+        {
+            return null!;
+        }
+    }
+}

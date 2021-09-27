@@ -1,6 +1,143 @@
-﻿namespace PostOffice.Communicator.Tests.Peek
+﻿// Copyright 2020 Energinet DataHub A/S
+//
+// Licensed under the Apache License, Version 2.0 (the "License2");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
+using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
+using Energinet.DataHub.PostOffice.Tests.Common;
+using Google.Protobuf;
+using GreenEnergyHub.PostOffice.Communicator.Contracts;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
+using GreenEnergyHub.PostOffice.Communicator.Model;
+using GreenEnergyHub.PostOffice.Communicator.Peek;
+using Moq;
+using Xunit;
+
+namespace PostOffice.Communicator.Tests.Peek
 {
     public class DataBundleRequestSenderTests
     {
+        [Fact]
+        public void Ctor_ServiceBusClientIsNull_ThrowsArgumentNullException()
+        {
+            // arrange, act, assert
+            Assert.Throws<ArgumentNullException>(() =>
+                new DataBundleRequestSender(new RequestBundleParser(), null!, TimeSpan.Zero));
+        }
+
+        [Fact]
+        public async Task Send_DtoIsNull_ThrowsArgumentNullException()
+        {
+            // arrange
+            await using var target = new DataBundleRequestSender(
+                new RequestBundleParser(),
+                new ServiceBusClientFactory(
+                    "Endpoint=sb://sbn-postoffice.servicebus.windows.net/;SharedAccessKeyName=Hello;SharedAccessKey=there"),
+                TimeSpan.Zero);
+
+            // act, assert
+            await Assert.ThrowsAsync<ArgumentNullException>(() => target.SendAsync(null!, DomainOrigin.Aggregations)).ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task Send_AllIsOk_ReturnsResponse()
+        {
+            // arrange
+            const DomainOrigin domainOrigin = DomainOrigin.Charges;
+            var queue = $"sbq-{domainOrigin.ToString()}";
+            var replyQueue = $"sbq-{domainOrigin.ToString()}-reply";
+            var timeout = TimeSpan.FromSeconds(2);
+            var serviceBusSenderMock = new Mock<ServiceBusSender>();
+            var requestBundleResponse = new RequestBundleResponse { Success = new RequestBundleResponse.Types.FileResource { Uri = "http://localhost", UUID = { new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" } } } };
+            var bytes = requestBundleResponse.ToByteArray();
+
+            var serviceBusReceivedMessage = MockedServiceBusReceivedMessage.Create(bytes);
+            var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
+            serviceBusSessionReceiverMock
+                .Setup(x => x.ReceiveMessageAsync(timeout, default))
+                .ReturnsAsync(serviceBusReceivedMessage);
+
+            await using var serviceBusClient = new MockedServiceBusClient(
+                queue,
+                replyQueue,
+                serviceBusSenderMock.Object,
+                serviceBusSessionReceiverMock.Object);
+
+            var serviceBusClientFactoryMock = new Mock<IServiceBusClientFactory>();
+            serviceBusClientFactoryMock
+                .Setup(x => x.Create())
+                .Returns(serviceBusClient);
+
+            await using var target = new DataBundleRequestSender(
+                new RequestBundleParser(),
+                serviceBusClientFactoryMock.Object,
+                timeout);
+
+            // act
+            var result = await target.SendAsync(
+                    new DataBundleRequestDto(
+                        "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
+                        new[] { "BD828D71-77C1-4BE6-A850-9D415626C174" }),
+                    domainOrigin)
+                .ConfigureAwait(false);
+
+            // assert
+            Assert.NotNull(result);
+            Assert.Equal(new Uri(requestBundleResponse.Success.Uri), result.ContentUri);
+        }
+
+        [Fact]
+        public async Task Send_BusReturnsNull_ReturnsNull()
+        {
+            // arrange
+            const DomainOrigin domainOrigin = DomainOrigin.Charges;
+            var queue = $"sbq-{domainOrigin.ToString()}";
+            var replyQueue = $"sbq-{domainOrigin.ToString()}-reply";
+            var timeout = TimeSpan.FromSeconds(2);
+            var serviceBusSenderMock = new Mock<ServiceBusSender>();
+
+            var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
+            serviceBusSessionReceiverMock
+                .Setup(x => x.ReceiveMessageAsync(timeout, default))
+                .ReturnsAsync((ServiceBusReceivedMessage)null);
+
+            await using var serviceBusClient = new MockedServiceBusClient(
+                queue,
+                replyQueue,
+                serviceBusSenderMock.Object,
+                serviceBusSessionReceiverMock.Object);
+
+            var serviceBusClientFactoryMock = new Mock<IServiceBusClientFactory>();
+            serviceBusClientFactoryMock
+                .Setup(x => x.Create())
+                .Returns(serviceBusClient);
+
+            await using var target = new DataBundleRequestSender(
+                new RequestBundleParser(),
+                serviceBusClientFactoryMock.Object,
+                timeout);
+
+            // act
+            var result = await target.SendAsync(
+                    new DataBundleRequestDto(
+                        "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
+                        new[] { "BD828D71-77C1-4BE6-A850-9D415626C174" }),
+                    domainOrigin)
+                .ConfigureAwait(false);
+
+            // assert
+            Assert.Null(result);
+        }
     }
 }

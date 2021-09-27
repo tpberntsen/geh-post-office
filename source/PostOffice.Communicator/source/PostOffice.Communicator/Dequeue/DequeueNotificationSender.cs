@@ -20,7 +20,7 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 {
-    public class DequeueNotificationSender : IDequeueNotificationSender, IAsyncDisposable
+    public sealed class DequeueNotificationSender : IDequeueNotificationSender, IAsyncDisposable
     {
         private readonly ServiceBusClient _serviceBusClient;
         private readonly string _queueName;
@@ -56,7 +56,6 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 
         public async ValueTask DisposeAsync()
         {
-            GC.SuppressFinalize(this);
             await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
         }
     }

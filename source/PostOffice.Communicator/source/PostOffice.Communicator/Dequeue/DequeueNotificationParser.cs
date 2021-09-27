@@ -12,7 +12,7 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
-using System.Linq;
+using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
@@ -21,10 +21,10 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
     {
         public DequeueNotificationDto Receive(byte[] dequeueNotificationContract)
         {
-            var dequeueContract = Contracts.DequeueContractContract.Parser.ParseFrom(dequeueNotificationContract);
+            var dequeueContract = DequeueContractContract.Parser.ParseFrom(dequeueNotificationContract);
             return new DequeueNotificationDto(
-                DatasAvailableIds: dequeueContract.DataAvailableIds,
-                Recipient: dequeueContract.Recipient);
+                dequeueContract.DataAvailableIds,
+                dequeueContract.Recipient);
         }
     }
 }

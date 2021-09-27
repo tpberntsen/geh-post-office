@@ -26,7 +26,8 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
         /// bla
         /// </summary>
         /// <param name="dataBundleRequestDto"></param>
+        /// <param name="domainOrigin"></param>
         /// <returns>1</returns>
-        Task<RequestDataBundleResponseDto?> SendAsync(DataBundleRequestDto dataBundleRequestDto);
+        Task<RequestDataBundleResponseDto?> SendAsync(DataBundleRequestDto dataBundleRequestDto, DomainOrigin domainOrigin);
     }
 }

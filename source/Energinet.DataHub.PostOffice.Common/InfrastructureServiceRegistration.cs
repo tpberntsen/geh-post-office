@@ -22,7 +22,7 @@ namespace Energinet.DataHub.PostOffice.Common
     {
         public static void AddInfrastructureServices(this Container container)
         {
-            container.Register<IServiceBusService, ServiceBusService>(Lifestyle.Scoped);
+            container.Register<IBundleContentRequestService, BundleContentRequestService>(Lifestyle.Scoped);
             container.Register<IMarketOperatorDataStorageService, MarketOperatorDataStorageService>(Lifestyle.Scoped);
         }
     }
