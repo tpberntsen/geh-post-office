@@ -16,6 +16,7 @@ using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Google.Protobuf;
+using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
@@ -23,25 +24,22 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
     public sealed class DequeueNotificationSender : IDequeueNotificationSender, IAsyncDisposable
     {
         private readonly ServiceBusClient _serviceBusClient;
-        private readonly string _queueName;
-
-        public DequeueNotificationSender(string connectionString, string queueName)
+        public DequeueNotificationSender(string connectionString)
         {
-            _queueName = queueName;
             _serviceBusClient = new ServiceBusClient(connectionString);
         }
 
-        public async Task SendAsync(DequeueNotificationDto dequeueNotificationDto)
+        public async Task SendAsync(DequeueNotificationDto dequeueNotificationDto, DomainOrigin domainOrigin)
         {
             if (dequeueNotificationDto is null)
                 throw new ArgumentNullException(nameof(dequeueNotificationDto));
 
-            await using var sender = _serviceBusClient.CreateSender(_queueName);
+            await using var sender = _serviceBusClient.CreateSender($"sbq-{domainOrigin.ToString()}-dequeue");
             using var messageBatch = await sender.CreateMessageBatchAsync().ConfigureAwait(false);
 
-            var contract = new Contracts.DequeueContractContract()
+            var contract = new DequeueContract()
             {
-                DataAvailableIds = { dequeueNotificationDto.DatasAvailableIds },
+                DataAvailableIds = { dequeueNotificationDto.DataAvailableNotificationIds },
                 Recipient = dequeueNotificationDto.Recipient
             };
 

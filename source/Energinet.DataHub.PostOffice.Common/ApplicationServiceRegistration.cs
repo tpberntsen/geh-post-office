@@ -31,16 +31,19 @@ namespace Energinet.DataHub.PostOffice.Common
             container.Register<IValidator<PeekCommand>, PeekCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<DequeueCommand>, DequeueCommandRuleSet>(Lifestyle.Scoped);
 
-            container.Register<IDataAvailableNotificationParser, DataAvailableNotificationParser>();
-            container.Register<IRequestBundleParser, RequestBundleParser>();
+            container.Register<IDataAvailableNotificationParser, DataAvailableNotificationParser>(Lifestyle.Singleton);
+            container.Register<IRequestBundleParser, RequestBundleParser>(Lifestyle.Singleton);
+            container.Register<IResponseBundleParser, ResponseBundleParser>(Lifestyle.Singleton);
 
             container.Register<IDataBundleRequestSender>(() =>
             {
                 var requestBundleParser = container.GetInstance<IRequestBundleParser>();
+                var responseBundleParser = container.GetInstance<IResponseBundleParser>();
                 var serviceBusClientFactory = container.GetInstance<IServiceBusClientFactory>();
 
                 return new DataBundleRequestSender(
                     requestBundleParser,
+                    responseBundleParser,
                     serviceBusClientFactory,
                     TimeSpan.FromSeconds(5));
             });

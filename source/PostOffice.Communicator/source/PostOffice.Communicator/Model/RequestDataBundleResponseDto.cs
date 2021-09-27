@@ -14,22 +14,32 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Model
 {
+    /// <summary>
+    /// Contains the result of the request for bundle contents.
+    /// </summary>
     public sealed class RequestDataBundleResponseDto
     {
         public RequestDataBundleResponseDto(Uri contentUri, IEnumerable<string> dataAvailableNotificationIds)
         {
             DataAvailableNotificationIds = dataAvailableNotificationIds;
             ContentUri = contentUri;
+            IsErrorResponse = false;
         }
 
         public RequestDataBundleResponseDto(DataBundleResponseError responseError, IEnumerable<string> dataAvailableNotificationIds)
         {
             DataAvailableNotificationIds = dataAvailableNotificationIds;
             ResponseError = responseError;
+            IsErrorResponse = true;
         }
+
+        [MemberNotNullWhen(false, nameof(ContentUri))]
+        [MemberNotNullWhen(true, nameof(ResponseError))]
+        public bool IsErrorResponse { get; }
 
         public IEnumerable<string> DataAvailableNotificationIds { get; }
 

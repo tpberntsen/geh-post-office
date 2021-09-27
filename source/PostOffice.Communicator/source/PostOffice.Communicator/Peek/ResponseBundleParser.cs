@@ -14,6 +14,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Model;
@@ -22,40 +23,45 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     public class ResponseBundleParser : IResponseBundleParser
     {
-        public bool TryParse(RequestDataBundleResponseDto requestDataBundleResponseDto,  [NotNullWhen(true)] out byte[]? bytes)
+        public bool TryParse(RequestDataBundleResponseDto requestDataBundleResponseDto, [NotNullWhen(true)] out byte[]? bytes)
         {
             if (requestDataBundleResponseDto == null) throw new ArgumentNullException(nameof(requestDataBundleResponseDto));
-            try
+
+            var contract = new RequestBundleResponse();
+
+            if (!requestDataBundleResponseDto.IsErrorResponse)
             {
-                var contract = new RequestBundleResponse();
-
-                if (requestDataBundleResponseDto.ContentUri is not null)
-                {
-                    contract.Success = new RequestBundleResponse.Types.FileResource() { Uri = requestDataBundleResponseDto.ContentUri.AbsoluteUri };
-                }
-                else if (requestDataBundleResponseDto.ResponseError is not null)
-                {
-                    var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError.Reason);
-                    contract.Failure = new RequestBundleResponse.Types.RequestFailure()
-                    {
-                        Reason = contractErrorReason,
-                        FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription
-                    };
-                }
-                else
-                {
-                    bytes = null;
-                }
-
+                contract.Success = new RequestBundleResponse.Types.FileResource { Uri = requestDataBundleResponseDto.ContentUri.AbsoluteUri };
                 bytes = contract.ToByteArray();
             }
-            catch (Exception)
+            else
             {
-                Console.WriteLine();
-                throw;
+                var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError.Reason);
+                contract.Failure = new RequestBundleResponse.Types.RequestFailure { Reason = contractErrorReason, FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription };
+                bytes = contract.ToByteArray();
             }
 
             return bytes != null;
+        }
+
+        public bool TryParse(byte[] dataBundleReplyContract, [NotNullWhen(true)] out RequestDataBundleResponseDto? response)
+        {
+            try
+            {
+                var bundleResponse = RequestBundleResponse.Parser.ParseFrom(dataBundleReplyContract);
+
+                response = bundleResponse.ReplyCase != RequestBundleResponse.ReplyOneofCase.Success
+                    ? null
+                    : new RequestDataBundleResponseDto(new Uri(bundleResponse.Success.Uri), bundleResponse.Success.UUID.AsEnumerable());
+            }
+#pragma warning disable CA1031
+            catch (Exception)
+#pragma warning restore CA1031
+            {
+                response = null;
+            }
+
+            return response != null;
         }
 
         private static RequestBundleResponse.Types.RequestFailure.Types.Reason MapToFailureReason(DataBundleResponseErrorReason errorReason)

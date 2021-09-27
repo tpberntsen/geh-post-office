@@ -14,35 +14,14 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
-    public class RequestBundleParser : IRequestBundleParser
+    public sealed class RequestBundleParser : IRequestBundleParser
     {
-        public bool TryParse(byte[] dataBundleReplyContract, [NotNullWhen(true)] out RequestDataBundleResponseDto? response)
-        {
-            try
-            {
-                var bundleResponse = RequestBundleResponse.Parser.ParseFrom(dataBundleReplyContract);
-
-                response = bundleResponse.ReplyCase != RequestBundleResponse.ReplyOneofCase.Success
-                    ? null
-                    : new RequestDataBundleResponseDto(new Uri(bundleResponse.Success.Uri), bundleResponse.Success.UUID.AsEnumerable());
-            }
-#pragma warning disable CA1031
-            catch (Exception)
-#pragma warning restore CA1031
-            {
-                response = null;
-            }
-
-            return response != null;
-        }
-
         public bool TryParse(DataBundleRequestDto request, [NotNullWhen(true)] out byte[]? bytes)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
