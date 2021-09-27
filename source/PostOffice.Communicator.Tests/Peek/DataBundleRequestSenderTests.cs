@@ -23,28 +23,24 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 using GreenEnergyHub.PostOffice.Communicator.Peek;
 using Moq;
 using Xunit;
+using Xunit.Categories;
 
 namespace PostOffice.Communicator.Tests.Peek
 {
+    [UnitTest]
     public class DataBundleRequestSenderTests
     {
-        [Fact]
-        public void Ctor_ServiceBusClientIsNull_ThrowsArgumentNullException()
-        {
-            // arrange, act, assert
-            Assert.Throws<ArgumentNullException>(() =>
-                new DataBundleRequestSender(new RequestBundleParser(), null!, TimeSpan.Zero));
-        }
-
         [Fact]
         public async Task Send_DtoIsNull_ThrowsArgumentNullException()
         {
             // arrange
+            var requestBundleParserMock = new Mock<IRequestBundleParser>();
+            var responseBundleParserMock = new Mock<IResponseBundleParser>();
+            var serviceBusClientFactoryMock = new Mock<IServiceBusClientFactory>();
             await using var target = new DataBundleRequestSender(
-                new RequestBundleParser(),
-                new ServiceBusClientFactory(
-                    "Endpoint=sb://sbn-postoffice.servicebus.windows.net/;SharedAccessKeyName=Hello;SharedAccessKey=there"),
-                TimeSpan.Zero);
+                requestBundleParserMock.Object,
+                responseBundleParserMock.Object,
+                serviceBusClientFactoryMock.Object);
 
             // act, assert
             await Assert.ThrowsAsync<ArgumentNullException>(() => target.SendAsync(null!, DomainOrigin.Aggregations)).ConfigureAwait(false);
@@ -55,9 +51,8 @@ namespace PostOffice.Communicator.Tests.Peek
         {
             // arrange
             const DomainOrigin domainOrigin = DomainOrigin.Charges;
-            var queue = $"sbq-{domainOrigin.ToString()}";
-            var replyQueue = $"sbq-{domainOrigin.ToString()}-reply";
-            var timeout = TimeSpan.FromSeconds(2);
+            var queue = $"sbq-{domainOrigin}";
+            var replyQueue = $"sbq-{domainOrigin}-reply";
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
             var requestBundleResponse = new RequestBundleResponse { Success = new RequestBundleResponse.Types.FileResource { Uri = "http://localhost", UUID = { new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" } } } };
             var bytes = requestBundleResponse.ToByteArray();
@@ -65,7 +60,7 @@ namespace PostOffice.Communicator.Tests.Peek
             var serviceBusReceivedMessage = MockedServiceBusReceivedMessage.Create(bytes);
             var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
             serviceBusSessionReceiverMock
-                .Setup(x => x.ReceiveMessageAsync(timeout, default))
+                .Setup(x => x.ReceiveMessageAsync(It.IsAny<TimeSpan>(), default))
                 .ReturnsAsync(serviceBusReceivedMessage);
 
             await using var serviceBusClient = new MockedServiceBusClient(
@@ -81,8 +76,8 @@ namespace PostOffice.Communicator.Tests.Peek
 
             await using var target = new DataBundleRequestSender(
                 new RequestBundleParser(),
-                serviceBusClientFactoryMock.Object,
-                timeout);
+                new ResponseBundleParser(),
+                serviceBusClientFactoryMock.Object);
 
             // act
             var result = await target.SendAsync(
@@ -102,14 +97,13 @@ namespace PostOffice.Communicator.Tests.Peek
         {
             // arrange
             const DomainOrigin domainOrigin = DomainOrigin.Charges;
-            var queue = $"sbq-{domainOrigin.ToString()}";
-            var replyQueue = $"sbq-{domainOrigin.ToString()}-reply";
-            var timeout = TimeSpan.FromSeconds(2);
+            var queue = $"sbq-{domainOrigin}";
+            var replyQueue = $"sbq-{domainOrigin}-reply";
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
 
             var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
             serviceBusSessionReceiverMock
-                .Setup(x => x.ReceiveMessageAsync(timeout, default))
+                .Setup(x => x.ReceiveMessageAsync(It.IsAny<TimeSpan>(), default))
                 .ReturnsAsync((ServiceBusReceivedMessage)null);
 
             await using var serviceBusClient = new MockedServiceBusClient(
@@ -125,8 +119,8 @@ namespace PostOffice.Communicator.Tests.Peek
 
             await using var target = new DataBundleRequestSender(
                 new RequestBundleParser(),
-                serviceBusClientFactoryMock.Object,
-                timeout);
+                new ResponseBundleParser(),
+                serviceBusClientFactoryMock.Object);
 
             // act
             var result = await target.SendAsync(

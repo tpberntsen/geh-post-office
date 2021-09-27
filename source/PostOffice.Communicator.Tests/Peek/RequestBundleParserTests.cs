@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
-using GreenEnergyHub.PostOffice.Communicator.Model;
 using GreenEnergyHub.PostOffice.Communicator.Peek;
 using Xunit;
+using Xunit.Categories;
 
 namespace PostOffice.Communicator.Tests.Peek
 {
+    [UnitTest]
     public class RequestBundleParserTests
     {
         [Fact]
@@ -28,57 +28,18 @@ namespace PostOffice.Communicator.Tests.Peek
         {
             // arrange
             var target = new RequestBundleParser();
-            var validBytes = new RequestBundleResponse
+            var validBytes = new RequestBundleRequest()
             {
-                Success = new RequestBundleResponse.Types.FileResource
-                {
-                    Uri = "http://localhost",
-                    UUID = { new[] { "B34E47BC-21EA-40C5-AE27-A5900F42D7C6" } }
-                }
+                IdempotencyId = "06FD1AB3-D650-45BC-860E-EE598A3623CA",
+                UUID = { "1360036D-2AFB-4021-846E-2C3FF5AD8DBD" }
             }.ToByteArray();
 
             // act
-            var actual = target.TryParse(validBytes, out RequestDataBundleResponseDto actualBytes);
+            var actual = target.TryParse(validBytes, out var actualBytes);
 
             // assert
             Assert.True(actual);
             Assert.NotNull(actualBytes);
-        }
-
-        [Fact]
-        public void TryParse_BytesValidWithFailedRequestStatus_ReturnsFalse()
-        {
-            // arrange
-            var target = new RequestBundleParser();
-            var validBytes = new RequestBundleResponse
-            {
-                Failure = new RequestBundleResponse.Types.RequestFailure
-                {
-                    Reason = RequestBundleResponse.Types.RequestFailure.Types.Reason.InternalError
-                }
-            }.ToByteArray();
-
-            // act
-            var actual = target.TryParse(validBytes, out RequestDataBundleResponseDto actualBytes);
-
-            // assert
-            Assert.False(actual);
-            Assert.Null(actualBytes);
-        }
-
-        [Fact]
-        public void TryParse_BytesCorrupt_ReturnsFalse()
-        {
-            // arrange
-            var target = new RequestBundleParser();
-            var corruptBytes = Array.Empty<byte>();
-
-            // act
-            var actual = target.TryParse(corruptBytes, out RequestDataBundleResponseDto actualBytes);
-
-            // assert
-            Assert.False(actual);
-            Assert.Null(actualBytes);
         }
     }
 }
