@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.Validation;
 using FluentValidation;
 using GreenEnergyHub.PostOffice.Communicator.DataAvailable;
-using GreenEnergyHub.PostOffice.Communicator.Factories;
 using GreenEnergyHub.PostOffice.Communicator.Peek;
 using SimpleInjector;
 
@@ -34,19 +32,7 @@ namespace Energinet.DataHub.PostOffice.Common
             container.Register<IDataAvailableNotificationParser, DataAvailableNotificationParser>(Lifestyle.Singleton);
             container.Register<IRequestBundleParser, RequestBundleParser>(Lifestyle.Singleton);
             container.Register<IResponseBundleParser, ResponseBundleParser>(Lifestyle.Singleton);
-
-            container.Register<IDataBundleRequestSender>(() =>
-            {
-                var requestBundleParser = container.GetInstance<IRequestBundleParser>();
-                var responseBundleParser = container.GetInstance<IResponseBundleParser>();
-                var serviceBusClientFactory = container.GetInstance<IServiceBusClientFactory>();
-
-                return new DataBundleRequestSender(
-                    requestBundleParser,
-                    responseBundleParser,
-                    serviceBusClientFactory,
-                    TimeSpan.FromSeconds(5));
-            });
+            container.Register<IDataBundleRequestSender, DataBundleRequestSender>(Lifestyle.Singleton);
         }
     }
 }
