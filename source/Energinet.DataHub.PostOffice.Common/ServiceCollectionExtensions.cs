@@ -81,7 +81,7 @@ namespace Energinet.DataHub.PostOffice.Common
                 var configuration = serviceProvider.GetService<IConfiguration>();
                 var connectionString = configuration.GetConnectionStringOrSetting("ServiceBusConnectionString");
 
-                return new DequeueNotificationSender(connectionString, "TODO:QUEUE_NAME");
+                return new DequeueNotificationSender(connectionString);
             });
         }
 
