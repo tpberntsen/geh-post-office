@@ -23,20 +23,17 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
     public sealed class DequeueNotificationSender : IDequeueNotificationSender, IAsyncDisposable
     {
         private readonly ServiceBusClient _serviceBusClient;
-        private readonly string _queueName;
-
-        public DequeueNotificationSender(string connectionString, string queueName)
+        public DequeueNotificationSender(string connectionString)
         {
-            _queueName = queueName;
             _serviceBusClient = new ServiceBusClient(connectionString);
         }
 
-        public async Task SendAsync(DequeueNotificationDto dequeueNotificationDto)
+        public async Task SendAsync(DequeueNotificationDto dequeueNotificationDto, DomainOrigin domainOrigin)
         {
             if (dequeueNotificationDto is null)
                 throw new ArgumentNullException(nameof(dequeueNotificationDto));
 
-            await using var sender = _serviceBusClient.CreateSender(_queueName);
+            await using var sender = _serviceBusClient.CreateSender($"sbq-{domainOrigin.ToString()}-dequeue");
             using var messageBatch = await sender.CreateMessageBatchAsync().ConfigureAwait(false);
 
             var contract = new Contracts.DequeueContractContract()
