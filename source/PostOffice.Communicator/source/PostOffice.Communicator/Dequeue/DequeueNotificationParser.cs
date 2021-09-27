@@ -19,12 +19,13 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 {
     public class DequeueNotificationParser : IDequeueNotificationParser
     {
-        public DequeueNotificationDto Receive(byte[] dequeueNotificationContract)
+        public bool TryParse(byte[] dequeueNotificationContract, out DequeueNotificationDto dequeueNotificationDto)
         {
             var dequeueContract = DequeueContract.Parser.ParseFrom(dequeueNotificationContract);
-            return new DequeueNotificationDto(
+            dequeueNotificationDto = new DequeueNotificationDto(
                 dequeueContract.DataAvailableIds,
                 dequeueContract.Recipient);
+            return true;
         }
     }
 }

@@ -23,15 +23,21 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
     public sealed class DataBundleRequestSender : IDataBundleRequestSender, IAsyncDisposable
     {
         private readonly IRequestBundleParser _requestBundleParser;
+        private readonly IResponseBundleParser _responseBundleParser;
         private readonly ServiceBusClient _serviceBusClient;
         private readonly TimeSpan _requestBundleTimout;
 
-        public DataBundleRequestSender(IRequestBundleParser requestBundleParser, IServiceBusClientFactory serviceBusClientFactory, TimeSpan requestBundleTimout)
+        public DataBundleRequestSender(
+            IRequestBundleParser requestBundleParser,
+            IResponseBundleParser responseBundleParser,
+            IServiceBusClientFactory serviceBusClientFactory,
+            TimeSpan requestBundleTimout)
         {
             if (serviceBusClientFactory == null)
                 throw new ArgumentNullException(nameof(serviceBusClientFactory));
 
             _requestBundleParser = requestBundleParser;
+            _responseBundleParser = responseBundleParser;
             _serviceBusClient = serviceBusClientFactory.Create();
             _requestBundleTimout = requestBundleTimout;
         }
@@ -59,11 +65,11 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
                 ReplyTo = $"sbq-{domainOrigin.ToString()}-reply"
             };
 
-            await using var sender = _serviceBusClient.CreateSender($"sbq-{domainOrigin.ToString()}");
+            await using var sender = _serviceBusClient.CreateSender($"sbq-{domainOrigin}");
             await sender.SendMessageAsync(serviceBusMessage).ConfigureAwait(false);
 
             await using var receiver = await _serviceBusClient.AcceptSessionAsync(
-                    $"sbq-{domainOrigin.ToString()}-reply",
+                    $"sbq-{domainOrigin}-reply",
                     sessionId)
                 .ConfigureAwait(false);
             var response = await receiver.ReceiveMessageAsync(_requestBundleTimout).ConfigureAwait(false);
@@ -71,7 +77,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             if (response == null)
                 return null;
 
-            if (!_requestBundleParser.TryParse(response.Body.ToArray(), out RequestDataBundleResponseDto? dto))
+            if (!_responseBundleParser.TryParse(response.Body.ToArray(), out var dto))
                 throw new InvalidOperationException("Could not parse Bundle response");
 
             return dto;
