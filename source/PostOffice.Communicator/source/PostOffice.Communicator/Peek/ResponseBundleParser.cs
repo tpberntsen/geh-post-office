@@ -25,34 +25,34 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
         public bool TryParse(RequestDataBundleResponseDto requestDataBundleResponseDto,  [NotNullWhen(true)] out byte[]? bytes)
         {
             if (requestDataBundleResponseDto == null) throw new ArgumentNullException(nameof(requestDataBundleResponseDto));
+
             try
             {
                 var contract = new RequestBundleResponse();
+                bytes = null;
 
                 if (requestDataBundleResponseDto.ContentUri is not null)
                 {
-                    contract.Success = new RequestBundleResponse.Types.FileResource() { Uri = requestDataBundleResponseDto.ContentUri.AbsoluteUri };
+                    contract.Success = new RequestBundleResponse.Types.FileResource { Uri = requestDataBundleResponseDto.ContentUri.AbsoluteUri };
+
+                    bytes = contract.ToByteArray();
                 }
                 else if (requestDataBundleResponseDto.ResponseError is not null)
                 {
                     var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError.Reason);
-                    contract.Failure = new RequestBundleResponse.Types.RequestFailure()
+
+                    contract.Failure = new RequestBundleResponse.Types.RequestFailure
                     {
                         Reason = contractErrorReason,
                         FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription
                     };
-                }
-                else
-                {
-                    bytes = null;
-                }
 
-                bytes = contract.ToByteArray();
+                    bytes = contract.ToByteArray();
+                }
             }
             catch (Exception)
             {
-                Console.WriteLine();
-                throw;
+                bytes = null;
             }
 
             return bytes != null;

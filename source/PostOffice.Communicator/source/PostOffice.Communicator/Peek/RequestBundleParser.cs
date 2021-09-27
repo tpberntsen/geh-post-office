@@ -21,7 +21,7 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
-    public class RequestBundleParser : IRequestBundleParser
+    public sealed class RequestBundleParser : IRequestBundleParser
     {
         public bool TryParse(byte[] dataBundleReplyContract, [NotNullWhen(true)] out RequestDataBundleResponseDto? response)
         {
