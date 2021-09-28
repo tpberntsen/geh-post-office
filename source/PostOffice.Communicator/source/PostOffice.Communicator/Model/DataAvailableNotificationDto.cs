@@ -48,7 +48,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
         Uuid Uuid,
         Recipient Recipient,
         MessageType MessageType,
-        Origin Origin,
-        SupportsBundling SupportsBundling,
+        string Origin,
+        bool SupportsBundling,
         RelativeWeight RelativeWeight);
 }

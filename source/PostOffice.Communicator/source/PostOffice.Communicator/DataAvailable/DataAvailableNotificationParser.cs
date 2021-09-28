@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
@@ -22,12 +23,20 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
         public DataAvailableNotificationDto Parse(byte[] dataAvailableContract)
         {
             var dataAvailable = DataAvailableNotificationContract.Parser.ParseFrom(dataAvailableContract);
+
+            var isParsed = Guid.TryParse(dataAvailable.UUID, out var guid);
+
+            if (!isParsed)
+            {
+                throw new ArgumentException("The provided string is not a valid Guid.");
+            }
+
             return new DataAvailableNotificationDto(
-                Uuid: new Uuid(dataAvailable.UUID),
+                Uuid: new Uuid(guid),
                 Recipient: new Recipient(dataAvailable.Recipient),
                 MessageType: new MessageType(dataAvailable.MessageType),
-                Origin: new Origin(dataAvailable.Origin),
-                SupportsBundling: new SupportsBundling(dataAvailable.SupportsBundling),
+                Origin: dataAvailable.Origin,
+                SupportsBundling: dataAvailable.SupportsBundling,
                 RelativeWeight: new RelativeWeight(dataAvailable.RelativeWeight));
         }
     }

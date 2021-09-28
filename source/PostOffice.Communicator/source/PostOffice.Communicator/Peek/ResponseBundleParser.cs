@@ -37,7 +37,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             else
             {
                 var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError!.Reason);
-                contract.Failure = new RequestBundleResponse.Types.RequestFailure { Reason = contractErrorReason, FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription?.Description };
+                contract.Failure = new RequestBundleResponse.Types.RequestFailure { Reason = contractErrorReason, FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription };
                 bytes = contract.ToByteArray();
             }
 
