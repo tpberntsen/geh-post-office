@@ -27,7 +27,7 @@ env:
   CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.EntryPoint.MarketOperator/Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.csproj'
   SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.sln'
   DOTNET_VERSION: '5.0'
-  AZURE_FUNCTIONAPP_BASE_NAME: 'azfun-outbound-${{ secrets.PROJECT_NAME }}-${{ secrets.ORGANISATION_NAME }}'
+  AZURE_FUNCTIONAPP_BASE_NAME: 'azfun-marketoperator-peek-${{ secrets.PROJECT_NAME }}-${{ secrets.ORGANISATION_NAME }}'
 
 jobs:
   build_outbound:
