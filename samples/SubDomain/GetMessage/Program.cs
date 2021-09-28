@@ -15,6 +15,7 @@
 using System;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
+using GreenEnergyHub.PostOffice.Communicator.Dequeue;
 using GreenEnergyHub.PostOffice.Communicator.Factories;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 using GreenEnergyHub.PostOffice.Communicator.Peek;
@@ -40,7 +41,6 @@ namespace GetMessage
                     services.AddLogging();
 
                     var serviceBusConnectionString = Environment.GetEnvironmentVariable("ServiceBusConnectionString");
-
                     var blobStorageConnectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
 
                     // Add custom services
@@ -52,6 +52,7 @@ namespace GetMessage
                     services.AddScoped<IDataBundleRequestReceiver>(_ => new DataBundleRequestReceiver(new RequestBundleParser()));
                     services.AddScoped<IDataBundleResponseSender>(_ => new DataBundleResponseSender(new ResponseBundleParser(), new ServiceBusClientFactory(serviceBusConnectionString), DomainOrigin.TimeSeries));
 
+                    services.AddScoped(typeof(IDequeueNotificationParser), typeof(DequeueNotificationParser));
                     services.AddScoped(typeof(Storage.StorageController), typeof(Storage.StorageController));
                 })
                 .Build();

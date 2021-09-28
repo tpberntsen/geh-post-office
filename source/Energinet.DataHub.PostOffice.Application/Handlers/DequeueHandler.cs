@@ -13,22 +13,30 @@
 // limitations under the License.
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
+using GreenEnergyHub.PostOffice.Communicator.Dequeue;
+using GreenEnergyHub.PostOffice.Communicator.Model;
 using MediatR;
+using DomainOrigin = GreenEnergyHub.PostOffice.Communicator.Model.DomainOrigin;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
     public class DequeueHandler : IRequestHandler<DequeueCommand, DequeueResponse>
     {
         private readonly IMarketOperatorDataDomainService _marketOperatorDataDomainService;
+        private readonly IDequeueNotificationSender _dequeueNotificationSender;
 
-        public DequeueHandler(IMarketOperatorDataDomainService marketOperatorDataDomainService)
+        public DequeueHandler(
+            IMarketOperatorDataDomainService marketOperatorDataDomainService,
+            IDequeueNotificationSender dequeueNotificationSender)
         {
             _marketOperatorDataDomainService = marketOperatorDataDomainService;
+            _dequeueNotificationSender = dequeueNotificationSender;
         }
 
         public async Task<DequeueResponse> Handle(DequeueCommand request, CancellationToken cancellationToken)
@@ -36,11 +44,24 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             if (request is null)
                 throw new ArgumentNullException(nameof(request));
 
-            var isDequeued = await _marketOperatorDataDomainService
+            var (isDequeued, dequeuedBundle) = await _marketOperatorDataDomainService
                 .TryAcknowledgeAsync(
                     new MarketOperator(new GlobalLocationNumber(request.Recipient)),
                     new Uuid(request.BundleUuid))
                 .ConfigureAwait(false);
+
+            // TODO: Should we capture an exception here, and in case one happens, what should we do?
+            if (isDequeued && dequeuedBundle is not null)
+            {
+                await _dequeueNotificationSender.SendAsync(
+                    new DequeueNotificationDto(
+                    Recipient: request.Recipient,
+                    DataAvailableNotificationIds: dequeuedBundle.NotificationIds
+                        .Select(x => x.ToString())
+                        .ToList()),
+                    (DomainOrigin)dequeuedBundle.Origin)
+                    .ConfigureAwait(false);
+            }
 
             return new DequeueResponse(isDequeued);
         }
