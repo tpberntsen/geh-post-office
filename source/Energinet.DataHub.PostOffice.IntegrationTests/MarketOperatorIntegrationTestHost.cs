@@ -64,7 +64,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
 
         private static IConfigurationRoot BuildConfig()
         {
-            return new ConfigurationBuilder().AddEnvironmentVariables().Build();
+            return new ConfigurationBuilder().AddEnvironmentVariables().AddJsonFile("local.settings.json").Build();
         }
 
         private static void InitTestBlobStorage(Container container)
