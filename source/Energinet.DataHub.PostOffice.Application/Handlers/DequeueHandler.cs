@@ -50,9 +50,9 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                     new Uuid(request.BundleUuid))
                 .ConfigureAwait(false);
 
-            // TODO: Should we capture an exception here, and in case one happens, what should we do?
             if (isDequeued && dequeuedBundle is not null)
             {
+                // TODO: Should we capture an exception here, and in case one happens, what should we do?
                 await _dequeueNotificationSender.SendAsync(
                     new DequeueNotificationDto(
                     Recipient: request.Recipient,

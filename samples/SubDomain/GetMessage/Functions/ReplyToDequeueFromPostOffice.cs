@@ -23,14 +23,12 @@ namespace GetMessage.Functions
 {
     public class ReplyToDequeueFromPostOffice
     {
-        private readonly ServiceBusClient _serviceBusClient;
         private readonly IDequeueNotificationParser _dequeueNotificationParser;
 
         public ReplyToDequeueFromPostOffice(
             ServiceBusClient serviceBusClient,
             IDequeueNotificationParser dequeueNotificationParser)
         {
-            _serviceBusClient = serviceBusClient;
             _dequeueNotificationParser = dequeueNotificationParser;
         }
 
