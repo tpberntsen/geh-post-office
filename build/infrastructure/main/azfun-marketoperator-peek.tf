@@ -43,6 +43,12 @@ module "azfun_marketoperator_peek" {
     module.sbq_timeseries_reply.dependent_on,
     module.sbq_charges.dependent_on,
     module.sbq_charges_reply.dependent_on,
+    module.sbq_marketroles.dependent_on,
+    module.sbq_marketroles_reply.dependent_on,
+    module.sbq_meteringpoints.dependent_on,
+    module.sbq_meteringpoints_reply.dependent_on,
+    module.sbq_aggregations.dependent_on,
+    module.sbq_aggregations_reply.dependent_on,
   ]
 }
 
