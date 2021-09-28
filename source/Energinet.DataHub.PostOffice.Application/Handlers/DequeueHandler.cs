@@ -22,6 +22,7 @@ using Energinet.DataHub.PostOffice.Domain.Services;
 using GreenEnergyHub.PostOffice.Communicator.Dequeue;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 using MediatR;
+using DomainOrigin = GreenEnergyHub.PostOffice.Communicator.Model.DomainOrigin;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
@@ -52,11 +53,13 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             // TODO: Should we capture an exception here, and in case one happens, what should we do?
             if (isDequeued && dequeuedBundle is not null)
             {
-                await _dequeueNotificationSender.SendAsync(new DequeueNotificationDto(
+                await _dequeueNotificationSender.SendAsync(
+                    new DequeueNotificationDto(
                     Recipient: request.Recipient,
                     DatasAvailableIds: dequeuedBundle.NotificationIds
                         .Select(x => x.ToString())
-                        .ToList()))
+                        .ToList()),
+                    (DomainOrigin)dequeuedBundle.Origin)
                     .ConfigureAwait(false);
             }
 
