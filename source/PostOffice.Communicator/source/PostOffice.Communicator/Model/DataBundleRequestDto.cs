@@ -16,5 +16,10 @@ using System.Collections.Generic;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Model
 {
+    /// <summary>
+    /// Represents a request for a bundle containing the specified ids.
+    /// <param name="IdempotencyId">An unique identifier for this request.</param>
+    /// <param name="DataAvailableNotificationIds">The ids that must be contained within the created bundle.</param>
+    /// </summary>
     public sealed record DataBundleRequestDto(string IdempotencyId, IEnumerable<string> DataAvailableNotificationIds);
 }
