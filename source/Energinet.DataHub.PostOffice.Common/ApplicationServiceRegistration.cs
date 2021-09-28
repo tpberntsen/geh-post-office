@@ -33,6 +33,7 @@ namespace Energinet.DataHub.PostOffice.Common
             container.Register<IDataAvailableNotificationParser, DataAvailableNotificationParser>(Lifestyle.Singleton);
             container.Register<IRequestBundleParser, RequestBundleParser>(Lifestyle.Singleton);
             container.Register<IResponseBundleParser, ResponseBundleParser>(Lifestyle.Singleton);
+            container.Register<IDequeueNotificationSender, DequeueNotificationSender>(Lifestyle.Singleton);
             container.Register<IDataBundleRequestSender, DataBundleRequestSender>(Lifestyle.Singleton);
         }
     }
