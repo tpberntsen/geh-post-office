@@ -15,6 +15,7 @@
 using System;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
+using GreenEnergyHub.PostOffice.Communicator.Exceptions;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 using GreenEnergyHub.PostOffice.Communicator.Peek;
 using Xunit;
@@ -40,11 +41,11 @@ namespace PostOffice.Communicator.Tests.Peek
             }.ToByteArray();
 
             // act
-            var actual = target.TryParse(validBytes, out var actualBytes);
+            var actual = target.Parse(validBytes);
 
             // assert
-            Assert.True(actual);
-            Assert.NotNull(actualBytes);
+            Assert.NotNull(actual);
+            Assert.Equal(new[] { "B34E47BC-21EA-40C5-AE27-A5900F42D7C6" }, actual.DataAvailableNotificationIds);
         }
 
         [Fact]
@@ -61,11 +62,10 @@ namespace PostOffice.Communicator.Tests.Peek
             }.ToByteArray();
 
             // act
-            var actual = target.TryParse(validBytes, out var actualBytes);
+            var actual = target.Parse(validBytes);
 
             // assert
-            Assert.False(actual);
-            Assert.Null(actualBytes);
+            Assert.Null(actual);
         }
 
         [Fact]
@@ -73,14 +73,12 @@ namespace PostOffice.Communicator.Tests.Peek
         {
             // arrange
             var target = new ResponseBundleParser();
-            var corruptBytes = Array.Empty<byte>();
+            var rnd = new Random();
+            var corruptBytes = new byte[10];
+            rnd.NextBytes(corruptBytes);
 
-            // act
-            var actual = target.TryParse(corruptBytes, out var actualBytes);
-
-            // assert
-            Assert.False(actual);
-            Assert.Null(actualBytes);
+            // act, assert
+            Assert.Throws<PostOfficeCommunicatorException>(() => target.Parse(corruptBytes));
         }
     }
 }

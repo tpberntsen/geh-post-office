@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Diagnostics.CodeAnalysis;
+using GreenEnergyHub.PostOffice.Communicator.Exceptions;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
@@ -34,8 +35,10 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
         /// Parses the protobuf contract response.
         /// </summary>
         /// <param name="dataBundleReplyContract">The bytes containing the protobuf contract.</param>
-        /// <param name="response">The converted response.</param>
-        /// <returns><see cref="bool"/></returns>
-        bool TryParse(byte[] dataBundleReplyContract, [NotNullWhen(true)] out RequestDataBundleResponseDto? response);
+        /// <exception cref="PostOfficeCommunicatorException">
+        /// Throws an exception if byte array cannot be parsed.
+        /// </exception>
+        /// <returns><see cref="RequestDataBundleResponseDto"/>Returns a dto with the object or null if it wasn't a success</returns>
+        RequestDataBundleResponseDto? Parse(byte[] dataBundleReplyContract);
     }
 }

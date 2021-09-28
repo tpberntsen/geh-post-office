@@ -16,3 +16,4 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Energinet.DataHub.PostOffice.IntegrationTests")]
 [assembly: InternalsVisibleTo("Energinet.DataHub.PostOffice.Tests")]
+[assembly: InternalsVisibleTo("PostOffice.Communicator.Tests")]

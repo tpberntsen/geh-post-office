@@ -16,6 +16,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
+using GreenEnergyHub.PostOffice.Communicator.Exceptions;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
@@ -41,21 +42,17 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             return bytes != null;
         }
 
-        public bool TryParse(byte[] dataBundleRequestContract, [NotNullWhen(true)] out DataBundleRequestDto? request)
+        public DataBundleRequestDto Parse(byte[] dataBundleRequestContract)
         {
             try
             {
                 var bundleResponse = RequestBundleRequest.Parser.ParseFrom(dataBundleRequestContract);
-                request = new DataBundleRequestDto(bundleResponse.IdempotencyId, bundleResponse.UUID);
+                return new DataBundleRequestDto(bundleResponse.IdempotencyId, bundleResponse.UUID);
             }
-#pragma warning disable CA1031
-            catch (Exception)
-#pragma warning restore CA1031
+            catch (InvalidProtocolBufferException e)
             {
-                request = null;
+                throw new PostOfficeCommunicatorException("Error parsing bytes for DataBundleRequestDto", e);
             }
-
-            return request != null;
         }
     }
 }

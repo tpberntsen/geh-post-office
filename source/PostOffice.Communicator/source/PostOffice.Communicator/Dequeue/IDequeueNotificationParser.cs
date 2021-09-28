@@ -26,7 +26,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
         /// Parses the DequeueNotification protobuf contract.
         /// </summary>
         /// <param name="dequeueNotificationContract">A byte array containing the DequeueNotification protobuf contract.</param>
-        /// <returns> _ </returns>
+        /// <returns><see cref="DequeueNotificationDto"/></returns>
         /// <exception cref="PostOfficeCommunicatorException">
         /// Throws an exception if byte array cannot be parsed.
         /// </exception>
