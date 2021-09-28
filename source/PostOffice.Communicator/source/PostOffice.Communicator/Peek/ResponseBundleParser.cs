@@ -29,15 +29,15 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
 
             var contract = new RequestBundleResponse();
 
-            if (!requestDataBundleResponseDto.IsErrorResponse)
+            if (!requestDataBundleResponseDto.IsErrorResponse.IsError)
             {
-                contract.Success = new RequestBundleResponse.Types.FileResource { Uri = requestDataBundleResponseDto.ContentUri.AbsoluteUri };
+                contract.Success = new RequestBundleResponse.Types.FileResource { Uri = requestDataBundleResponseDto.ContentUri?.AbsoluteUri };
                 bytes = contract.ToByteArray();
             }
             else
             {
-                var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError.Reason);
-                contract.Failure = new RequestBundleResponse.Types.RequestFailure { Reason = contractErrorReason, FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription };
+                var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError!.Reason);
+                contract.Failure = new RequestBundleResponse.Types.RequestFailure { Reason = contractErrorReason, FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription?.Description };
                 bytes = contract.ToByteArray();
             }
 

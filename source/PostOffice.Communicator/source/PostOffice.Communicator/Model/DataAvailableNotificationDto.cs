@@ -45,10 +45,10 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
     /// that the resulting bundle stays within the data size limit.
     /// </param>
     public sealed record DataAvailableNotificationDto(
-        string Uuid,
-        string Recipient,
-        string MessageType,
-        string Origin,
-        bool SupportsBundling,
-        int RelativeWeight);
+        Uuid Uuid,
+        Recipient Recipient,
+        MessageType MessageType,
+        Origin Origin,
+        SupportsBundling SupportsBundling,
+        RelativeWeight RelativeWeight);
 }

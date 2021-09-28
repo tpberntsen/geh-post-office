@@ -28,12 +28,12 @@ namespace GetMessage.Functions
     public class ReplyToRequestFromPostOffice
     {
         private readonly StorageController _blobStorageController;
-        private readonly IDataBundleRequestReceiver _requestReceiver;
+        private readonly IRequestBundleParser _requestReceiver;
         private readonly IDataBundleResponseSender _responseSender;
 
         public ReplyToRequestFromPostOffice(
             StorageController blobStorageController,
-            IDataBundleRequestReceiver requestReceiver,
+            IRequestBundleParser requestReceiver,
             IDataBundleResponseSender responseSender)
         {
             _blobStorageController = blobStorageController;
@@ -55,7 +55,7 @@ namespace GetMessage.Functions
 
             try
             {
-                var bundleRequestDto = _requestReceiver.Receive(message);
+                var parsed = _requestReceiver.TryParse(message, out var bundleRequestDto);
 
                 var session = context.BindingContext.BindingData["MessageSession"] as string;
 

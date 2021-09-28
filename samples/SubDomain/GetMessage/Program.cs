@@ -49,7 +49,7 @@ namespace GetMessage
                     services.AddSingleton<BlobServiceClient>(_ =>
                         new BlobServiceClient(blobStorageConnectionString));
 
-                    services.AddScoped<IDataBundleRequestReceiver>(_ => new DataBundleRequestReceiver(new RequestBundleParser()));
+                    services.AddScoped<IRequestBundleParser>(_ => new RequestBundleParser());
                     services.AddScoped<IDataBundleResponseSender>(_ => new DataBundleResponseSender(new ResponseBundleParser(), new ServiceBusClientFactory(serviceBusConnectionString), DomainOrigin.TimeSeries));
 
                     services.AddScoped(typeof(Storage.StorageController), typeof(Storage.StorageController));
