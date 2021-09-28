@@ -41,6 +41,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 new MarketOperator(new GlobalLocationNumber(request.Recipient)),
                 new ContentType(request.ContentType),
                 Enum.Parse<DomainOrigin>(request.Origin, true),
+                new SupportsBundling(request.SupportsBundling),
                 new Weight(request.Weight));
 
             await _dataAvailableNotificationRepository.SaveAsync(dataAvailableNotification).ConfigureAwait(false);

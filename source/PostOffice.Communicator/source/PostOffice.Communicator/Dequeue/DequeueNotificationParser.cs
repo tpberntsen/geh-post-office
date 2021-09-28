@@ -12,13 +12,20 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
-using System;
+using GreenEnergyHub.PostOffice.Communicator.Contracts;
+using GreenEnergyHub.PostOffice.Communicator.Model;
 
-namespace Energinet.DataHub.PostOffice.Domain.Services.Model
+namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 {
-    public record SubDomainReply
+    public class DequeueNotificationParser : IDequeueNotificationParser
     {
-        public Uri UriToContent { get; init; } = null!;
-        public bool Success { get; init; }
+        public bool TryParse(byte[] dequeueNotificationContract, out DequeueNotificationDto dequeueNotificationDto)
+        {
+            var dequeueContract = DequeueContract.Parser.ParseFrom(dequeueNotificationContract);
+            dequeueNotificationDto = new DequeueNotificationDto(
+                dequeueContract.DataAvailableIds,
+                dequeueContract.Recipient);
+            return true;
+        }
     }
 }

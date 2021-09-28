@@ -13,8 +13,9 @@
 // limitations under the License.
 
 using System;
-using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Infrastructure;
+using GreenEnergyHub.PostOffice.Communicator.Dequeue;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Configuration;
@@ -46,7 +47,7 @@ namespace Energinet.DataHub.PostOffice.Common
 
         public static void AddServiceBus(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped(serviceProvider =>
+            serviceCollection.AddSingleton<IServiceBusClientFactory>(serviceProvider =>
             {
                 var configuration = serviceProvider.GetService<IConfiguration>();
                 var connectionString = configuration.GetConnectionStringOrSetting("ServiceBusConnectionString");
@@ -57,7 +58,15 @@ namespace Energinet.DataHub.PostOffice.Common
                         "Please specify a valid ServiceBus in the appSettings.json file or your Azure Functions Settings.");
                 }
 
-                return new ServiceBusClient(connectionString);
+                return new ServiceBusClientFactory(connectionString);
+            });
+
+            serviceCollection.AddSingleton(serviceProvider =>
+            {
+                var configuration = serviceProvider.GetService<IConfiguration>();
+                var connectionString = configuration.GetConnectionStringOrSetting("ServiceBusConnectionString");
+
+                return new DequeueNotificationSender(connectionString);
             });
         }
 

@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Infrastructure;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -117,6 +118,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
                     new ServiceDescriptor(
                         typeof(CosmosDatabaseConfig),
                         _ => new CosmosDatabaseConfig("fake_value"),
+                        ServiceLifetime.Singleton));
+
+                serviceCollection.Replace(
+                    new ServiceDescriptor(
+                        typeof(IServiceBusClientFactory),
+                        _ => new MockedServiceBusClientFactory(),
                         ServiceLifetime.Singleton));
             }
         }

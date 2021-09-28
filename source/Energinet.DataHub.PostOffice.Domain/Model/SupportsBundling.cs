@@ -12,26 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using GreenEnergyHub.PostOffice.Communicator;
-using Xunit;
-using Xunit.Categories;
-
-namespace PostOffice.Communicator.Tests
+namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    [UnitTest]
-    public class DummyServiceTests
-    {
-        [Fact]
-        public void DummyTestValue_Test_ReturnsHashCode()
-        {
-            // Arrange
-            var obj = new DummyService();
-
-            // Act
-            var actual = obj.DummyTestValue();
-
-            // Assert
-            Assert.Equal(obj.GetHashCode(), actual);
-        }
-    }
+    public record SupportsBundling(bool Value);
 }

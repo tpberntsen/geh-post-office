@@ -12,12 +12,21 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
+using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 
-namespace Energinet.DataHub.PostOffice.Domain.Services.Model
+namespace Energinet.DataHub.PostOffice.Domain.Services
 {
-    public record RequestDataSession
+    /// <summary>
+    /// Provides access to bundle contents from other domains.
+    /// </summary>
+    public interface IBundleContentRequestService
     {
-        public Uuid Id { get; init; } = null!;
+        /// <summary>
+        /// Request and wait for bundle content from the sub-domain.
+        /// </summary>
+        /// <param name="bundle">The bundle to retrieve the content for.</param>
+        /// <returns>Returns the bundle content; or null, if the content is not yet ready.</returns>
+        Task<IBundleContent?> WaitForBundleContentFromSubDomainAsync(Bundle bundle);
     }
 }

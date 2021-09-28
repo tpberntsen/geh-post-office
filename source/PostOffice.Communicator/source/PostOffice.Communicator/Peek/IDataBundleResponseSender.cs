@@ -12,13 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace GreenEnergyHub.PostOffice.Communicator
+using System.Threading.Tasks;
+using GreenEnergyHub.PostOffice.Communicator.Model;
+
+namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
-    public class DummyService
+    /// <summary>
+    /// bla
+    /// </summary>
+    public interface IDataBundleResponseSender
     {
-        public int DummyTestValue()
-        {
-            return GetHashCode();
-        }
+        /// <summary>
+        /// bla
+        /// </summary>
+        /// <param name="requestDataBundleResponseDto"></param>
+        /// <param name="sessionId">ServiceBusClient response sessionId</param>
+        /// <returns>1</returns>
+        Task SendAsync(RequestDataBundleResponseDto requestDataBundleResponseDto, string sessionId);
     }
 }

@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 
@@ -20,25 +19,16 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 {
     public sealed class RequestBundleDomainService : IRequestBundleDomainService
     {
-        private readonly IServiceBusService _serviceBusService;
+        private readonly IBundleContentRequestService _bundleContentRequestService;
 
-        public RequestBundleDomainService(IServiceBusService serviceBusService)
+        public RequestBundleDomainService(IBundleContentRequestService bundleContentRequestService)
         {
-            _serviceBusService = serviceBusService;
+            _bundleContentRequestService = bundleContentRequestService;
         }
 
-        public async Task<IBundleContent?> WaitForBundleContentFromSubDomainAsync(Bundle bundle)
+        public Task<IBundleContent?> WaitForBundleContentFromSubDomainAsync(Bundle bundle)
         {
-            if (bundle == null)
-                throw new ArgumentNullException(nameof(bundle));
-
-            var session = await _serviceBusService
-                .RequestBundledDataFromSubDomainAsync(bundle.NotificationIds, bundle.Origin)
-                .ConfigureAwait(false);
-
-            return await _serviceBusService
-                .WaitForReplyFromSubDomainAsync(bundle.BundleId, session, bundle.Origin)
-                .ConfigureAwait(false);
+            return _bundleContentRequestService.WaitForBundleContentFromSubDomainAsync(bundle);
         }
     }
 }

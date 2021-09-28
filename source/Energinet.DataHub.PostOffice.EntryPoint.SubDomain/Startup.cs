@@ -15,10 +15,9 @@
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Common;
-using Energinet.DataHub.PostOffice.Contracts;
 using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions;
-using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Parsing;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
+using GreenEnergyHub.PostOffice.Communicator.Model;
 using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;
 
@@ -28,8 +27,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain
     {
         protected override void Configure(Container container)
         {
-            container.Register<IMapper<DataAvailable, DataAvailableNotificationCommand>, DataAvailableMapper>(Lifestyle.Scoped);
-            container.Register<DataAvailableContractParser>(Lifestyle.Scoped);
+            container.Register<IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand>, DataAvailableMapper>(Lifestyle.Scoped);
             container.Register<DataAvailableInbox>(Lifestyle.Scoped);
         }
 

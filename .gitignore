@@ -200,6 +200,7 @@ PublishScripts/
 
 # NuGet Packages
 *.nupkg
+!source/poor-man-package-sharing/*
 # NuGet Symbol Packages
 *.snupkg
 # The packages folder can be ignored because of Package Restore
