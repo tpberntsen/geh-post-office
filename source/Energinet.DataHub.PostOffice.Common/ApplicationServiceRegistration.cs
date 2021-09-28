@@ -33,11 +33,8 @@ namespace Energinet.DataHub.PostOffice.Common
             container.Register<IDataAvailableNotificationParser, DataAvailableNotificationParser>(Lifestyle.Singleton);
             container.Register<IRequestBundleParser, RequestBundleParser>(Lifestyle.Singleton);
             container.Register<IResponseBundleParser, ResponseBundleParser>(Lifestyle.Singleton);
-
-            // TODO: This should not be scoped. We need to change this to Singleton, but currently there is a limitation
-            // in SimpleInjector when using IAsyncDisposable.
-            container.Register<IDequeueNotificationSender, DequeueNotificationSender>(Lifestyle.Scoped);
-            container.Register<IDataBundleRequestSender, DataBundleRequestSender>(Lifestyle.Scoped);
+            container.Register<IDataBundleRequestSender, DataBundleRequestSender>(Lifestyle.Singleton);
+            container.Register<IDequeueNotificationSender, DequeueNotificationSender>(Lifestyle.Singleton);
         }
     }
 }

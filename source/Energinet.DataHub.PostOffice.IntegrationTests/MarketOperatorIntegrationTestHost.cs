@@ -78,12 +78,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
             serviceCollection.Replace(new ServiceDescriptor(
                 typeof(ServiceBusClient),
                 typeof(MockedServiceBusClient),
-                ServiceLifetime.Scoped));
+                ServiceLifetime.Singleton));
 
             serviceCollection.Replace(new ServiceDescriptor(
                 typeof(IServiceBusClientFactory),
                 typeof(MockedServiceBusClientFactory),
-                ServiceLifetime.Scoped));
+                ServiceLifetime.Singleton));
         }
     }
 }
