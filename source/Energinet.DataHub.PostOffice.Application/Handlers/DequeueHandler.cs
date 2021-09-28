@@ -56,7 +56,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 await _dequeueNotificationSender.SendAsync(
                     new DequeueNotificationDto(
                     Recipient: request.Recipient,
-                    DatasAvailableIds: dequeuedBundle.NotificationIds
+                    DataAvailableNotificationIds: dequeuedBundle.NotificationIds
                         .Select(x => x.ToString())
                         .ToList()),
                     (DomainOrigin)dequeuedBundle.Origin)
