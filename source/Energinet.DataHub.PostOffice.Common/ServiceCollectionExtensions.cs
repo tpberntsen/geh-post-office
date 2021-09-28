@@ -60,14 +60,6 @@ namespace Energinet.DataHub.PostOffice.Common
 
                 return new ServiceBusClientFactory(connectionString);
             });
-
-            serviceCollection.AddSingleton(serviceProvider =>
-            {
-                var configuration = serviceProvider.GetService<IConfiguration>();
-                var connectionString = configuration.GetConnectionStringOrSetting("ServiceBusConnectionString");
-
-                return new DequeueNotificationSender(connectionString);
-            });
         }
 
         public static void AddDatabaseCosmosConfig(this IServiceCollection serviceCollection)
