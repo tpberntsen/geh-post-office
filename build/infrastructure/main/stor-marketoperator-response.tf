@@ -72,9 +72,9 @@ module "container_aggregations_reply" {
   ]
 }
 
-module "container_meteringpoint_reply" {
+module "container_meteringpoints_reply" {
   source                = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//storage-container?ref=1.8.0"
-  container_name        = "meteringpoint-postoffice-blobstorage"
+  container_name        = "meteringpoints-postoffice-blobstorage"
   storage_account_name  = module.stor_marketoperator_response.name
   container_access_type = "private"
   dependencies          = [
