@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
@@ -20,9 +21,11 @@ using Energinet.DataHub.PostOffice.Application.Handlers;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using GreenEnergyHub.PostOffice.Communicator.Dequeue;
+using GreenEnergyHub.PostOffice.Communicator.Model;
 using Moq;
 using Xunit;
 using Xunit.Categories;
+using DomainOrigin = Energinet.DataHub.PostOffice.Domain.Model.DomainOrigin;
 
 namespace Energinet.DataHub.PostOffice.Tests.Handlers
 {
@@ -48,13 +51,28 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         {
             // Arrange
             var request = new DequeueCommand("fake_value", "9FB4753A-0E2C-4F42-BA10-D38128DDA877");
+            var bundleContentMock = new Mock<IBundleContent>();
+            bundleContentMock
+                .Setup(x => x.OpenAsync())
+                .ReturnsAsync(() => new MemoryStream(new byte[] { 1, 2, 3 }));
+
+            var bundle = new Bundle(
+                new Uuid(Guid.NewGuid()),
+                DomainOrigin.TimeSeries,
+                new MarketOperator(new GlobalLocationNumber("fake_value")),
+                Array.Empty<Uuid>(),
+                bundleContentMock.Object);
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock.Setup(x => x.TryAcknowledgeAsync(
                     It.Is<MarketOperator>(r => string.Equals(r.Gln.Value, request.Recipient, StringComparison.OrdinalIgnoreCase)),
                     It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleUuid, StringComparison.OrdinalIgnoreCase))))
-                .ReturnsAsync((true, null));
+                .ReturnsAsync((true, bundle));
             var dequeueNotificationSenderMock = new Mock<IDequeueNotificationSender>();
+            dequeueNotificationSenderMock.Setup(x => x.SendAsync(
+                It.IsAny<DequeueNotificationDto>(),
+                It.IsAny<GreenEnergyHub.PostOffice.Communicator.Model.DomainOrigin>())).Returns(Task.CompletedTask);
+
             var target = new DequeueHandler(warehouseDomainServiceMock.Object, dequeueNotificationSenderMock.Object);
 
             // Act
@@ -63,6 +81,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             // Assert
             Assert.NotNull(response);
             Assert.True(response.IsDequeued);
+            dequeueNotificationSenderMock.Verify(
+                x => x.SendAsync(
+                    It.IsAny<DequeueNotificationDto>(),
+                    It.IsAny<GreenEnergyHub.PostOffice.Communicator.Model.DomainOrigin>()),
+                Times.Once);
         }
 
         [Fact]
