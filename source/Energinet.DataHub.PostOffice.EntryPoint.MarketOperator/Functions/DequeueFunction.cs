@@ -22,11 +22,11 @@ using Microsoft.Azure.Functions.Worker.Http;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
-    public sealed class Dequeue
+    public sealed class DequeueFunction
     {
         private readonly IMediator _mediator;
 
-        public Dequeue(IMediator mediator)
+        public DequeueFunction(IMediator mediator)
         {
             _mediator = mediator;
         }

@@ -45,7 +45,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<DequeueCommand>(), default))
                 .ReturnsAsync(new DequeueResponse(true));
 
-            var target = new Dequeue(mockedMediator.Object);
+            var target = new DequeueFunction(mockedMediator.Object);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -69,7 +69,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<DequeueCommand>(), default))
                 .ReturnsAsync(new DequeueResponse(false));
 
-            var target = new Dequeue(mockedMediator.Object);
+            var target = new DequeueFunction(mockedMediator.Object);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);

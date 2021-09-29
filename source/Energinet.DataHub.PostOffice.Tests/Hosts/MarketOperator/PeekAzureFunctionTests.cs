@@ -48,7 +48,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekCommand>(), default))
                 .ReturnsAsync(new PeekResponse(true, new MemoryStream(Encoding.ASCII.GetBytes(expectedData))));
 
-            var target = new Peek(mockedMediator.Object);
+            var target = new PeekFunction(mockedMediator.Object);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -74,7 +74,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekCommand>(), default))
                 .ReturnsAsync(new PeekResponse(false, Stream.Null));
 
-            var target = new Peek(mockedMediator.Object);
+            var target = new PeekFunction(mockedMediator.Object);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);

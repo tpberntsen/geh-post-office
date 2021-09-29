@@ -16,6 +16,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using GreenEnergyHub.PostOffice.Communicator.DataAvailable;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 using Microsoft.Extensions.Configuration;
 
@@ -32,15 +33,17 @@ namespace DataAvailableNotification
             var messageType = configuration["type"];
             var interval = int.TryParse(configuration["interval"], out var intervalParsed) ? intervalParsed : 1;
 
+            var serviceBusClientFactory = new ServiceBusClientFactory(connectionString);
+            await using var dataAvailableNotificationSender = new DataAvailableNotificationSender(serviceBusClientFactory);
+
             for (var i = 0; i < interval; i++)
             {
-                var dataAvailableNotificationSender = new DataAvailableNotificationSender(connectionString);
-
                 var msgDto = CreateDto(origin ?? SubDomainOrigin.TimeSeries, messageType, recipient);
 
                 await dataAvailableNotificationSender.SendAsync(msgDto).ConfigureAwait(false);
 
-                if (i + 1 < interval) Thread.Sleep(5000);
+                if (i + 1 < interval)
+                    Thread.Sleep(5000);
             }
 
             Console.WriteLine($"A batch of messages has been published to the queue.");

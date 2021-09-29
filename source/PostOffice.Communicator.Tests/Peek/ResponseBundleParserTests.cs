@@ -97,5 +97,25 @@ namespace PostOffice.Communicator.Tests.Peek
             // assert
             Assert.NotNull(actual);
         }
+
+        [Fact]
+        public void Parse_ValidError_ReturnsBytes()
+        {
+            // arrange
+            var target = new ResponseBundleParser();
+            var valid = new RequestDataBundleResponseDto(
+                new DataBundleResponseError
+                {
+                    FailureDescription = "error",
+                    Reason = DataBundleResponseErrorReason.DatasetNotAvailable
+                },
+                new List<string> { "1", "2", "3" });
+
+            // act
+            var actual = target.Parse(valid);
+
+            // assert
+            Assert.NotNull(actual);
+        }
     }
 }

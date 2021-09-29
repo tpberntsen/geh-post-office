@@ -45,7 +45,7 @@ namespace PostOffice.Communicator.Tests.Peek
         }
 
         [Fact]
-        public void Parse_BytesInvalidValid_Throws_Exception()
+        public void Parse_BytesInvalid_Throws_Exception()
         {
             // arrange
             var target = new RequestBundleParser();

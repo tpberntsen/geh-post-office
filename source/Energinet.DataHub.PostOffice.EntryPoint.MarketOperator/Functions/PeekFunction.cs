@@ -22,11 +22,11 @@ using Microsoft.Azure.Functions.Worker.Http;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
-    public sealed class Peek
+    public sealed class PeekFunction
     {
         private readonly IMediator _mediator;
 
-        public Peek(IMediator mediator)
+        public PeekFunction(IMediator mediator)
         {
             _mediator = mediator;
         }
