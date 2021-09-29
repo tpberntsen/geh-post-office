@@ -92,6 +92,7 @@ Can only be 0 if IsBundlingSupported is set to false.
 
 ## Other users
 
+TODO
 
 <a name=".DataAvailableNotificationContract.proto"></a>
 
