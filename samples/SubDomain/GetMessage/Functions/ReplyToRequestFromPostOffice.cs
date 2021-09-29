@@ -55,7 +55,7 @@ namespace GetMessage.Functions
 
             try
             {
-                var parsed = _requestBundleParser.TryParse(message, out var bundleRequestDto);
+                var bundleRequestDto = _requestBundleParser.Parse(message);
 
                 var session = context.BindingContext.BindingData["MessageSession"] as string;
 
