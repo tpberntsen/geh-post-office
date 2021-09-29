@@ -18,23 +18,23 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     /// <summary>
-    /// Response bundle parser
+    /// Parses the response for the bundle content request sent from a sub-domain.
     /// </summary>
     public interface IResponseBundleParser
     {
         /// <summary>
-        /// Parsing from dto to byte array
+        /// Converts the specified response into a protobuf contract.
         /// </summary>
-        /// <param name="requestDataBundleResponseDto"></param>
-        /// <param name="bytes"></param>
+        /// <param name="requestDataBundleResponseDto">The response to convert.</param>
+        /// <param name="bytes">The bytes containing the protobuf contract.</param>
         /// <returns><see cref="bool"/></returns>
         bool TryParse(RequestDataBundleResponseDto requestDataBundleResponseDto, [NotNullWhen(true)] out byte[]? bytes);
 
         /// <summary>
-        /// bla
+        /// Parses the protobuf contract response.
         /// </summary>
-        /// <param name="dataBundleReplyContract"></param>
-        /// <param name="response"></param>
+        /// <param name="dataBundleReplyContract">The bytes containing the protobuf contract.</param>
+        /// <param name="response">The converted response.</param>
         /// <returns><see cref="bool"/></returns>
         bool TryParse(byte[] dataBundleReplyContract, [NotNullWhen(true)] out RequestDataBundleResponseDto? response);
     }

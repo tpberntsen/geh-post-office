@@ -23,6 +23,11 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
     /// </summary>
     public sealed class RequestDataBundleResponseDto
     {
+        /// <summary>
+        /// Creates a successful response to the bundle contents request.
+        /// </summary>
+        /// <param name="contentUri">The location of the bundle in Azure Blob Storage.</param>
+        /// <param name="dataAvailableNotificationIds"></param>
         public RequestDataBundleResponseDto(Uri contentUri, IEnumerable<string> dataAvailableNotificationIds)
         {
             DataAvailableNotificationIds = dataAvailableNotificationIds;
@@ -30,6 +35,11 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
             IsErrorResponse = false;
         }
 
+        /// <summary>
+        /// Creates a failure response to the bundle contents request.
+        /// </summary>
+        /// <param name="responseError">The information about the error.</param>
+        /// <param name="dataAvailableNotificationIds"></param>
         public RequestDataBundleResponseDto(DataBundleResponseError responseError, IEnumerable<string> dataAvailableNotificationIds)
         {
             DataAvailableNotificationIds = dataAvailableNotificationIds;
@@ -37,14 +47,29 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
             IsErrorResponse = true;
         }
 
+        /// <summary>
+        /// Specifies whether the response has succeeded.
+        /// If true, the ResponseError contains the information about the error.
+        /// If false, the ContentUri points to a location of the bundle contents.
+        /// </summary>
         [MemberNotNullWhen(false, nameof(ContentUri))]
         [MemberNotNullWhen(true, nameof(ResponseError))]
         public bool IsErrorResponse { get; }
 
+        /// <summary>
+        /// _
+        /// </summary>
         public IEnumerable<string> DataAvailableNotificationIds { get; }
 
+        /// <summary>
+        /// Points to a location of the bundle contents.
+        /// Is null, if the request failed.
+        /// </summary>
         public Uri? ContentUri { get; }
 
+        /// <summary>
+        /// Error information. Is null, if the request succeeded.
+        /// </summary>
         public DataBundleResponseError? ResponseError { get; }
     }
 }
