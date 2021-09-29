@@ -44,10 +44,10 @@ namespace PostOffice.Communicator.Tests.DataAvailable
 
             // Assert
             Assert.NotNull(actual);
-            Assert.Equal(contract.UUID, actual.Uuid);
-            Assert.Equal(contract.MessageType, actual.MessageType);
-            Assert.Equal(contract.Origin, actual.Origin);
-            Assert.Equal(contract.Recipient, actual.Recipient);
+            Assert.Equal(contract.UUID, actual.Uuid.ToString().ToUpper());
+            Assert.Equal(contract.MessageType, actual.MessageType.Value);
+            Assert.Equal(contract.Origin, actual.Origin.ToString());
+            Assert.Equal(contract.Recipient, actual.GlobalLocationNumber.Value);
             Assert.Equal(contract.RelativeWeight, actual.RelativeWeight);
             Assert.Equal(contract.SupportsBundling, actual.SupportsBundling);
         }

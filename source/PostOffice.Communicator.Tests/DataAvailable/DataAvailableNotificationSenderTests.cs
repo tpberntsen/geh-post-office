@@ -57,10 +57,10 @@ namespace PostOffice.Communicator.Tests.DataAvailable
             await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object);
 
             var dataAvailable = new DataAvailableNotificationDto(
-                "F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E",
-                "fake_value",
-                "fake_value",
-                "fake_value",
+                Guid.Parse("F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E"),
+                new GlobalLocationNumber("fake_value"),
+                new MessageType("fake_value"),
+                DomainOrigin.TimeSeries,
                 true,
                 1);
 

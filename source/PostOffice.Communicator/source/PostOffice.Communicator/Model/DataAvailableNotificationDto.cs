@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+
 namespace GreenEnergyHub.PostOffice.Communicator.Model
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
     /// A guid uniquely identifying the data. This guid will be passed back
     /// to the sub-domain with the request for data to be generated.
     /// </param>
-    /// <param name="Recipient">
+    /// <param name="GlobalLocationNumber">
     /// A Global Location Number identifying the market operator.
     /// </param>
     /// <param name="MessageType">
@@ -45,10 +47,10 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
     /// that the resulting bundle stays within the data size limit.
     /// </param>
     public sealed record DataAvailableNotificationDto(
-        string Uuid,
-        string Recipient,
-        string MessageType,
-        string Origin,
+        Guid Uuid,
+        GlobalLocationNumber GlobalLocationNumber,
+        MessageType MessageType,
+        DomainOrigin Origin,
         bool SupportsBundling,
         int RelativeWeight);
 }

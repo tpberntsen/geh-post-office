@@ -12,18 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-
 namespace GreenEnergyHub.PostOffice.Communicator.Model
 {
-    /// <summary>
-    /// Signals the sub-domains that a market operator has acknowledged the specified data.
-    /// <param name="DataAvailableNotificationIds">
-    /// A collection of guids identifying which data the market operator has approved.
-    /// </param>
-    /// <param name="GlobalLocationNumber">
-    /// A Global Location Number identifying a market operator.
-    /// </param>
-    /// </summary>
-    public sealed record DequeueNotificationDto(ICollection<string> DataAvailableNotificationIds, GlobalLocationNumber GlobalLocationNumber);
+    public record GlobalLocationNumber(string Value);
 }
