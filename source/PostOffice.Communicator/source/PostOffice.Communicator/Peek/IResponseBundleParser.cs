@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Diagnostics.CodeAnalysis;
+using GreenEnergyHub.PostOffice.Communicator.Exceptions;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
@@ -26,16 +26,20 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
         /// Converts the specified response into a protobuf contract.
         /// </summary>
         /// <param name="requestDataBundleResponseDto">The response to convert.</param>
-        /// <param name="bytes">The bytes containing the protobuf contract.</param>
-        /// <returns><see cref="bool"/></returns>
-        bool TryParse(RequestDataBundleResponseDto requestDataBundleResponseDto, [NotNullWhen(true)] out byte[]? bytes);
+        /// <exception cref="PostOfficeCommunicatorException">
+        /// Throws an exception if object cannot be parsed.
+        /// </exception>
+        /// <returns>A byte array with the parsed RequestDataBundleResponseDto</returns>
+        byte[] Parse(RequestDataBundleResponseDto requestDataBundleResponseDto);
 
         /// <summary>
         /// Parses the protobuf contract response.
         /// </summary>
         /// <param name="dataBundleReplyContract">The bytes containing the protobuf contract.</param>
-        /// <param name="response">The converted response.</param>
-        /// <returns><see cref="bool"/></returns>
-        bool TryParse(byte[] dataBundleReplyContract, [NotNullWhen(true)] out RequestDataBundleResponseDto? response);
+        /// <exception cref="PostOfficeCommunicatorException">
+        /// Throws an exception if byte array cannot be parsed.
+        /// </exception>
+        /// <returns><see cref="RequestDataBundleResponseDto"/>Returns a dto with the object or null if it wasn't a success</returns>
+        RequestDataBundleResponseDto? Parse(byte[] dataBundleReplyContract);
     }
 }

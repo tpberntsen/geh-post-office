@@ -53,9 +53,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
         {
             if (dataBundleRequestDto == null)
                 throw new ArgumentNullException(nameof(dataBundleRequestDto));
-
-            if (!_requestBundleParser.TryParse(dataBundleRequestDto, out var bytes))
-                throw new InvalidOperationException("Could not parse Bundle request");
+            var bytes = _requestBundleParser.Parse(dataBundleRequestDto);
 
             var sessionId = Guid.NewGuid().ToString();
             var serviceBusMessage = new ServiceBusMessage(bytes)
@@ -77,11 +75,8 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             var response = await receiver.ReceiveMessageAsync(_defaultTimeout).ConfigureAwait(false);
             if (response == null)
                 return null;
-
-            if (!_responseBundleParser.TryParse(response.Body.ToArray(), out var dto))
-                throw new InvalidOperationException("Could not parse Bundle response");
-
-            return dto;
+            var dataBundleResponseDto = _responseBundleParser.Parse(response.Body.ToArray());
+            return dataBundleResponseDto;
         }
     }
 }
