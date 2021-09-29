@@ -51,9 +51,7 @@ namespace PostOffice.Communicator.Tests.Dequeue
         {
             // arrange
             var target = new DequeueNotificationParser();
-            var rnd = new Random();
-            var corruptBytes = new byte[10];
-            rnd.NextBytes(corruptBytes);
+            var corruptBytes = new byte[] { 1, 2, 3 };
 
             // act, assert
             Assert.Throws<PostOfficeCommunicatorException>(() => target.Parse(corruptBytes));
