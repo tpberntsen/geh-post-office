@@ -26,6 +26,7 @@ Here, all the contracts (DTO's) are described.
 To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' from nuget.org.
 
 <hr>
+<br>
 
 <a name=".DataAvailableNotificationDto"></a>
 
@@ -41,6 +42,7 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 | RelativeWeight | int | required | The relative weight of the dataset | Must be a number between 0 and 2147483647 (Int32.MaxValue) |
 
 <hr>
+<br>
 
 <a name=".DataBundleRequestDto"></a>
 
@@ -52,6 +54,7 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 | DataAvailableNotificationIds | IEnumerable<string> | required | One or multiple Id's to identify requested data bundle | None at the moment |
   
 <hr>
+<br>
   
 <a name=".DataBundleResponseDto"></a>
 
@@ -65,6 +68,7 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 | ResponseError | DataBundleResponseError | optional | One or multiple Id's to identify requested data bundle | N/A |
 
 <hr>
+<br>
 
 <a name=".DequeueNotificationDto"></a>
 
@@ -79,6 +83,9 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 
 <a name=".OtherUsers"></a>
 
+<br>
+<br>
+    
 ## Other users
     
 <a name=".DataAvailableNotificationContract.proto"></a>
@@ -96,6 +103,7 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 
     
 <hr>
+<br>
     
 <a name=".RequestBundleRequest.proto"></a>
 
@@ -107,6 +115,7 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 | UUID | repeated string | required | Unique dataset identification | Must be a valid Guid in string format |
     
 <hr>
+<br>
     
 <a name=".RequestBundleResponse.proto"></a>
 
@@ -154,6 +163,7 @@ RequestBundleResponse consists of four components. Below are five tables which d
 | InternalError | 15 |
     
 <hr>
+<br>
     
 <a name=".DequeueContract.proto"></a>
 
