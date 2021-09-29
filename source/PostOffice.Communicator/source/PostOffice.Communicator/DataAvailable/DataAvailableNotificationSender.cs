@@ -45,7 +45,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
             {
                 UUID = dataAvailableNotificationDto.Uuid.ToString(),
                 MessageType = dataAvailableNotificationDto.MessageType.Value,
-                Origin = nameof(dataAvailableNotificationDto.Origin.ToString),
+                Origin = dataAvailableNotificationDto.Origin.ToString(),
                 Recipient = dataAvailableNotificationDto.GlobalLocationNumber.Value,
                 SupportsBundling = dataAvailableNotificationDto.SupportsBundling,
                 RelativeWeight = dataAvailableNotificationDto.RelativeWeight
