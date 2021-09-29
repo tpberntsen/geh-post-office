@@ -14,5 +14,5 @@
 
 namespace GreenEnergyHub.PostOffice.Communicator.Model
 {
-    public record MessageType(string TypeOfMessage);
+    public record MessageType(string Value);
 }

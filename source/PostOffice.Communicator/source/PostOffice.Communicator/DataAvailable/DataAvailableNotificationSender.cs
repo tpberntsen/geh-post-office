@@ -40,12 +40,12 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
 
             var contract = new DataAvailableNotificationContract()
             {
-                UUID = dataAvailableNotificationDto.Uuid.Id.ToString(),
-                MessageType = dataAvailableNotificationDto.MessageType.TypeOfMessage,
+                UUID = dataAvailableNotificationDto.Uuid.ToString(),
+                MessageType = dataAvailableNotificationDto.MessageType.Value,
                 Origin = dataAvailableNotificationDto.Origin,
-                Recipient = dataAvailableNotificationDto.Recipient.MarketOperator,
+                Recipient = dataAvailableNotificationDto.GlobalLocationNumber.Value,
                 SupportsBundling = dataAvailableNotificationDto.SupportsBundling,
-                RelativeWeight = dataAvailableNotificationDto.RelativeWeight.MessageWeight
+                RelativeWeight = dataAvailableNotificationDto.RelativeWeight
             };
 
             var msgBytes = contract.ToByteArray();

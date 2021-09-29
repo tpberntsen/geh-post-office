@@ -28,12 +28,12 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
             {
                 var dataAvailable = DataAvailableNotificationContract.Parser.ParseFrom(dataAvailableContract);
                 return new DataAvailableNotificationDto(
-                    Uuid: new Uuid(Guid.Parse(dataAvailable.UUID)),
-                    Recipient: new Recipient(dataAvailable.Recipient),
+                    Uuid: Guid.Parse(dataAvailable.UUID),
+                    GlobalLocationNumber: new GlobalLocationNumber(dataAvailable.Recipient),
                     MessageType: new MessageType(dataAvailable.MessageType),
                     Origin: dataAvailable.Origin,
                     SupportsBundling: dataAvailable.SupportsBundling,
-                    RelativeWeight: new RelativeWeight(dataAvailable.RelativeWeight));
+                    RelativeWeight: dataAvailable.RelativeWeight);
             }
             catch (InvalidProtocolBufferException e)
             {
