@@ -7,11 +7,15 @@ All other users should skip the first section and only read section two where Pr
 ## Table of Contents
 
 - [.NET users](#.NETusers)
-    - [DataAvailableNotificationDto](#DataAvailableNotificationDto)
-    - [DataBundleRequestDto](#DataBundleRequestDto)
-    - [DataBundleResponseDto](#DataBundleResponseDto)
+    - [DataAvailableNotificationDto](#.DataAvailableNotificationDto)
+    - [DataBundleRequestDto](#.DataBundleRequestDto)
+    - [DataBundleResponseDto](#.DataBundleResponseDto)
+    - [DequeueNotificationDto](#.DequeueNotificationDto)
 - [Other users](#.OtherUsers)
-    - [DataAvailableNotificationContract.proto](#DataAvailableNotificationContract.proto)
+    - [DataAvailableNotificationContract.proto](#.DataAvailableNotificationContract.proto)
+    - [RequestBundleRequest.proto](#.RequestBundleRequest.proto)
+    - [RequestBundleResponse.proto](#.RequestBundleResponse.proto)
+    - [DequeueContract.proto](#.DequeueContract.proto)
 
 <a name=".NETusers"></a>
 
@@ -76,8 +80,6 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 <a name=".OtherUsers"></a>
 
 ## Other users
-
-<hr>
     
 <a name=".DataAvailableNotificationContract.proto"></a>
 
