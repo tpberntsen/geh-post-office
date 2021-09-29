@@ -66,10 +66,10 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 
 ### DequeueNotificationDto
 
-| Field | Type | Label | Description |
+| Field | Type | Label | Description | Limits |
 | ----- | ---- | ----- | ----------- |
-| DataAvailableNotificationIds | ICollection<string> | required | One or multiple Id's to identify data to dequeue |
-| Recipient | string | optional | The Market Operator who sends the Dequeue message |
+| DataAvailableNotificationIds | ICollection<string> | required | One or multiple Id's to identify data to dequeue | None at the moment |
+| GlobalLocationNumber | GlobalLocationNumber | required | The Market Operator to receive the data | Must be a known GLN number |
 
 <hr>
 
