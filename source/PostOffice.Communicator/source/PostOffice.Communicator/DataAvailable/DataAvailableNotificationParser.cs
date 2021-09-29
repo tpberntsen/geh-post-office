@@ -27,11 +27,12 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
             try
             {
                 var dataAvailable = DataAvailableNotificationContract.Parser.ParseFrom(dataAvailableContract);
+
                 return new DataAvailableNotificationDto(
                     Uuid: Guid.Parse(dataAvailable.UUID),
                     GlobalLocationNumber: new GlobalLocationNumber(dataAvailable.Recipient),
                     MessageType: new MessageType(dataAvailable.MessageType),
-                    Origin: dataAvailable.Origin,
+                    Origin: Enum.Parse<DomainOrigin>(dataAvailable.Origin),
                     SupportsBundling: dataAvailable.SupportsBundling,
                     RelativeWeight: dataAvailable.RelativeWeight);
             }

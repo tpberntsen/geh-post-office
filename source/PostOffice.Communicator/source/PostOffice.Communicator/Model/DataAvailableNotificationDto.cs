@@ -50,7 +50,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
         Guid Uuid,
         GlobalLocationNumber GlobalLocationNumber,
         MessageType MessageType,
-        string Origin,
+        DomainOrigin Origin,
         bool SupportsBundling,
         int RelativeWeight);
 }
