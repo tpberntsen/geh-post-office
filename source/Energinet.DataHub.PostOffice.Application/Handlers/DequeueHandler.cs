@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
@@ -50,17 +51,25 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                     new Uuid(request.BundleUuid))
                 .ConfigureAwait(false);
 
+            // TODO: Should we capture an exception here, and in case one happens, what should we do?
             if (isDequeued && dequeuedBundle is not null)
             {
-                // TODO: Should we capture an exception here, and in case one happens, what should we do?
-                await _dequeueNotificationSender.SendAsync(
-                    new DequeueNotificationDto(
-                    Recipient: request.Recipient,
-                    DataAvailableNotificationIds: dequeuedBundle.NotificationIds
-                        .Select(x => x.ToString())
-                        .ToList()),
-                    (DomainOrigin)dequeuedBundle.Origin)
-                    .ConfigureAwait(false);
+                try
+                {
+                    await _dequeueNotificationSender.SendAsync(
+                            new DequeueNotificationDto(
+                                Recipient: request.Recipient,
+                                DataAvailableNotificationIds: dequeuedBundle.NotificationIds
+                                    .Select(x => x.ToString())
+                                    .ToList()),
+                            (DomainOrigin)dequeuedBundle.Origin)
+                        .ConfigureAwait(false);
+                }
+                catch (ServiceBusException)
+                {
+                    // TODO: Currently ignored until we know what to do if this call fails.
+                    // This ensures that Dequeue is working for now
+                }
             }
 
             return new DequeueResponse(isDequeued);
