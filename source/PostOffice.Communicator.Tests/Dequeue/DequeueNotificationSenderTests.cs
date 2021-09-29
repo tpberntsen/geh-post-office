@@ -64,7 +64,7 @@ namespace PostOffice.Communicator.Tests.Dequeue
 
             var dataAvailable = new DequeueNotificationDto(
                 new List<string> { "7B492FFB-E9AD-442B-AA4E-972D59AD8C11", "A15AFD1F-A731-4BB5-A52D-F8A8841BBD49" },
-                "fake_value");
+                new GlobalLocationNumber("fake_value"));
 
             // Act
             await target.SendAsync(dataAvailable, domainOrigin).ConfigureAwait(false);
