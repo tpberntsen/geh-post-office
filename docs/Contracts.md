@@ -1,4 +1,4 @@
-# Protocol Documentation
+# Protocol Documentation - !!! IS NOT UP TO DATE AT THE MOMENT !!!
 
 This document describes contracts used to communicate with PostOffice from within DataHub/GreenEnergyHub. 
 The first section is for .NET users who can benefit from the nuget package provided. 
