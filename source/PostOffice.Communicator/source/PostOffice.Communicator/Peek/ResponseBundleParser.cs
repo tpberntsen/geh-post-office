@@ -24,25 +24,36 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     public class ResponseBundleParser : IResponseBundleParser
     {
-        public bool TryParse(RequestDataBundleResponseDto requestDataBundleResponseDto, [NotNullWhen(true)] out byte[]? bytes)
+        public byte[] Parse(RequestDataBundleResponseDto requestDataBundleResponseDto)
         {
             if (requestDataBundleResponseDto == null) throw new ArgumentNullException(nameof(requestDataBundleResponseDto));
-
             var contract = new RequestBundleResponse();
 
             if (!requestDataBundleResponseDto.IsErrorResponse)
             {
-                contract.Success = new RequestBundleResponse.Types.FileResource { Uri = requestDataBundleResponseDto.ContentUri.AbsoluteUri };
-                bytes = contract.ToByteArray();
+                try
+                {
+                    contract.Success = new RequestBundleResponse.Types.FileResource { Uri = requestDataBundleResponseDto.ContentUri.AbsoluteUri };
+                    return contract.ToByteArray();
+                }
+                catch (Exception e)
+                {
+                    throw new PostOfficeCommunicatorException("Error converting message to bytes for RequestDataBundleResponseDto", e);
+                }
             }
             else
             {
-                var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError.Reason);
-                contract.Failure = new RequestBundleResponse.Types.RequestFailure { Reason = contractErrorReason, FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription };
-                bytes = contract.ToByteArray();
+                try
+                {
+                    var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError.Reason);
+                    contract.Failure = new RequestBundleResponse.Types.RequestFailure { Reason = contractErrorReason, FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription };
+                    return contract.ToByteArray();
+                }
+                catch (Exception e)
+                {
+                    throw new PostOfficeCommunicatorException("Error converting message to bytes for RequestDataBundleResponseDto", e);
+                }
             }
-
-            return bytes != null;
         }
 
         public RequestDataBundleResponseDto? Parse(byte[] dataBundleReplyContract)

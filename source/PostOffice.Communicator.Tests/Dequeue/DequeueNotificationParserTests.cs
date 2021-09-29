@@ -26,7 +26,7 @@ namespace PostOffice.Communicator.Tests.Dequeue
     public class RequestBundleParserTests
     {
         [Fact]
-        public void TryParse_BytesValid_Returns_Valid_Object()
+        public void Parse_BytesValid_Returns_Valid_Object()
         {
             // arrange
             var target = new DequeueNotificationParser();
@@ -45,7 +45,7 @@ namespace PostOffice.Communicator.Tests.Dequeue
         }
 
         [Fact]
-        public void TryParse_BytesInvalidValid_Throws_Exception()
+        public void Parse_BytesInvalidValid_Throws_Exception()
         {
             // arrange
             var target = new DequeueNotificationParser();

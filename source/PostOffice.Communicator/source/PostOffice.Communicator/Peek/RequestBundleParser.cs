@@ -23,23 +23,21 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     public sealed class RequestBundleParser : IRequestBundleParser
     {
-        public bool TryParse(DataBundleRequestDto request, [NotNullWhen(true)] out byte[]? bytes)
+        public byte[] Parse(DataBundleRequestDto request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
             try
             {
-                var message = new RequestBundleRequest { IdempotencyId = request.IdempotencyId, UUID = { request.DataAvailableNotificationIds } };
-                bytes = message.ToByteArray();
+               var message = new RequestBundleRequest { IdempotencyId = request.IdempotencyId, UUID = { request.DataAvailableNotificationIds } };
+               return message.ToByteArray();
             }
 #pragma warning disable CA1031
-            catch (Exception)
+            catch (Exception e)
 #pragma warning restore CA1031
             {
-                bytes = null;
+                throw new PostOfficeCommunicatorException("Error converting message to bytes for DataBundleRequestDto", e);
             }
-
-            return bytes != null;
         }
 
         public DataBundleRequestDto Parse(byte[] dataBundleRequestContract)

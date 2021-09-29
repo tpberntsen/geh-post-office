@@ -27,7 +27,7 @@ namespace PostOffice.Communicator.Tests.Peek
     public class ResponseBundleParserTests
     {
         [Fact]
-        public void TryParse_BytesValid_ReturnsTrue()
+        public void Parse_BytesValid_Returns_NotNull()
         {
             // arrange
             var target = new ResponseBundleParser();
@@ -49,7 +49,7 @@ namespace PostOffice.Communicator.Tests.Peek
         }
 
         [Fact]
-        public void TryParse_BytesValidWithFailedRequestStatus_ReturnsFalse()
+        public void Parse_BytesValidWithFailedRequestStatus_ReturnsNull()
         {
             // arrange
             var target = new ResponseBundleParser();
@@ -69,7 +69,7 @@ namespace PostOffice.Communicator.Tests.Peek
         }
 
         [Fact]
-        public void TryParse_BytesCorrupt_ReturnsFalse()
+        public void Parse_BytesCorrupt_Throws_Exception()
         {
             // arrange
             var target = new ResponseBundleParser();

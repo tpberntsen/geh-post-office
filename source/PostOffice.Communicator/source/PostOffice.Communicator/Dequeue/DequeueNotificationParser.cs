@@ -12,7 +12,6 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
-using System;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Exceptions;
@@ -22,7 +21,9 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 {
     public class DequeueNotificationParser : IDequeueNotificationParser
     {
+#pragma warning disable CA1822
         public DequeueNotificationDto Parse(byte[] dequeueNotificationContract)
+#pragma warning restore CA1822
         {
             try
             {
