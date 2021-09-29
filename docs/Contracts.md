@@ -34,7 +34,7 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 | MessageType | MessageType | required | The RSM type the Data Available Notification consists of | Must be a known RSM type |
 | Origin | enum | required | The sub domain which sends the Data Available Notification | Must be a known sub domain within DataHub/GreenEnergyHub |
 | SupportsBundling | bool | required | Flag to indicate whether or not the data in the Data Available Notification can be bundled | N/A |
-| RelativeWeight | RelativeWeight | required | The weight of the data | Must be a number between 0 and 2147483647 (Int32.MaxValue) |
+| RelativeWeight | int | required | The weight of the data | Must be a number between 0 and 2147483647 (Int32.MaxValue) |
 
 <hr>
 
