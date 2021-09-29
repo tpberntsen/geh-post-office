@@ -17,17 +17,19 @@ using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 {
     public sealed class DequeueNotificationSender : IDequeueNotificationSender, IAsyncDisposable
     {
-        private readonly ServiceBusClient _serviceBusClient;
+        private readonly IServiceBusClientFactory _serviceBusClientFactory;
+        private ServiceBusClient? _serviceBusClient;
 
-        public DequeueNotificationSender(string connectionString)
+        public DequeueNotificationSender(IServiceBusClientFactory serviceBusClientFactory)
         {
-            _serviceBusClient = new ServiceBusClient(connectionString);
+            _serviceBusClientFactory = serviceBusClientFactory;
         }
 
         public async Task SendAsync(DequeueNotificationDto dequeueNotificationDto, DomainOrigin domainOrigin)
@@ -35,8 +37,8 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
             if (dequeueNotificationDto is null)
                 throw new ArgumentNullException(nameof(dequeueNotificationDto));
 
+            _serviceBusClient ??= _serviceBusClientFactory.Create();
             await using var sender = _serviceBusClient.CreateSender($"sbq-{domainOrigin.ToString()}-dequeue");
-            using var messageBatch = await sender.CreateMessageBatchAsync().ConfigureAwait(false);
 
             var contract = new DequeueContract()
             {
@@ -44,18 +46,17 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
                 Recipient = dequeueNotificationDto.Recipient
             };
 
-            var msgBytes = contract.ToByteArray();
-            if (!messageBatch.TryAddMessage(new ServiceBusMessage(new BinaryData(msgBytes))))
-            {
-                throw new InvalidOperationException("The message is too large to fit in the batch.");
-            }
-
-            await sender.SendMessagesAsync(messageBatch).ConfigureAwait(false);
+            var dequeueMessage = new ServiceBusMessage(new BinaryData(contract.ToByteArray()));
+            await sender.SendMessageAsync(dequeueMessage).ConfigureAwait(false);
         }
 
         public async ValueTask DisposeAsync()
         {
-            await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
+            if (_serviceBusClient != null)
+            {
+                await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
+                _serviceBusClient = null;
+            }
         }
     }
 }
