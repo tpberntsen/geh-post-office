@@ -25,7 +25,6 @@ Here, all the contracts (DTO's) are described.
 
 To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' from nuget.org.
 
-<hr>
 <br>
 
 <a name=".DataAvailableNotificationDto"></a>
@@ -41,7 +40,6 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 | SupportsBundling | bool | required | Flag to indicate if message is capable of being bundled with similar messages | N/A |
 | RelativeWeight | int | required | The relative weight of the dataset | Must be a number between 0 and 2147483647 (Int32.MaxValue) |
 
-<hr>
 <br>
 
 <a name=".DataBundleRequestDto"></a>
@@ -53,7 +51,6 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 | IdempotencyId | string | required | An Id for sub domains to check whether or not it has received the same message multiple times | None at the moment |
 | DataAvailableNotificationIds | IEnumerable<string> | required | One or multiple Id's to identify requested data bundle | None at the moment |
   
-<hr>
 <br>
   
 <a name=".DataBundleResponseDto"></a>
@@ -67,7 +64,6 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 | IsErrorResponse | bool | required | Flag to indicate if response is error | N/A |
 | ResponseError | DataBundleResponseError | optional | One or multiple Id's to identify requested data bundle | N/A |
 
-<hr>
 <br>
 
 <a name=".DequeueNotificationDto"></a>
@@ -79,12 +75,12 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 | DataAvailableNotificationIds | ICollection<string> | required | One or multiple Id's to identify data to dequeue | None at the moment |
 | GlobalLocationNumber | GlobalLocationNumber | required | The Market Operator to receive the data | Must be a known GLN number |
 
+<br>
+<br>
+    
 <hr>
-
+    
 <a name=".OtherUsers"></a>
-
-<br>
-<br>
     
 ## Other users
     
@@ -101,8 +97,6 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 | supportsBundling | bool | required | Flag to indicate if message is capable of being bundled with similar messages | N/A |
 | relativeWeight | int32 | required | The relative weight of the dataset | Must be a number between 0 and 2147483647 (Int32.MaxValue) |
 
-    
-<hr>
 <br>
     
 <a name=".RequestBundleRequest.proto"></a>
@@ -114,7 +108,6 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 | IdempotencyId | string | required | An Id for sub domains to check whether or not it has received the same message multiple times | None at the moment |
 | UUID | repeated string | required | Unique dataset identification | Must be a valid Guid in string format |
     
-<hr>
 <br>
     
 <a name=".RequestBundleResponse.proto"></a>
@@ -127,10 +120,10 @@ RequestBundleResponse consists of four components. Below are five tables which d
     
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| Reply | oneof | Required | Signals if the request was a success or a failure |
-| FileResource | Optional | message | Uri to get requested data along with dataset identifications |
-| RequestFailure | Optional | message | Failure reason and description along with dataset identifications |
-| Reason | enum | Optional | Multiple failure reasons to choose from |
+| Reply | oneof | required | Signals if the request was a success or a failure |
+| FileResource | message | requried if Reply is Success | Uri to get requested data along with dataset identifications |
+| RequestFailure | message | requried if Reply is Failure | Failure reason and description along with dataset identifications |
+| Reason | enum | requried if Reply is Failure | Multiple failure reasons to choose from |
     
 <b>Reply</b>
     
@@ -162,7 +155,6 @@ RequestBundleResponse consists of four components. Below are five tables which d
 | DatasetNotAvailable | 1 |
 | InternalError | 15 |
     
-<hr>
 <br>
     
 <a name=".DequeueContract.proto"></a>
@@ -172,4 +164,4 @@ RequestBundleResponse consists of four components. Below are five tables which d
 | Field | Type | Label | Description | Limits |
 | ----- | ---- | ----- | ----------- | ------ |
 | dataAvailableIds | repeated string | required | One or multiple Id's to identify data to dequeue | None at the moment |
-| recipient | string | required | Market Operator who sent the dequeue command | None at the moment |
+| recipient | string | required | Market Operator who sent the dequeue command | Must be a known GLN number |
