@@ -58,7 +58,7 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 | DataAvailableNotificationIds | IEnumerable<string> | required | One or multiple Id's to identify requested data bundle | None at the moment |
 | ContentUri | Uri | optional | Uri to get requested data | Must be a valid Uri to data storage |
 | IsErrorResponse | bool | required | Flag to indicate if response is error | N/A |
-| ResponseError | DataBundleResponseError | optional | One or multiple Id's to identify requested data bundle |
+| ResponseError | DataBundleResponseError | optional | One or multiple Id's to identify requested data bundle | Must be a DataBundleResponseError available type |
 
 <hr>
 
