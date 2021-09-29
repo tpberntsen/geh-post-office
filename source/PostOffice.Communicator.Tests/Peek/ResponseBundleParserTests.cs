@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Exceptions;
@@ -79,6 +80,22 @@ namespace PostOffice.Communicator.Tests.Peek
 
             // act, assert
             Assert.Throws<PostOfficeCommunicatorException>(() => target.Parse(corruptBytes));
+        }
+
+        [Fact]
+        public void Parse_ValidObject_Returns_Bytes()
+        {
+            // arrange
+            var target = new ResponseBundleParser();
+            var valid = new RequestDataBundleResponseDto(
+                new Uri("https://test.test.dk"),
+                new List<string>() { "1", "2", "3" });
+
+            // act
+            var actual = target.Parse(valid);
+
+            // assert
+            Assert.NotNull(actual);
         }
     }
 }
