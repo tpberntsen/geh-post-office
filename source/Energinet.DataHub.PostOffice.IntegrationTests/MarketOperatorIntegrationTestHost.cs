@@ -18,7 +18,6 @@ using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
-using GreenEnergyHub.PostOffice.Communicator.Dequeue;
 using GreenEnergyHub.PostOffice.Communicator.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

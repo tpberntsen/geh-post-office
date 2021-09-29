@@ -46,7 +46,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
                 Recipient = dequeueNotificationDto.Recipient
             };
 
-            var dequeueMessage = new ServiceBusMessage(contract.ToByteArray());
+            var dequeueMessage = new ServiceBusMessage(new BinaryData(contract.ToByteArray()));
             await sender.SendMessageAsync(dequeueMessage).ConfigureAwait(false);
         }
 

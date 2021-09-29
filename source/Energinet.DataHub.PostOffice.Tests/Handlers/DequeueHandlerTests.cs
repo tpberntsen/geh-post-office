@@ -52,10 +52,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             // Arrange
             var request = new DequeueCommand("fake_value", "9FB4753A-0E2C-4F42-BA10-D38128DDA877");
             var bundleContentMock = new Mock<IBundleContent>();
-            bundleContentMock
-                .Setup(x => x.OpenAsync())
-                .ReturnsAsync(() => new MemoryStream(new byte[] { 1, 2, 3 }));
-
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
                 DomainOrigin.TimeSeries,
