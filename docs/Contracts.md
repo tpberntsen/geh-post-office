@@ -79,8 +79,36 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 
 TODO
 
+<hr>
+    
 <a name=".DataAvailableNotificationContract.proto"></a>
 
 ### DataAvailableNotificationContract.proto
+
+TODO
+
+    
+<hr>
+    
+<a name=".RequestBundleRequest.proto"></a>
+
+### RequestBundleRequest.proto
+
+TODO
+    
+<hr>
+    
+<a name=".RequestBundleResponse.proto"></a>
+
+### RequestBundleResponse.proto
+
+TODO
+
+    
+<hr>
+    
+<a name=".DequeueContract.proto"></a>
+
+### DequeueContract.proto
 
 TODO
