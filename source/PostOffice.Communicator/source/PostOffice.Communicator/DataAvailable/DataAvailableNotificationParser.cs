@@ -24,12 +24,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
         {
             var dataAvailable = DataAvailableNotificationContract.Parser.ParseFrom(dataAvailableContract);
 
-            var isParsed = Guid.TryParse(dataAvailable.UUID, out var guid);
-
-            if (!isParsed)
-            {
-                throw new ArgumentException("The provided string is not a valid Guid.");
-            }
+            var guid = Guid.Parse(dataAvailable.UUID);
 
             return new DataAvailableNotificationDto(
                 Uuid: new Uuid(guid),
