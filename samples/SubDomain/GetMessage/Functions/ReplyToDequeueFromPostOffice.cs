@@ -25,9 +25,7 @@ namespace GetMessage.Functions
     {
         private readonly IDequeueNotificationParser _dequeueNotificationParser;
 
-        public ReplyToDequeueFromPostOffice(
-            ServiceBusClient serviceBusClient,
-            IDequeueNotificationParser dequeueNotificationParser)
+        public ReplyToDequeueFromPostOffice(IDequeueNotificationParser dequeueNotificationParser)
         {
             _dequeueNotificationParser = dequeueNotificationParser;
         }
