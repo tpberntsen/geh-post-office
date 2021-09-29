@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Google.Protobuf;
 using System;
+using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Exceptions;
 using GreenEnergyHub.PostOffice.Communicator.Model;
@@ -28,28 +28,17 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
             {
                 var dataAvailable = DataAvailableNotificationContract.Parser.ParseFrom(dataAvailableContract);
                 return new DataAvailableNotificationDto(
-                    Uuid: dataAvailable.UUID,
-                    Recipient: dataAvailable.Recipient,
-                    MessageType: dataAvailable.MessageType,
+                    Uuid: new Uuid(Guid.Parse(dataAvailable.UUID)),
+                    Recipient: new Recipient(dataAvailable.Recipient),
+                    MessageType: new MessageType(dataAvailable.MessageType),
                     Origin: dataAvailable.Origin,
                     SupportsBundling: dataAvailable.SupportsBundling,
-                    RelativeWeight: dataAvailable.RelativeWeight);
+                    RelativeWeight: new RelativeWeight(dataAvailable.RelativeWeight));
             }
             catch (InvalidProtocolBufferException e)
             {
                 throw new PostOfficeCommunicatorException("Error parsing byte array for DataAvailableNotification", e);
             }
-            var dataAvailable = DataAvailableNotificationContract.Parser.ParseFrom(dataAvailableContract);
-
-            var guid = Guid.Parse(dataAvailable.UUID);
-
-            return new DataAvailableNotificationDto(
-                Uuid: new Uuid(guid),
-                Recipient: new Recipient(dataAvailable.Recipient),
-                MessageType: new MessageType(dataAvailable.MessageType),
-                Origin: dataAvailable.Origin,
-                SupportsBundling: dataAvailable.SupportsBundling,
-                RelativeWeight: new RelativeWeight(dataAvailable.RelativeWeight));
         }
     }
 }

@@ -31,16 +31,12 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             if (!requestDataBundleResponseDto.IsErrorResponse)
             {
                 contract.Success = new RequestBundleResponse.Types.FileResource { Uri = requestDataBundleResponseDto.ContentUri?.AbsoluteUri };
-                bytes = contract.ToByteArray();
-            }
-            else
-            {
-                var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError!.Reason);
-                contract.Failure = new RequestBundleResponse.Types.RequestFailure { Reason = contractErrorReason, FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription };
-                bytes = contract.ToByteArray();
+                return contract.ToByteArray();
             }
 
-            return bytes != null;
+            var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError!.Reason);
+            contract.Failure = new RequestBundleResponse.Types.RequestFailure { Reason = contractErrorReason, FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription };
+            return contract.ToByteArray();
         }
 
         public RequestDataBundleResponseDto? Parse(byte[] dataBundleReplyContract)
