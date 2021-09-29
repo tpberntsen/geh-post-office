@@ -29,7 +29,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
 
             var contract = new RequestBundleResponse();
 
-            if (!requestDataBundleResponseDto.IsErrorResponse.IsError)
+            if (!requestDataBundleResponseDto.IsErrorResponse)
             {
                 contract.Success = new RequestBundleResponse.Types.FileResource { Uri = requestDataBundleResponseDto.ContentUri?.AbsoluteUri };
                 bytes = contract.ToByteArray();

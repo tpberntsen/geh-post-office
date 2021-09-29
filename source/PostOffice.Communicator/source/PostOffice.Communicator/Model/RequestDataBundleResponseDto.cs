@@ -27,19 +27,19 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
         {
             DataAvailableNotificationIds = dataAvailableNotificationIds;
             ContentUri = contentUri;
-            IsErrorResponse = new IsErrorResponse(false);
+            IsErrorResponse = false;
         }
 
         public RequestDataBundleResponseDto(DataBundleResponseError responseError, IEnumerable<string> dataAvailableNotificationIds)
         {
             DataAvailableNotificationIds = dataAvailableNotificationIds;
             ResponseError = responseError;
-            IsErrorResponse = new IsErrorResponse(true);
+            IsErrorResponse = true;
         }
 
         [MemberNotNullWhen(false, nameof(ContentUri))]
         [MemberNotNullWhen(true, nameof(ResponseError))]
-        public IsErrorResponse IsErrorResponse { get; }
+        public bool IsErrorResponse { get; }
 
         public IEnumerable<string> DataAvailableNotificationIds { get; }
 
