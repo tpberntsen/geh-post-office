@@ -11,7 +11,7 @@ All other users should skip the first section and only read section two where Pr
     - [DataBundleRequestDto](#DataBundleRequestDto)
     - [DataBundleResponseDto](#DataBundleResponseDto)
 - [Other users](#.OtherUsers)
-    - [DataAvailable.proto](#DataAvailable.proto)
+    - [DataAvailableNotificationContract.proto](#DataAvailableNotificationContract.proto)
 
 <a name=".NETusers"></a>
 
@@ -93,6 +93,6 @@ Can only be 0 if IsBundlingSupported is set to false.
 ## Other users
 
 
-<a name=".DataAvailable.proto"></a>
+<a name=".DataAvailableNotificationContract.proto"></a>
 
-### DataAvailable.proto
+### DataAvailableNotificationContract.proto
