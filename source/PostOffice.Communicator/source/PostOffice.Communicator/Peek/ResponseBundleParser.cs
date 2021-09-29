@@ -30,29 +30,13 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
 
             if (!requestDataBundleResponseDto.IsErrorResponse)
             {
-                try
-                {
-                    contract.Success = new RequestBundleResponse.Types.FileResource { Uri = requestDataBundleResponseDto.ContentUri.AbsoluteUri };
-                    return contract.ToByteArray();
-                }
-                catch (Exception e)
-                {
-                    throw new PostOfficeCommunicatorException("Error converting message to bytes for RequestDataBundleResponseDto", e);
-                }
+                contract.Success = new RequestBundleResponse.Types.FileResource { Uri = requestDataBundleResponseDto.ContentUri.AbsoluteUri };
+                return contract.ToByteArray();
             }
-            else
-            {
-                try
-                {
-                    var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError.Reason);
-                    contract.Failure = new RequestBundleResponse.Types.RequestFailure { Reason = contractErrorReason, FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription };
-                    return contract.ToByteArray();
-                }
-                catch (Exception e)
-                {
-                    throw new PostOfficeCommunicatorException("Error converting message to bytes for RequestDataBundleResponseDto", e);
-                }
-            }
+
+            var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError.Reason);
+            contract.Failure = new RequestBundleResponse.Types.RequestFailure { Reason = contractErrorReason, FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription };
+            return contract.ToByteArray();
         }
 
         public RequestDataBundleResponseDto? Parse(byte[] dataBundleReplyContract)

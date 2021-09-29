@@ -15,7 +15,6 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using GreenEnergyHub.PostOffice.Communicator.Exceptions;
 using GreenEnergyHub.PostOffice.Communicator.Factories;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
@@ -76,15 +75,8 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             var response = await receiver.ReceiveMessageAsync(_defaultTimeout).ConfigureAwait(false);
             if (response == null)
                 return null;
-            try
-            {
-                var dataBundleResponseDto = _responseBundleParser.Parse(response.Body.ToArray());
-                return dataBundleResponseDto;
-            }
-            catch (PostOfficeCommunicatorException)
-            {
-                throw new InvalidOperationException("Could not parse Bundle response");
-            }
+            var dataBundleResponseDto = _responseBundleParser.Parse(response.Body.ToArray());
+            return dataBundleResponseDto;
         }
     }
 }

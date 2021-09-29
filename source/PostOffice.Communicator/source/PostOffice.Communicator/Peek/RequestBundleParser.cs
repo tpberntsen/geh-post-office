@@ -26,17 +26,9 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
-            try
-            {
-               var message = new RequestBundleRequest { IdempotencyId = request.IdempotencyId, UUID = { request.DataAvailableNotificationIds } };
-               return message.ToByteArray();
-            }
-#pragma warning disable CA1031
-            catch (Exception e)
-#pragma warning restore CA1031
-            {
-                throw new PostOfficeCommunicatorException("Error converting message to bytes for DataBundleRequestDto", e);
-            }
+
+            var message = new RequestBundleRequest { IdempotencyId = request.IdempotencyId, UUID = { request.DataAvailableNotificationIds } };
+            return message.ToByteArray();
         }
 
         public DataBundleRequestDto Parse(byte[] dataBundleRequestContract)

@@ -21,9 +21,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
 {
     public class DequeueNotificationParser : IDequeueNotificationParser
     {
-#pragma warning disable CA1822
         public DequeueNotificationDto Parse(byte[] dequeueNotificationContract)
-#pragma warning restore CA1822
         {
             try
             {
