@@ -17,16 +17,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 
-namespace Energinet.DataHub.PostOffice.Tests.Common
+namespace PostOffice.Communicator.Tests
 {
-    internal class MockedServiceBusClient : ServiceBusClient
+    internal sealed class MockedServiceBusClient : ServiceBusClient
     {
         private readonly string _queue;
         private readonly string _replyQueue;
         private readonly ServiceBusSender _serviceBusSender;
         private readonly ServiceBusSessionReceiver _serviceBusSessionReceiver;
 
-        public MockedServiceBusClient(string queue, string replyQueue, ServiceBusSender serviceBusSender, ServiceBusSessionReceiver serviceBusSessionReceiver)
+        public MockedServiceBusClient(
+            string queue,
+            string replyQueue,
+            ServiceBusSender serviceBusSender,
+            ServiceBusSessionReceiver serviceBusSessionReceiver)
         {
             _queue = queue;
             _replyQueue = replyQueue;
@@ -42,7 +46,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
             throw new ArgumentException($"{nameof(queueOrTopicName)}: '{queueOrTopicName}' did not match configured queue: '{_queue}'", nameof(queueOrTopicName));
         }
 
-        public override Task<ServiceBusSessionReceiver> AcceptSessionAsync(string queueName, string sessionId, ServiceBusSessionReceiverOptions options, CancellationToken cancellationToken)
+        public override Task<ServiceBusSessionReceiver> AcceptSessionAsync(
+            string queueName,
+            string sessionId,
+            ServiceBusSessionReceiverOptions options = default,
+            CancellationToken cancellationToken = default)
         {
             if (queueName == _replyQueue)
                 return Task.FromResult(_serviceBusSessionReceiver);

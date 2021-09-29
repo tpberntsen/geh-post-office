@@ -15,7 +15,6 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.PostOffice.Tests.Common;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Factories;
