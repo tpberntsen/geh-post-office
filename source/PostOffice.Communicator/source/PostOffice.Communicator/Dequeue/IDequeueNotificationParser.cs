@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Google.Protobuf;
+using GreenEnergyHub.PostOffice.Communicator.Exceptions;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
@@ -26,11 +26,10 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
         /// Parses the DequeueNotification protobuf contract.
         /// </summary>
         /// <param name="dequeueNotificationContract">A byte array containing the DequeueNotification protobuf contract.</param>
-        /// <param name="dequeueNotificationDto">The parsed DequeueNotificationDto, if the function returns true.</param>
-        /// <returns> _ </returns>
-        /// <exception cref="InvalidProtocolBufferException">
+        /// <returns><see cref="DequeueNotificationDto"/></returns>
+        /// <exception cref="PostOfficeCommunicatorException">
         /// Throws an exception if byte array cannot be parsed.
         /// </exception>
-        bool TryParse(byte[] dequeueNotificationContract, out DequeueNotificationDto dequeueNotificationDto);
+        DequeueNotificationDto Parse(byte[] dequeueNotificationContract);
     }
 }

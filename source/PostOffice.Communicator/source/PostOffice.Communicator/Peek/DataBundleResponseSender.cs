@@ -45,9 +45,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             if (sessionId == null)
                 throw new ArgumentNullException(nameof(sessionId));
 
-            if (!_responseBundleParser.TryParse(requestDataBundleResponseDto, out var contractBytes))
-                throw new InvalidOperationException("Could not parse Bundle response");
-
+            var contractBytes = _responseBundleParser.Parse(requestDataBundleResponseDto);
             var serviceBusReplyMessage = new ServiceBusMessage(contractBytes)
             {
                 SessionId = sessionId,

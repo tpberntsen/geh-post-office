@@ -13,8 +13,10 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
+using GreenEnergyHub.PostOffice.Communicator.Exceptions;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 using GreenEnergyHub.PostOffice.Communicator.Peek;
 using Xunit;
@@ -26,7 +28,7 @@ namespace PostOffice.Communicator.Tests.Peek
     public class ResponseBundleParserTests
     {
         [Fact]
-        public void TryParse_BytesValid_ReturnsTrue()
+        public void Parse_BytesValid_Returns_NotNull()
         {
             // arrange
             var target = new ResponseBundleParser();
@@ -40,15 +42,15 @@ namespace PostOffice.Communicator.Tests.Peek
             }.ToByteArray();
 
             // act
-            var actual = target.TryParse(validBytes, out var actualBytes);
+            var actual = target.Parse(validBytes);
 
             // assert
-            Assert.True(actual);
-            Assert.NotNull(actualBytes);
+            Assert.NotNull(actual);
+            Assert.Equal(new[] { "B34E47BC-21EA-40C5-AE27-A5900F42D7C6" }, actual.DataAvailableNotificationIds);
         }
 
         [Fact]
-        public void TryParse_BytesValidWithFailedRequestStatus_ReturnsFalse()
+        public void Parse_BytesValidWithFailedRequestStatus_ReturnsNull()
         {
             // arrange
             var target = new ResponseBundleParser();
@@ -61,26 +63,39 @@ namespace PostOffice.Communicator.Tests.Peek
             }.ToByteArray();
 
             // act
-            var actual = target.TryParse(validBytes, out var actualBytes);
+            var actual = target.Parse(validBytes);
 
             // assert
-            Assert.False(actual);
-            Assert.Null(actualBytes);
+            Assert.Null(actual);
         }
 
         [Fact]
-        public void TryParse_BytesCorrupt_ReturnsFalse()
+        public void Parse_BytesCorrupt_Throws_Exception()
         {
             // arrange
             var target = new ResponseBundleParser();
-            var corruptBytes = Array.Empty<byte>();
+            var rnd = new Random();
+            var corruptBytes = new byte[10];
+            rnd.NextBytes(corruptBytes);
+
+            // act, assert
+            Assert.Throws<PostOfficeCommunicatorException>(() => target.Parse(corruptBytes));
+        }
+
+        [Fact]
+        public void Parse_ValidObject_Returns_Bytes()
+        {
+            // arrange
+            var target = new ResponseBundleParser();
+            var valid = new RequestDataBundleResponseDto(
+                new Uri("https://test.test.dk"),
+                new List<string>() { "1", "2", "3" });
 
             // act
-            var actual = target.TryParse(corruptBytes, out var actualBytes);
+            var actual = target.Parse(valid);
 
             // assert
-            Assert.False(actual);
-            Assert.Null(actualBytes);
+            Assert.NotNull(actual);
         }
     }
 }

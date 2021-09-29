@@ -13,20 +13,19 @@
 // limitations under the License.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
+using GreenEnergyHub.PostOffice.Communicator.Exceptions;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     public class ResponseBundleParser : IResponseBundleParser
     {
-        public bool TryParse(RequestDataBundleResponseDto requestDataBundleResponseDto, [NotNullWhen(true)] out byte[]? bytes)
+        public byte[] Parse(RequestDataBundleResponseDto requestDataBundleResponseDto)
         {
             if (requestDataBundleResponseDto == null) throw new ArgumentNullException(nameof(requestDataBundleResponseDto));
-
             var contract = new RequestBundleResponse();
 
             if (!requestDataBundleResponseDto.IsErrorResponse)
@@ -44,24 +43,19 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             return bytes != null;
         }
 
-        public bool TryParse(byte[] dataBundleReplyContract, [NotNullWhen(true)] out RequestDataBundleResponseDto? response)
+        public RequestDataBundleResponseDto? Parse(byte[] dataBundleReplyContract)
         {
             try
             {
                 var bundleResponse = RequestBundleResponse.Parser.ParseFrom(dataBundleReplyContract);
-
-                response = bundleResponse.ReplyCase != RequestBundleResponse.ReplyOneofCase.Success
+                return bundleResponse!.ReplyCase != RequestBundleResponse.ReplyOneofCase.Success
                     ? null
                     : new RequestDataBundleResponseDto(new Uri(bundleResponse.Success.Uri), bundleResponse.Success.UUID.AsEnumerable());
             }
-#pragma warning disable CA1031
-            catch (Exception)
-#pragma warning restore CA1031
+            catch (InvalidProtocolBufferException e)
             {
-                response = null;
+                throw new PostOfficeCommunicatorException("Error parsing bytes for DataBundleRequestDto", e);
             }
-
-            return response != null;
         }
 
         private static RequestBundleResponse.Types.RequestFailure.Types.Reason MapToFailureReason(DataBundleResponseErrorReason errorReason)

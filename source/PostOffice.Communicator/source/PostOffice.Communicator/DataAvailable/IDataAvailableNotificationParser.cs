@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Google.Protobuf;
+using GreenEnergyHub.PostOffice.Communicator.Exceptions;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
@@ -27,7 +27,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
         /// </summary>
         /// <param name="dataAvailableContract">A byte array containing the DataAvailable protobuf contract.</param>
         /// <returns>The parsed DataAvailableNotificationDto.</returns>
-        /// <exception cref="InvalidProtocolBufferException">
+        /// <exception cref="PostOfficeCommunicatorException">
         /// Throws an exception if byte array cannot be parsed.
         /// </exception>
         DataAvailableNotificationDto Parse(byte[] dataAvailableContract);

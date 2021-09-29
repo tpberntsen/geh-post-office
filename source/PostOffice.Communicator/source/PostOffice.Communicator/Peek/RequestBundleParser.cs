@@ -13,49 +13,35 @@
 // limitations under the License.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
+using GreenEnergyHub.PostOffice.Communicator.Exceptions;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     public sealed class RequestBundleParser : IRequestBundleParser
     {
-        public bool TryParse(DataBundleRequestDto request, [NotNullWhen(true)] out byte[]? bytes)
+        public byte[] Parse(DataBundleRequestDto request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
-            try
-            {
-                var message = new RequestBundleRequest { IdempotencyId = request.IdempotencyId, UUID = { request.DataAvailableNotificationIds } };
-                bytes = message.ToByteArray();
-            }
-#pragma warning disable CA1031
-            catch (Exception)
-#pragma warning restore CA1031
-            {
-                bytes = null;
-            }
 
-            return bytes != null;
+            var message = new RequestBundleRequest { IdempotencyId = request.IdempotencyId, UUID = { request.DataAvailableNotificationIds } };
+            return message.ToByteArray();
         }
 
-        public bool TryParse(byte[] dataBundleRequestContract, [NotNullWhen(true)] out DataBundleRequestDto? request)
+        public DataBundleRequestDto Parse(byte[] dataBundleRequestContract)
         {
             try
             {
                 var bundleResponse = RequestBundleRequest.Parser.ParseFrom(dataBundleRequestContract);
-                request = new DataBundleRequestDto(bundleResponse.IdempotencyId, bundleResponse.UUID);
+                return new DataBundleRequestDto(bundleResponse.IdempotencyId, bundleResponse.UUID);
             }
-#pragma warning disable CA1031
-            catch (Exception)
-#pragma warning restore CA1031
+            catch (InvalidProtocolBufferException e)
             {
-                request = null;
+                throw new PostOfficeCommunicatorException("Error parsing bytes for DataBundleRequestDto", e);
             }
-
-            return request != null;
         }
     }
 }

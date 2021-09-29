@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Google.Protobuf;
 using System;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
+using GreenEnergyHub.PostOffice.Communicator.Exceptions;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
@@ -22,6 +24,21 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
     {
         public DataAvailableNotificationDto Parse(byte[] dataAvailableContract)
         {
+            try
+            {
+                var dataAvailable = DataAvailableNotificationContract.Parser.ParseFrom(dataAvailableContract);
+                return new DataAvailableNotificationDto(
+                    Uuid: dataAvailable.UUID,
+                    Recipient: dataAvailable.Recipient,
+                    MessageType: dataAvailable.MessageType,
+                    Origin: dataAvailable.Origin,
+                    SupportsBundling: dataAvailable.SupportsBundling,
+                    RelativeWeight: dataAvailable.RelativeWeight);
+            }
+            catch (InvalidProtocolBufferException e)
+            {
+                throw new PostOfficeCommunicatorException("Error parsing byte array for DataAvailableNotification", e);
+            }
             var dataAvailable = DataAvailableNotificationContract.Parser.ParseFrom(dataAvailableContract);
 
             var guid = Guid.Parse(dataAvailable.UUID);
