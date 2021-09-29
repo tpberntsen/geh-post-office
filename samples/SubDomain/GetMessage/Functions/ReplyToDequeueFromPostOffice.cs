@@ -43,8 +43,8 @@ namespace GetMessage.Functions
 
             try
             {
-                var (datasetIds, recipient) = _dequeueNotificationParser.Receive(dequeueNotification);
-                logger.LogInformation($"Dequeue received for {recipient} with notification Ids: {string.Join(",", datasetIds)}");
+                var isParsed = _dequeueNotificationParser.TryParse(dequeueNotification, out var dequeueNotificationDto);
+                logger.LogInformation($"Dequeue received for {dequeueNotificationDto.Recipient} with notification Ids: {string.Join(",", dequeueNotificationDto.DataAvailableNotificationIds)}");
             }
             catch (Exception e)
             {
