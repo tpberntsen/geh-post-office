@@ -29,25 +29,14 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 
 Some fields are based on strongly typed custom types. Below the table are types and type limits described.
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| Uuid | Uuid | required | Identifier for the Data Available Notification sent from the sub domain |
-| Recipient | Recipient | required | The Market Operator to receive the data |
-| MessageType | MessageType | required | The RSM type the Data Available Notification consists of |
-| Origin | string | required | The sub domain which sends the Data Available Notification |
-| SupportsBundling | bool | required | Flag to indicate whether or not the data in the Data Available Notification can be bundled |
-| RelativeWeight | RelativeWeight | required | The weight of the data |
-
-<b>Uuid</b> contains a <i>string</i> property named Id. Id must be a valid Guid in string format.
-
-<b>Recipient</b> contains a <i>string</i> property named MarketOperator. MarketOperator must be a valid identifier of known market operators.
-
-<b>MessageType</b> contains a <i>string</i> property named TypeOfMessage. TypeOfMessage must be an RSM type identifier.
-
-<b>Origin</b> must be a known sub domain within DataHub/GreenEnergyHub.
-
-<b>RelativeWeight</b> contains an <i>int</i> property named MessageWeight. MessageWeight must be a number between 0 and 2147483647 (Int32.MaxValue). 
-Can only be 0 if IsBundlingSupported is set to false.
+| Field | Type | Label | Description | Limits |
+| ----- | ---- | ----- | ----------- | ------ |
+| Uuid | Guid | required | Identifier for the Data Available Notification sent from the sub domain | Must be a valid Guid |
+| Recipient | Recipient | required | The Market Operator to receive the data | Must be a valid market operator |
+| MessageType | MessageType | required | The RSM type the Data Available Notification consists of | Must be a valid RSM type |
+| Origin | enum | required | The sub domain which sends the Data Available Notification | Must be a known sub domain within DataHub/GreenEnergyHub |
+| SupportsBundling | bool | required | Flag to indicate whether or not the data in the Data Available Notification can be bundled | N/A |
+| RelativeWeight | RelativeWeight | required | The weight of the data | Must be a number between 0 and 2147483647 (Int32.MaxValue) |
 
 <hr>
 
