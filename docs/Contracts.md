@@ -42,10 +42,10 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 
 ### DataBundleRequestDto
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| IdempotencyId | string | required | An Id for sub domains to check whether or not it has received the same message multiple times |
-| DataAvailableNotificationIds | IEnumerable<string> | required | One or multiple Id's to identify requested data bundle |
+| Field | Type | Label | Description | Limits |
+| ----- | ---- | ----- | ----------- | ------ |
+| IdempotencyId | string | required | An Id for sub domains to check whether or not it has received the same message multiple times | None at the moment |
+| DataAvailableNotificationIds | IEnumerable<string> | required | One or multiple Id's to identify requested data bundle | None at the moment |
   
 <hr>
   
@@ -53,11 +53,11 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 
 ### DataBundleResponseDto
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| DataAvailableNotificationIds | IEnumerable<string> | required | One or multiple Id's to identify requested data bundle |
-| ContentUri | Uri | optional | Uri to get requested data |
-| IsErrorResponse | IsErrorResponse | required | Flag to indicate if response is error |
+| Field | Type | Label | Description | Limits |
+| ----- | ---- | ----- | ----------- | ------ |
+| DataAvailableNotificationIds | IEnumerable<string> | required | One or multiple Id's to identify requested data bundle | None at the moment |
+| ContentUri | Uri | optional | Uri to get requested data | Must be a valid Uri to data storage |
+| IsErrorResponse | bool | required | Flag to indicate if response is error | N/A |
 | ResponseError | DataBundleResponseError | optional | One or multiple Id's to identify requested data bundle |
 
 <hr>
