@@ -66,7 +66,7 @@ namespace PostOffice.Communicator.Tests.Dequeue
             var target = new DequeueNotificationParser();
             var valid = new DequeueNotificationDto(
                 new List<string>() { "1", "2", "3" },
-                "test");
+                new GlobalLocationNumber("test"));
 
             // act
             var actual = target.Parse(valid);
