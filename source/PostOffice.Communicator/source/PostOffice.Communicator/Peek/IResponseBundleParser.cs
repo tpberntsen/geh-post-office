@@ -26,9 +26,6 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
         /// Converts the specified response into a protobuf contract.
         /// </summary>
         /// <param name="requestDataBundleResponseDto">The response to convert.</param>
-        /// <exception cref="PostOfficeCommunicatorException">
-        /// Throws an exception if object cannot be parsed.
-        /// </exception>
         /// <returns>A byte array with the parsed RequestDataBundleResponseDto</returns>
         byte[] Parse(RequestDataBundleResponseDto requestDataBundleResponseDto);
 
