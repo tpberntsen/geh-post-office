@@ -18,16 +18,16 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     /// <summary>
-    /// Singleton, thread-safe
+    /// Communicates to the sub-domain a request for bundle contents.
     /// </summary>
     public interface IDataBundleRequestSender
     {
         /// <summary>
-        /// bla
+        /// Sends a request for bundle contents to the specified sub-domain.
         /// </summary>
-        /// <param name="dataBundleRequestDto"></param>
-        /// <param name="domainOrigin"></param>
-        /// <returns>1</returns>
+        /// <param name="dataBundleRequestDto">The request to send.</param>
+        /// <param name="domainOrigin">The sub-domain to send the request to.</param>
+        /// <returns><see cref="RequestDataBundleResponseDto"/> containing the location of bundle contents; or null, if the request timed out.</returns>
         Task<RequestDataBundleResponseDto?> SendAsync(DataBundleRequestDto dataBundleRequestDto, DomainOrigin domainOrigin);
     }
 }

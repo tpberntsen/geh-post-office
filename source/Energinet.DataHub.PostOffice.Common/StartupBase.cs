@@ -56,7 +56,7 @@ namespace Energinet.DataHub.PostOffice.Common
             Configure(services);
 
             services.AddLogging();
-            services.AddSimpleInjector(Container);
+            services.AddSimpleInjector(Container, x => x.DisposeContainerWithServiceProvider = !true);
 
             Container.AddRepositories();
             Container.AddDomainServices();

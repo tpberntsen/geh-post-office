@@ -18,16 +18,15 @@ using GreenEnergyHub.PostOffice.Communicator.Model;
 namespace GreenEnergyHub.PostOffice.Communicator.Peek
 {
     /// <summary>
-    /// bla
+    /// Communicates to the post office a response to a given request for bundle contents.
     /// </summary>
     public interface IDataBundleResponseSender
     {
         /// <summary>
-        /// bla
+        /// Responds to a post office request for bundle contents, specifying that the contents are ready and where they are located.
         /// </summary>
-        /// <param name="requestDataBundleResponseDto"></param>
-        /// <param name="sessionId">ServiceBusClient response sessionId</param>
-        /// <returns>1</returns>
+        /// <param name="requestDataBundleResponseDto">The response to the request.</param>
+        /// <param name="sessionId">The ServiceBus session id received from the session-enabled ServiceBusTrigger.</param>
         Task SendAsync(RequestDataBundleResponseDto requestDataBundleResponseDto, string sessionId);
     }
 }

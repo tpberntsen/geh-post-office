@@ -53,3 +53,11 @@ resource "azurerm_cosmosdb_sql_container" "collection_bundles" {
   database_name       = azurerm_cosmosdb_sql_database.db.name
   partition_key_path  = "/recipient"
 }
+
+resource "azurerm_cosmosdb_sql_trigger" "triggers_ensuresingleunacknowledgedbundle" {
+  name         = "EnsureSingleUnacknowledgedBundle"
+  container_id = azurerm_cosmosdb_sql_container.collection_bundles.id
+  body         = "function trigger() { var context = getContext(); var container = context.getCollection(); var response = context.getResponse(); var createdItem = response.getBody(); var filterQuery = `SELECT * FROM bundles b WHERE b.recipient = '${createdItem.recipient}' and b.dequeued = false`; var accept = container.queryDocuments(container.getSelfLink(), filterQuery, function(err, items, options) { if (err) throw err; if (items.length !== 0) throw 'SingleBundleViolation'; }); if (!accept) throw 'queryDocuments in trigger failed.'; }"
+  operation    = "Delete"
+  type         = "Post"
+}
