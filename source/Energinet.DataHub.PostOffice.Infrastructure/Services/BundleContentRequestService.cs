@@ -48,7 +48,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 
             // TODO: Fy!
             var response = await _dataBundleRequestSender.SendAsync(request, (DomainOrigin)bundle.Origin).ConfigureAwait(false);
-            if (response == null || response.ResponseError != null || response.ContentUri == null)
+            if (response == null || response.IsErrorResponse)
                 return null;
 
             return new AzureBlobBundleContent(

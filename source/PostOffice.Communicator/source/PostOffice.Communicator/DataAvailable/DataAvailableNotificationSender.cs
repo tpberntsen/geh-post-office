@@ -17,17 +17,19 @@ using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
 {
     public sealed class DataAvailableNotificationSender : IDataAvailableNotificationSender, IAsyncDisposable
     {
-        private readonly ServiceBusClient _serviceBusClient;
+        private readonly IServiceBusClientFactory _serviceBusClientFactory;
+        private ServiceBusClient? _serviceBusClient;
 
-        public DataAvailableNotificationSender(string connectionString)
+        public DataAvailableNotificationSender(IServiceBusClientFactory serviceBusClientFactory)
         {
-            _serviceBusClient = new ServiceBusClient(connectionString);
+            _serviceBusClientFactory = serviceBusClientFactory;
         }
 
         public async Task SendAsync(DataAvailableNotificationDto dataAvailableNotificationDto)
@@ -35,10 +37,11 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
             if (dataAvailableNotificationDto == null)
                 throw new ArgumentNullException(nameof(dataAvailableNotificationDto));
 
-            await using var sender = _serviceBusClient.CreateSender("sbq-dataavailable");
-            using var messageBatch = await sender.CreateMessageBatchAsync().ConfigureAwait(false);
+            _serviceBusClient ??= _serviceBusClientFactory.Create();
 
-            var contract = new DataAvailableNotificationContract()
+            await using var sender = _serviceBusClient.CreateSender("sbq-dataavailable");
+
+            var contract = new DataAvailableNotificationContract
             {
                 UUID = dataAvailableNotificationDto.Uuid,
                 MessageType = dataAvailableNotificationDto.MessageType,
@@ -48,16 +51,17 @@ namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
                 RelativeWeight = dataAvailableNotificationDto.RelativeWeight
             };
 
-            var msgBytes = contract.ToByteArray();
-            if (!messageBatch.TryAddMessage(new ServiceBusMessage(new BinaryData(msgBytes))))
-                throw new InvalidOperationException("The message is too large to fit in the batch.");
-
-            await sender.SendMessagesAsync(messageBatch).ConfigureAwait(false);
+            var message = new ServiceBusMessage(new BinaryData(contract.ToByteArray()));
+            await sender.SendMessageAsync(message).ConfigureAwait(false);
         }
 
         public async ValueTask DisposeAsync()
         {
-            await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
+            if (_serviceBusClient != null)
+            {
+                await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
+                _serviceBusClient = null;
+            }
         }
     }
 }

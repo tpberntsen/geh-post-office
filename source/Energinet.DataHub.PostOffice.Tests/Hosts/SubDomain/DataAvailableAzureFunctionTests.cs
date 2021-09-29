@@ -14,9 +14,9 @@
 
 using System;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions;
+using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using Energinet.DataHub.PostOffice.Tests.Common;
 using GreenEnergyHub.PostOffice.Communicator.DataAvailable;
 using GreenEnergyHub.PostOffice.Communicator.Model;
@@ -36,17 +36,21 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain
             // Arrange
             var mockedMediator = new Mock<IMediator>();
             var mockedParser = new Mock<IDataAvailableNotificationParser>();
-            var mockedMapper = new Mock<IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand>>();
+            var mockedMapper = new DataAvailableMapper();
             var mockedFunctionContext = new MockedFunctionContext();
 
-            var target = new DataAvailableInbox(mockedMediator.Object, mockedParser.Object, mockedMapper.Object);
+            var target = new DataAvailableInbox(mockedMediator.Object, mockedParser.Object, mockedMapper);
 
             var fakeProtobuf = Array.Empty<byte>();
-            var fakeDto = new DataAvailableNotificationDto("fake_value", "fake_value", "fake_value", "fake_value", false, 0);
-            var fakeCommand = new DataAvailableNotificationCommand("fake_value", "fake_value", "fake_value", "fake_value", false, 0);
+            var fakeDto = new DataAvailableNotificationDto(
+                "fake_value",
+                "fake_value",
+                "fake_value",
+                "fake_value",
+                false,
+                0);
 
             mockedParser.Setup(x => x.Parse(fakeProtobuf)).Returns(fakeDto);
-            mockedMapper.Setup(x => x.Map(fakeDto)).Returns(fakeCommand);
 
             // Act
             await target.RunAsync(fakeProtobuf, mockedFunctionContext).ConfigureAwait(false);
