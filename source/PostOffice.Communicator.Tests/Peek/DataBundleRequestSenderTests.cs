@@ -82,7 +82,7 @@ namespace PostOffice.Communicator.Tests.Peek
             var result = await target.SendAsync(
                     new DataBundleRequestDto(
                         "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
-                        new[] { "BD828D71-77C1-4BE6-A850-9D415626C174" }),
+                        new[] { Guid.NewGuid(), Guid.NewGuid() }),
                     domainOrigin)
                 .ConfigureAwait(false);
 
@@ -125,7 +125,7 @@ namespace PostOffice.Communicator.Tests.Peek
             var result = await target.SendAsync(
                     new DataBundleRequestDto(
                         "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
-                        new[] { "BD828D71-77C1-4BE6-A850-9D415626C174" }),
+                        new[] { Guid.NewGuid(), Guid.NewGuid() }),
                     domainOrigin)
                 .ConfigureAwait(false);
 

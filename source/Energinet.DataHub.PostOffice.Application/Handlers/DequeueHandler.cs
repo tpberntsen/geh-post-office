@@ -56,13 +56,12 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             {
                 try
                 {
-                    await _dequeueNotificationSender.SendAsync(
-                            new DequeueNotificationDto(
-                                Recipient: request.Recipient,
-                                DataAvailableNotificationIds: dequeuedBundle.NotificationIds
-                                    .Select(x => x.ToString())
-                                    .ToList()),
-                            (DomainOrigin)dequeuedBundle.Origin)
+                    var dequeueNotificationDto = new DequeueNotificationDto(
+                        dequeuedBundle.NotificationIds.Select(x => x.AsGuid()).ToList(),
+                        new GlobalLocationNumberDto(request.Recipient));
+
+                    await _dequeueNotificationSender
+                        .SendAsync(dequeueNotificationDto, (DomainOrigin)dequeuedBundle.Origin)
                         .ConfigureAwait(false);
                 }
                 catch (ServiceBusException)

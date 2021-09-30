@@ -14,5 +14,9 @@
 
 namespace GreenEnergyHub.PostOffice.Communicator.Model
 {
-    public record GlobalLocationNumber(string Value);
+    public sealed class DataBundleResponseErrorDto
+    {
+        public DataBundleResponseErrorReason Reason { get; set; }
+        public string? FailureDescription { get; set; }
+    }
 }

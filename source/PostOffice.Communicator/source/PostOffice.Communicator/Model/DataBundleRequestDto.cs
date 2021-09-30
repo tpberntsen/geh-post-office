@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Model
@@ -21,5 +22,5 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
     /// <param name="IdempotencyId">An unique identifier for this request.</param>
     /// <param name="DataAvailableNotificationIds">The ids that must be contained within the created bundle.</param>
     /// </summary>
-    public sealed record DataBundleRequestDto(string IdempotencyId, IEnumerable<string> DataAvailableNotificationIds);
+    public sealed record DataBundleRequestDto(string IdempotencyId, IEnumerable<Guid> DataAvailableNotificationIds);
 }

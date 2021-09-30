@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 
 namespace GreenEnergyHub.PostOffice.Communicator.Model
@@ -21,9 +22,9 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
     /// <param name="DataAvailableNotificationIds">
     /// A collection of guids identifying which data the market operator has approved.
     /// </param>
-    /// <param name="GlobalLocationNumber">
+    /// <param name="Recipient">
     /// A Global Location Number identifying a market operator.
     /// </param>
     /// </summary>
-    public sealed record DequeueNotificationDto(ICollection<string> DataAvailableNotificationIds, GlobalLocationNumber GlobalLocationNumber);
+    public sealed record DequeueNotificationDto(ICollection<Guid> DataAvailableNotificationIds, GlobalLocationNumberDto Recipient);
 }

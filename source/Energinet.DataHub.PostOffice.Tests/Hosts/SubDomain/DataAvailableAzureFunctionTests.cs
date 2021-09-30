@@ -43,10 +43,10 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain
 
             var fakeProtobuf = Array.Empty<byte>();
             var fakeDto = new DataAvailableNotificationDto(
-                "fake_value",
-                "fake_value",
-                "fake_value",
-                "fake_value",
+                Guid.NewGuid(),
+                new GlobalLocationNumberDto("fake_value"),
+                new MessageTypeDto("fake_value"),
+                DomainOrigin.TimeSeries,
                 false,
                 0);
 

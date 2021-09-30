@@ -25,7 +25,8 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
     {
         public byte[] Parse(RequestDataBundleResponseDto requestDataBundleResponseDto)
         {
-            if (requestDataBundleResponseDto == null) throw new ArgumentNullException(nameof(requestDataBundleResponseDto));
+            if (requestDataBundleResponseDto == null)
+                throw new ArgumentNullException(nameof(requestDataBundleResponseDto));
             var contract = new RequestBundleResponse();
 
             if (!requestDataBundleResponseDto.IsErrorResponse)
@@ -46,7 +47,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
                 var bundleResponse = RequestBundleResponse.Parser.ParseFrom(dataBundleReplyContract);
                 return bundleResponse!.ReplyCase != RequestBundleResponse.ReplyOneofCase.Success
                     ? null
-                    : new RequestDataBundleResponseDto(new Uri(bundleResponse.Success.Uri), bundleResponse.Success.UUID.AsEnumerable());
+                    : new RequestDataBundleResponseDto(new Uri(bundleResponse.Success.Uri), bundleResponse.Success.UUID.Select(Guid.Parse).ToList());
             }
             catch (InvalidProtocolBufferException e)
             {

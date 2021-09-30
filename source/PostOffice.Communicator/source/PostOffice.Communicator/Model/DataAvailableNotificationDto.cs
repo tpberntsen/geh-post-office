@@ -24,7 +24,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
     /// A guid uniquely identifying the data. This guid will be passed back
     /// to the sub-domain with the request for data to be generated.
     /// </param>
-    /// <param name="GlobalLocationNumber">
+    /// <param name="Recipient">
     /// A Global Location Number identifying the market operator.
     /// </param>
     /// <param name="MessageType">
@@ -48,8 +48,8 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
     /// </param>
     public sealed record DataAvailableNotificationDto(
         Guid Uuid,
-        GlobalLocationNumber GlobalLocationNumber,
-        MessageType MessageType,
+        GlobalLocationNumberDto Recipient,
+        MessageTypeDto MessageType,
         DomainOrigin Origin,
         bool SupportsBundling,
         int RelativeWeight);

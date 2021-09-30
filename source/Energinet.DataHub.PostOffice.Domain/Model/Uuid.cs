@@ -30,6 +30,11 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             _id = Guid.Parse(id);
         }
 
+        public Guid AsGuid()
+        {
+            return _id;
+        }
+
         public override string ToString()
         {
             return _id.ToString();

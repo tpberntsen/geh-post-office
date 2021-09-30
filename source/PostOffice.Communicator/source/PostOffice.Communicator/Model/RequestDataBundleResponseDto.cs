@@ -27,8 +27,8 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
         /// Creates a successful response to the bundle contents request.
         /// </summary>
         /// <param name="contentUri">The location of the bundle in Azure Blob Storage.</param>
-        /// <param name="dataAvailableNotificationIds"></param>
-        public RequestDataBundleResponseDto(Uri contentUri, IEnumerable<string> dataAvailableNotificationIds)
+        /// <param name="dataAvailableNotificationIds">A collection of guids identifying which data has been requested.</param>
+        public RequestDataBundleResponseDto(Uri contentUri, IEnumerable<Guid> dataAvailableNotificationIds)
         {
             DataAvailableNotificationIds = dataAvailableNotificationIds;
             ContentUri = contentUri;
@@ -39,8 +39,8 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
         /// Creates a failure response to the bundle contents request.
         /// </summary>
         /// <param name="responseError">The information about the error.</param>
-        /// <param name="dataAvailableNotificationIds"></param>
-        public RequestDataBundleResponseDto(DataBundleResponseError responseError, IEnumerable<string> dataAvailableNotificationIds)
+        /// <param name="dataAvailableNotificationIds">A collection of guids identifying which data has been requested.</param>
+        public RequestDataBundleResponseDto(DataBundleResponseErrorDto responseError, IEnumerable<Guid> dataAvailableNotificationIds)
         {
             DataAvailableNotificationIds = dataAvailableNotificationIds;
             ResponseError = responseError;
@@ -57,9 +57,9 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
         public bool IsErrorResponse { get; }
 
         /// <summary>
-        /// _
+        /// A collection of guids identifying which data has been requested.
         /// </summary>
-        public IEnumerable<string> DataAvailableNotificationIds { get; }
+        public IEnumerable<Guid> DataAvailableNotificationIds { get; }
 
         /// <summary>
         /// Points to a location of the bundle contents.
@@ -70,6 +70,6 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
         /// <summary>
         /// Error information. Is null, if the request succeeded.
         /// </summary>
-        public DataBundleResponseError? ResponseError { get; }
+        public DataBundleResponseErrorDto? ResponseError { get; }
     }
 }

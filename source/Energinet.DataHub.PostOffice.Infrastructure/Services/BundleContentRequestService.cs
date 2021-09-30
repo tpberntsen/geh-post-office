@@ -44,7 +44,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 
             var request = new DataBundleRequestDto(
                 bundle.BundleId.ToString(),
-                bundle.NotificationIds.Select(x => x.ToString()));
+                bundle.NotificationIds.Select(x => x.AsGuid()));
 
             // TODO: Fy!
             var response = await _dataBundleRequestSender.SendAsync(request, (DomainOrigin)bundle.Origin).ConfigureAwait(false);

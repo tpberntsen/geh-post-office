@@ -58,8 +58,8 @@ namespace PostOffice.Communicator.Tests.DataAvailable
 
             var dataAvailable = new DataAvailableNotificationDto(
                 Guid.Parse("F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E"),
-                new GlobalLocationNumber("fake_value"),
-                new MessageType("fake_value"),
+                new GlobalLocationNumberDto("fake_value"),
+                new MessageTypeDto("fake_value"),
                 DomainOrigin.TimeSeries,
                 true,
                 1);
