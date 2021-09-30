@@ -17,8 +17,8 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.PostOffice.Contracts;
 using Google.Protobuf;
+using GreenEnergyHub.PostOffice.Communicator.Contracts;
 
 namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
 {
@@ -86,11 +86,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
             {
                 const string pathToMockedContent = "https://localhost:8000/path/to/content";
 
-                var protobufMessage = new DatasetReply
+                var protobufMessage = new RequestBundleResponse()
                 {
-                    Success = new DatasetReply.Types.FileResource
+                    Success = new RequestBundleResponse.Types.FileResource()
                     {
-                        Uri = pathToMockedContent
+                        Uri = pathToMockedContent,
+                        UUID = { Guid.NewGuid().ToString(), Guid.NewGuid().ToString() }
                     }
                 };
 
