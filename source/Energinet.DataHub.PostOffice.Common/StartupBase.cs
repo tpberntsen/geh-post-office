@@ -19,6 +19,7 @@ using Energinet.DataHub.PostOffice.Common.Extensions;
 using Energinet.DataHub.PostOffice.Common.MediatR;
 using Energinet.DataHub.PostOffice.Common.SimpleInjector;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SimpleInjector;
@@ -44,20 +45,20 @@ namespace Energinet.DataHub.PostOffice.Common
         {
             SwitchToSimpleInjector(services);
 
-            // Configuration
-            services.AddDatabaseCosmosConfig();
-            services.AddServiceBusConfig();
-            services.AddCosmosClientBuilder(false);
-            services.AddServiceBus();
-
             // FluentValidation
             services.DiscoverValidation(new[] { typeof(ApplicationAssemblyReference).Assembly });
-
-            Configure(services);
-
             services.AddLogging();
             services.AddSimpleInjector(Container, x => x.DisposeContainerWithServiceProvider = !true);
 
+            // config
+            var config = services.BuildServiceProvider().GetService<IConfiguration>()!;
+            Container.RegisterSingleton(() => config);
+            Container.AddDatabaseCosmosConfig();
+            Container.AddServiceBusConfig();
+            Container.AddCosmosClientBuilder(false);
+            Container.AddServiceBus();
+
+            // services
             Container.AddRepositories();
             Container.AddDomainServices();
             Container.AddApplicationServices();
@@ -78,7 +79,6 @@ namespace Energinet.DataHub.PostOffice.Common
         }
 
         protected abstract void Configure(Container container);
-        protected abstract void Configure(IServiceCollection serviceCollection);
 
         private static void SwitchToSimpleInjector(IServiceCollection services)
         {

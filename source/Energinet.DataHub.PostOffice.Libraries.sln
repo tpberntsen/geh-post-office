@@ -1,5 +1,4 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Copyright 2020 Energinet DataHub A/S
 #
 # Licensed under the Apache License, Version 2.0 (the "License2");
@@ -14,8 +13,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Copyright 2020 Energinet DataHub A/S
-# Visual Studio Version 16
-# Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PostOffice.Communicator", "PostOffice.Communicator", "{D79C7D37-ADE1-42D3-9FED-1E5D784E6E7D}"
@@ -25,6 +22,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostOffice.Communicator", "PostOffice.Communicator\source\PostOffice.Communicator\PostOffice.Communicator.csproj", "{E9F64300-834B-4657-850F-BEF4CED5D180}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostOffice.Communicator.Tests", "PostOffice.Communicator.Tests\PostOffice.Communicator.Tests.csproj", "{20AD2920-0C12-4F83-A641-346B5196388D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PostOffice.Communicator.SimpleInjector", "PostOffice.Communicator.SimpleInjector", "{42755FFA-C4B2-4E8B-AED6-354CE59DFCF6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{EA213317-5963-4C0D-8DD4-698D53C29EC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostOffice.Communicator.SimpleInjector", "PostOffice.Communicator.SimpleInjector\source\PostOffice.Communicator.SimpleInjector\PostOffice.Communicator.SimpleInjector.csproj", "{CC5EB98C-635A-465E-85F7-7925BB365AF5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,6 +63,18 @@ Global
 		{20AD2920-0C12-4F83-A641-346B5196388D}.Release|x64.Build.0 = Release|Any CPU
 		{20AD2920-0C12-4F83-A641-346B5196388D}.Release|x86.ActiveCfg = Release|Any CPU
 		{20AD2920-0C12-4F83-A641-346B5196388D}.Release|x86.Build.0 = Release|Any CPU
+		{CC5EB98C-635A-465E-85F7-7925BB365AF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC5EB98C-635A-465E-85F7-7925BB365AF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC5EB98C-635A-465E-85F7-7925BB365AF5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CC5EB98C-635A-465E-85F7-7925BB365AF5}.Debug|x64.Build.0 = Debug|Any CPU
+		{CC5EB98C-635A-465E-85F7-7925BB365AF5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CC5EB98C-635A-465E-85F7-7925BB365AF5}.Debug|x86.Build.0 = Debug|Any CPU
+		{CC5EB98C-635A-465E-85F7-7925BB365AF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC5EB98C-635A-465E-85F7-7925BB365AF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC5EB98C-635A-465E-85F7-7925BB365AF5}.Release|x64.ActiveCfg = Release|Any CPU
+		{CC5EB98C-635A-465E-85F7-7925BB365AF5}.Release|x64.Build.0 = Release|Any CPU
+		{CC5EB98C-635A-465E-85F7-7925BB365AF5}.Release|x86.ActiveCfg = Release|Any CPU
+		{CC5EB98C-635A-465E-85F7-7925BB365AF5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +82,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{2BF2F6B8-E02B-4D7F-99BC-D28B3B3643A9} = {D79C7D37-ADE1-42D3-9FED-1E5D784E6E7D}
 		{E9F64300-834B-4657-850F-BEF4CED5D180} = {2BF2F6B8-E02B-4D7F-99BC-D28B3B3643A9}
+		{EA213317-5963-4C0D-8DD4-698D53C29EC2} = {42755FFA-C4B2-4E8B-AED6-354CE59DFCF6}
+		{CC5EB98C-635A-465E-85F7-7925BB365AF5} = {EA213317-5963-4C0D-8DD4-698D53C29EC2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AFC1A6A3-7235-4DB1-A2E4-35B72C1FEA28}

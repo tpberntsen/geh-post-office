@@ -19,8 +19,8 @@ using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using GreenEnergyHub.PostOffice.Communicator.Factories;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 using SimpleInjector;
 using Xunit;
@@ -37,6 +37,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
         {
             // Arrange
             var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton((IConfiguration)new ConfigurationBuilder().Build());
             await using var target = new TestOfStartupBase();
 
             // Act
@@ -63,68 +64,24 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
             configureContainerMock.Verify(x => x(), Times.Once);
         }
 
-        [Fact]
-        public async Task Startup_ConfigureServices_ShouldCallConfigureServiceCollection()
-        {
-            // Arrange
-            var serviceCollection = new ServiceCollection();
-            var configureServiceCollectionMock = new Mock<Action>();
-            await using var target = new TestOfStartupBase { ConfigureServiceCollection = configureServiceCollectionMock.Object };
-
-            // Act
-            target.ConfigureServices(serviceCollection);
-
-            // Assert
-            configureServiceCollectionMock.Verify(x => x(), Times.Once);
-        }
-
         private sealed class TestOfStartupBase : StartupBase
         {
             public Action? ConfigureContainer { get; init; }
-            public Action? ConfigureServiceCollection { get; init; }
 
             protected override void Configure(Container container)
             {
+                AddMockConfiguration(container);
                 ConfigureContainer?.Invoke();
             }
 
-            protected override void Configure(IServiceCollection serviceCollection)
+            private static void AddMockConfiguration(Container container)
             {
-                AddMockConfiguration(serviceCollection);
-                ConfigureServiceCollection?.Invoke();
-            }
-
-            private static void AddMockConfiguration(IServiceCollection serviceCollection)
-            {
-                serviceCollection.Replace(
-                   new ServiceDescriptor(
-                       typeof(ServiceBusClient),
-                       _ => new MockedServiceBusClient(),
-                       ServiceLifetime.Singleton));
-
-                serviceCollection.Replace(
-                    new ServiceDescriptor(
-                        typeof(CosmosClient),
-                        _ => new MockedCosmosClient(),
-                        ServiceLifetime.Singleton));
-
-                serviceCollection.Replace(
-                    new ServiceDescriptor(
-                        typeof(ServiceBusConfig),
-                        _ => new ServiceBusConfig("fake_value", "fake_value"),
-                        ServiceLifetime.Singleton));
-
-                serviceCollection.Replace(
-                    new ServiceDescriptor(
-                        typeof(CosmosDatabaseConfig),
-                        _ => new CosmosDatabaseConfig("fake_value"),
-                        ServiceLifetime.Singleton));
-
-                serviceCollection.Replace(
-                    new ServiceDescriptor(
-                        typeof(IServiceBusClientFactory),
-                        _ => new MockedServiceBusClientFactory(),
-                        ServiceLifetime.Singleton));
+                container.Options.AllowOverridingRegistrations = true;
+                container.RegisterSingleton<ServiceBusClient>(() => new MockedServiceBusClient());
+                container.RegisterSingleton<CosmosClient>(() => new MockedCosmosClient());
+                container.RegisterSingleton(() => new ServiceBusConfig("fake_value", "fake_value"));
+                container.RegisterSingleton(() => new CosmosDatabaseConfig("fake_value"));
+                container.RegisterSingleton<IServiceBusClientFactory>(() => new MockedServiceBusClientFactory());
             }
         }
     }
