@@ -22,6 +22,8 @@ namespace GreenEnergyHub.PostOffice.Communicator.Model
         Unknown = 0,
         Charges = 1,
         TimeSeries = 2,
-        Aggregations = 3
+        Aggregations = 3,
+        MarketRoles = 4,
+        MeteringPoints = 5
     }
 }

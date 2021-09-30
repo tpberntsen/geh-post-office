@@ -68,6 +68,8 @@ namespace PostOffice.Communicator.Tests.Peek
         [InlineData(DomainOrigin.TimeSeries, "sbq-TimeSeries-reply")]
         [InlineData(DomainOrigin.Charges, "sbq-Charges-reply")]
         [InlineData(DomainOrigin.Aggregations, "sbq-Aggregations-reply")]
+        [InlineData(DomainOrigin.MarketRoles, "sbq-MarketRoles-reply")]
+        [InlineData(DomainOrigin.MeteringPoints, "sbq-MeteringPoints-reply")]
         public async Task SendAsync_ValidInput_SendsMessage(DomainOrigin domainOrigin, string queueName)
         {
             // Arrange
