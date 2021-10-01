@@ -18,7 +18,6 @@ using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using GreenEnergyHub.PostOffice.Communicator.Model;
-using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain
@@ -29,10 +28,6 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain
         {
             container.Register<IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand>, DataAvailableMapper>(Lifestyle.Scoped);
             container.Register<DataAvailableInbox>(Lifestyle.Scoped);
-        }
-
-        protected override void Configure(IServiceCollection serviceCollection)
-        {
         }
     }
 }

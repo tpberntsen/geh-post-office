@@ -27,10 +27,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 throw new ArgumentNullException(nameof(obj));
 
             var dataAvailableCommand = new DataAvailableNotificationCommand(
-                obj.Uuid,
-                obj.Recipient,
-                obj.MessageType,
-                obj.Origin,
+                obj.Uuid.ToString(),
+                obj.Recipient.Value,
+                obj.MessageType.Value,
+                obj.Origin.ToString(),
                 obj.SupportsBundling,
                 obj.RelativeWeight);
 

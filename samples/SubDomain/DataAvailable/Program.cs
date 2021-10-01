@@ -32,13 +32,14 @@ namespace DataAvailableNotification
             var origin = configuration["origin"];
             var messageType = configuration["type"];
             var interval = int.TryParse(configuration["interval"], out var intervalParsed) ? intervalParsed : 1;
+            var domainOrigin = origin != null ? Enum.Parse<DomainOrigin>(origin, true) : DomainOrigin.TimeSeries;
 
             var serviceBusClientFactory = new ServiceBusClientFactory(connectionString);
             await using var dataAvailableNotificationSender = new DataAvailableNotificationSender(serviceBusClientFactory);
 
             for (var i = 0; i < interval; i++)
             {
-                var msgDto = CreateDto(origin ?? SubDomainOrigin.TimeSeries, messageType, recipient);
+                var msgDto = CreateDto(domainOrigin, messageType, recipient);
 
                 await dataAvailableNotificationSender.SendAsync(msgDto).ConfigureAwait(false);
 
@@ -49,7 +50,7 @@ namespace DataAvailableNotification
             Console.WriteLine($"A batch of messages has been published to the queue.");
         }
 
-        private static DataAvailableNotificationDto CreateDto(string origin, string messageType, string recipient)
+        private static DataAvailableNotificationDto CreateDto(DomainOrigin origin, string messageType, string recipient)
         {
             var msgDto = DataAvailableNotificationFactory.CreateOriginDto(origin, messageType, recipient);
             return msgDto;

@@ -33,7 +33,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 
         [Function("Dequeue")]
         public Task<HttpResponseData> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Function, "delete")]
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post")]
             HttpRequestData request)
         {
             return request.ProcessAsync(async () =>

@@ -13,6 +13,7 @@
 // // limitations under the License.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Google.Protobuf;
@@ -40,10 +41,10 @@ namespace GreenEnergyHub.PostOffice.Communicator.Dequeue
             _serviceBusClient ??= _serviceBusClientFactory.Create();
             await using var sender = _serviceBusClient.CreateSender($"sbq-{domainOrigin}-dequeue");
 
-            var contract = new DequeueContract()
+            var contract = new DequeueContract
             {
-                DataAvailableIds = { dequeueNotificationDto.DataAvailableNotificationIds },
-                Recipient = dequeueNotificationDto.GlobalLocationNumber.Value
+                DataAvailableIds = { dequeueNotificationDto.DataAvailableNotificationIds.Select(x => x.ToString()) },
+                Recipient = dequeueNotificationDto.Recipient.Value
             };
 
             var dequeueMessage = new ServiceBusMessage(new BinaryData(contract.ToByteArray()));

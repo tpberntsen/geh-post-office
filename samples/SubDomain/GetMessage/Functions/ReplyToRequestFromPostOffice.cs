@@ -75,11 +75,11 @@ namespace GetMessage.Functions
 
         private async Task<RequestDataBundleResponseDto> CreateResponseAsync(DataBundleRequestDto requestDto)
         {
-            if (requestDto.DataAvailableNotificationIds.Contains("0ae6c542-385f-4d89-bfba-d6c451915a1b"))
+            if (requestDto.DataAvailableNotificationIds.Contains(new Guid("0ae6c542-385f-4d89-bfba-d6c451915a1b")))
                 return CreateFailedResponse(requestDto, DataBundleResponseErrorReason.DatasetNotFound);
-            else if (requestDto.DataAvailableNotificationIds.Contains("3cfce64e-aa1d-4003-924d-69c8739e73a6"))
+            else if (requestDto.DataAvailableNotificationIds.Contains(new Guid("3cfce64e-aa1d-4003-924d-69c8739e73a6")))
                 return CreateFailedResponse(requestDto, DataBundleResponseErrorReason.DatasetNotAvailable);
-            else if (requestDto.DataAvailableNotificationIds.Contains("befdcf5a-f58d-493b-9a17-e5231609c8f6"))
+            else if (requestDto.DataAvailableNotificationIds.Contains(new Guid("befdcf5a-f58d-493b-9a17-e5231609c8f6")))
                 return CreateFailedResponse(requestDto, DataBundleResponseErrorReason.InternalError);
 
             return await CreateSuccessResponseAsync(requestDto).ConfigureAwait(false);
@@ -90,11 +90,11 @@ namespace GetMessage.Functions
             DataBundleResponseErrorReason failedReason)
         {
             var responseDto = new RequestDataBundleResponseDto(
-                new DataBundleResponseError()
-            {
-                Reason = failedReason,
-                FailureDescription = failedReason.ToString()
-            },
+                new DataBundleResponseErrorDto
+                {
+                    Reason = failedReason,
+                    FailureDescription = failedReason.ToString()
+                },
                 requestDto.DataAvailableNotificationIds);
 
             return responseDto;

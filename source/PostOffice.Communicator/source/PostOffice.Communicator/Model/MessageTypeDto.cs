@@ -14,9 +14,5 @@
 
 namespace GreenEnergyHub.PostOffice.Communicator.Model
 {
-    public class DataBundleResponseError
-    {
-        public DataBundleResponseErrorReason Reason { get; set; }
-        public string? FailureDescription { get; set; }
-    }
+    public record MessageTypeDto(string Value);
 }

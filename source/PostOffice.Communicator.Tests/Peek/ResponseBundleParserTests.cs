@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Exceptions;
@@ -46,7 +45,7 @@ namespace PostOffice.Communicator.Tests.Peek
 
             // assert
             Assert.NotNull(actual);
-            Assert.Equal(new[] { "B34E47BC-21EA-40C5-AE27-A5900F42D7C6" }, actual.DataAvailableNotificationIds);
+            Assert.Equal(new[] { new Guid("B34E47BC-21EA-40C5-AE27-A5900F42D7C6") }, actual.DataAvailableNotificationIds);
         }
 
         [Fact]
@@ -87,7 +86,7 @@ namespace PostOffice.Communicator.Tests.Peek
             var target = new ResponseBundleParser();
             var valid = new RequestDataBundleResponseDto(
                 new Uri("https://test.test.dk"),
-                new List<string>() { "1", "2", "3" });
+                new[] { Guid.NewGuid(), Guid.NewGuid() });
 
             // act
             var actual = target.Parse(valid);
@@ -102,12 +101,12 @@ namespace PostOffice.Communicator.Tests.Peek
             // arrange
             var target = new ResponseBundleParser();
             var valid = new RequestDataBundleResponseDto(
-                new DataBundleResponseError
+                new DataBundleResponseErrorDto
                 {
                     FailureDescription = "error",
                     Reason = DataBundleResponseErrorReason.DatasetNotAvailable
                 },
-                new List<string> { "1", "2", "3" });
+                new[] { Guid.NewGuid(), Guid.NewGuid() });
 
             // act
             var actual = target.Parse(valid);

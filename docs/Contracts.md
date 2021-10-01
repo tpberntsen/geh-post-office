@@ -13,8 +13,8 @@ All other users should skip the first section and only read section two where Pr
     - [DequeueNotificationDto](#.DequeueNotificationDto)
 - [Other users](#.OtherUsers)
     - [DataAvailableNotificationContract.proto](#.DataAvailableNotificationContract.proto)
-    - [RequestBundleRequest.proto](#.RequestBundleRequest.proto)
-    - [RequestBundleResponse.proto](#.RequestBundleResponse.proto)
+    - [DataBundleRequestContract.proto](#.DataBundleRequestContract.proto)
+    - [DataBundleResponseContract.proto](#.DataBundleResponseContract.proto)
     - [DequeueContract.proto](#.DequeueContract.proto)
 
 <a name=".NETusers"></a>
@@ -99,9 +99,9 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 
 <br>
     
-<a name=".RequestBundleRequest.proto"></a>
+<a name=".DataBundleRequestContract.proto"></a>
 
-### RequestBundleRequest.proto
+### DataBundleRequestContract.proto
 
 | Field | Type | Label | Description | Limits |
 | ----- | ---- | ----- | ----------- | ------ |
@@ -110,13 +110,13 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
     
 <br>
     
-<a name=".RequestBundleResponse.proto"></a>
+<a name=".DataBundleResponseContract.proto"></a>
 
-### RequestBundleResponse.proto
+### DataBundleResponseContract.proto
 
-RequestBundleResponse consists of four components. Below are five tables which describe each component in the message. The first component is the RequestBundleResponse itself. This component contains the four components in the inner layer of RequestBundleResponse.
+DataBundleResponseContract consists of four components. Below are five tables which describe each component in the message. The first component is the DataBundleResponseContract itself. This component contains the four components in the inner layer of DataBundleResponseContract.
 
-<b>RequestBundleResponse</b>
+<b>DataBundleResponseContract</b>
     
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |

@@ -70,7 +70,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
                 Array.Empty<Uuid>());
 
             var contentUri = new Uri("https://test.test.dk");
-            var response = new RequestDataBundleResponseDto(contentUri, Array.Empty<string>());
+            var response = new RequestDataBundleResponseDto(contentUri, Array.Empty<Guid>());
 
             dataBundleRequestSenderMock
                 .Setup(x => x.SendAsync(It.IsAny<DataBundleRequestDto>(), GreenEnergyHub.PostOffice.Communicator.Model.DomainOrigin.TimeSeries))

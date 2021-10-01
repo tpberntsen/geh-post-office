@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Linq;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using GreenEnergyHub.PostOffice.Communicator.Exceptions;
@@ -27,7 +28,12 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            var message = new RequestBundleRequest { IdempotencyId = request.IdempotencyId, UUID = { request.DataAvailableNotificationIds } };
+            var message = new RequestBundleRequest
+            {
+                IdempotencyId = request.IdempotencyId,
+                UUID = { request.DataAvailableNotificationIds.Select(x => x.ToString()) }
+            };
+
             return message.ToByteArray();
         }
 
@@ -36,7 +42,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             try
             {
                 var bundleResponse = RequestBundleRequest.Parser.ParseFrom(dataBundleRequestContract);
-                return new DataBundleRequestDto(bundleResponse.IdempotencyId, bundleResponse.UUID);
+                return new DataBundleRequestDto(bundleResponse.IdempotencyId, bundleResponse.UUID.Select(Guid.Parse).ToList());
             }
             catch (InvalidProtocolBufferException e)
             {

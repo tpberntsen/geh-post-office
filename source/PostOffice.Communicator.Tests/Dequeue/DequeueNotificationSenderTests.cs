@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using GreenEnergyHub.PostOffice.Communicator.Dequeue;
@@ -65,8 +64,8 @@ namespace PostOffice.Communicator.Tests.Dequeue
             await using var target = new DequeueNotificationSender(serviceBusClientFactory.Object);
 
             var dataAvailable = new DequeueNotificationDto(
-                new List<string> { "7B492FFB-E9AD-442B-AA4E-972D59AD8C11", "A15AFD1F-A731-4BB5-A52D-F8A8841BBD49" },
-                new GlobalLocationNumber("fake_value"));
+                new[] { Guid.NewGuid(), Guid.NewGuid() },
+                new GlobalLocationNumberDto("fake_value"));
 
             // Act
             await target.SendAsync(dataAvailable, domainOrigin).ConfigureAwait(false);

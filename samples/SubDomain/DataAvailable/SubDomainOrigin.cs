@@ -19,7 +19,7 @@ namespace DataAvailableNotification
         public static string Charges => "charges";
         public static string TimeSeries => "timeseries";
         public static string Aggregations => "aggregations";
-        public static string MeteringPoints => "merteringpoints";
+        public static string MeteringPoints => "meteringpoints";
         public static string MarketRoles => "marketroles";
     }
 }

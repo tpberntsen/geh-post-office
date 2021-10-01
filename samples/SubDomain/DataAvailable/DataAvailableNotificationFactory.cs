@@ -19,28 +19,25 @@ namespace DataAvailableNotification
 {
     public static class DataAvailableNotificationFactory
     {
-        public static DataAvailableNotificationDto CreateDto(string origin, string messageType, string recipient)
+        public static DataAvailableNotificationDto CreateDto(DomainOrigin origin, string messageType, string recipient)
         {
-            origin ??= SubDomainOrigin.TimeSeries;
-
             return new DataAvailableNotificationDto(
-                Guid.NewGuid().ToString(),
-                string.IsNullOrWhiteSpace(recipient) ? Guid.NewGuid().ToString() : recipient,
-                string.IsNullOrWhiteSpace(messageType) ? "timeseries" : messageType,
-                origin ?? SubDomainOrigin.TimeSeries,
+                Guid.NewGuid(),
+                new GlobalLocationNumberDto(string.IsNullOrWhiteSpace(recipient) ? Guid.NewGuid().ToString() : recipient),
+                new MessageTypeDto(string.IsNullOrWhiteSpace(messageType) ? "timeseries" : messageType),
+                origin,
                 false,
                 1);
         }
 
         public static DataAvailableNotificationDto CreateTimeSeriesDto(string messageType, string recipient)
         {
-            var dto = CreateDto(SubDomainOrigin.TimeSeries, messageType, recipient);
+            var dto = CreateDto(DomainOrigin.TimeSeries, messageType, recipient);
             return dto;
         }
 
-        public static DataAvailableNotificationDto CreateOriginDto(string origin, string messageType, string recipient)
+        public static DataAvailableNotificationDto CreateOriginDto(DomainOrigin origin, string messageType, string recipient)
         {
-            if (origin == null) throw new ArgumentNullException(nameof(origin));
             var dto = CreateDto(origin, messageType, recipient);
             return dto;
         }
