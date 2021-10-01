@@ -15,6 +15,7 @@
 using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.IntegrationTests.Common;
 using FluentValidation;
 using MediatR;
 using Xunit;
@@ -57,7 +58,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
         public async Task DataAvailable_WithData_CanBePeekedBack()
         {
             // Arrange
-            var recipientGln = Guid.NewGuid().ToString();
+            var recipientGln = new MockedGln();
 
             await using var host = await MarketOperatorIntegrationTestHost
                 .InitializeAsync()

@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
-using FluentAssertions;
+using Energinet.DataHub.PostOffice.IntegrationTests.Common;
 using MediatR;
 using Xunit;
 using Xunit.Categories;
@@ -43,11 +43,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
 
             // Act
             var result = await mediator.Send(dataAvailableCommand, CancellationToken.None).ConfigureAwait(false);
-            var dataAvailablePeekResult = await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(new MarketOperator(new GlobalLocationNumber(dataAvailableCommand.Recipient))).ConfigureAwait(false);
+            var dataAvailablePeekResult = await dataAvailableNotificationRepository
+                .GetNextUnacknowledgedAsync(new MarketOperator(new GlobalLocationNumber(dataAvailableCommand.Recipient)))
+                .ConfigureAwait(false);
 
             // Assert
-            dataAvailablePeekResult.Should().NotBeNull();
-            dataAvailablePeekResult?.Recipient.Gln.Value.Should().Be(dataAvailableCommand.Recipient);
+            Assert.NotNull(result);
+            Assert.NotNull(dataAvailablePeekResult);
+            Assert.Equal(dataAvailableCommand.Recipient, dataAvailablePeekResult!.Recipient.Gln.Value);
         }
 
         [Fact]
@@ -65,11 +68,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
 
             // Act
             var result = await mediator.Send(dataAvailableCommand, CancellationToken.None).ConfigureAwait(false);
-            var dataAvailablePeekResult = await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipient, contentType, new Weight(1)).ConfigureAwait(false);
+            var dataAvailablePeekResult = await dataAvailableNotificationRepository
+                .GetNextUnacknowledgedAsync(recipient, contentType, new Weight(1))
+                .ConfigureAwait(false);
 
             // Assert
-            dataAvailablePeekResult.Should().NotBeNullOrEmpty();
-            dataAvailablePeekResult?.Should().Contain(e => contentType == e.ContentType);
+            Assert.NotNull(result);
+            Assert.NotNull(dataAvailablePeekResult);
+            Assert.Contains(dataAvailablePeekResult, x => x.ContentType == contentType);
         }
 
         [Fact]
@@ -86,21 +92,26 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
 
             // Act
             var result = await mediator.Send(dataAvailableCommand, CancellationToken.None).ConfigureAwait(false);
-            var dataAvailablePeekResult = await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(new MarketOperator(new GlobalLocationNumber(dataAvailableCommand.Recipient))).ConfigureAwait(false);
+            var dataAvailablePeekResult = await dataAvailableNotificationRepository
+                .GetNextUnacknowledgedAsync(new MarketOperator(new GlobalLocationNumber(dataAvailableCommand.Recipient)))
+                .ConfigureAwait(false);
             await dataAvailableNotificationRepository.AcknowledgeAsync(dequeueUuids).ConfigureAwait(false);
-            var dataAvailablePeekDequeuedResult = await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(new MarketOperator(new GlobalLocationNumber(dataAvailableCommand.Recipient))).ConfigureAwait(false);
+            var dataAvailablePeekDequeuedResult = await dataAvailableNotificationRepository
+                .GetNextUnacknowledgedAsync(new MarketOperator(new GlobalLocationNumber(dataAvailableCommand.Recipient)))
+                .ConfigureAwait(false);
 
             // Assert
-            dataAvailablePeekResult.Should().NotBeNull();
-            dataAvailablePeekResult?.Recipient.Gln.Value.Should().Be(dataAvailableCommand.Recipient);
-            dataAvailablePeekDequeuedResult.Should().BeNull();
+            Assert.NotNull(result);
+            Assert.NotNull(dataAvailablePeekResult);
+            Assert.Equal(dataAvailableCommand.Recipient, dataAvailablePeekResult!.Recipient.Gln.Value);
+            Assert.Null(dataAvailablePeekDequeuedResult);
         }
 
         private static DataAvailableNotificationCommand GetDataAvailableCommand()
         {
-            return new(
+            return new DataAvailableNotificationCommand(
                 Guid.NewGuid().ToString(),
-                Guid.NewGuid().ToString(),
+                new MockedGln(),
                 "timeseries",
                 DomainOrigin.Charges.ToString(),
                 false,
