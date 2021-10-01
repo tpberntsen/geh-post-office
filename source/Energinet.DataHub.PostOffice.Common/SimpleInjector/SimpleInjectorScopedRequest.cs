@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
@@ -31,13 +30,16 @@ namespace Energinet.DataHub.PostOffice.Common.SimpleInjector
             _container = container;
         }
 
-        public async Task Invoke(FunctionContext context, [NotNull] FunctionExecutionDelegate next)
+        public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+
+            if (next == null)
+                throw new ArgumentNullException(nameof(next));
 
             await using var scope = AsyncScopedLifestyle.BeginScope(_container);
-            if (scope.Container == null) throw new InvalidOperationException("Scope doesn't contain a container.");
-            context.InstanceServices = new SimpleInjectorServiceProviderAdapter(scope.Container);
+            context.InstanceServices = new SimpleInjectorServiceProviderAdapter(scope.Container!);
             await next(context).ConfigureAwait(false);
         }
     }

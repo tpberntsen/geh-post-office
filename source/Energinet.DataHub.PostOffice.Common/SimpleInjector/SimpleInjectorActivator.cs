@@ -27,9 +27,11 @@ namespace Energinet.DataHub.PostOffice.Common.SimpleInjector
             _container = container;
         }
 
-        public object? CreateInstance(Type instanceType, FunctionContext context)
+        public object CreateInstance(Type instanceType, FunctionContext context)
         {
-            if (instanceType == null) throw new ArgumentNullException(nameof(instanceType));
+            if (instanceType == null)
+                throw new ArgumentNullException(nameof(instanceType));
+
             return _container.GetInstance(instanceType);
         }
     }

@@ -14,7 +14,6 @@
 
 using System;
 using Energinet.DataHub.PostOffice.Common.SimpleInjector;
-using Moq;
 using SimpleInjector;
 using Xunit;
 using Xunit.Categories;

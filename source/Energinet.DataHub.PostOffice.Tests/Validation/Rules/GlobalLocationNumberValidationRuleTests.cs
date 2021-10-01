@@ -38,7 +38,51 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation.Rules
         }
 
         [Theory]
+        [InlineData("790000555550")]
+        [InlineData("05790000555550")]
+        public void Validate_InvalidLengthGln_ReturnsFalse(string value)
+        {
+            // Arrange
+            var rule = new GlobalLocationNumberValidationRuleTester();
+
+            // Act
+            var result = rule.IsValid(value);
+
+            // Assert
+            Assert.False(result);
+        }
+
+        [Theory]
+        [InlineData("579000A555550")]
+        public void Validate_InvalidNaNGln_ReturnsFalse(string value)
+        {
+            // Arrange
+            var rule = new GlobalLocationNumberValidationRuleTester();
+
+            // Act
+            var result = rule.IsValid(value);
+
+            // Assert
+            Assert.False(result);
+        }
+
+        [Theory]
+        [InlineData("5790000555551")]
+        public void Validate_InvalidChecksumGln_ReturnsFalse(string value)
+        {
+            // Arrange
+            var rule = new GlobalLocationNumberValidationRuleTester();
+
+            // Act
+            var result = rule.IsValid(value);
+
+            // Assert
+            Assert.False(result);
+        }
+
+        [Theory]
         [InlineData("5790000555550")]
+        [InlineData("6790000555559")]
         public void Validate_ValidGln_ReturnsTrue(string value)
         {
             // Arrange
