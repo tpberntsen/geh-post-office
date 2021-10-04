@@ -67,7 +67,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
         public async Task Validate_Recipient_ValidatesProperty(string value, bool isValid)
         {
             // Arrange
-            const string propertyName = nameof(DequeueCommand.Recipient);
+            const string propertyName = nameof(DequeueCommand.MarketOperator);
 
             var target = new DequeueCommandRuleSet();
             var command = new DequeueCommand(

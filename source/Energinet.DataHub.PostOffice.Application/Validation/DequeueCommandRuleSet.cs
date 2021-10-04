@@ -21,7 +21,7 @@ namespace Energinet.DataHub.PostOffice.Application.Validation
     {
         public DequeueCommandRuleSet()
         {
-            RuleFor(command => command.Recipient)
+            RuleFor(command => command.MarketOperator)
                 .NotEmpty()
                 .SetValidator(new GlobalLocationNumberValidationRule());
 

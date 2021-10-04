@@ -31,12 +31,12 @@ namespace PostOffice.Communicator.Tests.Peek
         {
             // arrange
             var target = new ResponseBundleParser();
-            var validBytes = new RequestBundleResponse
+            var validBytes = new DataBundleResponseContract
             {
-                Success = new RequestBundleResponse.Types.FileResource
+                Success = new DataBundleResponseContract.Types.FileResource
                 {
-                    Uri = "http://localhost",
-                    UUID = { new[] { "B34E47BC-21EA-40C5-AE27-A5900F42D7C6" } }
+                    ContentUri = "http://localhost",
+                    DataAvailableNotificationIds = { new[] { "B34E47BC-21EA-40C5-AE27-A5900F42D7C6" } }
                 }
             }.ToByteArray();
 
@@ -53,11 +53,11 @@ namespace PostOffice.Communicator.Tests.Peek
         {
             // arrange
             var target = new ResponseBundleParser();
-            var validBytes = new RequestBundleResponse
+            var validBytes = new DataBundleResponseContract
             {
-                Failure = new RequestBundleResponse.Types.RequestFailure
+                Failure = new DataBundleResponseContract.Types.RequestFailure
                 {
-                    Reason = RequestBundleResponse.Types.RequestFailure.Types.Reason.InternalError
+                    Reason = DataBundleResponseContract.Types.RequestFailure.Types.Reason.InternalError
                 }
             }.ToByteArray();
 

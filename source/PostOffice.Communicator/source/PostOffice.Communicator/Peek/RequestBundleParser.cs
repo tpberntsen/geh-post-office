@@ -28,12 +28,11 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            var message = new RequestBundleRequest
+            var message = new DataBundleRequestContract
             {
                 IdempotencyId = request.IdempotencyId,
-                UUID = { request.DataAvailableNotificationIds.Select(x => x.ToString()) }
+                DataAvailableNotificationIds = { request.DataAvailableNotificationIds.Select(x => x.ToString()) }
             };
-
             return message.ToByteArray();
         }
 
@@ -41,8 +40,8 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
         {
             try
             {
-                var bundleResponse = RequestBundleRequest.Parser.ParseFrom(dataBundleRequestContract);
-                return new DataBundleRequestDto(bundleResponse.IdempotencyId, bundleResponse.UUID.Select(Guid.Parse).ToList());
+                var bundleResponse = DataBundleRequestContract.Parser.ParseFrom(dataBundleRequestContract);
+                return new DataBundleRequestDto(bundleResponse.IdempotencyId, bundleResponse.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
             }
             catch (InvalidProtocolBufferException e)
             {

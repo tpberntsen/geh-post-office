@@ -86,12 +86,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
             {
                 const string pathToMockedContent = "https://localhost:8000/path/to/content";
 
-                var protobufMessage = new RequestBundleResponse()
+                var protobufMessage = new DataBundleResponseContract()
                 {
-                    Success = new RequestBundleResponse.Types.FileResource()
+                    Success = new DataBundleResponseContract.Types.FileResource
                     {
-                        Uri = pathToMockedContent,
-                        UUID = { Guid.NewGuid().ToString(), Guid.NewGuid().ToString() }
+                        ContentUri = pathToMockedContent,
+                        DataAvailableNotificationIds = { Guid.NewGuid().ToString(), Guid.NewGuid().ToString() }
                     }
                 };
 

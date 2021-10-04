@@ -19,9 +19,9 @@ option csharp_namespace = "GreenEnergyHub.PostOffice.Communicator.Contracts";
 
 message DataAvailableNotificationContract {
     string UUID = 1; // Unique dataset identification
-    string recipient = 2; // Dataset recipient
+    string recipient = 2; // Global location number to identify market operator to receive dataset
     string messageType = 3; // Dataset message type
     string origin = 4; // Identification for where the dataset can be queried
-    bool supportsBundling = 5; // Is the message capable of being bundled with similar messages
+    bool supportsBundling = 5; // Flag to indicate if message is capable of being bundled with similar messages
     int32 relativeWeight = 6; // The relative weight of the dataset
 }

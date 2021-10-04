@@ -17,7 +17,7 @@ syntax = "proto3";
 
 option csharp_namespace = "GreenEnergyHub.PostOffice.Communicator.Contracts";
 
-message RequestBundleResponse {
+message DataBundleResponseContract {
 
   oneof Reply {
     FileResource Success = 1;
@@ -28,15 +28,15 @@ message RequestBundleResponse {
    * Identifies a file resource and the individual dataset included with the file
    */
   message FileResource {
-    repeated string UUID = 1; // All the datasets in the reply.
-    string uri = 2; // URI pointing to where the file can be retrieved
+    repeated string dataAvailableNotificationIds = 1; // Requested dataset identifications
+    string contentUri = 2; // URI pointing to where the file can be retrieved
   }
 
   /**
    * A reply on a failed request
    */
   message RequestFailure {
-    repeated string UUID = 1; // Dataset identifications that were requested
+    repeated string dataAvailableNotificationIds = 1; // Requested dataset identifications
     Reason reason = 2; // Failure reason
     string failureDescription = 3; // Description of the failure
 

@@ -47,7 +47,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
             var (isDequeued, dequeuedBundle) = await _marketOperatorDataDomainService
                 .TryAcknowledgeAsync(
-                    new MarketOperator(new GlobalLocationNumber(request.Recipient)),
+                    new MarketOperator(new GlobalLocationNumber(request.MarketOperator)),
                     new Uuid(request.BundleUuid))
                 .ConfigureAwait(false);
 
@@ -58,7 +58,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 {
                     var dequeueNotificationDto = new DequeueNotificationDto(
                         dequeuedBundle.NotificationIds.Select(x => x.AsGuid()).ToList(),
-                        new GlobalLocationNumberDto(request.Recipient));
+                        new GlobalLocationNumberDto(request.MarketOperator));
 
                     await _dequeueNotificationSender
                         .SendAsync(dequeueNotificationDto, (DomainOrigin)dequeuedBundle.Origin)

@@ -29,10 +29,10 @@ namespace PostOffice.Communicator.Tests.Peek
         {
             // arrange
             var target = new RequestBundleParser();
-            var validBytes = new RequestBundleRequest
+            var validBytes = new DataBundleRequestContract
             {
                 IdempotencyId = "06FD1AB3-D650-45BC-860E-EE598A3623CA",
-                UUID = { "1360036D-2AFB-4021-846E-2C3FF5AD8DBD" }
+                DataAvailableNotificationIds = { "1360036D-2AFB-4021-846E-2C3FF5AD8DBD" }
             }.ToByteArray();
 
             // act
