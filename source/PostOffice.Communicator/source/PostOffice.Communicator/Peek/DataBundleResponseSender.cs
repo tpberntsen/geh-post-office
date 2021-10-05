@@ -24,20 +24,20 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
     {
         private readonly IResponseBundleParser _responseBundleParser;
         private readonly IServiceBusClientFactory _serviceBusClientFactory;
-        private readonly string _replyQueue;
         private ServiceBusClient? _serviceBusClient;
 
         public DataBundleResponseSender(
             IResponseBundleParser responseBundleParser,
-            IServiceBusClientFactory serviceBusClientFactory,
-            DomainOrigin domainOrigin)
+            IServiceBusClientFactory serviceBusClientFactory)
         {
             _responseBundleParser = responseBundleParser;
             _serviceBusClientFactory = serviceBusClientFactory;
-            _replyQueue = $"sbq-{domainOrigin}-reply";
         }
 
-        public async Task SendAsync(RequestDataBundleResponseDto requestDataBundleResponseDto, string sessionId)
+        public async Task SendAsync(
+            RequestDataBundleResponseDto requestDataBundleResponseDto,
+            string sessionId,
+            DomainOrigin domainOrigin)
         {
             if (requestDataBundleResponseDto == null)
                 throw new ArgumentNullException(nameof(requestDataBundleResponseDto));
@@ -53,7 +53,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
 
             _serviceBusClient ??= _serviceBusClientFactory.Create();
 
-            await using var sender = _serviceBusClient.CreateSender(_replyQueue);
+            await using var sender = _serviceBusClient.CreateSender($"sbq-{domainOrigin}-reply");
             await sender.SendMessageAsync(serviceBusReplyMessage).ConfigureAwait(false);
         }
 

@@ -27,6 +27,7 @@ namespace GreenEnergyHub.PostOffice.Communicator.Peek
         /// </summary>
         /// <param name="requestDataBundleResponseDto">The response to the request.</param>
         /// <param name="sessionId">The ServiceBus session id received from the session-enabled ServiceBusTrigger.</param>
-        Task SendAsync(RequestDataBundleResponseDto requestDataBundleResponseDto, string sessionId);
+        /// <param name="domainOrigin">The domain that the response is from.</param>
+        Task SendAsync(RequestDataBundleResponseDto requestDataBundleResponseDto, string sessionId, DomainOrigin domainOrigin);
     }
 }

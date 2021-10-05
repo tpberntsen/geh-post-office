@@ -52,7 +52,7 @@ namespace GetMessage
                     services.AddSingleton<IStorageHandler, StorageHandler>();
 
                     services.AddScoped<IRequestBundleParser>(_ => new RequestBundleParser());
-                    services.AddScoped<IDataBundleResponseSender>(_ => new DataBundleResponseSender(new ResponseBundleParser(), new ServiceBusClientFactory(serviceBusConnectionString), DomainOrigin.TimeSeries));
+                    services.AddScoped<IDataBundleResponseSender>(_ => new DataBundleResponseSender(new ResponseBundleParser(), new ServiceBusClientFactory(serviceBusConnectionString)));
                     services.AddSingleton<IStorageServiceClientFactory>(_ =>
                         new StorageServiceClientFactory(blobStorageConnectionString));
 

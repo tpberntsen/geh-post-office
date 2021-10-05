@@ -66,7 +66,7 @@ namespace GetMessage.Functions
 
                 var requestDataBundleResponseDto = await CreateResponseAsync(bundleRequestDto).ConfigureAwait(false);
 
-                await _responseSender.SendAsync(requestDataBundleResponseDto, sessionId ?? string.Empty).ConfigureAwait(false);
+                await _responseSender.SendAsync(requestDataBundleResponseDto, sessionId ?? string.Empty, DomainOrigin.TimeSeries).ConfigureAwait(false);
             }
             catch (PostOfficeCommunicatorStorageException e)
             {
