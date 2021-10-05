@@ -12,19 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.ServiceContracts;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Azure.Storage.Blobs;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
 
-[assembly: FunctionsStartup(typeof(Startup))]
-
-namespace Energinet.DataHub.PostOffice.ServiceContracts
+namespace Energinet.DataHub.PostOffice.Tests.Common
 {
-    #pragma warning disable CA1812
-    internal class Startup : FunctionsStartup
+    internal sealed class MockedStorageServiceClientFactory : IStorageServiceClientFactory
     {
-        public override void Configure(IFunctionsHostBuilder builder)
+        public BlobServiceClient Create()
         {
+            return null!;
         }
     }
-    #pragma warning restore CA1812
 }

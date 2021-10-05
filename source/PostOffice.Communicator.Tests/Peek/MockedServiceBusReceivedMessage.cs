@@ -23,7 +23,12 @@ namespace PostOffice.Communicator.Tests.Peek
         public static ServiceBusReceivedMessage Create(byte[] bytes)
         {
             var rm = new ReadOnlyMemory<byte>(bytes);
-            var ctor = typeof(ServiceBusReceivedMessage).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(ReadOnlyMemory<byte>) }, null);
+            var ctor = typeof(ServiceBusReceivedMessage).GetConstructor(
+                BindingFlags.Instance | BindingFlags.NonPublic,
+                null,
+                new[] { typeof(ReadOnlyMemory<byte>) },
+                null);
+
             var obj = ctor!.Invoke(new object[] { rm });
             return (ServiceBusReceivedMessage)obj;
         }

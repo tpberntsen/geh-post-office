@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Services;
+using GreenEnergyHub.PostOffice.Communicator.Factories;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.Common
@@ -24,6 +28,20 @@ namespace Energinet.DataHub.PostOffice.Common
         {
             container.Register<IBundleContentRequestService, BundleContentRequestService>(Lifestyle.Scoped);
             container.Register<IMarketOperatorDataStorageService, MarketOperatorDataStorageService>(Lifestyle.Scoped);
+
+            container.RegisterSingleton<IStorageServiceClientFactory>(() =>
+            {
+                var configuration = container.GetService<IConfiguration>();
+                var connectionString = configuration.GetConnectionStringOrSetting("BlobStorageConnectionString");
+
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException(
+                        "Please specify a valid BlobStorageConnectionString in the appSettings.json file or your Azure Functions Settings.");
+                }
+
+                return new StorageServiceClientFactory(connectionString);
+            });
         }
     }
 }

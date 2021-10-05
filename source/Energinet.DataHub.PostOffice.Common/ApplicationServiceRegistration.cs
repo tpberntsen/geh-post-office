@@ -18,6 +18,7 @@ using FluentValidation;
 using GreenEnergyHub.PostOffice.Communicator.DataAvailable;
 using GreenEnergyHub.PostOffice.Communicator.Dequeue;
 using GreenEnergyHub.PostOffice.Communicator.Peek;
+using GreenEnergyHub.PostOffice.Communicator.Storage;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.Common
@@ -35,6 +36,7 @@ namespace Energinet.DataHub.PostOffice.Common
             container.Register<IResponseBundleParser, ResponseBundleParser>(Lifestyle.Singleton);
             container.Register<IDataBundleRequestSender, DataBundleRequestSender>(Lifestyle.Singleton);
             container.Register<IDequeueNotificationSender, DequeueNotificationSender>(Lifestyle.Singleton);
+            container.Register<IStorageHandler, StorageHandler>(Lifestyle.Singleton);
         }
     }
 }

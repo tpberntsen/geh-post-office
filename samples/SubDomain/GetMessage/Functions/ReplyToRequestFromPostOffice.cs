@@ -16,9 +16,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GetMessage.Storage;
+using GreenEnergyHub.PostOffice.Communicator.Exceptions;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 using GreenEnergyHub.PostOffice.Communicator.Peek;
+using GreenEnergyHub.PostOffice.Communicator.Storage;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -27,18 +28,18 @@ namespace GetMessage.Functions
 {
     public class ReplyToRequestFromPostOffice
     {
-        private readonly StorageController _blobStorageController;
         private readonly IRequestBundleParser _requestBundleParser;
         private readonly IDataBundleResponseSender _responseSender;
+        private readonly IStorageHandler _storageHandler;
 
         public ReplyToRequestFromPostOffice(
-            StorageController blobStorageController,
             IRequestBundleParser requestBundleParser,
-            IDataBundleResponseSender responseSender)
+            IDataBundleResponseSender responseSender,
+            IStorageHandler storageHandler)
         {
-            _blobStorageController = blobStorageController;
             _requestBundleParser = requestBundleParser;
             _responseSender = responseSender;
+            _storageHandler = storageHandler;
         }
 
         [Function("ReplyToRequestFromPostOffice")]
@@ -51,7 +52,7 @@ namespace GetMessage.Functions
             FunctionContext context)
         {
             var logger = context.GetLogger("ReplyToRequestFromPostOffice");
-            logger.LogInformation($"C# ServiceBus queue trigger function processed message: {message}");
+            logger.LogInformation($"C# ServiceBus queue trigger function processesing message: {message}");
 
             try
             {
@@ -65,11 +66,12 @@ namespace GetMessage.Functions
 
                 var requestDataBundleResponseDto = await CreateResponseAsync(bundleRequestDto).ConfigureAwait(false);
 
-                await _responseSender.SendAsync(requestDataBundleResponseDto, sessionId ?? string.Empty);
+                await _responseSender.SendAsync(requestDataBundleResponseDto, sessionId ?? string.Empty).ConfigureAwait(false);
             }
-            catch (Exception e)
+            catch (PostOfficeCommunicatorStorageException e)
             {
-                throw new Exception("Could not process message.", e);
+                logger.LogError("Error Processing message", e);
+                throw;
             }
         }
 
@@ -111,10 +113,10 @@ namespace GetMessage.Functions
 
         private async Task<Uri> SaveDataToBlobStorageAsync(DataBundleRequestDto requestDto)
         {
-            var blobName = $"blob-resource-{Environment.GetEnvironmentVariable("QueueListenerName")}-{DateTime.UtcNow:yyyy-MM-dd-HH-mm-ss-ff}.txt";
-            var data = $"<data><uuid>{requestDto.IdempotencyId}<uuid><blobname>{blobName}</blobname></data>";
-            var blobUri = await _blobStorageController.CreateBlobResourceAsync(blobName, new BinaryData(data)).ConfigureAwait(false);
-            return blobUri;
+            var testString =
+                $"<data><uuid>{requestDto.IdempotencyId}<uuid><dataAvailableNotifications>{string.Join(",", requestDto.DataAvailableNotificationIds)}</dataAvailableNotifications></data>";
+            var testData = new BinaryData(testString);
+            return await _storageHandler.AddStreamToStorageAsync(testData.ToStream(), requestDto).ConfigureAwait(false);
         }
     }
 }

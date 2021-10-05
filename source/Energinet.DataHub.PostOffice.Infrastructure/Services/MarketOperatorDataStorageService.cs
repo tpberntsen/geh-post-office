@@ -14,28 +14,28 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Azure.Storage.Blobs;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
+using GreenEnergyHub.PostOffice.Communicator.Storage;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 {
     public class MarketOperatorDataStorageService : IMarketOperatorDataStorageService
     {
-        private static readonly string? _containerName = Environment.GetEnvironmentVariable("BlobStorageContainerName");
-        private static readonly string? _connectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
+        private readonly IStorageHandler _storageHandler;
 
-        public async Task<Stream> GetMarketOperatorDataAsync(Uuid bundleUuid, Uri contentPath)
+        public MarketOperatorDataStorageService(IStorageHandler storageHandler)
+        {
+            _storageHandler = storageHandler;
+        }
+
+        public Task<Stream> GetMarketOperatorDataAsync(Uuid bundleUuid, Uri contentPath)
         {
             if (contentPath is null)
                 throw new ArgumentNullException(nameof(contentPath));
 
-            var container = new BlobContainerClient(_connectionString, _containerName);
-            var blob = container.GetBlobClient(contentPath.Segments.Last());
-            var response = await blob.DownloadStreamingAsync().ConfigureAwait(false);
-            return response.Value.Content;
+            return _storageHandler.GetStreamFromStorageAsync(contentPath);
         }
     }
 }

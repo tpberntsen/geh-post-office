@@ -12,18 +12,24 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
-using Microsoft.Azure.Cosmos;
+using System;
 
-namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
+namespace GreenEnergyHub.PostOffice.Communicator.Exceptions
 {
-    public class BundleRepositoryContainer : IBundleRepositoryContainer
+    public class PostOfficeCommunicatorStorageException : Exception
     {
-        private readonly CosmosClient _client;
-        public BundleRepositoryContainer(CosmosClient client)
+        public PostOfficeCommunicatorStorageException(string message)
+            : base(message)
         {
-            _client = client;
         }
 
-        public Container Container => _client.GetContainer("post-office", "bundles"); // TODO: Add config variables once config is in place.
+        public PostOfficeCommunicatorStorageException()
+        {
+        }
+
+        public PostOfficeCommunicatorStorageException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 }

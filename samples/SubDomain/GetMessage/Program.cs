@@ -19,6 +19,7 @@ using GreenEnergyHub.PostOffice.Communicator.Dequeue;
 using GreenEnergyHub.PostOffice.Communicator.Factories;
 using GreenEnergyHub.PostOffice.Communicator.Model;
 using GreenEnergyHub.PostOffice.Communicator.Peek;
+using GreenEnergyHub.PostOffice.Communicator.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -48,12 +49,14 @@ namespace GetMessage
                         new ServiceBusClient(serviceBusConnectionString));
                     services.AddSingleton<BlobServiceClient>(_ =>
                         new BlobServiceClient(blobStorageConnectionString));
+                    services.AddSingleton<IStorageHandler, StorageHandler>();
 
                     services.AddScoped<IRequestBundleParser>(_ => new RequestBundleParser());
                     services.AddScoped<IDataBundleResponseSender>(_ => new DataBundleResponseSender(new ResponseBundleParser(), new ServiceBusClientFactory(serviceBusConnectionString), DomainOrigin.TimeSeries));
+                    services.AddSingleton<IStorageServiceClientFactory>(_ =>
+                        new StorageServiceClientFactory(blobStorageConnectionString));
 
                     services.AddScoped(typeof(IDequeueNotificationParser), typeof(DequeueNotificationParser));
-                    services.AddScoped(typeof(Storage.StorageController), typeof(Storage.StorageController));
                 })
                 .Build();
 
