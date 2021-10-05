@@ -13,12 +13,12 @@
 // limitations under the License.
 
 using System;
+using Energinet.DataHub.MessageHub.Client.Exceptions;
+using Energinet.DataHub.MessageHub.Client.Model;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
-using GreenEnergyHub.PostOffice.Communicator.Exceptions;
-using GreenEnergyHub.PostOffice.Communicator.Model;
 
-namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
+namespace Energinet.DataHub.MessageHub.Client.DataAvailable
 {
     public class DataAvailableNotificationParser : IDataAvailableNotificationParser
     {

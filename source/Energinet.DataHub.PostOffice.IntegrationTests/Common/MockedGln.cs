@@ -15,8 +15,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Energinet.DataHub.MessageHub.Client.Model;
 using Energinet.DataHub.PostOffice.Domain.Model;
-using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
 {

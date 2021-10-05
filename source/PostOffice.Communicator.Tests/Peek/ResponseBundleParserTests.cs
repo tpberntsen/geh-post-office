@@ -13,11 +13,11 @@
 // limitations under the License.
 
 using System;
+using Energinet.DataHub.MessageHub.Client.Exceptions;
+using Energinet.DataHub.MessageHub.Client.Model;
+using Energinet.DataHub.MessageHub.Client.Peek;
 using Google.Protobuf;
 using GreenEnergyHub.PostOffice.Communicator.Contracts;
-using GreenEnergyHub.PostOffice.Communicator.Exceptions;
-using GreenEnergyHub.PostOffice.Communicator.Model;
-using GreenEnergyHub.PostOffice.Communicator.Peek;
 using Xunit;
 using Xunit.Categories;
 

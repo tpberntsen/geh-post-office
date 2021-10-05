@@ -14,7 +14,7 @@
 
 using System;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Model
+namespace Energinet.DataHub.MessageHub.Client.Model
 {
     /// <summary>
     /// Specifies which data is available for consumption by a market operator.

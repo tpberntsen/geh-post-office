@@ -13,9 +13,9 @@
 // limitations under the License.
 
 using System.Threading.Tasks;
-using GreenEnergyHub.PostOffice.Communicator.Model;
+using Energinet.DataHub.MessageHub.Client.Model;
 
-namespace GreenEnergyHub.PostOffice.Communicator.DataAvailable
+namespace Energinet.DataHub.MessageHub.Client.DataAvailable
 {
     /// <summary>
     /// Communicates DataAvailableNotifications to the post office.

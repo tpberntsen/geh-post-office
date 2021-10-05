@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Energinet.DataHub.MessageHub.Client.DataAvailable;
+using Energinet.DataHub.MessageHub.Client.Dequeue;
+using Energinet.DataHub.MessageHub.Client.Peek;
+using Energinet.DataHub.MessageHub.Client.Storage;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.Validation;
 using FluentValidation;
-using GreenEnergyHub.PostOffice.Communicator.DataAvailable;
-using GreenEnergyHub.PostOffice.Communicator.Dequeue;
-using GreenEnergyHub.PostOffice.Communicator.Peek;
-using GreenEnergyHub.PostOffice.Communicator.Storage;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.Common

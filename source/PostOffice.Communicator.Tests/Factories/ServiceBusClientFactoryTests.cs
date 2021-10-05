@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using GreenEnergyHub.PostOffice.Communicator.Factories;
+using Energinet.DataHub.MessageHub.Client.Factories;
 using Xunit;
 
 namespace PostOffice.Communicator.Tests.Factories

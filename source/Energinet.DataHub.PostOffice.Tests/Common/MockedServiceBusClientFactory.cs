@@ -13,7 +13,7 @@
 // limitations under the License.
 
 using Azure.Messaging.ServiceBus;
-using GreenEnergyHub.PostOffice.Communicator.Factories;
+using Energinet.DataHub.MessageHub.Client.Factories;
 
 namespace Energinet.DataHub.PostOffice.Tests.Common
 {

@@ -14,7 +14,7 @@
 
 using System;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Exceptions
+namespace Energinet.DataHub.MessageHub.Client.Exceptions
 {
     public class PostOfficeCommunicatorStorageException : Exception
     {

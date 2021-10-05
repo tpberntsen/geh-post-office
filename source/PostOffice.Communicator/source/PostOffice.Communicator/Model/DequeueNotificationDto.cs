@@ -15,7 +15,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Model
+namespace Energinet.DataHub.MessageHub.Client.Model
 {
     /// <summary>
     /// Signals the sub-domains that a market operator has acknowledged the specified data.

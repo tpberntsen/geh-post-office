@@ -15,7 +15,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Model
+namespace Energinet.DataHub.MessageHub.Client.Model
 {
     /// <summary>
     /// Represents a request for a bundle containing the specified ids.

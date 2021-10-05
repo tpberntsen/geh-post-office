@@ -17,11 +17,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Azure;
-using GreenEnergyHub.PostOffice.Communicator.Exceptions;
-using GreenEnergyHub.PostOffice.Communicator.Factories;
-using GreenEnergyHub.PostOffice.Communicator.Model;
+using Energinet.DataHub.MessageHub.Client.Exceptions;
+using Energinet.DataHub.MessageHub.Client.Factories;
+using Energinet.DataHub.MessageHub.Client.Model;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Storage
+namespace Energinet.DataHub.MessageHub.Client.Storage
 {
     public class StorageHandler : IStorageHandler
     {

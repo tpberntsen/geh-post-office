@@ -14,12 +14,12 @@
 
 using System;
 using System.Threading.Tasks;
+using Energinet.DataHub.MessageHub.Client.Model;
+using Energinet.DataHub.MessageHub.Client.Peek;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Services;
-using GreenEnergyHub.PostOffice.Communicator.Model;
-using GreenEnergyHub.PostOffice.Communicator.Peek;
 using Moq;
 using Xunit;
 using Xunit.Categories;
@@ -45,7 +45,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
                 Array.Empty<Uuid>());
 
             dataBundleRequestSenderMock
-                .Setup(x => x.SendAsync(It.IsAny<DataBundleRequestDto>(), GreenEnergyHub.PostOffice.Communicator.Model.DomainOrigin.TimeSeries))
+                .Setup(x => x.SendAsync(It.IsAny<DataBundleRequestDto>(), Energinet.DataHub.MessageHub.Client.Model.DomainOrigin.TimeSeries))
                 .ReturnsAsync((RequestDataBundleResponseDto?)null);
 
             // Act
@@ -73,7 +73,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
             var response = new RequestDataBundleResponseDto(contentUri, Array.Empty<Guid>());
 
             dataBundleRequestSenderMock
-                .Setup(x => x.SendAsync(It.IsAny<DataBundleRequestDto>(), GreenEnergyHub.PostOffice.Communicator.Model.DomainOrigin.TimeSeries))
+                .Setup(x => x.SendAsync(It.IsAny<DataBundleRequestDto>(), Energinet.DataHub.MessageHub.Client.Model.DomainOrigin.TimeSeries))
                 .ReturnsAsync(response);
 
             // Act

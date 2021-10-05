@@ -20,17 +20,17 @@ limitations under the License.
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
     <ProjectGuid>{E9F64300-834B-4657-850F-BEF4CED5D180}</ProjectGuid>
-    <AssemblyName>GreenEnergyHub.PostOffice.Communicator</AssemblyName>
-    <RootNamespace>GreenEnergyHub.PostOffice.Communicator</RootNamespace>
+    <AssemblyName>Energinet.DataHub.MessageHub.Client</AssemblyName>
+    <RootNamespace>Energinet.DataHub.MessageHub.Client</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <IsPackable>true</IsPackable>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>GreenEnergyHub.PostOffice.Communicator</PackageId>
-    <PackageVersion>1.0.0$(VersionSuffix)</PackageVersion>
-    <Title>PostOffice.Communicator library</Title>
+    <PackageId>Energinet.DataHub.MessageHub.Client</PackageId>
+    <PackageVersion>$(Version)$(VersionSuffix)</PackageVersion>
+    <Title>Energinet.DataHub.MessageHub.Client library</Title>
     <Company>Energinet-DataHub</Company>
     <Authors>Titans</Authors>
     <RepositoryUrl>https://github.com/Energinet-DataHub/geh-post-office</RepositoryUrl>
@@ -42,7 +42,7 @@ limitations under the License.
       [Release Notes](https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/PostOffice.Communicator/documents/release-notes/release-notes.md)
       [Documentation](https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/PostOffice.Communicator/documents/documentation.md)
     </PackageDescription>
-    <Description>Library containing communication API for GreenEnergyHub.PostOffice</Description>
+    <Description>Library containing communication API for Energinet.DataHub.MessageHub</Description>
     <PackageTags>geh;library</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -63,7 +63,7 @@ limitations under the License.
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.3.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
     <PackageReference Include="Google.Protobuf" Version="3.18.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.41.0-pre2">
+    <PackageReference Include="Grpc.Tools" Version="2.41.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

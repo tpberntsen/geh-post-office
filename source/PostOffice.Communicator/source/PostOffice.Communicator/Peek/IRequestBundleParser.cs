@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using GreenEnergyHub.PostOffice.Communicator.Exceptions;
-using GreenEnergyHub.PostOffice.Communicator.Model;
+using Energinet.DataHub.MessageHub.Client.Exceptions;
+using Energinet.DataHub.MessageHub.Client.Model;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Peek
+namespace Energinet.DataHub.MessageHub.Client.Peek
 {
     /// <summary>
     /// Parses the bundle content request sent to a sub-domain.

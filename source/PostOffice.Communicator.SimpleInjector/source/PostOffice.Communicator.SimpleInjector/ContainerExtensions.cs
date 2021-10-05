@@ -13,16 +13,16 @@
 // limitations under the License.
 
 using System;
-using GreenEnergyHub.PostOffice.Communicator.DataAvailable;
-using GreenEnergyHub.PostOffice.Communicator.Dequeue;
-using GreenEnergyHub.PostOffice.Communicator.Factories;
-using GreenEnergyHub.PostOffice.Communicator.Peek;
-using GreenEnergyHub.PostOffice.Communicator.Storage;
+using Energinet.DataHub.MessageHub.Client.DataAvailable;
+using Energinet.DataHub.MessageHub.Client.Dequeue;
+using Energinet.DataHub.MessageHub.Client.Factories;
+using Energinet.DataHub.MessageHub.Client.Peek;
+using Energinet.DataHub.MessageHub.Client.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;
 
-namespace GreenEnergyHub.PostOffice.Communicator.SimpleInjector
+namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
 {
     public static class ContainerExtensions
     {

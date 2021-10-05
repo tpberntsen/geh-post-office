@@ -13,9 +13,9 @@
 // limitations under the License.
 
 using System;
+using Energinet.DataHub.MessageHub.Client.Model;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.Commands;
-using GreenEnergyHub.PostOffice.Communicator.Model;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {

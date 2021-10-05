@@ -16,7 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Model
+namespace Energinet.DataHub.MessageHub.Client.Model
 {
     /// <summary>
     /// Contains the result of the request for bundle contents.

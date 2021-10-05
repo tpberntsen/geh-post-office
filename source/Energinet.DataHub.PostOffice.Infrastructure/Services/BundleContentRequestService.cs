@@ -15,12 +15,12 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Energinet.DataHub.MessageHub.Client.Model;
+using Energinet.DataHub.MessageHub.Client.Peek;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Model;
-using GreenEnergyHub.PostOffice.Communicator.Model;
-using GreenEnergyHub.PostOffice.Communicator.Peek;
-using DomainOrigin = GreenEnergyHub.PostOffice.Communicator.Model.DomainOrigin;
+using DomainOrigin = Energinet.DataHub.MessageHub.Client.Model.DomainOrigin;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 {

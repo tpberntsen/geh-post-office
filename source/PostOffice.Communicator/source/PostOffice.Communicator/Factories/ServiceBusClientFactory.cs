@@ -14,7 +14,7 @@
 
 using Azure.Messaging.ServiceBus;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Factories
+namespace Energinet.DataHub.MessageHub.Client.Factories
 {
     public sealed class ServiceBusClientFactory : IServiceBusClientFactory
     {

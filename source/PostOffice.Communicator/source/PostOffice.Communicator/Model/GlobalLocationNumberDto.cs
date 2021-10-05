@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace GreenEnergyHub.PostOffice.Communicator.Model
+namespace Energinet.DataHub.MessageHub.Client.Model
 {
     public record GlobalLocationNumberDto(string Value);
 }

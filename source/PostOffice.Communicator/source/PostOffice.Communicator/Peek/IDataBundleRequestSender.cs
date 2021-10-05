@@ -13,9 +13,9 @@
 // limitations under the License.
 
 using System.Threading.Tasks;
-using GreenEnergyHub.PostOffice.Communicator.Model;
+using Energinet.DataHub.MessageHub.Client.Model;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Peek
+namespace Energinet.DataHub.MessageHub.Client.Peek
 {
     /// <summary>
     /// Communicates to the sub-domain a request for bundle contents.

@@ -15,9 +15,9 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using GreenEnergyHub.PostOffice.Communicator.Model;
+using Energinet.DataHub.MessageHub.Client.Model;
 
-namespace GreenEnergyHub.PostOffice.Communicator.Storage
+namespace Energinet.DataHub.MessageHub.Client.Storage
 {
     /// <summary>
     /// Handles storing file data from the SubDomains

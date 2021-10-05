@@ -13,8 +13,8 @@
 // limitations under the License.
 
 using System;
+using Energinet.DataHub.MessageHub.Client.Factories;
 using Energinet.DataHub.PostOffice.Infrastructure;
-using GreenEnergyHub.PostOffice.Communicator.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Container = SimpleInjector.Container;

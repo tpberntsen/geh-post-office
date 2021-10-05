@@ -13,9 +13,9 @@
 // limitations under the License.
 
 using System;
+using Energinet.DataHub.MessageHub.Client.Factories;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Services;
-using GreenEnergyHub.PostOffice.Communicator.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;

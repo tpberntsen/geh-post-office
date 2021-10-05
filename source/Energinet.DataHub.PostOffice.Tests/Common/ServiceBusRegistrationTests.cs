@@ -13,9 +13,9 @@
 // limitations under the License.
 
 using System.Threading.Tasks;
+using Energinet.DataHub.MessageHub.Client.Factories;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Infrastructure;
-using GreenEnergyHub.PostOffice.Communicator.Factories;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using SimpleInjector;
