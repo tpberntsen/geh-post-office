@@ -20,7 +20,7 @@ limitations under the License.
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
     <ProjectGuid>{E9F64300-834B-4657-850F-BEF4CED5D180}</ProjectGuid>
-    <AssemblyName>Energinet.DataHub.MessageHub.Client</AssemblyName>
+    <AssemblyName>ENDK.DataHub.MessageHub.Client</AssemblyName>
     <RootNamespace>Energinet.DataHub.MessageHub.Client</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <IsPackable>true</IsPackable>
@@ -28,8 +28,8 @@ limitations under the License.
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>Energinet.DataHub.MessageHub.Client</PackageId>
-    <PackageVersion>$(Version)$(VersionSuffix)</PackageVersion>
+    <PackageId>ENDK.DataHub.MessageHub.Client</PackageId>
+	<PackageVersion>1.0.1$(VersionSuffix)</PackageVersion>
     <Title>Energinet.DataHub.MessageHub.Client library</Title>
     <Company>Energinet-DataHub</Company>
     <Authors>Titans</Authors>

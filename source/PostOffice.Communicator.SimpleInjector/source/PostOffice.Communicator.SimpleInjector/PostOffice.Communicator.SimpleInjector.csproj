@@ -20,7 +20,7 @@ limitations under the License.
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
     <ProjectGuid>{CC5EB98C-635A-465E-85F7-7925BB365AF5}</ProjectGuid>
-    <AssemblyName>Energinet.DataHub.MessageHub.Client.SimpleInjector</AssemblyName>
+    <AssemblyName>ENDK.DataHub.MessageHub.Client.SimpleInjector</AssemblyName>
     <RootNamespace>Energinet.DataHub.MessageHub.Client.SimpleInjector</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <IsPackable>true</IsPackable>
@@ -28,8 +28,8 @@ limitations under the License.
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>Energinet.DataHub.MessageHub.Client.SimpleInjector</PackageId>
-    <PackageVersion>$(Version)$(VersionSuffix)</PackageVersion>
+    <PackageId>ENDK.DataHub.MessageHub.Client.SimpleInjector</PackageId>
+	<PackageVersion>1.0.1$(VersionSuffix)</PackageVersion>
 	<Title>Energinet.DataHub.MessageHub.Client.SimpleInjector library</Title>
     <Company>Energinet-DataHub</Company>
     <Authors>Titans</Authors>
