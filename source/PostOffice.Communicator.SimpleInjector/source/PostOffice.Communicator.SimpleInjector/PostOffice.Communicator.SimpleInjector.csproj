@@ -29,7 +29,7 @@ limitations under the License.
 
   <PropertyGroup>
     <PackageId>ENDK.DataHub.MessageHub.Client.SimpleInjector</PackageId>
-	<PackageVersion>1.0.1$(VersionSuffix)</PackageVersion>
+	<PackageVersion>1.0.2$(VersionSuffix)</PackageVersion>
 	<Title>Energinet.DataHub.MessageHub.Client.SimpleInjector library</Title>
     <Company>Energinet-DataHub</Company>
     <Authors>Titans</Authors>
@@ -60,7 +60,7 @@ limitations under the License.
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Energinet.DataHub.MessageHub.Client" Version="1.0.*" />
+    <PackageReference Include="ENDK.DataHub.MessageHub.Client" Version="1.0.*" />
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.3.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
