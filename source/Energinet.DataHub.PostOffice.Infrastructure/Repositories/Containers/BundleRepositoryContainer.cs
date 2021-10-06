@@ -19,6 +19,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
     public class BundleRepositoryContainer : IBundleRepositoryContainer
     {
         private readonly CosmosClient _client;
+
         public BundleRepositoryContainer(CosmosClient client)
         {
             _client = client;

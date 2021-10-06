@@ -22,16 +22,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Model
 {
     public sealed class AzureBlobBundleContent : IBundleContent
     {
-        private readonly Uuid _bundleId;
         private readonly IMarketOperatorDataStorageService _marketOperatorDataStorageService;
 
         public AzureBlobBundleContent(
             IMarketOperatorDataStorageService marketOperatorDataStorageService,
-            Uuid bundleId,
             Uri contentPath)
         {
             _marketOperatorDataStorageService = marketOperatorDataStorageService;
-            _bundleId = bundleId;
             ContentPath = contentPath;
         }
 
@@ -39,7 +36,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Model
 
         public Task<Stream> OpenAsync()
         {
-            return _marketOperatorDataStorageService.GetMarketOperatorDataAsync(_bundleId, ContentPath);
+            return _marketOperatorDataStorageService.GetMarketOperatorDataAsync(ContentPath);
         }
     }
 }

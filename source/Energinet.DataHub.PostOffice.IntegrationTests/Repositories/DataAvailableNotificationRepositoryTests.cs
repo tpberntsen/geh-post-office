@@ -13,21 +13,20 @@
 // limitations under the License.
 
 using System;
-using System.IO;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Domain.Services;
+using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
+using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
+using Xunit;
+using Xunit.Categories;
 
-namespace Energinet.DataHub.PostOffice.Domain.Services
+namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 {
-    /// <summary>
-    /// Service to handle data specific to a market operator.
-    /// </summary>
-    public interface IMarketOperatorDataStorageService
+    [Collection("IntegrationTest")]
+    [IntegrationTest]
+    public sealed class DataAvailableNotificationRepositoryTests
     {
-        /// <summary>
-        /// Download data from storage to a market operator.
-        /// </summary>
-        /// <param name="contentPath">Url to data.</param>
-        /// <returns>A Task containing a Stream that contains the data for the market operator.</returns>
-        public Task<Stream> GetMarketOperatorDataAsync(Uri contentPath);
+        // TODO: Update tests after cleanup of repo.
     }
 }

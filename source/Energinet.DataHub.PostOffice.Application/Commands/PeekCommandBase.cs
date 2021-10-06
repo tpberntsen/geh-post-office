@@ -12,19 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Common;
-using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
-using SimpleInjector;
+using MediatR;
 
-namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
+namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    internal sealed class Startup : StartupBase
-    {
-        protected override void Configure(Container container)
-        {
-            container.Register<PeekFunction>(Lifestyle.Scoped);
-            container.Register<PeekAggregationsOrTimeSeriesFunction>(Lifestyle.Scoped);
-            container.Register<DequeueFunction>(Lifestyle.Scoped);
-        }
-    }
+    public abstract record PeekCommandBase(string Recipient) : IRequest<PeekResponse>;
 }

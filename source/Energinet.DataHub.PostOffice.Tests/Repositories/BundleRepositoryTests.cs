@@ -14,6 +14,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
@@ -37,6 +38,20 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
             // Act + Assert
             await Assert
                 .ThrowsAsync<ArgumentNullException>(() => target.GetNextUnacknowledgedAsync(null!))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task GetNextUnacknowledgedForDomainAsync_NullRecipient_ThrowsException()
+        {
+            // Arrange
+            var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
+            var marketOperatorDataStorageService = new Mock<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(bundleRepositoryContainer.Object, marketOperatorDataStorageService.Object);
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() => target.GetNextUnacknowledgedForDomainAsync(null!, DomainOrigin.TimeSeries))
                 .ConfigureAwait(false);
         }
 

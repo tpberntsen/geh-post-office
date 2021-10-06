@@ -178,11 +178,11 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
         private static async Task<string> ReadBundleIdAsync(PeekResponse response)
         {
             Assert.True(response.HasContent);
+            var bundleContents = await response.Data
+                .ReadAsDataBundleRequestAsync()
+                .ConfigureAwait(false);
 
-            await using var stream = response.Data;
-            using var reader = new StreamReader(stream);
-
-            return await reader.ReadToEndAsync().ConfigureAwait(false);
+            return bundleContents.IdempotencyId;
         }
     }
 }

@@ -97,15 +97,95 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var setupBundle = CreateBundle(
                 recipient,
-                new AzureBlobBundleContent(
-                    storageService,
-                    new Uuid(Guid.Empty),
-                    _contentPathUri));
+                new AzureBlobBundleContent(storageService, _contentPathUri));
 
             await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
 
             // Act
             var bundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(bundle);
+            Assert.Equal(setupBundle.BundleId, bundle!.BundleId);
+            Assert.Equal(setupBundle.Origin, bundle.Origin);
+            Assert.Equal(setupBundle.Recipient, bundle.Recipient);
+            Assert.Equal(setupBundle.NotificationIds.Single(), bundle.NotificationIds.Single());
+            Assert.True(bundle.TryGetContent(out var actualBundleContent));
+            Assert.Equal(_contentPathUri, ((AzureBlobBundleContent)actualBundleContent!).ContentPath);
+        }
+
+        [Fact]
+        public async Task GetNextUnacknowledgedForDomainAsync_NoBundle_ReturnsNull()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
+
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+
+            // Act
+            var bundle = await target.GetNextUnacknowledgedForDomainAsync(recipient, DomainOrigin.TimeSeries).ConfigureAwait(false);
+
+            // Assert
+            Assert.Null(bundle);
+        }
+
+        [Fact]
+        public async Task GetNextUnacknowledgedForDomainAsync_HasBundle_ReturnsBundle()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
+
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var setupBundle = new Bundle(
+                new Uuid(Guid.NewGuid()),
+                DomainOrigin.TimeSeries,
+                recipient,
+                new[] { new Uuid(Guid.NewGuid()) });
+
+            await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+
+            // Act
+            var bundle = await target.GetNextUnacknowledgedForDomainAsync(recipient, DomainOrigin.TimeSeries).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(bundle);
+            Assert.Equal(setupBundle.BundleId, bundle!.BundleId);
+            Assert.Equal(setupBundle.Origin, bundle.Origin);
+            Assert.Equal(setupBundle.Recipient, bundle.Recipient);
+            Assert.Equal(setupBundle.NotificationIds.Single(), bundle.NotificationIds.Single());
+            Assert.False(bundle.TryGetContent(out _));
+        }
+
+        [Fact]
+        public async Task GetNextUnacknowledgedForDomainAsync_HasBundleAndContent_ReturnsBundleContent()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
+
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var setupBundle = CreateBundle(
+                recipient,
+                new AzureBlobBundleContent(storageService, _contentPathUri));
+
+            await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+
+            // Act
+            var bundle = await target.GetNextUnacknowledgedForDomainAsync(recipient, DomainOrigin.TimeSeries).ConfigureAwait(false);
 
             // Assert
             Assert.NotNull(bundle);
@@ -179,9 +259,57 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var setupBundle = CreateBundle(recipient);
-
             var existingBundle = CreateBundle(recipient);
+
             await target.TryAddNextUnacknowledgedAsync(existingBundle).ConfigureAwait(false);
+
+            // Act
+            var couldAdd = await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+
+            // Assert
+            Assert.False(couldAdd);
+        }
+
+        [Fact]
+        public async Task TryAddNextUnacknowledgedAsync_HasAggregationsBundle_ReturnsFalse()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
+
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var setupBundle = CreateBundle(recipient);
+            var conflictBundle = CreateBundle(recipient, domainOrigin: DomainOrigin.Aggregations);
+
+            await target.TryAddNextUnacknowledgedAsync(conflictBundle).ConfigureAwait(false);
+
+            // Act
+            var couldAdd = await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+
+            // Assert
+            Assert.False(couldAdd);
+        }
+
+        [Fact]
+        public async Task TryAddNextUnacknowledgedAsync_HasTimeSeriesBundle_ReturnsFalse()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
+
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var setupBundle = CreateBundle(recipient, domainOrigin: DomainOrigin.Aggregations);
+            var conflictBundle = CreateBundle(recipient);
+
+            await target.TryAddNextUnacknowledgedAsync(conflictBundle).ConfigureAwait(false);
 
             // Act
             var couldAdd = await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
@@ -202,7 +330,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var target = new BundleRepository(container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
-            var bundleContent = new AzureBlobBundleContent(storageService, new Uuid(Guid.Empty), _contentPathUri);
+            var bundleContent = new AzureBlobBundleContent(storageService, _contentPathUri);
 
             await target.TryAddNextUnacknowledgedAsync(CreateBundle(recipient)).ConfigureAwait(false);
             var modifiedBundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
@@ -218,11 +346,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             Assert.Equal(_contentPathUri, ((AzureBlobBundleContent)actualBundleContent!).ContentPath);
         }
 
-        private static Bundle CreateBundle(MarketOperator recipient, IBundleContent? bundleContent = null)
+        private static Bundle CreateBundle(
+            MarketOperator recipient,
+            IBundleContent? bundleContent = null,
+            DomainOrigin domainOrigin = DomainOrigin.TimeSeries)
         {
             return new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
+                domainOrigin,
                 recipient,
                 new[] { new Uuid(Guid.NewGuid()) },
                 bundleContent);

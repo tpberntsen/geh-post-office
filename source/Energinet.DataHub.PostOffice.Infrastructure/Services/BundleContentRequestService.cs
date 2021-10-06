@@ -46,15 +46,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
                 bundle.BundleId.ToString(),
                 bundle.NotificationIds.Select(x => x.AsGuid()));
 
-            // TODO: Fy!
             var response = await _dataBundleRequestSender.SendAsync(request, (DomainOrigin)bundle.Origin).ConfigureAwait(false);
             if (response == null || response.IsErrorResponse)
                 return null;
 
-            return new AzureBlobBundleContent(
-                _marketOperatorDataStorageService,
-                bundle.BundleId,
-                response.ContentUri);
+            return new AzureBlobBundleContent(_marketOperatorDataStorageService, response.ContentUri);
         }
     }
 }

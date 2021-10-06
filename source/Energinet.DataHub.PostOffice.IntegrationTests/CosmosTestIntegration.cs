@@ -60,8 +60,14 @@ function trigger() {
     var createdItem = response.getBody();
 
     // Query for checking if there are other unacknowledged bundles for market operator.
-    var filterQuery = `SELECT * FROM bundles b WHERE b.recipient = '${createdItem.recipient}' and b.dequeued = false`
-    
+    var filterQuery = `
+    SELECT * FROM bundles b
+    WHERE b.recipient = '${createdItem.recipient}' AND
+          b.dequeued = false AND (
+          b.origin = '${createdItem.origin}' OR
+         (b.origin = 'TimeSeries' AND '${createdItem.origin}' = 'Aggregations') OR
+         (b.origin = 'Aggregations' AND '${createdItem.origin}' = 'TimeSeries'))`;
+
     var accept = container.queryDocuments(container.getSelfLink(), filterQuery, function(err, items, options)
     {
         if (err) throw err;

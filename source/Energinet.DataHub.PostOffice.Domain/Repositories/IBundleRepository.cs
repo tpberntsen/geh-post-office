@@ -23,11 +23,19 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
     public interface IBundleRepository
     {
         /// <summary>
-        /// Gets the next bundle from the recipient that has yet to be acknowledged.
+        /// Gets the next bundle for the given recipient that has yet to be acknowledged.
         /// </summary>
         /// <param name="recipient">The market operator to retrieve the next bundle for.</param>
         /// <returns>The next unacknowledged bundle; or null, if none is available.</returns>
         Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient);
+
+        /// <summary>
+        /// Gets the next bundle for the given recipient and domain that has yet to be acknowledged.
+        /// </summary>
+        /// <param name="recipient">The market operator to retrieve the next bundle for.</param>
+        /// <param name="domainOrigin">The domain the retrieved bundle must belong to.</param>
+        /// <returns>The next unacknowledged bundle; or null, if none is available.</returns>
+        Task<Bundle?> GetNextUnacknowledgedForDomainAsync(MarketOperator recipient, DomainOrigin domainOrigin);
 
         /// <summary>
         /// Acknowledges the bundle with the specified bundle id.

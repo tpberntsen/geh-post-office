@@ -15,20 +15,23 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Domain.Services;
-using Microsoft.AspNetCore.WebUtilities;
+using Energinet.DataHub.MessageHub.Client.Model;
+using Energinet.DataHub.MessageHub.Client.Peek;
 
 namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
 {
-    internal sealed class MockedMarketOperatorDataStorageService : IMarketOperatorDataStorageService
+    public static class StreamTestExtensions
     {
-        public Task<Stream> GetMarketOperatorDataAsync(Uri contentPath)
+        private static readonly RequestBundleParser _requestBundleParser = new();
+
+        public static async Task<DataBundleRequestDto> ReadAsDataBundleRequestAsync(this Stream stream)
         {
-            // Integration testing: the Protobuf request is sent raw in the Url.
-            var query = QueryHelpers.ParseQuery(contentPath.Query);
-            var message = query["mocked"];
-            var bytes = Convert.FromBase64String(message);
-            return Task.FromResult<Stream>(new MemoryStream(bytes));
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream));
+
+            await using var contents = new MemoryStream();
+            await stream.CopyToAsync(contents).ConfigureAwait(false);
+            return _requestBundleParser.Parse(contents.ToArray());
         }
     }
 }

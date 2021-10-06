@@ -48,7 +48,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 ContentType = dataAvailableNotification.ContentType.Value,
                 Origin = dataAvailableNotification.Origin.ToString(),
                 RelativeWeight = dataAvailableNotification.Weight.Value,
-                Priority = 1M,
+                Priority = 1M
             };
 
             var response = await _container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
@@ -81,7 +81,23 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var documents = await GetDocumentsAsync(queryString, parameters).ConfigureAwait(false);
             var document = documents.FirstOrDefault();
+            return document;
+        }
 
+        public async Task<DataAvailableNotification?> GetNextUnacknowledgedForDomainAsync(MarketOperator recipient, DomainOrigin domainOrigin)
+        {
+            if (recipient is null)
+                throw new ArgumentNullException(nameof(recipient));
+
+            const string queryString = "SELECT * FROM c WHERE c.recipient = @recipient AND c.origin = @domainOrigin AND c.acknowledge = false ORDER BY c._ts ASC OFFSET 0 LIMIT 1";
+            var parameters = new List<KeyValuePair<string, string>>
+            {
+                new("recipient", recipient.Gln.Value),
+                new("domainOrigin", domainOrigin.ToString())
+            };
+
+            var documents = await GetDocumentsAsync(queryString, parameters).ConfigureAwait(false);
+            var document = documents.FirstOrDefault();
             return document;
         }
 

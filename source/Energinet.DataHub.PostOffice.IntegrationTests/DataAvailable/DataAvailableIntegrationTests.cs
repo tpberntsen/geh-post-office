@@ -28,7 +28,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.DataAvailable
 {
     [Collection("IntegrationTest")]
     [IntegrationTest]
-    public class DataAvailableIntegrationTests
+    public sealed class DataAvailableIntegrationTests
     {
         [Fact]
         public async Task Test_DataAvailable_Integration_Create()

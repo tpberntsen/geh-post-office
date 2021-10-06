@@ -12,22 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Application.Validation.Rules;
+using FluentValidation;
 
-namespace Energinet.DataHub.PostOffice.Domain.Services
+namespace Energinet.DataHub.PostOffice.Application.Validation
 {
-    /// <summary>
-    /// Service to handle data specific to a market operator.
-    /// </summary>
-    public interface IMarketOperatorDataStorageService
+    public class PeekAggregationsOrTimeSeriesCommandRuleSet : AbstractValidator<PeekAggregationsOrTimeSeriesCommand>
     {
-        /// <summary>
-        /// Download data from storage to a market operator.
-        /// </summary>
-        /// <param name="contentPath">Url to data.</param>
-        /// <returns>A Task containing a Stream that contains the data for the market operator.</returns>
-        public Task<Stream> GetMarketOperatorDataAsync(Uri contentPath);
+        public PeekAggregationsOrTimeSeriesCommandRuleSet()
+        {
+            RuleFor(command => command.Recipient)
+                .NotEmpty()
+                .SetValidator(new GlobalLocationNumberValidationRule());
+        }
     }
 }
