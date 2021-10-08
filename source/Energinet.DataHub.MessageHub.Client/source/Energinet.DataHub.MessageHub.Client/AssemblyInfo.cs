@@ -12,24 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.MessageHub.Client.Factories;
-using Xunit;
+using System.Runtime.CompilerServices;
 
-namespace PostOffice.Communicator.Tests.Factories
-{
-    public sealed class ServiceBusClientFactoryTests
-    {
-        [Fact]
-        public void Create_ReturnsServiceBusClient()
-        {
-            // arrange
-            var target = new ServiceBusClientFactory("Endpoint=sb://sbn-postoffice.servicebus.windows.net/;SharedAccessKeyName=Hello;SharedAccessKey=there");
-
-            // act
-            var actual = target.Create();
-
-            // assert
-            Assert.NotNull(actual);
-        }
-    }
-}
+[assembly: InternalsVisibleTo("Energinet.DataHub.PostOffice.IntegrationTests")]
+[assembly: InternalsVisibleTo("Energinet.DataHub.PostOffice.Tests")]
+[assembly: InternalsVisibleTo("Energinet.DataHub.MessageHub.Client.Tests")]

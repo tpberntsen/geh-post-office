@@ -28,7 +28,7 @@ using Xunit;
 using Xunit.Categories;
 using static System.Guid;
 
-namespace PostOffice.Communicator.Tests.Storage
+namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
 {
     [UnitTest]
     public class StorageHandlerTests

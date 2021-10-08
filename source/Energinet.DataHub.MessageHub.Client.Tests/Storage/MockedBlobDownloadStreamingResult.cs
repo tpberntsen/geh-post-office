@@ -17,7 +17,7 @@ using System.IO;
 using System.Reflection;
 using Azure.Storage.Blobs.Models;
 
-namespace PostOffice.Communicator.Tests.Storage
+namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
 {
     public static class MockedBlobDownloadStreamingResult
     {

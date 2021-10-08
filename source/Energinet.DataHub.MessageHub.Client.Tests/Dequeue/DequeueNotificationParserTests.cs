@@ -21,7 +21,7 @@ using Google.Protobuf;
 using Xunit;
 using Xunit.Categories;
 
-namespace PostOffice.Communicator.Tests.Dequeue
+namespace Energinet.DataHub.MessageHub.Client.Tests.Dequeue
 {
     [UnitTest]
     public class RequestBundleParserTests

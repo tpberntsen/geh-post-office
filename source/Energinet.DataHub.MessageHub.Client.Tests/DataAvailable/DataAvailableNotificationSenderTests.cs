@@ -15,45 +15,38 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.MessageHub.Client.Dequeue;
+using Energinet.DataHub.MessageHub.Client.DataAvailable;
 using Energinet.DataHub.MessageHub.Client.Factories;
 using Energinet.DataHub.MessageHub.Client.Model;
 using Moq;
 using Xunit;
 using Xunit.Categories;
 
-namespace PostOffice.Communicator.Tests.Dequeue
+namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
 {
     [UnitTest]
-    public class DequeueNotificationSenderTests
+    public sealed class DataAvailableNotificationSenderTests
     {
         [Fact]
         public async Task SendAsync_NullArgument_ThrowsException()
         {
             // Arrange
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
-            await using var target = new DequeueNotificationSender(serviceBusClientFactory.Object);
+            await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object);
 
             // Act + Assert
-            await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.SendAsync(null!, DomainOrigin.TimeSeries))
-                .ConfigureAwait(false);
+            await Assert.ThrowsAsync<ArgumentNullException>(() => target.SendAsync(null!)).ConfigureAwait(false);
         }
 
-        [Theory]
-        [InlineData(DomainOrigin.TimeSeries, "sbq-TimeSeries-dequeue")]
-        [InlineData(DomainOrigin.Charges, "sbq-Charges-dequeue")]
-        [InlineData(DomainOrigin.Aggregations, "sbq-Aggregations-dequeue")]
-        [InlineData(DomainOrigin.MarketRoles, "sbq-MarketRoles-dequeue")]
-        [InlineData(DomainOrigin.MeteringPoints, "sbq-MeteringPoints-dequeue")]
-        public async Task SendAsync_ValidInputForDomain_SendsMessage(DomainOrigin domainOrigin, string queueName)
+        [Fact]
+        public async Task SendAsync_ValidInput_SendsMessage()
         {
             // Arrange
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
             var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
 
             await using var mockedServiceBusClient = new MockedServiceBusClient(
-                queueName,
+                "sbq-dataavailable",
                 string.Empty,
                 serviceBusSenderMock.Object,
                 serviceBusSessionReceiverMock.Object);
@@ -61,14 +54,18 @@ namespace PostOffice.Communicator.Tests.Dequeue
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
 
-            await using var target = new DequeueNotificationSender(serviceBusClientFactory.Object);
+            await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object);
 
-            var dataAvailable = new DequeueNotificationDto(
-                new[] { Guid.NewGuid(), Guid.NewGuid() },
-                new GlobalLocationNumberDto("fake_value"));
+            var dataAvailable = new DataAvailableNotificationDto(
+                Guid.Parse("F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E"),
+                new GlobalLocationNumberDto("fake_value"),
+                new MessageTypeDto("fake_value"),
+                DomainOrigin.TimeSeries,
+                true,
+                1);
 
             // Act
-            await target.SendAsync(dataAvailable, domainOrigin).ConfigureAwait(false);
+            await target.SendAsync(dataAvailable).ConfigureAwait(false);
 
             // Assert
             serviceBusSenderMock.Verify(x => x.SendMessageAsync(It.IsAny<ServiceBusMessage>(), default), Times.Once);

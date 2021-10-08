@@ -24,7 +24,7 @@ using Moq;
 using Xunit;
 using Xunit.Categories;
 
-namespace PostOffice.Communicator.Tests.Peek
+namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
 {
     [UnitTest]
     public class DataBundleRequestSenderTests

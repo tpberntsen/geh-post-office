@@ -17,7 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 
-namespace PostOffice.Communicator.Tests
+namespace Energinet.DataHub.MessageHub.Client.Tests
 {
     internal sealed class MockedServiceBusClient : ServiceBusClient
     {

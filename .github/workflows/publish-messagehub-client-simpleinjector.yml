@@ -19,22 +19,22 @@ on:
     branches:
       - main
     paths:
-      - source/PostOffice.Communicator.SimpleInjector/**
+      - source/Energinet.DataHub.MessageHub.Client.SimpleInjector/**
       - .github/workflows/publish-messagehub-client.yml
       - .github/actions/publish-nuget-package/**
   pull_request:
     branches:
       - main
     paths:
-      - source/PostOffice.Communicator.SimpleInjector/**
+      - source/Energinet.DataHub.MessageHub.Client.SimpleInjector/**
       - .github/workflows/publish-messagehub-client.yml
       - .github/actions/publish-nuget-package/**
   workflow_dispatch: {}
 
 env:
   DOTNET_VERSION: '5.0'
-  CSPROJ_FILE_PATH: 'source/PostOffice.Communicator.SimpleInjector/source/PostOffice.Communicator.SimpleInjector/PostOffice.Communicator.SimpleInjector.csproj'
-  BINARY_PATH: 'source/PostOffice.Communicator.SimpleInjector/source/PostOffice.Communicator.SimpleInjector/bin/Release/*.nupkg'
+  CSPROJ_FILE_PATH: 'source/Energinet.DataHub.MessageHub.Client.SimpleInjector/source/Energinet.DataHub.MessageHub.Client.SimpleInjector/Energinet.DataHub.MessageHub.Client.SimpleInjector.csproj'
+  BINARY_PATH: 'source/Energinet.DataHub.MessageHub.Client.SimpleInjector/source/Energinet.DataHub.MessageHub.Client.SimpleInjector/bin/Release/*.nupkg'
 
 jobs:
   build_and_publish:

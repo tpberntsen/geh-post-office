@@ -15,7 +15,7 @@
 using Energinet.DataHub.MessageHub.Client.Factories;
 using Xunit;
 
-namespace PostOffice.Communicator.Tests.Factories
+namespace Energinet.DataHub.MessageHub.Client.Tests.Factories
 {
     public sealed class StorageServiceClientFactoryTests
     {

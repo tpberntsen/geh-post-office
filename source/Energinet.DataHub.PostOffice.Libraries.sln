@@ -15,19 +15,19 @@
 # Copyright 2020 Energinet DataHub A/S
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PostOffice.Communicator", "PostOffice.Communicator", "{D79C7D37-ADE1-42D3-9FED-1E5D784E6E7D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Energinet.DataHub.MessageHub.Client", "Energinet.DataHub.MessageHub.Client", "{D79C7D37-ADE1-42D3-9FED-1E5D784E6E7D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{2BF2F6B8-E02B-4D7F-99BC-D28B3B3643A9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostOffice.Communicator", "PostOffice.Communicator\source\PostOffice.Communicator\PostOffice.Communicator.csproj", "{E9F64300-834B-4657-850F-BEF4CED5D180}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Energinet.DataHub.MessageHub.Client", "Energinet.DataHub.MessageHub.Client\source\Energinet.DataHub.MessageHub.Client\Energinet.DataHub.MessageHub.Client.csproj", "{E9F64300-834B-4657-850F-BEF4CED5D180}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostOffice.Communicator.Tests", "PostOffice.Communicator.Tests\PostOffice.Communicator.Tests.csproj", "{20AD2920-0C12-4F83-A641-346B5196388D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Energinet.DataHub.MessageHub.Client.Tests", "Energinet.DataHub.MessageHub.Client.Tests\Energinet.DataHub.MessageHub.Client.Tests.csproj", "{20AD2920-0C12-4F83-A641-346B5196388D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PostOffice.Communicator.SimpleInjector", "PostOffice.Communicator.SimpleInjector", "{42755FFA-C4B2-4E8B-AED6-354CE59DFCF6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Energinet.DataHub.MessageHub.Client.SimpleInjector", "Energinet.DataHub.MessageHub.Client.SimpleInjector", "{42755FFA-C4B2-4E8B-AED6-354CE59DFCF6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{EA213317-5963-4C0D-8DD4-698D53C29EC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostOffice.Communicator.SimpleInjector", "PostOffice.Communicator.SimpleInjector\source\PostOffice.Communicator.SimpleInjector\PostOffice.Communicator.SimpleInjector.csproj", "{CC5EB98C-635A-465E-85F7-7925BB365AF5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Energinet.DataHub.MessageHub.Client.SimpleInjector", "Energinet.DataHub.MessageHub.Client.SimpleInjector\source\Energinet.DataHub.MessageHub.Client.SimpleInjector\Energinet.DataHub.MessageHub.Client.SimpleInjector.csproj", "{CC5EB98C-635A-465E-85F7-7925BB365AF5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

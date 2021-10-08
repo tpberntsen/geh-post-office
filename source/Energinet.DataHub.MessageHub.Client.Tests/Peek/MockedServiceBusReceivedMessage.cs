@@ -16,7 +16,7 @@ using System;
 using System.Reflection;
 using Azure.Messaging.ServiceBus;
 
-namespace PostOffice.Communicator.Tests.Peek
+namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
 {
     public static class MockedServiceBusReceivedMessage
     {

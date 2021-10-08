@@ -32,15 +32,18 @@ limitations under the License.
 	<PackageVersion>1.0.1$(VersionSuffix)</PackageVersion>
     <Title>Energinet.DataHub.MessageHub.Client library</Title>
     <Company>Energinet-DataHub</Company>
-    <Authors>Titans</Authors>
+    <Authors>Energinet-DataHub</Authors>
     <RepositoryUrl>https://github.com/Energinet-DataHub/geh-post-office</RepositoryUrl>
     <PackageReleaseNotes>
-      [Release Notes](https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/PostOffice.Communicator/documents/release-notes/release-notes.md)
-      [Documentation](https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/PostOffice.Communicator/documents/documentation.md)
+      Release Notes
+	  https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.Client/documents/release-notes/release-notes.md
+
+      Documentation
+	  https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.Client/documents/documentation.md
     </PackageReleaseNotes>
     <PackageDescription>
-      [Release Notes](https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/PostOffice.Communicator/documents/release-notes/release-notes.md)
-      [Documentation](https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/PostOffice.Communicator/documents/documentation.md)
+      [Release Notes](https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.Client/documents/release-notes/release-notes.md)
+      [Documentation](https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.Client/documents/documentation.md)
     </PackageDescription>
     <Description>Library containing communication API for Energinet.DataHub.MessageHub</Description>
     <PackageTags>geh;library</PackageTags>

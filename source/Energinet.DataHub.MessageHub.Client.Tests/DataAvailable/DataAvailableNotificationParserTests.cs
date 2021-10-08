@@ -20,7 +20,7 @@ using Google.Protobuf;
 using Xunit;
 using Xunit.Categories;
 
-namespace PostOffice.Communicator.Tests.DataAvailable
+namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
 {
     [UnitTest]
     public sealed class DataAvailableNotificationParserTests

@@ -36,7 +36,7 @@ limitations under the License.
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PostOffice.Communicator\source\PostOffice.Communicator\PostOffice.Communicator.csproj" />
+    <ProjectReference Include="..\Energinet.DataHub.MessageHub.Client\source\Energinet.DataHub.MessageHub.Client\Energinet.DataHub.MessageHub.Client.csproj" />
   </ItemGroup>
 
 </Project>

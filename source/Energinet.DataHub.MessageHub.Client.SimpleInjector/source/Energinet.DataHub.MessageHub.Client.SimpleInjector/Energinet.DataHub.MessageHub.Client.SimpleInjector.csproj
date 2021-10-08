@@ -32,15 +32,18 @@ limitations under the License.
 	<PackageVersion>1.0.0$(VersionSuffix)</PackageVersion>
 	<Title>Energinet.DataHub.MessageHub.Client.SimpleInjector library</Title>
     <Company>Energinet-DataHub</Company>
-    <Authors>Titans</Authors>
+    <Authors>Energinet-DataHub</Authors>
     <RepositoryUrl>https://github.com/Energinet-DataHub/geh-post-office</RepositoryUrl>
     <PackageReleaseNotes>
-      [Release Notes](https://github.com/Energinet-DataHub/geh-post-office/blob/master/source.PostOffice.Communicator.SimpleInjector/documents/release-notes/release-notes.md)
-      [Documentation](https://github.com/Energinet-DataHub/geh-post-office/blob/master/source.PostOffice.Communicator.SimpleInjector/documents/documentation.md)
+      Release Notes
+	  https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.Client.SimpleInjector/documents/release-notes/release-notes.md
+
+      Documentation
+	  https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.Client.SimpleInjector/documents/documentation.md
     </PackageReleaseNotes>
     <PackageDescription>
-      [Release Notes](https://github.com/Energinet-DataHub/geh-post-office/blob/master/source.PostOffice.Communicator.SimpleInjector/documents/release-notes/release-notes.md)
-      [Documentation](https://github.com/Energinet-DataHub/geh-post-office/blob/master/source.PostOffice.Communicator.SimpleInjector/documents/documentation.md)
+      [Release Notes](https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.Client.SimpleInjector/documents/release-notes/release-notes.md)
+      [Documentation](https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.Client.SimpleInjector/documents/documentation.md)
     </PackageDescription>
     <Description>Library containing SimpleInjector integration for Energinet.DataHub.MessageHub</Description>
     <PackageTags>geh;library</PackageTags>
