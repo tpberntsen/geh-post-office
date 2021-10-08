@@ -16,8 +16,8 @@ using System;
 using System.Linq;
 using Energinet.DataHub.MessageHub.Client.Exceptions;
 using Energinet.DataHub.MessageHub.Client.Model;
+using Energinet.DataHub.MessageHub.Client.Protobuf;
 using Google.Protobuf;
-using GreenEnergyHub.PostOffice.Communicator.Contracts;
 
 namespace Energinet.DataHub.MessageHub.Client.Peek
 {

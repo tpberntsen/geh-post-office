@@ -16,8 +16,8 @@ using System;
 using Energinet.DataHub.MessageHub.Client.Dequeue;
 using Energinet.DataHub.MessageHub.Client.Exceptions;
 using Energinet.DataHub.MessageHub.Client.Model;
+using Energinet.DataHub.MessageHub.Client.Protobuf;
 using Google.Protobuf;
-using GreenEnergyHub.PostOffice.Communicator.Contracts;
 using Xunit;
 using Xunit.Categories;
 

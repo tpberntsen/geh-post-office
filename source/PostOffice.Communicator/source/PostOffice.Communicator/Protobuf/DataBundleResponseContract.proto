@@ -15,7 +15,7 @@
 
 syntax = "proto3";
 
-option csharp_namespace = "GreenEnergyHub.PostOffice.Communicator.Contracts";
+option csharp_namespace = "Energinet.DataHub.MessageHub.Client.Protobuf";
 
 message DataBundleResponseContract {
 
