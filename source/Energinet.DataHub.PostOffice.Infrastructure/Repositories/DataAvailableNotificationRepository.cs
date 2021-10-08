@@ -48,6 +48,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 ContentType = dataAvailableNotification.ContentType.Value,
                 Origin = dataAvailableNotification.Origin.ToString(),
                 RelativeWeight = dataAvailableNotification.Weight.Value,
+                SupportsBundling = dataAvailableNotification.SupportsBundling.Value,
                 Priority = 1M
             };
 
