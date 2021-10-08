@@ -67,20 +67,14 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             };
         }
 
-        public async Task<Bundle?> GetNextUnacknowledgedAggregationsOrTimeSeriesAsync(MarketOperator recipient, Uuid bundleId)
+        public Task<Bundle?> GetNextUnacknowledgedChargesAsync(MarketOperator recipient, Uuid bundleId)
         {
-            var domains = new[] { DomainOrigin.Aggregations, DomainOrigin.TimeSeries };
+            return GetNextUnacknowledgedAsync(recipient, bundleId, DomainOrigin.Charges);
+        }
 
-            foreach (var domainOrigin in domains)
-            {
-                var (hasData, bundle) = await GetNextUnacknowledgedAsync(recipient, bundleId, domainOrigin).ConfigureAwait(false);
-                if (hasData)
-                {
-                    return bundle;
-                }
-            }
-
-            return null;
+        public Task<Bundle?> GetNextUnacknowledgedAggregationsOrTimeSeriesAsync(MarketOperator recipient, Uuid bundleId)
+        {
+            return GetNextUnacknowledgedAsync(recipient, bundleId, DomainOrigin.Aggregations, DomainOrigin.TimeSeries);
         }
 
         public async Task<(bool IsAcknowledged, Bundle? AcknowledgedBundle)> TryAcknowledgeAsync(MarketOperator recipient, Uuid bundleId)
@@ -94,27 +88,39 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             return (true, bundle);
         }
 
-        private async Task<(bool HasData, Bundle? Bundle)> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid bundleId, DomainOrigin domainOrigin)
+        private async Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid bundleId, params DomainOrigin[] orderedDomains)
         {
-            var existingBundle = await _bundleRepository.GetNextUnacknowledgedForDomainAsync(recipient, domainOrigin).ConfigureAwait(false);
-            if (existingBundle != null)
-                return (true, await AskSubDomainForContentAsync(existingBundle).ConfigureAwait(false));
+            DataAvailableNotification? firstNotificationInBundle = null;
 
-            var dataAvailableNotification = await _dataAvailableNotificationRepository.GetNextUnacknowledgedForDomainAsync(recipient, domainOrigin).ConfigureAwait(false);
-            if (dataAvailableNotification == null)
-                return (false, null); // No new data.
+            foreach (var domainOrigin in orderedDomains)
+            {
+                var existingBundle = await _bundleRepository.GetNextUnacknowledgedForDomainAsync(recipient, domainOrigin).ConfigureAwait(false);
+                if (existingBundle != null)
+                    return await AskSubDomainForContentAsync(existingBundle).ConfigureAwait(false);
+
+                var dataAvailableNotification = await _dataAvailableNotificationRepository.GetNextUnacknowledgedForDomainAsync(recipient, domainOrigin).ConfigureAwait(false);
+                if (dataAvailableNotification != null)
+                {
+                    firstNotificationInBundle = dataAvailableNotification;
+                    break;
+                }
+            }
+
+            // No new data in any domains.
+            if (firstNotificationInBundle == null)
+                return null;
 
             var newBundle = await CreateNextBundleAsync(
                 bundleId,
-                dataAvailableNotification.Recipient,
-                dataAvailableNotification.Origin,
-                dataAvailableNotification.ContentType).ConfigureAwait(false);
+                firstNotificationInBundle.Recipient,
+                firstNotificationInBundle.Origin,
+                firstNotificationInBundle.ContentType).ConfigureAwait(false);
 
             var bundleCreatedResponse = await _bundleRepository.TryAddNextUnacknowledgedAsync(newBundle).ConfigureAwait(false);
             return bundleCreatedResponse switch
             {
-                BundleCreatedResponse.Success => (true, await AskSubDomainForContentAsync(newBundle).ConfigureAwait(false)),
-                BundleCreatedResponse.AnotherBundleExists => (true, null),
+                BundleCreatedResponse.Success => await AskSubDomainForContentAsync(newBundle).ConfigureAwait(false),
+                BundleCreatedResponse.AnotherBundleExists => null,
                 BundleCreatedResponse.BundleIdAlreadyInUse => throw new ValidationException(nameof(BundleCreatedResponse.BundleIdAlreadyInUse)),
                 _ => throw new InvalidOperationException($"bundleCreatedResponse was {bundleCreatedResponse}")
             };
