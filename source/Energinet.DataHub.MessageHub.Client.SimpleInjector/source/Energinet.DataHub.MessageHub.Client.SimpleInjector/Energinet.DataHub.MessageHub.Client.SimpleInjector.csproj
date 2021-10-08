@@ -29,7 +29,7 @@ limitations under the License.
 
   <PropertyGroup>
     <PackageId>Energinet.DataHub.MessageHub.Client.SimpleInjector</PackageId>
-	<PackageVersion>1.0.0$(VersionSuffix)</PackageVersion>
+	<PackageVersion>1.0.1$(VersionSuffix)</PackageVersion>
 	<Title>Energinet.DataHub.MessageHub.Client.SimpleInjector library</Title>
     <Company>Energinet-DataHub</Company>
     <Authors>Energinet-DataHub</Authors>
