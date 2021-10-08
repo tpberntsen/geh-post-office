@@ -20,7 +20,7 @@ limitations under the License.
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
     <ProjectGuid>{CC5EB98C-635A-465E-85F7-7925BB365AF5}</ProjectGuid>
-    <AssemblyName>ENDK.DataHub.MessageHub.Client.SimpleInjector</AssemblyName>
+    <AssemblyName>Energinet.DataHub.MessageHub.Client.SimpleInjector</AssemblyName>
     <RootNamespace>Energinet.DataHub.MessageHub.Client.SimpleInjector</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <IsPackable>true</IsPackable>
@@ -28,8 +28,8 @@ limitations under the License.
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>ENDK.DataHub.MessageHub.Client.SimpleInjector</PackageId>
-	<PackageVersion>1.0.2$(VersionSuffix)</PackageVersion>
+    <PackageId>Energinet.DataHub.MessageHub.Client.SimpleInjector</PackageId>
+	<PackageVersion>1.0.0$(VersionSuffix)</PackageVersion>
 	<Title>Energinet.DataHub.MessageHub.Client.SimpleInjector library</Title>
     <Company>Energinet-DataHub</Company>
     <Authors>Titans</Authors>
@@ -60,7 +60,7 @@ limitations under the License.
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ENDK.DataHub.MessageHub.Client" Version="1.0.*" />
+    <PackageReference Include="Energinet.DataHub.MessageHub.Client" Version="1.0.*" />
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.3.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
