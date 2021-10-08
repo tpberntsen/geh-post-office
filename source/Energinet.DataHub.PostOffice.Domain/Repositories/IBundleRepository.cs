@@ -49,7 +49,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// </summary>
         /// <param name="bundle">The bundle to add.</param>
         /// <returns>Returns true if the bundle was successfully added; false, if another bundle aready exists.</returns>
-        Task<bool> TryAddNextUnacknowledgedAsync(Bundle bundle);
+        Task<BundleCreatedResponse> TryAddNextUnacknowledgedAsync(Bundle bundle);
 
         /// <summary>
         /// Saves the bundle.

@@ -19,6 +19,7 @@ using System.Net;
 using System.Text.Json;
 using Energinet.DataHub.PostOffice.Common.Extensions;
 using Energinet.DataHub.PostOffice.Common.Model;
+using Energinet.DataHub.PostOffice.Domain.Model;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
@@ -113,6 +114,27 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
             Assert.Equal(HttpStatusCode.InternalServerError, actual.StatusCode);
             Assert.Equal("INTERNAL_ERROR", actualCode);
             Assert.Equal("An error occured while processing the request", actualMessage);
+            Assert.Null(actualTarget);
+        }
+
+        [Fact]
+        public void AsHttpResponseData_ExceptionIsDataAnnotationException_ReturnsResponseWithGenericErrorAndStatusValidationError()
+        {
+            var request = new MockedHttpRequestData(new MockedFunctionContext());
+            const string validationErrorMessage = nameof(BundleCreatedResponse.BundleIdAlreadyInUse);
+            var exception = new System.ComponentModel.DataAnnotations.ValidationException(validationErrorMessage);
+
+            // act
+            var actual = exception.AsHttpResponseData(request.HttpRequestData);
+            var actualFunctionError = JsonSerializer.Deserialize<FunctionError>(
+                ((MemoryStream)actual.Body).ToArray(),
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })!;
+            var (actualCode, actualMessage, actualTarget) = actualFunctionError.Errors.Single();
+
+            // assert
+            Assert.Equal(HttpStatusCode.BadRequest, actual.StatusCode);
+            Assert.Equal("VALIDATION_EXCEPTION", actualCode);
+            Assert.Equal(nameof(BundleCreatedResponse.BundleIdAlreadyInUse), actualMessage);
             Assert.Null(actualTarget);
         }
 

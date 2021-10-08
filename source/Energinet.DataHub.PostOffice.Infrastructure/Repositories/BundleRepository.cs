@@ -80,7 +80,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             return GetNextUnacknowledgedAsync(recipient, documentQuery);
         }
 
-        public async Task<bool> TryAddNextUnacknowledgedAsync(Bundle bundle)
+        public async Task<BundleCreatedResponse> TryAddNextUnacknowledgedAsync(Bundle bundle)
         {
             if (bundle == null)
                 throw new ArgumentNullException(nameof(bundle));
@@ -96,11 +96,15 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 await _repositoryContainer.Container
                     .CreateItemAsync(messageDocument, requestOptions: requestOptions)
                     .ConfigureAwait(false);
-                return true;
+                return BundleCreatedResponse.Success;
             }
             catch (CosmosException ex) when (IsConcurrencyError(ex))
             {
-                return false;
+                return BundleCreatedResponse.AnotherBundleExists;
+            }
+            catch (CosmosException ex) when (IsBundleIdDuplicateError(ex))
+            {
+                return BundleCreatedResponse.BundleIdAlreadyInUse;
             }
         }
 
@@ -150,6 +154,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
         private static bool IsConcurrencyError(CosmosException ex)
         {
             return ex.ResponseBody.Contains("SingleBundleViolation", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsBundleIdDuplicateError(CosmosException ex)
+        {
+            return ex.StatusCode == HttpStatusCode.Conflict;
         }
 
         private async Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, QueryDefinition bundleQuery)

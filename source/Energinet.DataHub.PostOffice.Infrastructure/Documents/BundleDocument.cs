@@ -25,6 +25,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
             Recipient = string.Empty;
             NotificationIds = new List<string>();
             ContentPath = string.Empty;
+            ProcessId = string.Empty;
         }
 
         public string Id { get; init; }
@@ -33,5 +34,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
         public ICollection<string> NotificationIds { get; init; }
         public bool Dequeued { get; init; }
         public string ContentPath { get; init; }
+        public string ProcessId { get; init; }
     }
 }

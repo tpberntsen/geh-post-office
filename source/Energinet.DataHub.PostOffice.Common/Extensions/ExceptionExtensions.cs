@@ -19,9 +19,10 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using Energinet.DataHub.PostOffice.Common.Model;
-using FluentValidation;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using DataAnnotationException = System.ComponentModel.DataAnnotations.ValidationException;
+using FluentValidationException = FluentValidation.ValidationException;
 
 namespace Energinet.DataHub.PostOffice.Common.Extensions
 {
@@ -32,7 +33,7 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            if (source is not ValidationException)
+            if (source is not FluentValidationException)
                 logger.LogError(source, "An error occurred while processing request");
         }
 
@@ -52,7 +53,8 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
 
             return source switch
             {
-                ValidationException ve => CreateHttpResponseData(request, HttpStatusCode.BadRequest, ve.Errors.Select(x => new ErrorDescriptor(x.ErrorCode, x.ErrorMessage, x.PropertyName))),
+                FluentValidationException ve => CreateHttpResponseData(request, HttpStatusCode.BadRequest, ve.Errors.Select(x => new ErrorDescriptor(x.ErrorCode, x.ErrorMessage, x.PropertyName))),
+                DataAnnotationException ve => CreateHttpResponseData(request, HttpStatusCode.BadRequest, new[] { new ErrorDescriptor("VALIDATION_EXCEPTION", ve.Message, null) }),
                 _ => CreateHttpResponseData(request, HttpStatusCode.InternalServerError, new[] { new ErrorDescriptor("INTERNAL_ERROR", "An error occured while processing the request", null) })
             };
         }

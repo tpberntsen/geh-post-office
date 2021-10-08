@@ -242,12 +242,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var couldAdd = await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
 
             // Assert
-            Assert.True(couldAdd);
+            Assert.Equal(BundleCreatedResponse.Success, couldAdd);
             Assert.NotNull(await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false));
         }
 
         [Fact]
-        public async Task TryAddNextUnacknowledgedAsync_HasExistingBundle_ReturnsFalse()
+        public async Task TryAddNextUnacknowledgedAsync_HasExistingBundle_ReturnsError()
         {
             // Arrange
             await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
@@ -267,7 +267,36 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var couldAdd = await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
 
             // Assert
-            Assert.False(couldAdd);
+            Assert.Equal(BundleCreatedResponse.AnotherBundleExists, couldAdd);
+        }
+
+        [Fact]
+        public async Task TryAddNextUnacknowledgedAsync_BundleIdExistsInsidePartition_ReturnsDuplicateError()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
+
+            var recipientGln = new GlobalLocationNumber(Guid.NewGuid().ToString());
+            var bundleId = new Uuid(Guid.NewGuid());
+
+            var recipient = new MarketOperator(recipientGln);
+            var setupBundle = CreateBundle(bundleId.AsGuid(), recipient);
+
+            var recipient2 = new MarketOperator(recipientGln);
+            var bundleWithDuplicateId = CreateBundle(bundleId.AsGuid(), recipient2);
+
+            await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+
+            // Act
+            var couldAddBundleWithDuplicateId = await target.TryAddNextUnacknowledgedAsync(bundleWithDuplicateId).ConfigureAwait(false);
+
+            // Assert
+            Assert.Equal(BundleCreatedResponse.BundleIdAlreadyInUse, couldAddBundleWithDuplicateId);
         }
 
         [Fact]
@@ -291,7 +320,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var couldAdd = await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
 
             // Assert
-            Assert.False(couldAdd);
+            Assert.Equal(BundleCreatedResponse.AnotherBundleExists, couldAdd);
         }
 
         [Fact]
@@ -315,7 +344,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var couldAdd = await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
 
             // Assert
-            Assert.False(couldAdd);
+            Assert.Equal(BundleCreatedResponse.AnotherBundleExists, couldAdd);
         }
 
         [Fact]
@@ -354,6 +383,16 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             return new Bundle(
                 new Uuid(Guid.NewGuid()),
                 domainOrigin,
+                recipient,
+                new[] { new Uuid(Guid.NewGuid()) },
+                bundleContent);
+        }
+
+        private static Bundle CreateBundle(Guid bundleId, MarketOperator recipient, IBundleContent? bundleContent = null)
+        {
+            return new Bundle(
+                new Uuid(bundleId),
+                DomainOrigin.TimeSeries,
                 recipient,
                 new[] { new Uuid(Guid.NewGuid()) },
                 bundleContent);

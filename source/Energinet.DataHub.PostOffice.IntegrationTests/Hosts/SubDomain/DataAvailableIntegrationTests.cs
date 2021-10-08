@@ -59,6 +59,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
         {
             // Arrange
             var recipientGln = new MockedGln();
+            var bundleId = Guid.NewGuid().ToString();
 
             await using var host = await MarketOperatorIntegrationTestHost
                 .InitializeAsync()
@@ -81,7 +82,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
             // Assert
             Assert.NotNull(response);
 
-            var peekResponse = await mediator.Send(new PeekCommand(recipientGln)).ConfigureAwait(false);
+            var peekResponse = await mediator.Send(new PeekCommand(recipientGln, bundleId)).ConfigureAwait(false);
             Assert.NotNull(peekResponse);
             Assert.True(peekResponse.HasContent);
         }

@@ -23,7 +23,7 @@ using Xunit.Categories;
 namespace Energinet.DataHub.PostOffice.Tests.Validation
 {
     [UnitTest]
-    public sealed class PeekCommandRuleSetTests
+    public sealed class PeekAggregationsOrTimeSeriesCommandRuleSetTests
     {
         private const string ValidRecipient = "5790000555550";
 
@@ -38,8 +38,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
             // Arrange
             const string propertyName = nameof(PeekCommand.BundleId);
 
-            var target = new PeekCommandRuleSet();
-            var command = new PeekCommand(
+            var target = new PeekAggregationsOrTimeSeriesCommandRuleSet();
+            var command = new PeekAggregationsOrTimeSeriesCommand(
                 ValidRecipient,
                 value);
 
@@ -69,8 +69,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
             // Arrange
             const string propertyName = nameof(PeekCommand.Recipient);
 
-            var target = new PeekCommandRuleSet();
-            var command = new PeekCommand(value, Guid.NewGuid().ToString());
+            var target = new PeekAggregationsOrTimeSeriesCommandRuleSet();
+            var command = new PeekAggregationsOrTimeSeriesCommand(value, Guid.NewGuid().ToString());
 
             // Act
             var result = await target.ValidateAsync(command).ConfigureAwait(false);

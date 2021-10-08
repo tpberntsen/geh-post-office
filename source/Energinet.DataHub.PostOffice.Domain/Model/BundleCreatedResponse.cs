@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Energinet.DataHub.PostOffice.Application.Commands
+namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public sealed record PeekCommand(string Recipient, string BundleId) : PeekCommandBase(Recipient, BundleId);
+    public enum BundleCreatedResponse
+    {
+        Success = 0,
+        AnotherBundleExists = 1,
+        BundleIdAlreadyInUse = 2,
+    }
 }
