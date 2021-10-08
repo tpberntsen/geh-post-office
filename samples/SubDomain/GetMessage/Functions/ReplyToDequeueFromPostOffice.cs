@@ -14,7 +14,7 @@
 
 using System;
 using System.Threading.Tasks;
-using GreenEnergyHub.PostOffice.Communicator.Dequeue;
+using Energinet.DataHub.MessageHub.Client.Dequeue;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 

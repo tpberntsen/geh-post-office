@@ -13,7 +13,7 @@
 // limitations under the License.
 
 using System;
-using GreenEnergyHub.PostOffice.Communicator.Model;
+using Energinet.DataHub.MessageHub.Client.Model;
 
 namespace DataAvailableNotification
 {

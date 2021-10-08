@@ -15,11 +15,10 @@
 using System;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
-using GreenEnergyHub.PostOffice.Communicator.Dequeue;
-using GreenEnergyHub.PostOffice.Communicator.Factories;
-using GreenEnergyHub.PostOffice.Communicator.Model;
-using GreenEnergyHub.PostOffice.Communicator.Peek;
-using GreenEnergyHub.PostOffice.Communicator.Storage;
+using Energinet.DataHub.MessageHub.Client.Dequeue;
+using Energinet.DataHub.MessageHub.Client.Factories;
+using Energinet.DataHub.MessageHub.Client.Peek;
+using Energinet.DataHub.MessageHub.Client.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

@@ -53,10 +53,4 @@ limitations under the License.
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="GreenEnergyHub.Messaging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\poor-man-package-sharing\GreenEnergyHub.Messaging.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 </Project>
