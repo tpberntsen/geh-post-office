@@ -85,6 +85,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
             var mockedStorageServiceClientFactory = new Mock<IStorageServiceClientFactory>();
             var mockedBlobServiceClient = new Mock<BlobServiceClient>();
             var mockedBlobContainerClient = new Mock<BlobContainerClient>();
+            var mockedBlobClient = new Mock<BlobClient>();
             var mockedDataBundleRequestDto = new DataBundleRequestDto(
                 NewGuid().ToString(),
                 new List<Guid> { NewGuid(), NewGuid(), NewGuid() });
@@ -93,10 +94,14 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
                     x => x.GetBlobContainerClient(It.IsAny<string>()))
                 .Returns(mockedBlobContainerClient.Object);
 
-            mockedBlobContainerClient.Setup(
-                    x => x.UploadBlobAsync(
-                        It.IsAny<string>(),
+            mockedBlobContainerClient
+                .Setup(client => client.GetBlobClient(It.IsAny<string>()))
+                .Returns(mockedBlobClient.Object);
+
+            mockedBlobClient.Setup(
+                    x => x.UploadAsync(
                         It.IsAny<Stream>(),
+                        It.IsAny<bool>(),
                         default))
                 .ThrowsAsync(new RequestFailedException("test"));
 

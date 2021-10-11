@@ -47,8 +47,8 @@ namespace Energinet.DataHub.MessageHub.Client.Storage
                 var storageClient = _storageServiceClientFactory.Create();
                 var containerClient = storageClient.GetBlobContainerClient("postoffice-blobstorage");
                 var blobName = requestDto.IdempotencyId;
-                await containerClient.UploadBlobAsync(blobName, stream).ConfigureAwait(false);
                 var blobClient = containerClient.GetBlobClient(blobName);
+                await blobClient.UploadAsync(stream, true).ConfigureAwait(false);
                 var blobUri = blobClient.Uri;
                 return blobUri;
             }
