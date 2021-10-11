@@ -26,6 +26,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
     public class PeekHandler :
         IRequestHandler<PeekCommand, PeekResponse>,
         IRequestHandler<PeekChargesCommand, PeekResponse>,
+        IRequestHandler<PeekMasterDataCommand, PeekResponse>,
         IRequestHandler<PeekAggregationsOrTimeSeriesCommand, PeekResponse>
     {
         private readonly IMarketOperatorDataDomainService _marketOperatorDataDomainService;
@@ -41,6 +42,11 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
         }
 
         public Task<PeekResponse> Handle(PeekChargesCommand request, CancellationToken cancellationToken)
+        {
+            return HandleAsync(request);
+        }
+
+        public Task<PeekResponse> Handle(PeekMasterDataCommand request, CancellationToken cancellationToken)
         {
             return HandleAsync(request);
         }
@@ -66,6 +72,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             {
                 PeekCommand => _marketOperatorDataDomainService.GetNextUnacknowledgedAsync,
                 PeekChargesCommand => _marketOperatorDataDomainService.GetNextUnacknowledgedChargesAsync,
+                PeekMasterDataCommand => _marketOperatorDataDomainService.GetNextUnacknowledgedMasterDataAsync,
                 PeekAggregationsOrTimeSeriesCommand => _marketOperatorDataDomainService.GetNextUnacknowledgedAggregationsOrTimeSeriesAsync,
                 _ => throw new ArgumentOutOfRangeException(nameof(request))
             };

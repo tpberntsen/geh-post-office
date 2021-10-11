@@ -24,6 +24,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
         {
             container.Register<PeekFunction>(Lifestyle.Scoped);
             container.Register<PeekChargesFunction>(Lifestyle.Scoped);
+            container.Register<PeekMasterDataFunction>(Lifestyle.Scoped);
             container.Register<PeekAggregationsOrTimeSeriesFunction>(Lifestyle.Scoped);
             container.Register<DequeueFunction>(Lifestyle.Scoped);
         }

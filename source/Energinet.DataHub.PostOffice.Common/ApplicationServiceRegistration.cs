@@ -30,6 +30,7 @@ namespace Energinet.DataHub.PostOffice.Common
             container.Register<IValidator<DataAvailableNotificationCommand>, DataAvailableNotificationCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<PeekCommand>, PeekCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<PeekChargesCommand>, PeekChargesCommandRuleSet>(Lifestyle.Scoped);
+            container.Register<IValidator<PeekMasterDataCommand>, PeekMasterDataCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<PeekAggregationsOrTimeSeriesCommand>, PeekAggregationsOrTimeSeriesCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<DequeueCommand>, DequeueCommandRuleSet>(Lifestyle.Scoped);
 

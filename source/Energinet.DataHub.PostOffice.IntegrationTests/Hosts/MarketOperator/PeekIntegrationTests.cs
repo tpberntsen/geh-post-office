@@ -375,6 +375,158 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             Assert.DoesNotContain(unexpectedGuid, bundleContents.DataAvailableNotificationIds);
         }
 
+        [Fact]
+        public async Task PeekMasterDataCommand_InvalidCommand_ThrowsException()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var peekCommand = new PeekMasterDataCommand("   ", "    ");
+
+            // Act + Assert
+            await Assert.ThrowsAsync<ValidationException>(() => mediator.Send(peekCommand)).ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task PeekMasterDataCommand_Empty_ReturnsNothing()
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var unrelatedGln = new MockedGln();
+            var bundleId = Guid.NewGuid().ToString();
+
+            await AddMeteringPointsNotificationAsync(unrelatedGln).ConfigureAwait(false);
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var peekCommand = new PeekMasterDataCommand(recipientGln, bundleId);
+
+            // Act
+            var response = await mediator.Send(peekCommand).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.False(response.HasContent);
+        }
+
+        [Fact]
+        public async Task PeekMasterDataCommand_SingleMarketRolesNotification_ReturnsData()
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var bundleId = Guid.NewGuid().ToString();
+            await AddMarketRolesNotificationAsync(recipientGln).ConfigureAwait(false);
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var peekCommand = new PeekMasterDataCommand(recipientGln, bundleId);
+
+            // Act
+            var response = await mediator.Send(peekCommand).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.HasContent);
+        }
+
+        [Fact]
+        public async Task PeekMasterDataCommand_SingleMeteringPointsNotification_ReturnsData()
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var bundleId = Guid.NewGuid().ToString();
+            await AddMeteringPointsNotificationAsync(recipientGln).ConfigureAwait(false);
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var peekCommand = new PeekMasterDataCommand(recipientGln, bundleId);
+
+            // Act
+            var response = await mediator.Send(peekCommand).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.HasContent);
+        }
+
+        [Fact]
+        public async Task PeekMasterDataCommand_SingleNotificationMultiplePeek_ReturnsData()
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var bundleId = Guid.NewGuid().ToString();
+            await AddMeteringPointsNotificationAsync(recipientGln).ConfigureAwait(false);
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var peekCommand = new PeekMasterDataCommand(recipientGln, bundleId);
+
+            // Act
+            var responseA = await mediator.Send(peekCommand).ConfigureAwait(false);
+            var responseB = await mediator.Send(peekCommand).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(responseA);
+            Assert.True(responseA.HasContent);
+            Assert.NotNull(responseB);
+            Assert.True(responseB.HasContent);
+        }
+
+        [Fact]
+        public async Task PeekMasterDataCommand_BothNotifications_ReturnsMarektRoles()
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var unexpectedGuid = await AddMeteringPointsNotificationAsync(recipientGln).ConfigureAwait(false);
+            var expectedGuid = await AddMarketRolesNotificationAsync(recipientGln).ConfigureAwait(false);
+            var bundleId = Guid.NewGuid().ToString();
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var peekCommand = new PeekMasterDataCommand(recipientGln, bundleId);
+
+            // Act
+            var response = await mediator.Send(peekCommand).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.HasContent);
+
+            var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
+            Assert.Contains(expectedGuid, bundleContents.DataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuid, bundleContents.DataAvailableNotificationIds);
+        }
+
         private static async Task AddChargesNotificationAsync(string recipientGln)
         {
             var dataAvailableUuid = Guid.NewGuid();
@@ -386,14 +538,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 false,
                 1);
 
-            await using var host = await SubDomainIntegrationTestHost
-                .InitializeAsync()
-                .ConfigureAwait(false);
-
-            await using var scope = host.BeginScope();
-            var mediator = scope.GetInstance<IMediator>();
-
-            await mediator.Send(dataAvailableCommand).ConfigureAwait(false);
+            await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
         }
 
         private static async Task<Guid> AddTimeSeriesNotificationAsync(string recipientGln)
@@ -407,14 +552,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 false,
                 1);
 
-            await using var host = await SubDomainIntegrationTestHost
-                .InitializeAsync()
-                .ConfigureAwait(false);
-
-            await using var scope = host.BeginScope();
-            var mediator = scope.GetInstance<IMediator>();
-
-            await mediator.Send(dataAvailableCommand).ConfigureAwait(false);
+            await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
             return dataAvailableUuid;
         }
 
@@ -429,6 +567,42 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 false,
                 1);
 
+            await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
+            return dataAvailableUuid;
+        }
+
+        private static async Task<Guid> AddMarketRolesNotificationAsync(string recipientGln)
+        {
+            var dataAvailableUuid = Guid.NewGuid();
+            var dataAvailableCommand = new DataAvailableNotificationCommand(
+                dataAvailableUuid.ToString(),
+                recipientGln,
+                "marketroles",
+                "MarketRoles",
+                false,
+                1);
+
+            await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
+            return dataAvailableUuid;
+        }
+
+        private static async Task<Guid> AddMeteringPointsNotificationAsync(string recipientGln)
+        {
+            var dataAvailableUuid = Guid.NewGuid();
+            var dataAvailableCommand = new DataAvailableNotificationCommand(
+                dataAvailableUuid.ToString(),
+                recipientGln,
+                "meteringpoints",
+                "MeteringPoints",
+                false,
+                1);
+
+            await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
+            return dataAvailableUuid;
+        }
+
+        private static async Task AddNotificationAsync(DataAvailableNotificationCommand dataAvailableCommand)
+        {
             await using var host = await SubDomainIntegrationTestHost
                 .InitializeAsync()
                 .ConfigureAwait(false);
@@ -437,7 +611,6 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             var mediator = scope.GetInstance<IMediator>();
 
             await mediator.Send(dataAvailableCommand).ConfigureAwait(false);
-            return dataAvailableUuid;
         }
     }
 }

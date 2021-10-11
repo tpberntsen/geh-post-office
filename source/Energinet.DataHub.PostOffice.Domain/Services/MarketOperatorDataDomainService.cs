@@ -72,6 +72,11 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             return GetNextUnacknowledgedAsync(recipient, bundleId, DomainOrigin.Charges);
         }
 
+        public Task<Bundle?> GetNextUnacknowledgedMasterDataAsync(MarketOperator recipient, Uuid bundleId)
+        {
+            return GetNextUnacknowledgedAsync(recipient, bundleId, DomainOrigin.MarketRoles, DomainOrigin.MeteringPoints);
+        }
+
         public Task<Bundle?> GetNextUnacknowledgedAggregationsOrTimeSeriesAsync(MarketOperator recipient, Uuid bundleId)
         {
             return GetNextUnacknowledgedAsync(recipient, bundleId, DomainOrigin.Aggregations, DomainOrigin.TimeSeries);

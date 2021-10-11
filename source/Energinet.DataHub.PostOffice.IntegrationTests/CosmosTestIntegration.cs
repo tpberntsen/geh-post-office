@@ -66,7 +66,9 @@ function trigger() {
           b.dequeued = false AND (
           b.origin = '${createdItem.origin}' OR
          (b.origin = 'TimeSeries' AND '${createdItem.origin}' = 'Aggregations') OR
-         (b.origin = 'Aggregations' AND '${createdItem.origin}' = 'TimeSeries'))`;
+         (b.origin = 'Aggregations' AND '${createdItem.origin}' = 'TimeSeries') OR
+         (b.origin = 'MarketRoles' AND '${createdItem.origin}' = 'MeteringPoints') OR
+         (b.origin = 'MeteringPoints' AND '${createdItem.origin}' = 'MarketRoles'))`;
 
     var accept = container.queryDocuments(container.getSelfLink(), filterQuery, function(err, items, options)
     {
