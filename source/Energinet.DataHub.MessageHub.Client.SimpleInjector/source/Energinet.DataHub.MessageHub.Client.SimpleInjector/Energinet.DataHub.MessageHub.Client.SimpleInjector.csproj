@@ -66,7 +66,7 @@ https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energine
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Energinet.DataHub.MessageHub.Client" Version="1.0.4" />
+    <PackageReference Include="Energinet.DataHub.MessageHub.Client" Version="1.0.5" />
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.3.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
