@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
+using Energinet.DataHub.PostOffice.Infrastructure.Common;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using Energinet.DataHub.PostOffice.Infrastructure.Model;
@@ -45,18 +46,17 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             if (recipient is null)
                 throw new ArgumentNullException(nameof(recipient));
 
-            const string query =
-                @"SELECT * FROM bundles
-                  WHERE
-                    bundles.recipient = @recipient AND
-                    bundles.dequeued = false
-                  ORDER BY bundles._ts ASC
-                  OFFSET 0 LIMIT 1";
+            var asLinq = _repositoryContainer
+                .Container
+                .GetItemLinqQueryable<CosmosBundleDocument>();
 
-            var bundlesQuery = new QueryDefinition(query)
-                .WithParameter("@recipient", recipient.Gln.Value);
+            var query =
+                from bundle in asLinq
+                where bundle.Recipient == recipient.Gln.Value && !bundle.Dequeued
+                orderby bundle.Timestamp
+                select bundle;
 
-            return GetNextUnacknowledgedAsync(recipient, bundlesQuery);
+            return GetNextUnacknowledgedAsync(recipient, query);
         }
 
         public Task<Bundle?> GetNextUnacknowledgedForDomainAsync(MarketOperator recipient, DomainOrigin domainOrigin)
@@ -64,20 +64,20 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             if (recipient is null)
                 throw new ArgumentNullException(nameof(recipient));
 
-            const string query =
-                @"SELECT * FROM bundles
-                  WHERE
-                    bundles.recipient = @recipient AND
-                    bundles.origin = @domainOrigin AND
-                    bundles.dequeued = false
-                  ORDER BY bundles._ts ASC
-                  OFFSET 0 LIMIT 1";
+            var asLinq = _repositoryContainer
+                .Container
+                .GetItemLinqQueryable<CosmosBundleDocument>();
 
-            var documentQuery = new QueryDefinition(query)
-                    .WithParameter("@recipient", recipient.Gln.Value)
-                    .WithParameter("@domainOrigin", domainOrigin.ToString());
+            var query =
+                from bundle in asLinq
+                where
+                    bundle.Recipient == recipient.Gln.Value &&
+                    bundle.Origin == domainOrigin.ToString() &&
+                    !bundle.Dequeued
+                orderby bundle.Timestamp
+                select bundle;
 
-            return GetNextUnacknowledgedAsync(recipient, documentQuery);
+            return GetNextUnacknowledgedAsync(recipient, query);
         }
 
         public async Task<BundleCreatedResponse> TryAddNextUnacknowledgedAsync(Bundle bundle)
@@ -108,35 +108,32 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
-        public async Task AcknowledgeAsync(Uuid bundleId)
+        public async Task AcknowledgeAsync(MarketOperator recipient, Uuid bundleId)
         {
+            if (recipient is null)
+                throw new ArgumentNullException(nameof(recipient));
+
             if (bundleId is null)
                 throw new ArgumentNullException(nameof(bundleId));
 
-            var documentQuery =
-                new QueryDefinition("SELECT * FROM c WHERE c.id = @id ORDER BY c._ts ASC OFFSET 0 LIMIT 1")
-                    .WithParameter("@id", bundleId.ToString());
-
-            using var feedIterator = _repositoryContainer
+            var asLinq = _repositoryContainer
                 .Container
-                .GetItemQueryIterator<BundleDocument>(documentQuery);
+                .GetItemLinqQueryable<CosmosBundleDocument>();
 
-            var documentsFromCosmos =
-                await feedIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
+            var query =
+                from bundle in asLinq
+                where bundle.Id == bundleId.ToString() && bundle.Recipient == recipient.Gln.Value
+                select bundle;
 
-            if (documentsFromCosmos.Any())
-            {
-                var dequeuedBundleDocument = documentsFromCosmos.First() with { Dequeued = true };
-                var response =
-                    await _repositoryContainer.Container
-                        .ReplaceItemAsync(dequeuedBundleDocument, dequeuedBundleDocument.Id)
-                        .ConfigureAwait(false);
+            var bundleToUpdate = await query
+                .AsCosmosIteratorAsync()
+                .SingleAsync()
+                .ConfigureAwait(false);
 
-                if (response.StatusCode != HttpStatusCode.OK)
-                    throw new InvalidOperationException("Could not dequeue document in cosmos");
-            }
+            var updatedBundle = bundleToUpdate with { Dequeued = true };
+            await _repositoryContainer.Container
+                .ReplaceItemAsync(updatedBundle, updatedBundle.Id)
+                .ConfigureAwait(false);
         }
 
         public async Task SaveAsync(Bundle bundle)
@@ -161,32 +158,24 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             return ex.StatusCode == HttpStatusCode.Conflict;
         }
 
-        private async Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, QueryDefinition bundleQuery)
+        private async Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, IQueryable<CosmosBundleDocument> query)
         {
-            using var feedIterator = _repositoryContainer
-                .Container
-                .GetItemQueryIterator<BundleDocument>(bundleQuery);
-
-            var documentsFromCosmos = await feedIterator
-                .ReadNextAsync()
-                .ConfigureAwait(false);
-
-            var document = documentsFromCosmos.FirstOrDefault();
-            if (document == null)
+            var bundleDocument = await query.AsCosmosIteratorAsync().FirstOrDefaultAsync().ConfigureAwait(false);
+            if (bundleDocument == null)
                 return null;
 
             IBundleContent? bundleContent = null;
 
-            if (!string.IsNullOrWhiteSpace(document.ContentPath))
+            if (!string.IsNullOrWhiteSpace(bundleDocument.ContentPath))
             {
-                bundleContent = new AzureBlobBundleContent(_marketOperatorDataStorageService, new Uri(document.ContentPath));
+                bundleContent = new AzureBlobBundleContent(_marketOperatorDataStorageService, new Uri(bundleDocument.ContentPath));
             }
 
             return new Bundle(
-                new Uuid(document.Id),
-                Enum.Parse<DomainOrigin>(document.Origin),
+                new Uuid(bundleDocument.Id),
+                Enum.Parse<DomainOrigin>(bundleDocument.Origin),
                 recipient,
-                document.NotificationIds.Select(x => new Uuid(x)).ToList(),
+                bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList(),
                 bundleContent);
         }
     }

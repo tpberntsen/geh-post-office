@@ -12,19 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.Azure.Cosmos;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Azure.Cosmos.Linq;
 
-namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
+namespace Energinet.DataHub.PostOffice.Infrastructure.Common
 {
-    public class BundleRepositoryContainer : IBundleRepositoryContainer
+    public static class CosmosExtensions
     {
-        private readonly CosmosClient _client;
-
-        public BundleRepositoryContainer(CosmosClient client)
+        public static async IAsyncEnumerable<T> AsCosmosIteratorAsync<T>(this IQueryable<T> query)
         {
-            _client = client;
-        }
+            using var iterator = query.ToFeedIterator();
 
-        public Container Container => _client.GetContainer("post-office", "bundles"); // TODO: Add config variables once config is in place.
+            while (iterator.HasMoreResults)
+            {
+                foreach (var item in await iterator.ReadNextAsync().ConfigureAwait(false))
+                {
+                    yield return item;
+                }
+            }
+        }
     }
 }

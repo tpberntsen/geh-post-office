@@ -13,12 +13,13 @@
 // // limitations under the License.
 
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 {
-    internal record BundleDocument
+    internal sealed record CosmosBundleDocument
     {
-        public BundleDocument()
+        public CosmosBundleDocument()
         {
             Id = string.Empty;
             Origin = string.Empty;
@@ -26,6 +27,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
             NotificationIds = new List<string>();
             ContentPath = string.Empty;
             ProcessId = string.Empty;
+            Timestamp = null!;
         }
 
         public string Id { get; init; }
@@ -35,5 +37,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
         public bool Dequeued { get; init; }
         public string ContentPath { get; init; }
         public string ProcessId { get; init; }
+
+        [JsonProperty(PropertyName = "_ts")]
+        public string Timestamp { get; init; }
     }
 }

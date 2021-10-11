@@ -25,7 +25,7 @@ using Xunit.Categories;
 namespace Energinet.DataHub.PostOffice.Tests.Repositories
 {
     [UnitTest]
-    public class BundleRepositoryTests
+    public sealed class BundleRepositoryTests
     {
         [Fact]
         public async Task GetNextUnacknowledgedAsync_NullRecipient_ThrowsException()
@@ -56,7 +56,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         }
 
         [Fact]
-        public async Task AcknowledgeAsync_NullArgument_ThrowsException()
+        public async Task AcknowledgeAsync_NullRecipient_ThrowsException()
         {
             // Arrange
             var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
@@ -65,7 +65,21 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.AcknowledgeAsync(null!))
+                .ThrowsAsync<ArgumentNullException>(() => target.AcknowledgeAsync(null!, new Uuid("E6C4A3CA-D49A-4F09-929A-605C403DEEB9")))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task AcknowledgeAsync_NullBundleId_ThrowsException()
+        {
+            // Arrange
+            var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
+            var marketOperatorDataStorageService = new Mock<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(bundleRepositoryContainer.Object, marketOperatorDataStorageService.Object);
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() => target.AcknowledgeAsync(new MarketOperator(null!), null!))
                 .ConfigureAwait(false);
         }
 

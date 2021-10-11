@@ -20,6 +20,7 @@ using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
+using Energinet.DataHub.PostOffice.IntegrationTests.Common;
 using Xunit;
 using Xunit.Categories;
 
@@ -216,12 +217,57 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var afterAdd = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
 
             // Act
-            await target.AcknowledgeAsync(setupBundle.BundleId).ConfigureAwait(false);
+            await target.AcknowledgeAsync(recipient, setupBundle.BundleId).ConfigureAwait(false);
 
             // Assert
             Assert.Null(beforeAdd);
             Assert.NotNull(afterAdd);
             Assert.Null(await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false));
+        }
+
+        [Fact]
+        public async Task AcknowledgeAsync_AcrossPartitionKeys_OneRecipientCannotAffectAnother()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
+
+            var recipientA = new MarketOperator(new MockedGln());
+            var recipientB = new MarketOperator(new MockedGln());
+            var commonGuid = new Uuid(Guid.NewGuid());
+
+            // Two identical bundles for two different recipients.
+            // The uuid is only unique pr. partition and can be reused.
+            var bundleA = new Bundle(
+                commonGuid,
+                DomainOrigin.TimeSeries,
+                recipientA,
+                new[] { commonGuid });
+
+            // Everything should match to detect change of partition key.
+            var bundleB = new Bundle(
+                bundleA.BundleId,
+                bundleA.Origin,
+                recipientB,
+                bundleA.NotificationIds);
+
+            await target.TryAddNextUnacknowledgedAsync(bundleA).ConfigureAwait(false);
+            await target.TryAddNextUnacknowledgedAsync(bundleB).ConfigureAwait(false);
+
+            // Assert: Read bundles back.
+            Assert.NotNull(await target.GetNextUnacknowledgedAsync(recipientA).ConfigureAwait(false));
+            Assert.NotNull(await target.GetNextUnacknowledgedAsync(recipientB).ConfigureAwait(false));
+
+            // Act
+            await target.AcknowledgeAsync(recipientA, commonGuid).ConfigureAwait(false);
+
+            // Assert: Only one bundle should be acknowledged.
+            Assert.Null(await target.GetNextUnacknowledgedAsync(recipientA).ConfigureAwait(false));
+            Assert.NotNull(await target.GetNextUnacknowledgedAsync(recipientB).ConfigureAwait(false));
         }
 
         [Fact]
@@ -358,7 +404,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
             var target = new BundleRepository(container, storageService);
 
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var recipient = new MarketOperator(new MockedGln());
             var bundleContent = new AzureBlobBundleContent(storageService, _contentPathUri);
 
             await target.TryAddNextUnacknowledgedAsync(CreateBundle(recipient)).ConfigureAwait(false);

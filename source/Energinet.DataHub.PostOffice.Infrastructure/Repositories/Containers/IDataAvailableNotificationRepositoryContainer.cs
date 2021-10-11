@@ -16,15 +16,16 @@ using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
 {
-    public class BundleRepositoryContainer : IBundleRepositoryContainer
+    /// <summary>
+    /// Provides access to the CosmosDB container to use with DataAvailableNotificationRepository.
+    /// </summary>
+    /// <returns>Bundle</returns>
+    public interface IDataAvailableNotificationRepositoryContainer
     {
-        private readonly CosmosClient _client;
-
-        public BundleRepositoryContainer(CosmosClient client)
-        {
-            _client = client;
-        }
-
-        public Container Container => _client.GetContainer("post-office", "bundles"); // TODO: Add config variables once config is in place.
+        /// <summary>
+        /// The CosmosDB container to use with DataAvailableNotificationRepository.
+        /// </summary>
+        /// <returns>Bundle</returns>
+        public Container Container { get; }
     }
 }

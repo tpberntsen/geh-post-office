@@ -83,8 +83,14 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             if (bundle == null || bundle.BundleId != bundleId)
                 return (false, null);
 
-            await _dataAvailableNotificationRepository.AcknowledgeAsync(bundle.NotificationIds).ConfigureAwait(false);
-            await _bundleRepository.AcknowledgeAsync(bundle.BundleId).ConfigureAwait(false);
+            await _dataAvailableNotificationRepository
+                .AcknowledgeAsync(recipient, bundle.NotificationIds)
+                .ConfigureAwait(false);
+
+            await _bundleRepository
+                .AcknowledgeAsync(recipient, bundle.BundleId)
+                .ConfigureAwait(false);
+
             return (true, bundle);
         }
 

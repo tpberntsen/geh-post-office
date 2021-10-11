@@ -40,8 +40,9 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// <summary>
         /// Acknowledges the bundle with the specified bundle id.
         /// </summary>
+        /// <param name="recipient">The market operator owning the bundle.</param>
         /// <param name="bundleId">The bundle id to acknowledge.</param>
-        Task AcknowledgeAsync(Uuid bundleId);
+        Task AcknowledgeAsync(MarketOperator recipient, Uuid bundleId);
 
         /// <summary>
         /// Adds the specified bundle as the next unacknowledged bundle,

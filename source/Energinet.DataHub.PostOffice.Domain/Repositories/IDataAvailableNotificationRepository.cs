@@ -61,7 +61,8 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// Acknowledges the specified list of notifications, based on their ids.
         /// Acknowledged notifications are not returned from GetNextUnacknowledgedAsync.
         /// </summary>
+        /// <param name="recipient">The market operator the next notifications belong to.</param>
         /// <param name="dataAvailableNotificationUuids">The list of notification ids to acknowledge.</param>
-        Task AcknowledgeAsync(IEnumerable<Uuid> dataAvailableNotificationUuids);
+        Task AcknowledgeAsync(MarketOperator recipient, IEnumerable<Uuid> dataAvailableNotificationUuids);
     }
 }

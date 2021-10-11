@@ -21,9 +21,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
     internal static class BundleMapper
     {
-        public static BundleDocument MapToDocument(Bundle source)
+        public static CosmosBundleDocument MapToDocument(Bundle source)
         {
-            return new BundleDocument
+            return new CosmosBundleDocument
             {
                 Id = source.BundleId.ToString(),
                 Origin = source.Origin.ToString(),
