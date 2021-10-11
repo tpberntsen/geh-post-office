@@ -35,7 +35,7 @@ limitations under the License.
 
     <ItemGroup>
       <PackageReference Include="FluentValidation" Version="9.5.1" />
-      <PackageReference Include="Energinet.DataHub.MessageHub.Client" Version="1.0.1" />
+      <PackageReference Include="Energinet.DataHub.MessageHub.Client" Version="1.0.4" />
       <PackageReference Include="MediatR" Version="9.0.0" />
     </ItemGroup>
 
