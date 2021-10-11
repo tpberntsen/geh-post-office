@@ -15,6 +15,7 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
+using Energinet.DataHub.MessageHub.Client.Extensions;
 using Energinet.DataHub.MessageHub.Client.Factories;
 using Energinet.DataHub.MessageHub.Client.Model;
 using Energinet.DataHub.MessageHub.Client.Protobuf;
@@ -51,7 +52,9 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
                 RelativeWeight = dataAvailableNotificationDto.RelativeWeight
             };
 
-            var message = new ServiceBusMessage(new BinaryData(contract.ToByteArray()));
+            var message = new ServiceBusMessage(new BinaryData(contract.ToByteArray()))
+                .AddDataAvailableIntegrationEvents(dataAvailableNotificationDto.Uuid.ToString());
+
             await sender.SendMessageAsync(message).ConfigureAwait(false);
         }
 

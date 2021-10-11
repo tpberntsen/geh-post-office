@@ -70,5 +70,48 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
             // Assert
             serviceBusSenderMock.Verify(x => x.SendMessageAsync(It.IsAny<ServiceBusMessage>(), default), Times.Once);
         }
+
+        [Fact]
+        public async Task SendAsync_ValidInput_AddsCorrectIntegrationEvents()
+        {
+            // Arrange
+            var serviceBusSenderMock = new Mock<ServiceBusSender>();
+            var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
+
+            await using var mockedServiceBusClient = new MockedServiceBusClient(
+                "sbq-dataavailable",
+                string.Empty,
+                serviceBusSenderMock.Object,
+                serviceBusSessionReceiverMock.Object);
+
+            var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
+            serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
+
+            await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object);
+
+            var dataAvailable = new DataAvailableNotificationDto(
+                Guid.Parse("F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E"),
+                new GlobalLocationNumberDto("fake_value"),
+                new MessageTypeDto("fake_value"),
+                DomainOrigin.TimeSeries,
+                true,
+                1);
+
+            // Act
+            await target.SendAsync(dataAvailable).ConfigureAwait(false);
+
+            // Assert
+            serviceBusSenderMock.Verify(
+                x => x.SendMessageAsync(
+                    It.Is<ServiceBusMessage>(
+                        message =>
+                            message.ApplicationProperties.ContainsKey("OperationTimestamp")
+                            && message.ApplicationProperties.ContainsKey("OperationCorrelationId")
+                            && message.ApplicationProperties.ContainsKey("MessageVersion")
+                            && message.ApplicationProperties.ContainsKey("MessageType")
+                            && message.ApplicationProperties.ContainsKey("EventIdentification")),
+                    default),
+                Times.Once);
+        }
     }
 }

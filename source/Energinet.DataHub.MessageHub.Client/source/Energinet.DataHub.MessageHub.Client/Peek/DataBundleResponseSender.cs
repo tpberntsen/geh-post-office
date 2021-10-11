@@ -15,6 +15,7 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
+using Energinet.DataHub.MessageHub.Client.Extensions;
 using Energinet.DataHub.MessageHub.Client.Factories;
 using Energinet.DataHub.MessageHub.Client.Model;
 
@@ -36,30 +37,33 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
 
         public async Task SendAsync(
             RequestDataBundleResponseDto requestDataBundleResponseDto,
+            DataBundleRequestDto requestDto,
             string sessionId,
             DomainOrigin domainOrigin)
         {
-            if (requestDataBundleResponseDto == null)
+            if (requestDataBundleResponseDto is null)
                 throw new ArgumentNullException(nameof(requestDataBundleResponseDto));
 
-            if (sessionId == null)
+            if (sessionId is null)
                 throw new ArgumentNullException(nameof(sessionId));
+
+            if (requestDto is null)
+                throw new ArgumentNullException(nameof(requestDto));
 
             var contractBytes = _responseBundleParser.Parse(requestDataBundleResponseDto);
             var serviceBusReplyMessage = new ServiceBusMessage(contractBytes)
             {
                 SessionId = sessionId,
-            };
+            }.AddDataBundleResponseIntegrationEvents(requestDto.IdempotencyId);
 
             _serviceBusClient ??= _serviceBusClientFactory.Create();
-
             await using var sender = _serviceBusClient.CreateSender($"sbq-{domainOrigin}-reply");
             await sender.SendMessageAsync(serviceBusReplyMessage).ConfigureAwait(false);
         }
 
         public async ValueTask DisposeAsync()
         {
-            if (_serviceBusClient != null)
+            if (_serviceBusClient is not null)
             {
                 await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
                 _serviceBusClient = null;

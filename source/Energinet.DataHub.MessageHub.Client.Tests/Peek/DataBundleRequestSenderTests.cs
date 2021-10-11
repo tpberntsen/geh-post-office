@@ -139,5 +139,67 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             // assert
             Assert.Null(result);
         }
+
+        [Fact]
+        public async Task Send_AllIsOk_AddsCorrectIntegrationEvents()
+        {
+            // arrange
+            const DomainOrigin domainOrigin = DomainOrigin.Charges;
+            var queue = $"sbq-{domainOrigin}";
+            var replyQueue = $"sbq-{domainOrigin}-reply";
+            var serviceBusSenderMock = new Mock<ServiceBusSender>();
+            var requestBundleResponse = new DataBundleResponseContract
+            {
+                Success = new DataBundleResponseContract.Types.FileResource
+                    {
+                        ContentUri = "http://localhost",
+                        DataAvailableNotificationIds = { new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" } }
+                    }
+            };
+            var bytes = requestBundleResponse.ToByteArray();
+
+            var serviceBusReceivedMessage = MockedServiceBusReceivedMessage.Create(bytes);
+            var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
+            serviceBusSessionReceiverMock
+                .Setup(x => x.ReceiveMessageAsync(It.IsAny<TimeSpan>(), default))
+                .ReturnsAsync(serviceBusReceivedMessage);
+
+            await using var serviceBusClient = new MockedServiceBusClient(
+                queue,
+                replyQueue,
+                serviceBusSenderMock.Object,
+                serviceBusSessionReceiverMock.Object);
+
+            var serviceBusClientFactoryMock = new Mock<IServiceBusClientFactory>();
+            serviceBusClientFactoryMock
+                .Setup(x => x.Create())
+                .Returns(serviceBusClient);
+
+            await using var target = new DataBundleRequestSender(
+                new RequestBundleParser(),
+                new ResponseBundleParser(),
+                serviceBusClientFactoryMock.Object);
+
+            // act
+            await target.SendAsync(
+                    new DataBundleRequestDto(
+                        "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
+                        new[] { Guid.NewGuid(), Guid.NewGuid() }),
+                    domainOrigin)
+                .ConfigureAwait(false);
+
+            // assert
+            serviceBusSenderMock.Verify(
+                x => x.SendMessageAsync(
+                    It.Is<ServiceBusMessage>(
+                        message =>
+                            message.ApplicationProperties.ContainsKey("OperationTimestamp")
+                            && message.ApplicationProperties.ContainsKey("OperationCorrelationId")
+                            && message.ApplicationProperties.ContainsKey("MessageVersion")
+                            && message.ApplicationProperties.ContainsKey("MessageType")
+                            && message.ApplicationProperties.ContainsKey("EventIdentification")),
+                    default),
+                Times.Once);
+        }
     }
 }

@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
+using Energinet.DataHub.MessageHub.Client.Extensions;
 using Energinet.DataHub.MessageHub.Client.Factories;
 using Energinet.DataHub.MessageHub.Client.Model;
 using Energinet.DataHub.MessageHub.Client.Protobuf;
@@ -47,7 +48,7 @@ namespace Energinet.DataHub.MessageHub.Client.Dequeue
                 MarketOperator = dequeueNotificationDto.MarketOperator.Value
             };
 
-            var dequeueMessage = new ServiceBusMessage(new BinaryData(contract.ToByteArray()));
+            var dequeueMessage = new ServiceBusMessage(new BinaryData(contract.ToByteArray())).AddDequeueIntegrationEvents();
             await sender.SendMessageAsync(dequeueMessage).ConfigureAwait(false);
         }
 

@@ -21,6 +21,7 @@ using Energinet.DataHub.MessageHub.Client.Peek;
 using Moq;
 using Xunit;
 using Xunit.Categories;
+using static System.Guid;
 
 namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
 {
@@ -35,12 +36,16 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             await using var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
                 serviceBusClientFactory.Object);
+            var requestMock = new DataBundleRequestDto(
+                "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
+                new[] { Guid.NewGuid(), Guid.NewGuid() });
 
             // Act + Assert
             await Assert
                 .ThrowsAsync<ArgumentNullException>(() =>
                     target.SendAsync(
                         null!,
+                        requestMock,
                         "sessionId",
                         DomainOrigin.TimeSeries))
                 .ConfigureAwait(false);
@@ -57,6 +62,10 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
 
             var response = new RequestDataBundleResponseDto(
                 new Uri("https://test.dk/test"),
+                new[] { NewGuid(), NewGuid() });
+
+            var requestMock = new DataBundleRequestDto(
+                "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
                 new[] { Guid.NewGuid(), Guid.NewGuid() });
 
             // Act + Assert
@@ -64,7 +73,32 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
                 .ThrowsAsync<ArgumentNullException>(() =>
                     target.SendAsync(
                         response,
+                        requestMock,
                         null!,
+                        DomainOrigin.TimeSeries))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task SendAsync_NullRequestDto_ThrowsException()
+        {
+            // Arrange
+            var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
+            await using var target = new DataBundleResponseSender(
+                new ResponseBundleParser(),
+                serviceBusClientFactory.Object);
+
+            var response = new RequestDataBundleResponseDto(
+                new Uri("https://test.dk/test"),
+                new[] { NewGuid(), NewGuid() });
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() =>
+                    target.SendAsync(
+                        response,
+                        null!,
+                        NewGuid().ToString(),
                         DomainOrigin.TimeSeries))
                 .ConfigureAwait(false);
         }
@@ -96,13 +130,75 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
 
             var response = new RequestDataBundleResponseDto(
                 new Uri("https://test.dk/test"),
+                new[] { NewGuid(), NewGuid() });
+
+            var requestMock = new DataBundleRequestDto(
+                "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
                 new[] { Guid.NewGuid(), Guid.NewGuid() });
 
             // Act
-            await target.SendAsync(response, "session", domainOrigin).ConfigureAwait(false);
+            await target.SendAsync(
+                response,
+                requestMock,
+                "session",
+                domainOrigin)
+            .ConfigureAwait(false);
 
             // Assert
             serviceBusSenderMock.Verify(x => x.SendMessageAsync(It.IsAny<ServiceBusMessage>(), default), Times.Once);
+        }
+
+        [Fact]
+        public async Task SendAsync_ValidInput_AddsCorrectIntegrationEvents()
+        {
+            // Arrange
+            var serviceBusSenderMock = new Mock<ServiceBusSender>();
+            var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
+
+            await using var mockedServiceBusClient = new MockedServiceBusClient(
+                "sbq-TimeSeries-reply",
+                string.Empty,
+                serviceBusSenderMock.Object,
+                serviceBusSessionReceiverMock.Object);
+
+            var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
+            serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
+
+            // var applicationPropertiesMock = new Dictionary<string, string>();
+            // var serviceBusMessageMock = new Mock<ServiceBusMessage>();
+            // ServiceBusMessage
+            await using var target = new DataBundleResponseSender(
+                new ResponseBundleParser(),
+                serviceBusClientFactory.Object);
+
+            var response = new RequestDataBundleResponseDto(
+                new Uri("https://test.dk/test"),
+                new[] { NewGuid(), NewGuid() });
+
+            var requestMock = new DataBundleRequestDto(
+                "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
+                new[] { Guid.NewGuid(), Guid.NewGuid() });
+
+            // Act
+            await target.SendAsync(
+                    response,
+                    requestMock,
+                    "session",
+                    DomainOrigin.TimeSeries)
+                .ConfigureAwait(false);
+
+            // Assert
+            serviceBusSenderMock.Verify(
+                x => x.SendMessageAsync(
+                    It.Is<ServiceBusMessage>(
+                        message =>
+                            message.ApplicationProperties.ContainsKey("OperationTimestamp")
+                            && message.ApplicationProperties.ContainsKey("OperationCorrelationId")
+                            && message.ApplicationProperties.ContainsKey("MessageVersion")
+                            && message.ApplicationProperties.ContainsKey("MessageType")
+                            && message.ApplicationProperties.ContainsKey("EventIdentification")),
+                    default),
+                Times.Once);
         }
     }
 }

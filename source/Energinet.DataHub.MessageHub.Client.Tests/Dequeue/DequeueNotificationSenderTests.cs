@@ -73,5 +73,44 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Dequeue
             // Assert
             serviceBusSenderMock.Verify(x => x.SendMessageAsync(It.IsAny<ServiceBusMessage>(), default), Times.Once);
         }
+
+        [Fact]
+        public async Task SendAsync_ValidInput_AddsCorrectIntegrationEvents()
+        {
+            // Arrange
+            var serviceBusSenderMock = new Mock<ServiceBusSender>();
+            var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
+
+            await using var mockedServiceBusClient = new MockedServiceBusClient(
+                "sbq-TimeSeries-dequeue",
+                string.Empty,
+                serviceBusSenderMock.Object,
+                serviceBusSessionReceiverMock.Object);
+
+            var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
+            serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
+
+            await using var target = new DequeueNotificationSender(serviceBusClientFactory.Object);
+
+            var dataAvailable = new DequeueNotificationDto(
+                new[] { Guid.NewGuid(), Guid.NewGuid() },
+                new GlobalLocationNumberDto("fake_value"));
+
+            // Act
+            await target.SendAsync(dataAvailable, DomainOrigin.TimeSeries).ConfigureAwait(false);
+
+            // Assert
+            serviceBusSenderMock.Verify(
+                x => x.SendMessageAsync(
+                    It.Is<ServiceBusMessage>(
+                        message =>
+                            message.ApplicationProperties.ContainsKey("OperationTimestamp")
+                            && message.ApplicationProperties.ContainsKey("OperationCorrelationId")
+                            && message.ApplicationProperties.ContainsKey("MessageVersion")
+                            && message.ApplicationProperties.ContainsKey("MessageType")
+                            && message.ApplicationProperties.ContainsKey("EventIdentification")),
+                    default),
+                Times.Once);
+        }
     }
 }
