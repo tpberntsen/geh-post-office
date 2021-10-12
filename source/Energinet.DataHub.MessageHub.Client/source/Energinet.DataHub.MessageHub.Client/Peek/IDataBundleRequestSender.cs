@@ -27,7 +27,7 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
         /// </summary>
         /// <param name="dataBundleRequestDto">The request to send.</param>
         /// <param name="domainOrigin">The sub-domain to send the request to.</param>
-        /// <returns><see cref="RequestDataBundleResponseDto"/> containing the location of bundle contents; or null, if the request timed out.</returns>
-        Task<RequestDataBundleResponseDto?> SendAsync(DataBundleRequestDto dataBundleRequestDto, DomainOrigin domainOrigin);
+        /// <returns><see cref="DataBundleResponseDto"/> containing the location of bundle contents; or null, if the request timed out.</returns>
+        Task<DataBundleResponseDto?> SendAsync(DataBundleRequestDto dataBundleRequestDto, DomainOrigin domainOrigin);
     }
 }

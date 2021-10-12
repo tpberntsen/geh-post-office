@@ -48,7 +48,7 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
             }
         }
 
-        public async Task<RequestDataBundleResponseDto?> SendAsync(
+        public async Task<DataBundleResponseDto?> SendAsync(
             DataBundleRequestDto dataBundleRequestDto,
             DomainOrigin domainOrigin)
         {

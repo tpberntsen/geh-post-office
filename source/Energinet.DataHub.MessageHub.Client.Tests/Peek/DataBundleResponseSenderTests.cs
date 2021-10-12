@@ -33,9 +33,11 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
         {
             // Arrange
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
+            var config = new DomainConfig("fake_value", "fake_value", "fake_value", "fake_value", "fake_value", "fake_value");
             await using var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
-                serviceBusClientFactory.Object);
+                serviceBusClientFactory.Object,
+                config);
             var requestMock = new DataBundleRequestDto(
                 "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
                 new[] { Guid.NewGuid(), Guid.NewGuid() });
@@ -46,8 +48,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
                     target.SendAsync(
                         null!,
                         requestMock,
-                        "sessionId",
-                        DomainOrigin.TimeSeries))
+                        "sessionId"))
                 .ConfigureAwait(false);
         }
 
@@ -56,11 +57,13 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
         {
             // Arrange
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
+            var config = new DomainConfig("fake_value", "fake_value", "fake_value", "fake_value", "fake_value", "fake_value");
             await using var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
-                serviceBusClientFactory.Object);
+                serviceBusClientFactory.Object,
+                config);
 
-            var response = new RequestDataBundleResponseDto(
+            var response = new DataBundleResponseDto(
                 new Uri("https://test.dk/test"),
                 new[] { NewGuid(), NewGuid() });
 
@@ -74,8 +77,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
                     target.SendAsync(
                         response,
                         requestMock,
-                        null!,
-                        DomainOrigin.TimeSeries))
+                        null!))
                 .ConfigureAwait(false);
         }
 
@@ -84,11 +86,13 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
         {
             // Arrange
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
+            var config = new DomainConfig("fake_value", "fake_value", "fake_value", "fake_value", "fake_value", "fake_value");
             await using var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
-                serviceBusClientFactory.Object);
+                serviceBusClientFactory.Object,
+                config);
 
-            var response = new RequestDataBundleResponseDto(
+            var response = new DataBundleResponseDto(
                 new Uri("https://test.dk/test"),
                 new[] { NewGuid(), NewGuid() });
 
@@ -98,20 +102,15 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
                     target.SendAsync(
                         response,
                         null!,
-                        NewGuid().ToString(),
-                        DomainOrigin.TimeSeries))
+                        NewGuid().ToString()))
                 .ConfigureAwait(false);
         }
 
-        [Theory]
-        [InlineData(DomainOrigin.TimeSeries, "sbq-TimeSeries-reply")]
-        [InlineData(DomainOrigin.Charges, "sbq-Charges-reply")]
-        [InlineData(DomainOrigin.Aggregations, "sbq-Aggregations-reply")]
-        [InlineData(DomainOrigin.MarketRoles, "sbq-MarketRoles-reply")]
-        [InlineData(DomainOrigin.MeteringPoints, "sbq-MeteringPoints-reply")]
-        public async Task SendAsync_ValidInput_SendsMessage(DomainOrigin domainOrigin, string queueName)
+        [Fact]
+        public async Task SendAsync_ValidInput_SendsMessage()
         {
             // Arrange
+            const string queueName = "sbq-MeteringPoints-reply";
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
             var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
 
@@ -124,11 +123,14 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
 
+            var config = new DomainConfig("fake_value", queueName, "fake_value", "fake_value", "fake_value", "fake_value");
+
             await using var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
-                serviceBusClientFactory.Object);
+                serviceBusClientFactory.Object,
+                config);
 
-            var response = new RequestDataBundleResponseDto(
+            var response = new DataBundleResponseDto(
                 new Uri("https://test.dk/test"),
                 new[] { NewGuid(), NewGuid() });
 
@@ -140,8 +142,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             await target.SendAsync(
                 response,
                 requestMock,
-                "session",
-                domainOrigin)
+                "session")
             .ConfigureAwait(false);
 
             // Assert
@@ -154,9 +155,10 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             // Arrange
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
             var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
+            const string sbqTimeseriesReply = "sbq-TimeSeries-reply";
 
             await using var mockedServiceBusClient = new MockedServiceBusClient(
-                "sbq-TimeSeries-reply",
+                sbqTimeseriesReply,
                 string.Empty,
                 serviceBusSenderMock.Object,
                 serviceBusSessionReceiverMock.Object);
@@ -164,14 +166,17 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
 
+            var config = new DomainConfig("fake_value", sbqTimeseriesReply, "fake_value", "fake_value", "fake_value", "fake_value");
+
             // var applicationPropertiesMock = new Dictionary<string, string>();
             // var serviceBusMessageMock = new Mock<ServiceBusMessage>();
             // ServiceBusMessage
             await using var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
-                serviceBusClientFactory.Object);
+                serviceBusClientFactory.Object,
+                config);
 
-            var response = new RequestDataBundleResponseDto(
+            var response = new DataBundleResponseDto(
                 new Uri("https://test.dk/test"),
                 new[] { NewGuid(), NewGuid() });
 
@@ -183,8 +188,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             await target.SendAsync(
                     response,
                     requestMock,
-                    "session",
-                    DomainOrigin.TimeSeries)
+                    "session")
                 .ConfigureAwait(false);
 
             // Assert

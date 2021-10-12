@@ -25,9 +25,9 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
         /// <summary>
         /// Converts the specified response into a protobuf contract.
         /// </summary>
-        /// <param name="requestDataBundleResponseDto">The response to convert.</param>
+        /// <param name="dataBundleResponseDto">The response to convert.</param>
         /// <returns>A byte array with the parsed RequestDataBundleResponseDto</returns>
-        byte[] Parse(RequestDataBundleResponseDto requestDataBundleResponseDto);
+        byte[] Parse(DataBundleResponseDto dataBundleResponseDto);
 
         /// <summary>
         /// Parses the protobuf contract response.
@@ -36,7 +36,7 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
         /// <exception cref="PostOfficeCommunicatorException">
         /// Throws an exception if byte array cannot be parsed.
         /// </exception>
-        /// <returns><see cref="RequestDataBundleResponseDto"/>Returns a dto with the object or null if it wasn't a success</returns>
-        RequestDataBundleResponseDto? Parse(byte[] dataBundleReplyContract);
+        /// <returns><see cref="DataBundleResponseDto"/>Returns a dto with the object or null if it wasn't a success</returns>
+        DataBundleResponseDto? Parse(byte[] dataBundleReplyContract);
     }
 }

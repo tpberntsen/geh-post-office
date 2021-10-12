@@ -23,36 +23,36 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
 {
     public class ResponseBundleParser : IResponseBundleParser
     {
-        public byte[] Parse(RequestDataBundleResponseDto requestDataBundleResponseDto)
+        public byte[] Parse(DataBundleResponseDto dataBundleResponseDto)
         {
-            if (requestDataBundleResponseDto == null)
-                throw new ArgumentNullException(nameof(requestDataBundleResponseDto));
+            if (dataBundleResponseDto == null)
+                throw new ArgumentNullException(nameof(dataBundleResponseDto));
             var contract = new DataBundleResponseContract();
 
-            if (!requestDataBundleResponseDto.IsErrorResponse)
+            if (!dataBundleResponseDto.IsErrorResponse)
             {
-                contract.Success = new DataBundleResponseContract.Types.FileResource { ContentUri = requestDataBundleResponseDto.ContentUri?.AbsoluteUri };
+                contract.Success = new DataBundleResponseContract.Types.FileResource { ContentUri = dataBundleResponseDto.ContentUri?.AbsoluteUri };
                 return contract.ToByteArray();
             }
 
-            var contractErrorReason = MapToFailureReason(requestDataBundleResponseDto.ResponseError!.Reason);
+            var contractErrorReason = MapToFailureReason(dataBundleResponseDto.ResponseError!.Reason);
             contract.Failure = new DataBundleResponseContract.Types.RequestFailure
             {
                 Reason = contractErrorReason,
-                FailureDescription = requestDataBundleResponseDto.ResponseError.FailureDescription
+                FailureDescription = dataBundleResponseDto.ResponseError.FailureDescription
             };
 
             return contract.ToByteArray();
         }
 
-        public RequestDataBundleResponseDto? Parse(byte[] dataBundleReplyContract)
+        public DataBundleResponseDto? Parse(byte[] dataBundleReplyContract)
         {
             try
             {
                 var bundleResponse = DataBundleResponseContract.Parser.ParseFrom(dataBundleReplyContract);
                 return bundleResponse!.ReplyCase != DataBundleResponseContract.ReplyOneofCase.Success
                     ? null
-                    : new RequestDataBundleResponseDto(
+                    : new DataBundleResponseDto(
                         new Uri(bundleResponse.Success.ContentUri),
                         bundleResponse.Success.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
             }

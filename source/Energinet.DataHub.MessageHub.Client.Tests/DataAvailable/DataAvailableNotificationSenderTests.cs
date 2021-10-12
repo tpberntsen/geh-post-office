@@ -32,7 +32,8 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
         {
             // Arrange
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
-            await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object);
+            var config = new DomainConfig("fake_value", "fake_value", "fake_value", "fake_value", "fake_value", "fake_value");
+            await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object, config);
 
             // Act + Assert
             await Assert.ThrowsAsync<ArgumentNullException>(() => target.SendAsync(null!)).ConfigureAwait(false);
@@ -44,9 +45,10 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
             // Arrange
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
             var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
+            const string dataAvailableQueue = "sbq-dataavailable";
 
             await using var mockedServiceBusClient = new MockedServiceBusClient(
-                "sbq-dataavailable",
+                dataAvailableQueue,
                 string.Empty,
                 serviceBusSenderMock.Object,
                 serviceBusSessionReceiverMock.Object);
@@ -54,7 +56,9 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
 
-            await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object);
+            var config = new DomainConfig("fake_value", "fake_value", dataAvailableQueue, "fake_value", "fake_value", "fake_value");
+
+            await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object, config);
 
             var dataAvailable = new DataAvailableNotificationDto(
                 Guid.Parse("F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E"),
@@ -77,9 +81,10 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
             // Arrange
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
             var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
+            const string dataAvailableQueue = "sbq-dataavailable";
 
             await using var mockedServiceBusClient = new MockedServiceBusClient(
-                "sbq-dataavailable",
+                dataAvailableQueue,
                 string.Empty,
                 serviceBusSenderMock.Object,
                 serviceBusSessionReceiverMock.Object);
@@ -87,7 +92,9 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
 
-            await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object);
+            var config = new DomainConfig("fake_value", "fake_value", dataAvailableQueue, "fake_value", "fake_value", "fake_value");
+
+            await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object, config);
 
             var dataAvailable = new DataAvailableNotificationDto(
                 Guid.Parse("F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E"),

@@ -84,7 +84,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
         {
             // arrange
             var target = new ResponseBundleParser();
-            var valid = new RequestDataBundleResponseDto(
+            var valid = new DataBundleResponseDto(
                 new Uri("https://test.test.dk"),
                 new[] { Guid.NewGuid(), Guid.NewGuid() });
 
@@ -100,7 +100,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
         {
             // arrange
             var target = new ResponseBundleParser();
-            var valid = new RequestDataBundleResponseDto(
+            var valid = new DataBundleResponseDto(
                 new DataBundleResponseErrorDto
                 {
                     FailureDescription = "error",

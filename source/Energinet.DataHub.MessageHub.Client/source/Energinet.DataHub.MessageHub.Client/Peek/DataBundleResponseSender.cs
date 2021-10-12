@@ -25,24 +25,26 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
     {
         private readonly IResponseBundleParser _responseBundleParser;
         private readonly IServiceBusClientFactory _serviceBusClientFactory;
+        private readonly DomainConfig _domainConfig;
         private ServiceBusClient? _serviceBusClient;
 
         public DataBundleResponseSender(
             IResponseBundleParser responseBundleParser,
-            IServiceBusClientFactory serviceBusClientFactory)
+            IServiceBusClientFactory serviceBusClientFactory,
+            DomainConfig domainConfig)
         {
             _responseBundleParser = responseBundleParser;
             _serviceBusClientFactory = serviceBusClientFactory;
+            _domainConfig = domainConfig;
         }
 
         public async Task SendAsync(
-            RequestDataBundleResponseDto requestDataBundleResponseDto,
+            DataBundleResponseDto dataBundleResponseDto,
             DataBundleRequestDto requestDto,
-            string sessionId,
-            DomainOrigin domainOrigin)
+            string sessionId)
         {
-            if (requestDataBundleResponseDto is null)
-                throw new ArgumentNullException(nameof(requestDataBundleResponseDto));
+            if (dataBundleResponseDto is null)
+                throw new ArgumentNullException(nameof(dataBundleResponseDto));
 
             if (sessionId is null)
                 throw new ArgumentNullException(nameof(sessionId));
@@ -50,14 +52,14 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
             if (requestDto is null)
                 throw new ArgumentNullException(nameof(requestDto));
 
-            var contractBytes = _responseBundleParser.Parse(requestDataBundleResponseDto);
+            var contractBytes = _responseBundleParser.Parse(dataBundleResponseDto);
             var serviceBusReplyMessage = new ServiceBusMessage(contractBytes)
             {
                 SessionId = sessionId,
             }.AddDataBundleResponseIntegrationEvents(requestDto.IdempotencyId);
 
             _serviceBusClient ??= _serviceBusClientFactory.Create();
-            await using var sender = _serviceBusClient.CreateSender($"sbq-{domainOrigin}-reply");
+            await using var sender = _serviceBusClient.CreateSender(_domainConfig.ReplyQueue);
             await sender.SendMessageAsync(serviceBusReplyMessage).ConfigureAwait(false);
         }
 

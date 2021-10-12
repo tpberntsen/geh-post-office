@@ -21,14 +21,14 @@ namespace Energinet.DataHub.MessageHub.Client.Model
     /// <summary>
     /// Contains the result of the request for bundle contents.
     /// </summary>
-    public sealed class RequestDataBundleResponseDto
+    public sealed class DataBundleResponseDto
     {
         /// <summary>
         /// Creates a successful response to the bundle contents request.
         /// </summary>
         /// <param name="contentUri">The location of the bundle in Azure Blob Storage.</param>
         /// <param name="dataAvailableNotificationIds">A collection of guids identifying which data has been requested.</param>
-        public RequestDataBundleResponseDto(Uri contentUri, IEnumerable<Guid> dataAvailableNotificationIds)
+        public DataBundleResponseDto(Uri contentUri, IEnumerable<Guid> dataAvailableNotificationIds)
         {
             DataAvailableNotificationIds = dataAvailableNotificationIds;
             ContentUri = contentUri;
@@ -40,7 +40,7 @@ namespace Energinet.DataHub.MessageHub.Client.Model
         /// </summary>
         /// <param name="responseError">The information about the error.</param>
         /// <param name="dataAvailableNotificationIds">A collection of guids identifying which data has been requested.</param>
-        public RequestDataBundleResponseDto(DataBundleResponseErrorDto responseError, IEnumerable<Guid> dataAvailableNotificationIds)
+        public DataBundleResponseDto(DataBundleResponseErrorDto responseError, IEnumerable<Guid> dataAvailableNotificationIds)
         {
             DataAvailableNotificationIds = dataAvailableNotificationIds;
             ResponseError = responseError;
