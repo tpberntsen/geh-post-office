@@ -32,6 +32,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             Origin = origin;
             Recipient = recipient;
             NotificationIds = notificationIds;
+            ProcessId = new ProcessId(bundleId, recipient);
         }
 
         public Bundle(
@@ -46,12 +47,14 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             Recipient = recipient;
             NotificationIds = notificationIds;
             _bundleContent = bundleContent;
+            ProcessId = new ProcessId(bundleId, recipient);
         }
 
         public Uuid BundleId { get; }
         public DomainOrigin Origin { get; }
         public MarketOperator Recipient { get; }
         public IReadOnlyCollection<Uuid> NotificationIds { get; }
+        public ProcessId ProcessId { get; }
 
         public bool TryGetContent([NotNullWhen(true)] out IBundleContent? bundleContent)
         {

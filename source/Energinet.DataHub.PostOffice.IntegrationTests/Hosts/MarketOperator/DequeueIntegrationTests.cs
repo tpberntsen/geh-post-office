@@ -14,6 +14,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
@@ -185,7 +186,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 .ReadAsDataBundleRequestAsync()
                 .ConfigureAwait(false);
 
-            return bundleContents.IdempotencyId;
+            var bundleId = bundleContents.IdempotencyId.Split("+", StringSplitOptions.RemoveEmptyEntries).First();
+            return bundleId;
         }
     }
 }

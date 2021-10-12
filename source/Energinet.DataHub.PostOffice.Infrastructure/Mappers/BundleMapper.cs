@@ -31,13 +31,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 NotificationIds = source.NotificationIds.Select(id => id.ToString()).ToList(),
                 Dequeued = false,
                 ContentPath = MapBundleContent(source),
-                ProcessId = GenerateProcessId(source)
+                ProcessId = source.ProcessId.ToString()
             };
-        }
-
-        private static string GenerateProcessId(Bundle bundle)
-        {
-            return string.Join('+', bundle.BundleId.ToString(), bundle.Recipient.Gln.Value);
         }
 
         private static string MapBundleContent(Bundle bundle)
