@@ -18,45 +18,42 @@ using Energinet.DataHub.MessageHub.Client.Dequeue;
 using Energinet.DataHub.MessageHub.Client.Factories;
 using Energinet.DataHub.MessageHub.Client.Peek;
 using Energinet.DataHub.MessageHub.Client.Storage;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;
 
 namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
 {
     public static class ContainerExtensions
     {
-        public static void AddPostOfficeCommunication(this Container container, string serviceBusConnectionStringConfigKey, string storageServiceConnectionStringConfigKey)
-        {
-            container.AddServiceBus(serviceBusConnectionStringConfigKey);
-            container.AddApplicationServices();
-            container.AddStorageHandler(storageServiceConnectionStringConfigKey);
-        }
-
-        private static void AddServiceBus(this Container container, string serviceBusConnectionStringConfigKey)
+        public static void AddPostOfficeCommunication(this Container container, DomainConfig config)
         {
             if (container == null)
                 throw new ArgumentNullException(nameof(container));
 
+            if (config == null)
+                throw new ArgumentNullException(nameof(config));
+
+            container.RegisterSingleton(() => config);
+            container.AddServiceBus(config.ServiceBusConnectionString);
+            container.AddApplicationServices();
+            container.AddStorageHandler(config.StorageServiceConnectionString);
+        }
+
+        private static void AddServiceBus(this Container container, string serviceBusConnectionString)
+        {
             container.RegisterSingleton<IServiceBusClientFactory>(() =>
             {
-                var connectionString = GetConnectionString(container, serviceBusConnectionStringConfigKey);
-
-                if (string.IsNullOrEmpty(connectionString))
+                if (string.IsNullOrWhiteSpace(serviceBusConnectionString))
                 {
                     throw new InvalidOperationException(
                         "Please specify a valid ServiceBus in the appSettings.json file or your Azure Functions Settings.");
                 }
 
-                return new ServiceBusClientFactory(connectionString);
+                return new ServiceBusClientFactory(serviceBusConnectionString);
             });
         }
 
         private static void AddApplicationServices(this Container container)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
-
             container.Register<IDataAvailableNotificationSender, DataAvailableNotificationSender>(Lifestyle.Singleton);
             container.Register<IRequestBundleParser, RequestBundleParser>(Lifestyle.Singleton);
             container.Register<IResponseBundleParser, ResponseBundleParser>(Lifestyle.Singleton);
@@ -64,33 +61,20 @@ namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
             container.Register<IDequeueNotificationParser, DequeueNotificationParser>(Lifestyle.Singleton);
         }
 
-        private static void AddStorageHandler(this Container container, string storageServiceConnectionStringConfigKey)
+        private static void AddStorageHandler(this Container container, string storageServiceConnectionString)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
-
             container.RegisterSingleton<IStorageServiceClientFactory>(() =>
             {
-                var connectionString = GetConnectionString(container, storageServiceConnectionStringConfigKey);
-
-                if (string.IsNullOrEmpty(connectionString))
+                if (string.IsNullOrWhiteSpace(storageServiceConnectionString))
                 {
                     throw new InvalidOperationException(
                         "Please specify a valid BlobStorageConnectionString in the appSettings.json file or your Azure Functions Settings.");
                 }
 
-                return new StorageServiceClientFactory(connectionString);
+                return new StorageServiceClientFactory(storageServiceConnectionString);
             });
 
             container.Register<IStorageHandler, StorageHandler>(Lifestyle.Singleton);
-        }
-
-        private static string? GetConnectionString(Container container, string serviceConnectionStringConfigKey)
-        {
-            var configuration = container.GetService<IConfiguration>();
-            var connectionString = configuration.GetConnectionString(serviceConnectionStringConfigKey)
-                                   ?? configuration?[serviceConnectionStringConfigKey];
-            return connectionString;
         }
     }
 }
