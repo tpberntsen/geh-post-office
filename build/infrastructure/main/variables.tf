@@ -29,3 +29,23 @@ variable "organisation" {
   type          = string
   description   = "Organisation that is running the infrastructure code"
 }
+
+variable "azure_sharedresources_service_bus_namespace_auth_rule_name" {
+  type          = string
+  description   = "Auth rule for send and listen on servicebus namespace"
+}
+
+variable "azure_sharedresources_resource_group_name" {
+  type          = string
+  description   = "Resource group containing shared resources"
+}
+
+variable "azure_sharedresources_service_bus_namespace_name" {
+  type          = string
+  description   = "Servicebus namespace name for messagehub"
+}
+
+variable "azure_sharedresources_sbq_messagehub_dataavailable" {
+  type          = string
+  description   = "Queue name for dataavailable messages"
+}

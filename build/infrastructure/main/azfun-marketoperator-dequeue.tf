@@ -32,7 +32,7 @@ module "azfun_marketoperator_dequeue" {
     MESSAGES_DB_NAME                    = azurerm_cosmosdb_sql_database.db.name
     BlobStorageConnectionString         = module.stor_marketoperator_response.primary_connection_string
     BlobStorageContainerName            = module.container_postoffice_reply.name
-    ServiceBusConnectionString          = module.sbnar_marketoperator.primary_connection_string
+    ServiceBusConnectionString          = azurerm_servicebus_queue_authorization_rule.sbnar_integrationevents_messagehub.primary_connection_string
     StorageAccountConnectionString      = module.stor_marketoperator_response.primary_connection_string
   }
   dependencies                              = [

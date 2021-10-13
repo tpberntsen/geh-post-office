@@ -14,3 +14,15 @@
 data "azurerm_resource_group" "postoffice" {
   name = var.resource_group_name
 }
+
+data "azurerm_servicebus_queue_authorization_rule" "sbnar_integrationevents_messagehub" {
+  name                = var.azure_sharedresources_service_bus_namespace_auth_rule_name
+  resource_group_name = var.azure_sharedresources_resource_group_name
+  namespace_name      = var.azure_sharedresources_service_bus_namespace_name
+}
+
+data "azurerm_servicebus_namespace_auth_rule" "sbq_messagehub_dataavailable" {
+  name                = var.azure_sharedresources_sbq_messagehub_dataavailable
+  resource_group_name = var.azure_sharedresources_resource_group_name
+  namespace_name      = var.azure_sharedresources_service_bus_namespace_name
+}
