@@ -40,46 +40,29 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             _weightCalculatorDomainService = weightCalculatorDomainService;
         }
 
-        public async Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid bundleId)
+        public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid bundleId)
         {
-            var existingBundle = await _bundleRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
-            if (existingBundle != null)
-                return await AskSubDomainForContentAsync(existingBundle).ConfigureAwait(false);
-
-            var dataAvailableNotification = await _dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
-            if (dataAvailableNotification == null)
-                return null; // No new data.
-
-            var newBundle = await CreateNextBundleAsync(
-                bundleId,
-                dataAvailableNotification.Recipient,
-                dataAvailableNotification.Origin,
-                dataAvailableNotification.ContentType).ConfigureAwait(false);
-
-            var bundleCreatedResponse = await _bundleRepository.TryAddNextUnacknowledgedAsync(newBundle).ConfigureAwait(false);
-            return bundleCreatedResponse switch
-            {
-                BundleCreatedResponse.Success => await AskSubDomainForContentAsync(newBundle).ConfigureAwait(false),
-                BundleCreatedResponse.AnotherBundleExists => null,
-                BundleCreatedResponse.BundleIdAlreadyInUse => throw new ValidationException(nameof(BundleCreatedResponse.BundleIdAlreadyInUse)),
-                _ => throw new InvalidOperationException($"bundleCreatedResponse was {bundleCreatedResponse}")
-
-            };
+            return GetNextUnacknowledgedForDomainsAsync(recipient, bundleId);
         }
 
-        public Task<Bundle?> GetNextUnacknowledgedChargesAsync(MarketOperator recipient, Uuid bundleId)
+        public Task<Bundle?> GetNextUnacknowledgedTimeSeriesAsync(MarketOperator recipient, Uuid bundleId)
         {
-            return GetNextUnacknowledgedAsync(recipient, bundleId, DomainOrigin.Charges);
+            return GetNextUnacknowledgedForDomainsAsync(recipient, bundleId, DomainOrigin.TimeSeries);
         }
 
         public Task<Bundle?> GetNextUnacknowledgedMasterDataAsync(MarketOperator recipient, Uuid bundleId)
         {
-            return GetNextUnacknowledgedAsync(recipient, bundleId, DomainOrigin.MarketRoles, DomainOrigin.MeteringPoints);
+            return GetNextUnacknowledgedForDomainsAsync(
+                recipient,
+                bundleId,
+                DomainOrigin.MarketRoles,
+                DomainOrigin.MeteringPoints,
+                DomainOrigin.Charges);
         }
 
-        public Task<Bundle?> GetNextUnacknowledgedAggregationsOrTimeSeriesAsync(MarketOperator recipient, Uuid bundleId)
+        public Task<Bundle?> GetNextUnacknowledgedAggregationsAsync(MarketOperator recipient, Uuid bundleId)
         {
-            return GetNextUnacknowledgedAsync(recipient, bundleId, DomainOrigin.Aggregations, DomainOrigin.TimeSeries);
+            return GetNextUnacknowledgedForDomainsAsync(recipient, bundleId, DomainOrigin.Aggregations);
         }
 
         public async Task<(bool IsAcknowledged, Bundle? AcknowledgedBundle)> TryAcknowledgeAsync(MarketOperator recipient, Uuid bundleId)
@@ -99,33 +82,21 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             return (true, bundle);
         }
 
-        private async Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid bundleId, params DomainOrigin[] orderedDomains)
+        private async Task<Bundle?> GetNextUnacknowledgedForDomainsAsync(MarketOperator recipient, Uuid bundleId, params DomainOrigin[] domains)
         {
-            DataAvailableNotification? firstNotificationInBundle = null;
+            var existingBundle = await _bundleRepository.GetNextUnacknowledgedAsync(recipient, domains).ConfigureAwait(false);
+            if (existingBundle != null)
+                return await AskSubDomainForContentAsync(existingBundle).ConfigureAwait(false);
 
-            foreach (var domainOrigin in orderedDomains)
-            {
-                var existingBundle = await _bundleRepository.GetNextUnacknowledgedForDomainAsync(recipient, domainOrigin).ConfigureAwait(false);
-                if (existingBundle != null)
-                    return await AskSubDomainForContentAsync(existingBundle).ConfigureAwait(false);
-
-                var dataAvailableNotification = await _dataAvailableNotificationRepository.GetNextUnacknowledgedForDomainAsync(recipient, domainOrigin).ConfigureAwait(false);
-                if (dataAvailableNotification != null)
-                {
-                    firstNotificationInBundle = dataAvailableNotification;
-                    break;
-                }
-            }
-
-            // No new data in any domains.
-            if (firstNotificationInBundle == null)
+            var dataAvailableNotification = await _dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipient, domains).ConfigureAwait(false);
+            if (dataAvailableNotification == null)
                 return null;
 
             var newBundle = await CreateNextBundleAsync(
                 bundleId,
-                firstNotificationInBundle.Recipient,
-                firstNotificationInBundle.Origin,
-                firstNotificationInBundle.ContentType).ConfigureAwait(false);
+                dataAvailableNotification.Recipient,
+                dataAvailableNotification.Origin,
+                dataAvailableNotification.ContentType).ConfigureAwait(false);
 
             var bundleCreatedResponse = await _bundleRepository.TryAddNextUnacknowledgedAsync(newBundle).ConfigureAwait(false);
             return bundleCreatedResponse switch

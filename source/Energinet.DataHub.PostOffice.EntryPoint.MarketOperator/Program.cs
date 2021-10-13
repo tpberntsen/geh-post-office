@@ -23,15 +23,19 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
     {
         public static async Task Main()
         {
-            await using var startup = new Startup();
+#pragma warning disable CA2000 // Dispose objects before losing scope
+            var startup = new Startup();
+#pragma warning restore CA2000 // Dispose objects before losing scope
+            await using (startup.ConfigureAwait(false))
+            {
+                var host = new HostBuilder()
+                    .ConfigureFunctionsWorkerDefaults(options => options.UseMiddleware<SimpleInjectorScopedRequest>())
+                    .ConfigureServices(startup.ConfigureServices)
+                    .Build()
+                    .UseSimpleInjector(startup.Container);
 
-            var host = new HostBuilder()
-                .ConfigureFunctionsWorkerDefaults(options => options.UseMiddleware<SimpleInjectorScopedRequest>())
-                .ConfigureServices(startup.ConfigureServices)
-                .Build()
-                .UseSimpleInjector(startup.Container);
-
-            await host.RunAsync().ConfigureAwait(false);
+                await host.RunAsync().ConfigureAwait(false);
+            }
         }
     }
 }

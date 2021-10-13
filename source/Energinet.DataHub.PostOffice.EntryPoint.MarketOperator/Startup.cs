@@ -23,9 +23,9 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
         protected override void Configure(Container container)
         {
             container.Register<PeekFunction>(Lifestyle.Scoped);
-            container.Register<PeekChargesFunction>(Lifestyle.Scoped);
+            container.Register<PeekTimeSeriesFunction>(Lifestyle.Scoped);
             container.Register<PeekMasterDataFunction>(Lifestyle.Scoped);
-            container.Register<PeekAggregationsOrTimeSeriesFunction>(Lifestyle.Scoped);
+            container.Register<PeekAggregationsFunction>(Lifestyle.Scoped);
             container.Register<DequeueFunction>(Lifestyle.Scoped);
         }
     }

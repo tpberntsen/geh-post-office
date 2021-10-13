@@ -25,9 +25,9 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
     public class PeekHandler :
         IRequestHandler<PeekCommand, PeekResponse>,
-        IRequestHandler<PeekChargesCommand, PeekResponse>,
+        IRequestHandler<PeekTimeSeriesCommand, PeekResponse>,
         IRequestHandler<PeekMasterDataCommand, PeekResponse>,
-        IRequestHandler<PeekAggregationsOrTimeSeriesCommand, PeekResponse>
+        IRequestHandler<PeekAggregationsCommand, PeekResponse>
     {
         private readonly IMarketOperatorDataDomainService _marketOperatorDataDomainService;
 
@@ -41,7 +41,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             return HandleAsync(request);
         }
 
-        public Task<PeekResponse> Handle(PeekChargesCommand request, CancellationToken cancellationToken)
+        public Task<PeekResponse> Handle(PeekTimeSeriesCommand request, CancellationToken cancellationToken)
         {
             return HandleAsync(request);
         }
@@ -51,7 +51,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             return HandleAsync(request);
         }
 
-        public Task<PeekResponse> Handle(PeekAggregationsOrTimeSeriesCommand request, CancellationToken cancellationToken)
+        public Task<PeekResponse> Handle(PeekAggregationsCommand request, CancellationToken cancellationToken)
         {
             return HandleAsync(request);
         }
@@ -71,9 +71,9 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             Func<MarketOperator, Uuid, Task<Bundle?>> requestHandler = request switch
             {
                 PeekCommand => _marketOperatorDataDomainService.GetNextUnacknowledgedAsync,
-                PeekChargesCommand => _marketOperatorDataDomainService.GetNextUnacknowledgedChargesAsync,
+                PeekTimeSeriesCommand => _marketOperatorDataDomainService.GetNextUnacknowledgedTimeSeriesAsync,
                 PeekMasterDataCommand => _marketOperatorDataDomainService.GetNextUnacknowledgedMasterDataAsync,
-                PeekAggregationsOrTimeSeriesCommand => _marketOperatorDataDomainService.GetNextUnacknowledgedAggregationsOrTimeSeriesAsync,
+                PeekAggregationsCommand => _marketOperatorDataDomainService.GetNextUnacknowledgedAggregationsAsync,
                 _ => throw new ArgumentOutOfRangeException(nameof(request))
             };
 

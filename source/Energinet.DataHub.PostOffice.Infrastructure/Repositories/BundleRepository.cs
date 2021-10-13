@@ -41,7 +41,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             _marketOperatorDataStorageService = marketOperatorDataStorageService;
         }
 
-        public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient)
+        public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
         {
             if (recipient is null)
                 throw new ArgumentNullException(nameof(recipient));
@@ -50,29 +50,18 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 .Container
                 .GetItemLinqQueryable<CosmosBundleDocument>();
 
-            var query =
-                from bundle in asLinq
-                where bundle.Recipient == recipient.Gln.Value && !bundle.Dequeued
-                orderby bundle.Timestamp
-                select bundle;
+            IQueryable<CosmosBundleDocument> domainFiltered = asLinq;
 
-            return GetNextUnacknowledgedAsync(recipient, query);
-        }
-
-        public Task<Bundle?> GetNextUnacknowledgedForDomainAsync(MarketOperator recipient, DomainOrigin domainOrigin)
-        {
-            if (recipient is null)
-                throw new ArgumentNullException(nameof(recipient));
-
-            var asLinq = _repositoryContainer
-                .Container
-                .GetItemLinqQueryable<CosmosBundleDocument>();
+            if (domains is { Length: > 0 })
+            {
+                var selectedDomains = domains.Select(x => x.ToString());
+                domainFiltered = asLinq.Where(x => selectedDomains.Contains(x.Origin));
+            }
 
             var query =
-                from bundle in asLinq
+                from bundle in domainFiltered
                 where
                     bundle.Recipient == recipient.Gln.Value &&
-                    bundle.Origin == domainOrigin.ToString() &&
                     !bundle.Dequeued
                 orderby bundle.Timestamp
                 select bundle;

@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos.Linq;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Common
@@ -31,6 +33,50 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Common
                     yield return item;
                 }
             }
+        }
+
+        // This method exists, because we have to put ConfigureAwait(false) on IAsyncEnumerable.
+        public static async Task<T?> FirstOrDefaultAsync<T>(this IAsyncEnumerable<T> enumerable)
+        {
+            await foreach (var item in enumerable.ConfigureAwait(false))
+            {
+                return item;
+            }
+
+            return default;
+        }
+
+        // This method exists, because we have to put ConfigureAwait(false) on IAsyncEnumerable.
+        public static async Task<T> SingleAsync<T>(this IAsyncEnumerable<T> enumerable)
+        {
+            await using var enumerator = enumerable.ConfigureAwait(false).GetAsyncEnumerator();
+
+            if (!await enumerator.MoveNextAsync())
+            {
+                throw new InvalidOperationException("The collection is empty.");
+            }
+
+            var result = enumerator.Current;
+
+            if (await enumerator.MoveNextAsync())
+            {
+                throw new InvalidOperationException("The collection has more than one element.");
+            }
+
+            return result;
+        }
+
+        // This method exists, because we have to put ConfigureAwait(false) on IAsyncEnumerable.
+        public static async Task<IReadOnlyList<T>> ToListAsync<T>(this IAsyncEnumerable<T> enumerable)
+        {
+            var items = new List<T>();
+
+            await foreach (var item in enumerable.ConfigureAwait(false))
+            {
+                items.Add(item);
+            }
+
+            return items;
         }
     }
 }

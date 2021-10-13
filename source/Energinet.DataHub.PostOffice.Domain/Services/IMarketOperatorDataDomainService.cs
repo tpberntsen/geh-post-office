@@ -32,13 +32,13 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid bundleId);
 
         /// <summary>
-        /// Get the next bundle of unacknowledged charges data for a given market operator.
+        /// Get the next bundle of unacknowledged time series data for a given market operator.
         /// Returns null when there is no new unacknowledged data to get.
         /// </summary>
         /// <param name="recipient">The market operator to get the next unacknowledged bundle for.</param>
         /// <param name="bundleId">The bundleId used for the next bundle</param>
         /// <returns>The next unacknowledged bundle; or null, if there is no new data.</returns>
-        Task<Bundle?> GetNextUnacknowledgedChargesAsync(MarketOperator recipient, Uuid bundleId);
+        Task<Bundle?> GetNextUnacknowledgedTimeSeriesAsync(MarketOperator recipient, Uuid bundleId);
 
         /// <summary>
         /// Get the next bundle of unacknowledged master data for a given market operator.
@@ -50,13 +50,13 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         Task<Bundle?> GetNextUnacknowledgedMasterDataAsync(MarketOperator recipient, Uuid bundleId);
 
         /// <summary>
-        /// Get the next bundle of unacknowledged time series and aggregations data for a given market operator.
+        /// Get the next bundle of unacknowledged aggregations data for a given market operator.
         /// Returns null when there is no new unacknowledged data to get.
         /// </summary>
         /// <param name="recipient">The market operator to get the next unacknowledged bundle for.</param>
         /// <param name="bundleId">id for data response.</param>
         /// <returns>The next unacknowledged bundle; or null, if there is no new data.</returns>
-        Task<Bundle?> GetNextUnacknowledgedAggregationsOrTimeSeriesAsync(MarketOperator recipient, Uuid bundleId);
+        Task<Bundle?> GetNextUnacknowledgedAggregationsAsync(MarketOperator recipient, Uuid bundleId);
 
         /// <summary>
         /// Acknowledges the current bundle, as returned by GetNextUnacknowledgedAsync.

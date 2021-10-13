@@ -42,20 +42,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         }
 
         [Fact]
-        public async Task GetNextUnacknowledgedForDomainAsync_NullRecipient_ThrowsException()
-        {
-            // Arrange
-            var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
-            var marketOperatorDataStorageService = new Mock<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(bundleRepositoryContainer.Object, marketOperatorDataStorageService.Object);
-
-            // Act + Assert
-            await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.GetNextUnacknowledgedForDomainAsync(null!, DomainOrigin.TimeSeries))
-                .ConfigureAwait(false);
-        }
-
-        [Fact]
         public async Task AcknowledgeAsync_NullRecipient_ThrowsException()
         {
             // Arrange

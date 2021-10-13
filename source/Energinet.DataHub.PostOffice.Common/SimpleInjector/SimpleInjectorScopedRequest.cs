@@ -38,9 +38,13 @@ namespace Energinet.DataHub.PostOffice.Common.SimpleInjector
             if (next == null)
                 throw new ArgumentNullException(nameof(next));
 
-            await using var scope = AsyncScopedLifestyle.BeginScope(_container);
-            context.InstanceServices = new SimpleInjectorServiceProviderAdapter(scope.Container!);
-            await next(context).ConfigureAwait(false);
+            var scope = AsyncScopedLifestyle.BeginScope(_container);
+
+            await using (scope.ConfigureAwait(false))
+            {
+                context.InstanceServices = new SimpleInjectorServiceProviderAdapter(scope.Container!);
+                await next(context).ConfigureAwait(false);
+            }
         }
     }
 }

@@ -53,6 +53,33 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         }
 
         [Fact]
+        public async Task GetNextUnacknowledgedAsync_HasUnrelatedBundle_ReturnsNull()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var container = scope.GetInstance<IBundleRepositoryContainer>();
+            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
+            var target = new BundleRepository(container, storageService);
+
+            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var setupBundle = new Bundle(
+                new Uuid(Guid.NewGuid()),
+                DomainOrigin.TimeSeries,
+                recipient,
+                new[] { new Uuid(Guid.NewGuid()) });
+
+            await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+
+            // Act
+            var bundle = await target.GetNextUnacknowledgedAsync(recipient, DomainOrigin.MarketRoles).ConfigureAwait(false);
+
+            // Assert
+            Assert.Null(bundle);
+        }
+
+        [Fact]
         public async Task GetNextUnacknowledgedAsync_HasBundle_ReturnsBundle()
         {
             // Arrange
@@ -104,89 +131,6 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             // Act
             var bundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
-
-            // Assert
-            Assert.NotNull(bundle);
-            Assert.Equal(setupBundle.BundleId, bundle!.BundleId);
-            Assert.Equal(setupBundle.Origin, bundle.Origin);
-            Assert.Equal(setupBundle.Recipient, bundle.Recipient);
-            Assert.Equal(setupBundle.NotificationIds.Single(), bundle.NotificationIds.Single());
-            Assert.True(bundle.TryGetContent(out var actualBundleContent));
-            Assert.Equal(_contentPathUri, ((AzureBlobBundleContent)actualBundleContent!).ContentPath);
-        }
-
-        [Fact]
-        public async Task GetNextUnacknowledgedForDomainAsync_NoBundle_ReturnsNull()
-        {
-            // Arrange
-            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
-            var scope = host.BeginScope();
-
-            var container = scope.GetInstance<IBundleRepositoryContainer>();
-            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
-
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
-
-            // Act
-            var bundle = await target.GetNextUnacknowledgedForDomainAsync(recipient, DomainOrigin.TimeSeries).ConfigureAwait(false);
-
-            // Assert
-            Assert.Null(bundle);
-        }
-
-        [Fact]
-        public async Task GetNextUnacknowledgedForDomainAsync_HasBundle_ReturnsBundle()
-        {
-            // Arrange
-            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
-            var scope = host.BeginScope();
-
-            var container = scope.GetInstance<IBundleRepositoryContainer>();
-            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
-
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
-            var setupBundle = new Bundle(
-                new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
-                recipient,
-                new[] { new Uuid(Guid.NewGuid()) });
-
-            await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
-
-            // Act
-            var bundle = await target.GetNextUnacknowledgedForDomainAsync(recipient, DomainOrigin.TimeSeries).ConfigureAwait(false);
-
-            // Assert
-            Assert.NotNull(bundle);
-            Assert.Equal(setupBundle.BundleId, bundle!.BundleId);
-            Assert.Equal(setupBundle.Origin, bundle.Origin);
-            Assert.Equal(setupBundle.Recipient, bundle.Recipient);
-            Assert.Equal(setupBundle.NotificationIds.Single(), bundle.NotificationIds.Single());
-            Assert.False(bundle.TryGetContent(out _));
-        }
-
-        [Fact]
-        public async Task GetNextUnacknowledgedForDomainAsync_HasBundleAndContent_ReturnsBundleContent()
-        {
-            // Arrange
-            await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
-            var scope = host.BeginScope();
-
-            var container = scope.GetInstance<IBundleRepositoryContainer>();
-            var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
-
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
-            var setupBundle = CreateBundle(
-                recipient,
-                new AzureBlobBundleContent(storageService, _contentPathUri));
-
-            await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
-
-            // Act
-            var bundle = await target.GetNextUnacknowledgedForDomainAsync(recipient, DomainOrigin.TimeSeries).ConfigureAwait(false);
 
             // Assert
             Assert.NotNull(bundle);
@@ -345,8 +289,19 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             Assert.Equal(BundleCreatedResponse.BundleIdAlreadyInUse, couldAddBundleWithDuplicateId);
         }
 
-        [Fact]
-        public async Task TryAddNextUnacknowledgedAsync_HasAggregationsBundle_ReturnsFalse()
+        [Theory]
+        [InlineData(DomainOrigin.Aggregations, DomainOrigin.Aggregations)]
+        [InlineData(DomainOrigin.TimeSeries, DomainOrigin.TimeSeries)]
+        [InlineData(DomainOrigin.MarketRoles, DomainOrigin.MarketRoles)]
+        [InlineData(DomainOrigin.MarketRoles, DomainOrigin.MeteringPoints)]
+        [InlineData(DomainOrigin.MarketRoles, DomainOrigin.Charges)]
+        [InlineData(DomainOrigin.Charges, DomainOrigin.Charges)]
+        [InlineData(DomainOrigin.Charges, DomainOrigin.MarketRoles)]
+        [InlineData(DomainOrigin.Charges, DomainOrigin.MeteringPoints)]
+        [InlineData(DomainOrigin.MeteringPoints, DomainOrigin.MeteringPoints)]
+        [InlineData(DomainOrigin.MeteringPoints, DomainOrigin.MarketRoles)]
+        [InlineData(DomainOrigin.MeteringPoints, DomainOrigin.Charges)]
+        public async Task TryAddNextUnacknowledgedAsync_HasConflictingDomains_ReturnsFalse(DomainOrigin initial, DomainOrigin conflicting)
         {
             // Arrange
             await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
@@ -357,8 +312,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var target = new BundleRepository(container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
-            var setupBundle = CreateBundle(recipient);
-            var conflictBundle = CreateBundle(recipient, domainOrigin: DomainOrigin.Aggregations);
+            var setupBundle = CreateBundle(recipient, domainOrigin: initial);
+            var conflictBundle = CreateBundle(recipient, domainOrigin: conflicting);
 
             await target.TryAddNextUnacknowledgedAsync(conflictBundle).ConfigureAwait(false);
 
@@ -369,8 +324,15 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             Assert.Equal(BundleCreatedResponse.AnotherBundleExists, couldAdd);
         }
 
-        [Fact]
-        public async Task TryAddNextUnacknowledgedAsync_HasTimeSeriesBundle_ReturnsFalse()
+        [Theory]
+        [InlineData(DomainOrigin.Aggregations, DomainOrigin.TimeSeries)]
+        [InlineData(DomainOrigin.Aggregations, DomainOrigin.MarketRoles)]
+        [InlineData(DomainOrigin.Aggregations, DomainOrigin.MeteringPoints)]
+        [InlineData(DomainOrigin.Aggregations, DomainOrigin.Charges)]
+        [InlineData(DomainOrigin.TimeSeries, DomainOrigin.MarketRoles)]
+        [InlineData(DomainOrigin.TimeSeries, DomainOrigin.MeteringPoints)]
+        [InlineData(DomainOrigin.TimeSeries, DomainOrigin.Charges)]
+        public async Task TryAddNextUnacknowledgedAsync_HasNotConflictingDomains_ReturnsTrue(DomainOrigin initial, DomainOrigin conflicting)
         {
             // Arrange
             await using var host = await MarketOperatorIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
@@ -381,8 +343,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var target = new BundleRepository(container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
-            var setupBundle = CreateBundle(recipient, domainOrigin: DomainOrigin.Aggregations);
-            var conflictBundle = CreateBundle(recipient);
+            var setupBundle = CreateBundle(recipient, domainOrigin: initial);
+            var conflictBundle = CreateBundle(recipient, domainOrigin: conflicting);
 
             await target.TryAddNextUnacknowledgedAsync(conflictBundle).ConfigureAwait(false);
 
@@ -390,7 +352,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var couldAdd = await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
 
             // Assert
-            Assert.Equal(BundleCreatedResponse.AnotherBundleExists, couldAdd);
+            Assert.Equal(BundleCreatedResponse.Success, couldAdd);
         }
 
         [Fact]

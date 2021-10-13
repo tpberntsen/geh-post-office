@@ -28,7 +28,7 @@ using Xunit.Categories;
 namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 {
     [UnitTest]
-    public sealed class PeekAggregationsOrTimeSeriesAzureFunctionTests
+    public sealed class PeekAggregationsAzureFunctionTests
     {
         private readonly Uri _functionRoute = new("https://localhost?recipient=0101010101010");
 
@@ -45,10 +45,10 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             var mockedMediator = new Mock<IMediator>();
             mockedMediator
-                .Setup(x => x.Send(It.IsAny<PeekAggregationsOrTimeSeriesCommand>(), default))
+                .Setup(x => x.Send(It.IsAny<PeekAggregationsCommand>(), default))
                 .ReturnsAsync(new PeekResponse(true, new MemoryStream(Encoding.ASCII.GetBytes(expectedData))));
 
-            var target = new PeekAggregationsOrTimeSeriesFunction(mockedMediator.Object);
+            var target = new PeekAggregationsFunction(mockedMediator.Object);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -71,10 +71,10 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             var mockedMediator = new Mock<IMediator>();
             mockedMediator
-                .Setup(x => x.Send(It.IsAny<PeekAggregationsOrTimeSeriesCommand>(), default))
+                .Setup(x => x.Send(It.IsAny<PeekAggregationsCommand>(), default))
                 .ReturnsAsync(new PeekResponse(false, Stream.Null));
 
-            var target = new PeekAggregationsOrTimeSeriesFunction(mockedMediator.Object);
+            var target = new PeekAggregationsFunction(mockedMediator.Object);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);

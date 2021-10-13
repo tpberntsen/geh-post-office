@@ -65,10 +65,9 @@ function trigger() {
     WHERE b.recipient = '${createdItem.recipient}' AND
           b.dequeued = false AND (
           b.origin = '${createdItem.origin}' OR
-         (b.origin = 'TimeSeries' AND '${createdItem.origin}' = 'Aggregations') OR
-         (b.origin = 'Aggregations' AND '${createdItem.origin}' = 'TimeSeries') OR
-         (b.origin = 'MarketRoles' AND '${createdItem.origin}' = 'MeteringPoints') OR
-         (b.origin = 'MeteringPoints' AND '${createdItem.origin}' = 'MarketRoles'))`;
+         ((b.origin = 'MarketRoles' OR b.origin = 'Charges') AND '${createdItem.origin}' = 'MeteringPoints') OR
+         ((b.origin = 'Charges' OR b.origin = 'MeteringPoints') AND '${createdItem.origin}' = 'MarketRoles') OR
+         ((b.origin = 'MarketRoles' OR b.origin = 'MeteringPoints') AND '${createdItem.origin}' = 'Charges'))`;
 
     var accept = container.queryDocuments(container.getSelfLink(), filterQuery, function(err, items, options)
     {

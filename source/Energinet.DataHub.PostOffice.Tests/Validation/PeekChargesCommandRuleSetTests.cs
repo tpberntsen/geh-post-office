@@ -36,10 +36,10 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
         public async Task Validate_BundleId_ValidatesProperty(string value, bool isValid)
         {
             // Arrange
-            const string propertyName = nameof(PeekChargesCommand.BundleId);
+            const string propertyName = nameof(PeekTimeSeriesCommand.BundleId);
 
-            var target = new PeekChargesCommandRuleSet();
-            var command = new PeekChargesCommand(
+            var target = new PeekTimeSeriesCommandRuleSet();
+            var command = new PeekTimeSeriesCommand(
                 ValidRecipient,
                 value);
 
@@ -67,10 +67,10 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
         public async Task Validate_Recipient_ValidatesProperty(string value, bool isValid)
         {
             // Arrange
-            const string propertyName = nameof(PeekChargesCommand.Recipient);
+            const string propertyName = nameof(PeekTimeSeriesCommand.Recipient);
 
-            var target = new PeekChargesCommandRuleSet();
-            var command = new PeekChargesCommand(value, Guid.NewGuid().ToString());
+            var target = new PeekTimeSeriesCommandRuleSet();
+            var command = new PeekTimeSeriesCommand(value, Guid.NewGuid().ToString());
 
             // Act
             var result = await target.ValidateAsync(command).ConfigureAwait(false);

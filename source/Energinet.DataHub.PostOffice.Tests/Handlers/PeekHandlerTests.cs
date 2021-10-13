@@ -111,7 +111,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         }
 
         [Fact]
-        public async Task PeekAggregationsOrTimeSeriesCommandHandle_NullArgument_ThrowsException()
+        public async Task PeekAggregationsCommandHandle_NullArgument_ThrowsException()
         {
             // Arrange
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
@@ -119,15 +119,15 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.Handle((PeekAggregationsOrTimeSeriesCommand)null!, CancellationToken.None))
+                .ThrowsAsync<ArgumentNullException>(() => target.Handle((PeekAggregationsCommand)null!, CancellationToken.None))
                 .ConfigureAwait(false);
         }
 
         [Fact]
-        public async Task PeekAggregationsOrTimeSeriesCommandHandle_WithData_ReturnsDataStream()
+        public async Task PeekAggregationsCommandHandle_WithData_ReturnsDataStream()
         {
             // Arrange
-            var request = new PeekAggregationsOrTimeSeriesCommand("fake_value", Guid.NewGuid().ToString());
+            var request = new PeekAggregationsCommand("fake_value", Guid.NewGuid().ToString());
 
             var bundleContentMock = new Mock<IBundleContent>();
             bundleContentMock
@@ -144,7 +144,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock
                 .Setup(x =>
-                    x.GetNextUnacknowledgedAggregationsOrTimeSeriesAsync(
+                    x.GetNextUnacknowledgedAggregationsAsync(
                         It.Is<MarketOperator>(r =>
                             string.Equals(r.Gln.Value, request.Recipient, StringComparison.OrdinalIgnoreCase)),
                         It.Is<Uuid>(r => r.ToString().Equals(request.BundleId, StringComparison.OrdinalIgnoreCase))))
@@ -164,15 +164,15 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         }
 
         [Fact]
-        public async Task PeekAggregationsOrTimeSeriesCommandHandle_WithoutData_ReturnsNullStream()
+        public async Task PeekAggregationsCommandHandle_WithoutData_ReturnsNullStream()
         {
             // Arrange
-            var request = new PeekAggregationsOrTimeSeriesCommand("fake_value", Guid.NewGuid().ToString());
+            var request = new PeekAggregationsCommand("fake_value", Guid.NewGuid().ToString());
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock
                 .Setup(x =>
-                    x.GetNextUnacknowledgedAggregationsOrTimeSeriesAsync(
+                    x.GetNextUnacknowledgedAggregationsAsync(
                         It.Is<MarketOperator>(r => string.Equals(r.Gln.Value, request.Recipient, StringComparison.OrdinalIgnoreCase)),
                         It.Is<Uuid>(r => string.Equals(r.ToString(), request.BundleId, StringComparison.OrdinalIgnoreCase))))
                 .ReturnsAsync((Bundle?)null);
@@ -189,7 +189,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         }
 
         [Fact]
-        public async Task PeekChargesCommandHandle_NullArgument_ThrowsException()
+        public async Task PeekTimeSeriesCommandHandle_NullArgument_ThrowsException()
         {
             // Arrange
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
@@ -197,15 +197,15 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.Handle((PeekChargesCommand)null!, CancellationToken.None))
+                .ThrowsAsync<ArgumentNullException>(() => target.Handle((PeekTimeSeriesCommand)null!, CancellationToken.None))
                 .ConfigureAwait(false);
         }
 
         [Fact]
-        public async Task PeekChargesCommandHandle_WithData_ReturnsDataStream()
+        public async Task PeekTimeSeriesCommandHandle_WithData_ReturnsDataStream()
         {
             // Arrange
-            var request = new PeekChargesCommand("fake_value", Guid.NewGuid().ToString());
+            var request = new PeekTimeSeriesCommand("fake_value", Guid.NewGuid().ToString());
 
             var bundleContentMock = new Mock<IBundleContent>();
             bundleContentMock
@@ -222,7 +222,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock
                 .Setup(x =>
-                    x.GetNextUnacknowledgedChargesAsync(
+                    x.GetNextUnacknowledgedTimeSeriesAsync(
                         It.Is<MarketOperator>(r =>
                             string.Equals(r.Gln.Value, request.Recipient, StringComparison.OrdinalIgnoreCase)),
                         It.Is<Uuid>(r => BundleIdCheck(r, request))))
@@ -242,15 +242,15 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         }
 
         [Fact]
-        public async Task PeekChargesCommandHandle_WithoutData_ReturnsNullStream()
+        public async Task PeekTimeSeriesCommandHandle_WithoutData_ReturnsNullStream()
         {
             // Arrange
-            var request = new PeekChargesCommand("fake_value", Guid.NewGuid().ToString());
+            var request = new PeekTimeSeriesCommand("fake_value", Guid.NewGuid().ToString());
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock
                 .Setup(x =>
-                    x.GetNextUnacknowledgedChargesAsync(
+                    x.GetNextUnacknowledgedTimeSeriesAsync(
                         It.Is<MarketOperator>(r =>
                             string.Equals(r.Gln.Value, request.Recipient, StringComparison.OrdinalIgnoreCase)),
                         It.Is<Uuid>(r => BundleIdCheck(r, request))))

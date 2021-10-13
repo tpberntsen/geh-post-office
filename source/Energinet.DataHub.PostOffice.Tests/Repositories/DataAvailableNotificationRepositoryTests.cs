@@ -67,19 +67,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         }
 
         [Fact]
-        public async Task GetNextUnacknowledgedForDomainAsync_NullRecipient_ThrowsException()
-        {
-            // Arrange
-            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
-            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
-
-            // Act + Assert
-            await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.GetNextUnacknowledgedForDomainAsync(null!, DomainOrigin.TimeSeries))
-                .ConfigureAwait(false);
-        }
-
-        [Fact]
         public async Task AcknowledgeAsync_NullRecipient_ThrowsException()
         {
             // Arrange

@@ -82,6 +82,35 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         }
 
         [Fact]
+        public async Task GetNextUnacknowledgedAsync_HasUnrelatedData_ReturnsData()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            var recipient = new MarketOperator(new MockedGln());
+            var expected = new DataAvailableNotification(
+                new Uuid(Guid.NewGuid()),
+                recipient,
+                new ContentType("fake_value"),
+                DomainOrigin.Aggregations,
+                new SupportsBundling(false),
+                new Weight(1));
+
+            await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .GetNextUnacknowledgedAsync(recipient, DomainOrigin.MarketRoles)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.Null(actual);
+        }
+
+        [Fact]
         public async Task GetNextUnacknowledgedAsync_HasMultipleData_ReturnsOldestData()
         {
             // Arrange
@@ -215,60 +244,6 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var list = actual.ToList();
             Assert.Single(list);
             Assert.Single(list, x => x.NotificationId == expected.NotificationId);
-        }
-
-        [Fact]
-        public async Task GetNextUnacknowledgedForDomainAsync_NoData_ReturnsNull()
-        {
-            // Arrange
-            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
-            var scope = host.BeginScope();
-
-            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
-            var recipient = new MarketOperator(new MockedGln());
-
-            // Act
-            var actual = await dataAvailableNotificationRepository
-                .GetNextUnacknowledgedForDomainAsync(recipient, DomainOrigin.Aggregations)
-                .ConfigureAwait(false);
-
-            // Assert
-            Assert.Null(actual);
-        }
-
-        [Fact]
-        public async Task GetNextUnacknowledgedForDomainAsync_HasData_ReturnsData()
-        {
-            // Arrange
-            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
-            var scope = host.BeginScope();
-
-            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
-
-            var recipient = new MarketOperator(new MockedGln());
-            var expected = new DataAvailableNotification(
-                new Uuid(Guid.NewGuid()),
-                recipient,
-                new ContentType("target"),
-                DomainOrigin.Aggregations,
-                new SupportsBundling(false),
-                new Weight(1));
-
-            await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
-
-            // Act
-            var actual = await dataAvailableNotificationRepository
-                .GetNextUnacknowledgedForDomainAsync(recipient, DomainOrigin.Aggregations)
-                .ConfigureAwait(false);
-
-            // Assert
-            Assert.NotNull(actual);
-            Assert.Equal(expected.NotificationId, actual!.NotificationId);
-            Assert.Equal(expected.ContentType, actual.ContentType);
-            Assert.Equal(expected.Recipient, actual.Recipient);
-            Assert.Equal(expected.Origin, actual.Origin);
-            Assert.Equal(expected.SupportsBundling, actual.SupportsBundling);
-            Assert.Equal(expected.Weight, actual.Weight);
         }
 
         [Fact]

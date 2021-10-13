@@ -38,8 +38,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
             // Arrange
             const string propertyName = nameof(PeekCommand.BundleId);
 
-            var target = new PeekAggregationsOrTimeSeriesCommandRuleSet();
-            var command = new PeekAggregationsOrTimeSeriesCommand(
+            var target = new PeekAggregationsCommandRuleSet();
+            var command = new PeekAggregationsCommand(
                 ValidRecipient,
                 value);
 
@@ -69,8 +69,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
             // Arrange
             const string propertyName = nameof(PeekCommand.Recipient);
 
-            var target = new PeekAggregationsOrTimeSeriesCommandRuleSet();
-            var command = new PeekAggregationsOrTimeSeriesCommand(value, Guid.NewGuid().ToString());
+            var target = new PeekAggregationsCommandRuleSet();
+            var command = new PeekAggregationsCommand(value, Guid.NewGuid().ToString());
 
             // Act
             var result = await target.ValidateAsync(command).ConfigureAwait(false);

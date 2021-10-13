@@ -18,9 +18,9 @@ using FluentValidation;
 
 namespace Energinet.DataHub.PostOffice.Application.Validation
 {
-    public class PeekAggregationsOrTimeSeriesCommandRuleSet : AbstractValidator<PeekAggregationsOrTimeSeriesCommand>
+    public class PeekAggregationsCommandRuleSet : AbstractValidator<PeekAggregationsCommand>
     {
-        public PeekAggregationsOrTimeSeriesCommandRuleSet()
+        public PeekAggregationsCommandRuleSet()
         {
             RuleFor(command => command.Recipient)
                 .NotEmpty()
