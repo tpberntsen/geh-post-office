@@ -47,12 +47,11 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
                 .ThrowsAsync<ArgumentNullException>(() =>
                     target.SendAsync(
                         null!,
-                        requestMock,
-                        "sessionId"))
+                        requestMock))
                 .ConfigureAwait(false);
         }
 
-        [Fact]
+        [Fact(Skip = "Behaviour changed - we dont supply a session id, but use the idempotency id instead")]
         public async Task SendAsync_NullSessionId_ThrowsException()
         {
             // Arrange
@@ -76,8 +75,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
                 .ThrowsAsync<ArgumentNullException>(() =>
                     target.SendAsync(
                         response,
-                        requestMock,
-                        null!))
+                        requestMock))
                 .ConfigureAwait(false);
         }
 
@@ -101,8 +99,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
                 .ThrowsAsync<ArgumentNullException>(() =>
                     target.SendAsync(
                         response,
-                        null!,
-                        NewGuid().ToString()))
+                        null!))
                 .ConfigureAwait(false);
         }
 
@@ -141,8 +138,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             // Act
             await target.SendAsync(
                 response,
-                requestMock,
-                "session")
+                requestMock)
             .ConfigureAwait(false);
 
             // Assert
@@ -185,8 +181,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             // Act
             await target.SendAsync(
                     response,
-                    requestMock,
-                    "session")
+                    requestMock)
                 .ConfigureAwait(false);
 
             // Assert

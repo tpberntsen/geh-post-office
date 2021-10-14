@@ -40,14 +40,10 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
 
         public async Task SendAsync(
             DataBundleResponseDto dataBundleResponseDto,
-            DataBundleRequestDto requestDto,
-            string sessionId)
+            DataBundleRequestDto requestDto)
         {
             if (dataBundleResponseDto is null)
                 throw new ArgumentNullException(nameof(dataBundleResponseDto));
-
-            if (sessionId is null)
-                throw new ArgumentNullException(nameof(sessionId));
 
             if (requestDto is null)
                 throw new ArgumentNullException(nameof(requestDto));
@@ -55,7 +51,7 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
             var contractBytes = _responseBundleParser.Parse(dataBundleResponseDto);
             var serviceBusReplyMessage = new ServiceBusMessage(contractBytes)
             {
-                SessionId = sessionId,
+                SessionId = requestDto.IdempotencyId,
             }.AddDataBundleResponseIntegrationEvents(requestDto.IdempotencyId);
 
             _serviceBusClient ??= _serviceBusClientFactory.Create();
