@@ -110,7 +110,7 @@ namespace GetMessage.Functions
         private async Task<DataBundleResponseDto> CreateSuccessResponseAsync(DataBundleRequestDto requestDto)
         {
             var resourceUrl = await SaveDataToBlobStorageAsync(requestDto).ConfigureAwait(false);
-            return requestDto.Create(new Uri(resourceUrl.AbsoluteUri));
+            return requestDto.CreateResponse(new Uri(resourceUrl.AbsoluteUri));
         }
 
         private async Task<Uri> SaveDataToBlobStorageAsync(DataBundleRequestDto requestDto)
