@@ -134,7 +134,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             var maxWeight = _weightCalculatorDomainService.CalculateMaxWeight(domainOrigin);
 
             var dataAvailableNotifications = await _dataAvailableNotificationRepository
-                .GetNextUnacknowledgedAsync(recipient, contentType, maxWeight)
+                .GetNextUnacknowledgedAsync(recipient, domainOrigin, contentType, maxWeight)
                 .ConfigureAwait(false);
 
             var notificationIds = dataAvailableNotifications

@@ -15,6 +15,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Energinet.DataHub.MessageHub.Client;
 using Energinet.DataHub.MessageHub.Client.DataAvailable;
 using Energinet.DataHub.MessageHub.Client.Factories;
 using Energinet.DataHub.MessageHub.Client.Model;
@@ -27,7 +28,12 @@ namespace DataAvailableNotification
         public static async Task Main(string[] args)
         {
             var configuration = BuildConfiguration(args);
-            var connectionString = configuration.GetSection("Values")["ServiceBusConnectionString"];
+
+            var configurationSection = configuration.GetSection("Values");
+            var connectionString = configurationSection["ServiceBusConnectionString"];
+            var dataAvailableQueueName = configurationSection["DATAAVAILABLE_QUEUE_NAME"];
+            var domainReplyQueueName = configurationSection["DOMAIN_REPLY_QUEUE_NAME"];
+
             var recipient = configuration["recipient"];
             var origin = configuration["origin"];
             var messageType = configuration["type"];
@@ -35,7 +41,9 @@ namespace DataAvailableNotification
             var domainOrigin = origin != null ? Enum.Parse<DomainOrigin>(origin, true) : DomainOrigin.TimeSeries;
 
             var serviceBusClientFactory = new ServiceBusClientFactory(connectionString);
-            await using var dataAvailableNotificationSender = new DataAvailableNotificationSender(serviceBusClientFactory);
+            var messageHubConfig = new MessageHubConfig(dataAvailableQueueName, domainReplyQueueName);
+
+            await using var dataAvailableNotificationSender = new DataAvailableNotificationSender(serviceBusClientFactory, messageHubConfig);
 
             for (var i = 0; i < interval; i++)
             {
@@ -47,7 +55,7 @@ namespace DataAvailableNotification
                     Thread.Sleep(5000);
             }
 
-            Console.WriteLine($"A batch of messages has been published to the queue.");
+            Console.WriteLine("A batch of messages has been published to the queue.");
         }
 
         private static DataAvailableNotificationDto CreateDto(DomainOrigin origin, string messageType, string recipient)

@@ -4,6 +4,7 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "ServiceBusConnectionString": "",
     "QueueListenerName": "",
+    "ReplyQueueName": "",
     "BlobStorageConnectionString": "",
     "BlobStorageContainerName": "",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"

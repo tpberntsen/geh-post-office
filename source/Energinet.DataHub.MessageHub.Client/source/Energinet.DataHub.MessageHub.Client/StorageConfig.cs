@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Energinet.DataHub.PostOffice.Application.Commands
+namespace Energinet.DataHub.MessageHub.Client
 {
-    public sealed record PeekMasterDataCommand(string MarketOperator, string BundleId) : PeekCommandBase(MarketOperator, BundleId);
+    public record StorageConfig(string AzureBlobStorageContainerName);
 }

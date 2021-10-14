@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
@@ -186,7 +185,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 .ReadAsDataBundleRequestAsync()
                 .ConfigureAwait(false);
 
-            var bundleId = bundleContents.IdempotencyId.Split("+", StringSplitOptions.RemoveEmptyEntries).First();
+            var bundleId = bundleContents.IdempotencyId.Split("_", StringSplitOptions.RemoveEmptyEntries).First();
             return bundleId;
         }
     }

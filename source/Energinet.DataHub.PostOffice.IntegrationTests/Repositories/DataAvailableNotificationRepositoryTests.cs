@@ -193,7 +193,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             // Act
             var actual = await dataAvailableNotificationRepository
-                .GetNextUnacknowledgedAsync(recipient, new ContentType("target"), new Weight(1))
+                .GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations, new ContentType("target"), new Weight(1))
                 .ConfigureAwait(false);
 
             // Assert
@@ -235,7 +235,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             // Act
             var actual = await dataAvailableNotificationRepository
-                .GetNextUnacknowledgedAsync(recipient, expected.ContentType, new Weight(1))
+                .GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations, expected.ContentType, new Weight(1))
                 .ConfigureAwait(false);
 
             // Assert

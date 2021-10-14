@@ -26,13 +26,13 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
     public sealed class DataAvailableNotificationSender : IDataAvailableNotificationSender, IAsyncDisposable
     {
         private readonly IServiceBusClientFactory _serviceBusClientFactory;
-        private readonly DomainConfig _config;
+        private readonly MessageHubConfig _messageHubConfig;
         private ServiceBusClient? _serviceBusClient;
 
-        public DataAvailableNotificationSender(IServiceBusClientFactory serviceBusClientFactory, DomainConfig config)
+        public DataAvailableNotificationSender(IServiceBusClientFactory serviceBusClientFactory, MessageHubConfig messageHubConfig)
         {
             _serviceBusClientFactory = serviceBusClientFactory;
-            _config = config;
+            _messageHubConfig = messageHubConfig;
         }
 
         public async Task SendAsync(DataAvailableNotificationDto dataAvailableNotificationDto)
@@ -42,7 +42,7 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
 
             _serviceBusClient ??= _serviceBusClientFactory.Create();
 
-            await using var sender = _serviceBusClient.CreateSender(_config.DataAvailableQueue);
+            await using var sender = _serviceBusClient.CreateSender(_messageHubConfig.DataAvailableQueue);
 
             var contract = new DataAvailableNotificationContract
             {

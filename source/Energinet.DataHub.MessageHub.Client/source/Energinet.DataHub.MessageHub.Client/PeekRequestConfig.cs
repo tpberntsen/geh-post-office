@@ -14,5 +14,15 @@
 
 namespace Energinet.DataHub.MessageHub.Client
 {
-    public record DomainConfig(string Queue, string ReplyQueue, string DataAvailableQueue, string AcknowledgeQueue, string ServiceBusConnectionString, string StorageServiceConnectionString);
+    public record PeekRequestConfig(
+        string TimeSeriesQueue,
+        string TimeSeriesReplyQueue,
+        string ChargesQueue,
+        string ChargesReplyQueue,
+        string MarketRolesQueue,
+        string MarketRolesReplyQueue,
+        string MeteringPointsQueue,
+        string MeteringPointsReplyQueue,
+        string AggregationsQueue,
+        string AggregationsReplyQueue);
 }

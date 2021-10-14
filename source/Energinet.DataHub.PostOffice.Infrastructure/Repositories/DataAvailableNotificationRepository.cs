@@ -84,6 +84,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public async Task<IEnumerable<DataAvailableNotification>> GetNextUnacknowledgedAsync(
             MarketOperator recipient,
+            DomainOrigin domainOrigin,
             ContentType contentType,
             Weight weight)
         {
@@ -102,6 +103,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 where
                     dataAvailable.Recipient == recipient.Gln.Value &&
                     dataAvailable.ContentType == contentType.Value &&
+                    dataAvailable.Origin == domainOrigin.ToString() &&
                     !dataAvailable.Acknowledge
                 orderby dataAvailable.Timestamp
                 select dataAvailable;

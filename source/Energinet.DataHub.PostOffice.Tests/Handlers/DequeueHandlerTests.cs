@@ -61,7 +61,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock.Setup(x => x.TryAcknowledgeAsync(
                     It.Is<MarketOperator>(r => string.Equals(r.Gln.Value, request.MarketOperator, StringComparison.OrdinalIgnoreCase)),
-                    It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleUuid, StringComparison.OrdinalIgnoreCase))))
+                    It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleId, StringComparison.OrdinalIgnoreCase))))
                 .ReturnsAsync((true, bundle));
             var dequeueNotificationSenderMock = new Mock<IDequeueNotificationSender>();
             dequeueNotificationSenderMock.Setup(x => x.SendAsync(
@@ -92,7 +92,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock.Setup(x => x.TryAcknowledgeAsync(
                     It.Is<MarketOperator>(r => string.Equals(r.Gln.Value, request.MarketOperator, StringComparison.OrdinalIgnoreCase)),
-                    It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleUuid, StringComparison.OrdinalIgnoreCase))))
+                    It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleId, StringComparison.OrdinalIgnoreCase))))
                 .ReturnsAsync((false, null));
             var dequeueNotificationSenderMock = new Mock<IDequeueNotificationSender>();
             var target = new DequeueHandler(warehouseDomainServiceMock.Object, dequeueNotificationSenderMock.Object);

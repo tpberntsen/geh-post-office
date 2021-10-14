@@ -26,10 +26,12 @@ namespace Energinet.DataHub.MessageHub.Client.Storage
     public class StorageHandler : IStorageHandler
     {
         private readonly IStorageServiceClientFactory _storageServiceClientFactory;
+        private readonly StorageConfig _storageConfig;
 
-        public StorageHandler(IStorageServiceClientFactory storageServiceClientFactory)
+        public StorageHandler(IStorageServiceClientFactory storageServiceClientFactory, StorageConfig storageConfig)
         {
             _storageServiceClientFactory = storageServiceClientFactory;
+            _storageConfig = storageConfig;
         }
 
         public async Task<Uri> AddStreamToStorageAsync(Stream stream, DataBundleRequestDto requestDto)
@@ -45,7 +47,7 @@ namespace Energinet.DataHub.MessageHub.Client.Storage
             try
             {
                 var storageClient = _storageServiceClientFactory.Create();
-                var containerClient = storageClient.GetBlobContainerClient("postoffice-blobstorage");
+                var containerClient = storageClient.GetBlobContainerClient(_storageConfig.AzureBlobStorageContainerName);
                 var blobName = requestDto.IdempotencyId;
                 var blobClient = containerClient.GetBlobClient(blobName);
                 await blobClient.UploadAsync(stream, true).ConfigureAwait(false);

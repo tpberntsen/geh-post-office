@@ -25,17 +25,17 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
     {
         private readonly IResponseBundleParser _responseBundleParser;
         private readonly IServiceBusClientFactory _serviceBusClientFactory;
-        private readonly DomainConfig _domainConfig;
+        private readonly MessageHubConfig _messageHubConfig;
         private ServiceBusClient? _serviceBusClient;
 
         public DataBundleResponseSender(
             IResponseBundleParser responseBundleParser,
             IServiceBusClientFactory serviceBusClientFactory,
-            DomainConfig domainConfig)
+            MessageHubConfig messageHubConfig)
         {
             _responseBundleParser = responseBundleParser;
             _serviceBusClientFactory = serviceBusClientFactory;
-            _domainConfig = domainConfig;
+            _messageHubConfig = messageHubConfig;
         }
 
         public async Task SendAsync(
@@ -59,7 +59,7 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
             }.AddDataBundleResponseIntegrationEvents(requestDto.IdempotencyId);
 
             _serviceBusClient ??= _serviceBusClientFactory.Create();
-            await using var sender = _serviceBusClient.CreateSender(_domainConfig.ReplyQueue);
+            await using var sender = _serviceBusClient.CreateSender(_messageHubConfig.DomainReplyQueue);
             await sender.SendMessageAsync(serviceBusReplyMessage).ConfigureAwait(false);
         }
 

@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Client.Exceptions;
+using Energinet.DataHub.MessageHub.Client.Extensions;
 using Energinet.DataHub.MessageHub.Client.Model;
 using Energinet.DataHub.MessageHub.Client.Peek;
 using Energinet.DataHub.MessageHub.Client.Storage;
@@ -69,18 +70,32 @@ namespace GetMessage.Functions
                 await _responseSender.SendAsync(
                         requestDataBundleResponseDto,
                         bundleRequestDto,
-                        sessionId ?? string.Empty,
-                        DomainOrigin.TimeSeries)
+                        sessionId ?? string.Empty)
                     .ConfigureAwait(false);
             }
             catch (PostOfficeCommunicatorStorageException e)
             {
-                logger.LogError("Error Processing message", e);
+                logger.LogError("Error Processing message: {0}", e);
                 throw;
             }
         }
 
-        private async Task<RequestDataBundleResponseDto> CreateResponseAsync(DataBundleRequestDto requestDto)
+        private static DataBundleResponseDto CreateFailedResponse(
+            DataBundleRequestDto requestDto,
+            DataBundleResponseErrorReason failedReason)
+        {
+            var responseDto = new DataBundleResponseDto(
+                new DataBundleResponseErrorDto
+                {
+                    Reason = failedReason,
+                    FailureDescription = failedReason.ToString()
+                },
+                requestDto.DataAvailableNotificationIds);
+
+            return responseDto;
+        }
+
+        private async Task<DataBundleResponseDto> CreateResponseAsync(DataBundleRequestDto requestDto)
         {
             if (requestDto.DataAvailableNotificationIds.Contains(new Guid("0ae6c542-385f-4d89-bfba-d6c451915a1b")))
                 return CreateFailedResponse(requestDto, DataBundleResponseErrorReason.DatasetNotFound);
@@ -92,28 +107,10 @@ namespace GetMessage.Functions
             return await CreateSuccessResponseAsync(requestDto).ConfigureAwait(false);
         }
 
-        private RequestDataBundleResponseDto CreateFailedResponse(
-            DataBundleRequestDto requestDto,
-            DataBundleResponseErrorReason failedReason)
-        {
-            var responseDto = new RequestDataBundleResponseDto(
-                new DataBundleResponseErrorDto
-                {
-                    Reason = failedReason,
-                    FailureDescription = failedReason.ToString()
-                },
-                requestDto.DataAvailableNotificationIds);
-
-            return responseDto;
-        }
-
-        private async Task<RequestDataBundleResponseDto> CreateSuccessResponseAsync(DataBundleRequestDto requestDto)
+        private async Task<DataBundleResponseDto> CreateSuccessResponseAsync(DataBundleRequestDto requestDto)
         {
             var resourceUrl = await SaveDataToBlobStorageAsync(requestDto).ConfigureAwait(false);
-
-            var responseDto = new RequestDataBundleResponseDto(new Uri(resourceUrl.AbsoluteUri), requestDto.DataAvailableNotificationIds);
-
-            return responseDto;
+            return requestDto.Create(new Uri(resourceUrl.AbsoluteUri));
         }
 
         private async Task<Uri> SaveDataToBlobStorageAsync(DataBundleRequestDto requestDto)

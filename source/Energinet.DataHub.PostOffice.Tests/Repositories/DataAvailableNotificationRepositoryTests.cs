@@ -49,7 +49,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.GetNextUnacknowledgedAsync(null!, new ContentType("fake_value"), new Weight(1)))
+                .ThrowsAsync<ArgumentNullException>(() =>
+                    target.GetNextUnacknowledgedAsync(
+                        null!,
+                        DomainOrigin.TimeSeries,
+                        new ContentType("fake_value"),
+                        new Weight(1)))
                 .ConfigureAwait(false);
         }
 
@@ -62,7 +67,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.GetNextUnacknowledgedAsync(new MarketOperator(null!), null!, new Weight(1)))
+                .ThrowsAsync<ArgumentNullException>(() =>
+                    target.GetNextUnacknowledgedAsync(
+                        new MarketOperator(null!),
+                        DomainOrigin.Aggregations,
+                        null!,
+                        new Weight(1)))
                 .ConfigureAwait(false);
         }
 

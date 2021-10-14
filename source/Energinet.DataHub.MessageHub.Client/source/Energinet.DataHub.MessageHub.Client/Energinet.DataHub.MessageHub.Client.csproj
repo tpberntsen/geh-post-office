@@ -24,12 +24,11 @@ limitations under the License.
     <RootNamespace>Energinet.DataHub.MessageHub.Client</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <IsPackable>true</IsPackable>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageId>Energinet.DataHub.MessageHub.Client</PackageId>
-	<PackageVersion>1.1.0$(VersionSuffix)</PackageVersion>
+	<PackageVersion>1.2.0$(VersionSuffix)</PackageVersion>
     <Title>Energinet.DataHub.MessageHub.Client library</Title>
     <Company>Energinet-DataHub</Company>
     <Authors>Energinet-DataHub</Authors>

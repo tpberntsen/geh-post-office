@@ -24,18 +24,33 @@ namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
 {
     public static class ContainerExtensions
     {
-        public static void AddPostOfficeCommunication(this Container container, DomainConfig config)
+        public static void AddPostOfficeCommunication(
+            this Container container,
+            string serviceBusConnectionString,
+            MessageHubConfig messageHubConfig,
+            string storageServiceConnectionString,
+            StorageConfig storageConfig)
         {
             if (container == null)
                 throw new ArgumentNullException(nameof(container));
 
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));
+            if (string.IsNullOrWhiteSpace(serviceBusConnectionString))
+                throw new ArgumentNullException(nameof(serviceBusConnectionString));
 
-            container.RegisterSingleton(() => config);
-            container.AddServiceBus(config.ServiceBusConnectionString);
+            if (messageHubConfig == null)
+                throw new ArgumentNullException(nameof(messageHubConfig));
+
+            if (string.IsNullOrWhiteSpace(storageServiceConnectionString))
+                throw new ArgumentNullException(nameof(storageServiceConnectionString));
+
+            if (storageConfig == null)
+                throw new ArgumentNullException(nameof(storageConfig));
+
+            container.RegisterSingleton(() => messageHubConfig);
+            container.RegisterSingleton(() => storageConfig);
+            container.AddServiceBus(serviceBusConnectionString);
             container.AddApplicationServices();
-            container.AddStorageHandler(config.StorageServiceConnectionString);
+            container.AddStorageHandler(storageServiceConnectionString);
         }
 
         private static void AddServiceBus(this Container container, string serviceBusConnectionString)

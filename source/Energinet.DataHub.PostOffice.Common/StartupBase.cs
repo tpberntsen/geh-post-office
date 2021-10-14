@@ -14,6 +14,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Energinet.DataHub.MessageHub.Client;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Common.Extensions;
 using Energinet.DataHub.PostOffice.Common.MediatR;
@@ -63,6 +64,20 @@ namespace Energinet.DataHub.PostOffice.Common
             Container.AddDomainServices();
             Container.AddApplicationServices();
             Container.AddInfrastructureServices();
+
+            // TODO: Add to config later.
+            Container.RegisterSingleton(() => new StorageConfig("postoffice-blobstorage"));
+            Container.RegisterSingleton(() => new PeekRequestConfig(
+                "sbq-timeseries",
+                "sbq-timeseries-reply",
+                "sbq-charges",
+                "sbq-charges-reply",
+                "sbq-marketroles",
+                "sbq-marketroles-reply",
+                "sbq-meteringpoints",
+                "sbq-meteringpoints-reply",
+                "sbq-aggregations",
+                "sbq-aggregations-reply"));
 
             // Add MediatR
             Container.BuildMediator(new[] { typeof(ApplicationAssemblyReference).Assembly });

@@ -48,7 +48,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             var (isDequeued, dequeuedBundle) = await _marketOperatorDataDomainService
                 .TryAcknowledgeAsync(
                     new MarketOperator(new GlobalLocationNumber(request.MarketOperator)),
-                    new Uuid(request.BundleUuid))
+                    new Uuid(request.BundleId))
                 .ConfigureAwait(false);
 
             // TODO: Should we capture an exception here, and in case one happens, what should we do?

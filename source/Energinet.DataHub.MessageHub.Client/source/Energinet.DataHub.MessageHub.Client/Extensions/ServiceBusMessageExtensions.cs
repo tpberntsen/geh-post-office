@@ -50,7 +50,7 @@ namespace Energinet.DataHub.MessageHub.Client.Extensions
         {
             return serviceBusMessage.AddIntegrationsEvents(
                 operationCorrelationId,
-                IntegrationEventsMessageType.DataBundleResponse,
+                IntegrationEventsMessageType.DataAvailable,
                 NewGuid().ToString());
         }
 
@@ -66,7 +66,7 @@ namespace Energinet.DataHub.MessageHub.Client.Extensions
             serviceBusMessage.ApplicationProperties.Add("OperationTimestamp", UtcNow);
             serviceBusMessage.ApplicationProperties.Add("OperationCorrelationId", operationCorrelationId);
             serviceBusMessage.ApplicationProperties.Add("MessageVersion", 1);
-            serviceBusMessage.ApplicationProperties.Add("MessageType", messageType);
+            serviceBusMessage.ApplicationProperties.Add("MessageType", messageType.ToString());
             serviceBusMessage.ApplicationProperties.Add("EventIdentification", eventIdentification);
             return serviceBusMessage;
         }

@@ -46,7 +46,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
 
             dataBundleRequestSenderMock
                 .Setup(x => x.SendAsync(It.IsAny<DataBundleRequestDto>(), Energinet.DataHub.MessageHub.Client.Model.DomainOrigin.TimeSeries))
-                .ReturnsAsync((RequestDataBundleResponseDto?)null);
+                .ReturnsAsync((DataBundleResponseDto?)null);
 
             // Act
             var actual = await target.WaitForBundleContentFromSubDomainAsync(bundle).ConfigureAwait(false);
@@ -70,7 +70,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
                 Array.Empty<Uuid>());
 
             var contentUri = new Uri("https://test.test.dk");
-            var response = new RequestDataBundleResponseDto(contentUri, Array.Empty<Guid>());
+            var response = new DataBundleResponseDto(contentUri, Array.Empty<Guid>());
 
             dataBundleRequestSenderMock
                 .Setup(x => x.SendAsync(It.IsAny<DataBundleRequestDto>(), Energinet.DataHub.MessageHub.Client.Model.DomainOrigin.TimeSeries))

@@ -32,7 +32,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
         {
             // Arrange
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
-            var config = new DomainConfig("fake_value", "fake_value", "fake_value", "fake_value", "fake_value", "fake_value");
+            var config = new MessageHubConfig("fake_value", "fake_value");
             await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object, config);
 
             // Act + Assert
@@ -56,7 +56,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
 
-            var config = new DomainConfig("fake_value", "fake_value", dataAvailableQueue, "fake_value", "fake_value", "fake_value");
+            var config = new MessageHubConfig(dataAvailableQueue, "fake_value");
 
             await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object, config);
 
@@ -92,7 +92,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
 
-            var config = new DomainConfig("fake_value", "fake_value", dataAvailableQueue, "fake_value", "fake_value", "fake_value");
+            var config = new MessageHubConfig(dataAvailableQueue, "fake_value");
 
             await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object, config);
 

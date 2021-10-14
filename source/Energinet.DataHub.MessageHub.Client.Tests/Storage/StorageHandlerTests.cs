@@ -47,7 +47,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
                     x => x.Create())
                 .Returns(mockedBlobServiceClient.Object);
 
-            var target = new StorageHandler(mockedStorageServiceClientFactory.Object);
+            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
 
             // act, assert
             await Assert.ThrowsAsync<ArgumentException>(
@@ -68,7 +68,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
                     x => x.Create())
                 .Returns(mockedBlobServiceClient.Object);
 
-            var target = new StorageHandler(mockedStorageServiceClientFactory.Object);
+            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
 
             // act, assert
             await Assert.ThrowsAsync<ArgumentNullException>(
@@ -109,7 +109,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
                     x => x.Create())
                 .Returns(mockedBlobServiceClient.Object);
 
-            var target = new StorageHandler(mockedStorageServiceClientFactory.Object);
+            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
 
             // act, assert
             await using var inputStream = new MemoryStream(new byte[] { 1, 2, 3 });
@@ -152,7 +152,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
                     x => x.Create())
                 .Returns(mockedBlobServiceClient.Object);
 
-            var target = new StorageHandler(mockedStorageServiceClientFactory.Object);
+            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
 
             // act
             await using var inputStream = new MemoryStream(new byte[] { 1, 2, 3 });
@@ -199,7 +199,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
                     x => x.Create())
                 .Returns(mockedBlobServiceClient.Object);
 
-            var target = new StorageHandler(mockedStorageServiceClientFactory.Object);
+            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
 
             // act
             var result = await target.GetStreamFromStorageAsync(testUri).ConfigureAwait(false);
@@ -213,7 +213,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
         {
             // arrange
             var mockedStorageServiceClientFactory = new Mock<IStorageServiceClientFactory>();
-            var target = new StorageHandler(mockedStorageServiceClientFactory.Object);
+            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
 
             // act, assert
             await Assert.ThrowsAsync<ArgumentNullException>(
@@ -251,7 +251,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
                     x => x.Create())
                 .Returns(mockedBlobServiceClient.Object);
 
-            var target = new StorageHandler(mockedStorageServiceClientFactory.Object);
+            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
 
             // act, assert
             await Assert.ThrowsAsync<PostOfficeCommunicatorStorageException>(

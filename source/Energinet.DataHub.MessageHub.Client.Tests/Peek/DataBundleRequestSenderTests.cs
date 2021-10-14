@@ -29,6 +29,18 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
     [UnitTest]
     public class DataBundleRequestSenderTests
     {
+        private static readonly PeekRequestConfig _peekRequestConfig = new(
+            "fake_value",
+            "fake_value",
+            "fake_value",
+            "fake_value",
+            "fake_value",
+            "fake_value",
+            "fake_value",
+            "fake_value",
+            "fake_value",
+            "fake_value");
+
         [Fact]
         public async Task Send_DtoIsNull_ThrowsArgumentNullException()
         {
@@ -39,7 +51,8 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             await using var target = new DataBundleRequestSender(
                 requestBundleParserMock.Object,
                 responseBundleParserMock.Object,
-                serviceBusClientFactoryMock.Object);
+                serviceBusClientFactoryMock.Object,
+                _peekRequestConfig);
 
             // act, assert
             await Assert.ThrowsAsync<ArgumentNullException>(() => target.SendAsync(null!, DomainOrigin.Aggregations)).ConfigureAwait(false);
@@ -53,14 +66,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             var queue = $"sbq-{domainOrigin}";
             var replyQueue = $"sbq-{domainOrigin}-reply";
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
-            var requestBundleResponse = new DataBundleResponseContract
-            {
-                Success = new DataBundleResponseContract.Types.FileResource
-                    {
-                        ContentUri = "http://localhost",
-                        DataAvailableNotificationIds = { new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" } }
-                    }
-            };
+            var requestBundleResponse = new DataBundleResponseContract { Success = new DataBundleResponseContract.Types.FileResource { ContentUri = "http://localhost", DataAvailableNotificationIds = { new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" } } } };
             var bytes = requestBundleResponse.ToByteArray();
 
             var serviceBusReceivedMessage = MockedServiceBusReceivedMessage.Create(bytes);
@@ -83,7 +89,8 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             await using var target = new DataBundleRequestSender(
                 new RequestBundleParser(),
                 new ResponseBundleParser(),
-                serviceBusClientFactoryMock.Object);
+                serviceBusClientFactoryMock.Object,
+                _peekRequestConfig with { ChargesQueue = queue, ChargesReplyQueue = replyQueue });
 
             // act
             var result = await target.SendAsync(
@@ -126,7 +133,8 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             await using var target = new DataBundleRequestSender(
                 new RequestBundleParser(),
                 new ResponseBundleParser(),
-                serviceBusClientFactoryMock.Object);
+                serviceBusClientFactoryMock.Object,
+                _peekRequestConfig with { ChargesQueue = queue, ChargesReplyQueue = replyQueue });
 
             // act
             var result = await target.SendAsync(
@@ -148,14 +156,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             var queue = $"sbq-{domainOrigin}";
             var replyQueue = $"sbq-{domainOrigin}-reply";
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
-            var requestBundleResponse = new DataBundleResponseContract
-            {
-                Success = new DataBundleResponseContract.Types.FileResource
-                    {
-                        ContentUri = "http://localhost",
-                        DataAvailableNotificationIds = { new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" } }
-                    }
-            };
+            var requestBundleResponse = new DataBundleResponseContract { Success = new DataBundleResponseContract.Types.FileResource { ContentUri = "http://localhost", DataAvailableNotificationIds = { new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" } } } };
             var bytes = requestBundleResponse.ToByteArray();
 
             var serviceBusReceivedMessage = MockedServiceBusReceivedMessage.Create(bytes);
@@ -178,7 +179,8 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             await using var target = new DataBundleRequestSender(
                 new RequestBundleParser(),
                 new ResponseBundleParser(),
-                serviceBusClientFactoryMock.Object);
+                serviceBusClientFactoryMock.Object,
+                _peekRequestConfig with { ChargesQueue = queue, ChargesReplyQueue = replyQueue });
 
             // act
             await target.SendAsync(

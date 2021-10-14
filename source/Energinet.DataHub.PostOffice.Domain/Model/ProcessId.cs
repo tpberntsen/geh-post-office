@@ -22,7 +22,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
 
         public ProcessId([NotNull] Uuid bundleId, [NotNull] MarketOperator recipient)
         {
-            _processId = string.Join("+", bundleId.ToString(), recipient.Gln.Value);
+            _processId = string.Join("_", bundleId.ToString(), recipient.Gln.Value);
         }
 
         public override string ToString()

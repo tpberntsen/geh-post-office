@@ -25,7 +25,7 @@ namespace Energinet.DataHub.PostOffice.Application.Validation
                 .NotEmpty()
                 .SetValidator(new GlobalLocationNumberValidationRule());
 
-            RuleFor(command => command.BundleUuid)
+            RuleFor(command => command.BundleId)
                 .NotEmpty()
                 .SetValidator(new UuidValidationRule());
         }

@@ -91,7 +91,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .Returns(weight);
 
             dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, contentType, weight))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries, contentType, weight))
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
@@ -148,7 +148,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .Returns(weight);
 
             dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, contentType, weight))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries, contentType, weight))
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
@@ -214,7 +214,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .Returns(weight);
 
             dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, contentType, weight))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries, contentType, weight))
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
@@ -424,7 +424,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .Returns(weight);
 
             dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, contentType, weight))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries, contentType, weight))
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
@@ -481,7 +481,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .Returns(weight);
 
             dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, contentType, weight))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries, contentType, weight))
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
@@ -693,7 +693,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .Returns(weight);
 
             dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, contentType, weight))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations, contentType, weight))
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
@@ -750,7 +750,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .Returns(weight);
 
             dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, contentType, weight))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations, contentType, weight))
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
@@ -979,7 +979,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .Returns(weight);
 
             dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, contentType, weight))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations, contentType, weight))
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
@@ -1046,7 +1046,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .Returns(weight);
 
             dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, contentType, weight))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations, contentType, weight))
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
@@ -1113,7 +1113,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .Returns(weight);
 
             dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, contentType, weight))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations, contentType, weight))
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
