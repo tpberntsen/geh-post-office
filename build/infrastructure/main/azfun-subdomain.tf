@@ -30,9 +30,9 @@ module "azfun_dataavailable" {
     # Endregion
     MESSAGES_DB_CONNECTION_STRING                     = local.message_db_connection_string
     MESSAGES_DB_NAME                                  = azurerm_cosmosdb_sql_database.db.name
-    DATAAVAILABLE_QUEUE_CONNECTION_STRING             = data.azurerm_servicebus_queue_authorization_rule.sbnar_integrationevents_messagehub.primary_connection_string
-    DATAAVAILABLE_QUEUE_NAME                          = data.azurerm_servicebus_namespace_auth_rule.sbq_messagehub_dataavailable.name
-    ServiceBusConnectionString                        = data.azurerm_servicebus_queue_authorization_rule.sbnar_integrationevents_messagehub.primary_connection_string
+    DATAAVAILABLE_QUEUE_CONNECTION_STRING             = data.azurerm_key_vault_secret.shared_resources_integration_events_transceiver_connection_string.value
+    DATAAVAILABLE_QUEUE_NAME                          = var.shared_resources_sbq_data_available_name
+    ServiceBusConnectionString                        = data.azurerm_key_vault_secret.shared_resources_integration_events_transceiver_connection_string.value
   }
   dependencies                              = [
     module.appi_postoffice.dependent_on,

@@ -11,6 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-data "azurerm_resource_group" "postoffice" {
-  name = var.resource_group_name
+data "azurerm_key_vault" "kv_sharedresources" {
+  name                = var.shared_resources_key_vault_name
+  resource_group_name = var.shared_resources_resource_group_name
+}
+
+data "azurerm_key_vault_secret" "shared_resources_integration_events_transceiver_connection_string" {
+  name         = "SHARED-RESOURCES--SB-INTEGRATIONEVENTS-TRANSCEIVER-CONNECTION-STRING"
+  key_vault_id = data.azurerm_key_vault.kv_sharedresources.id
 }

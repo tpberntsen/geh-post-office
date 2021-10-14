@@ -32,10 +32,9 @@ jobs:
     environment:
       name: Development
     env:
-      TF_VAR_azure_sharedresources_resource_group_name: ${{ secrets.azure_sharedresources_resource_group_name }}
-      TF_VAR_azure_sharedresources_service_bus_namespace_name: ${{ secrets.azure_sharedresources_service_bus_namespace_name }}
-      TF_VAR_azure_sharedresources_service_bus_namespace_auth_rule_name: ${{ secrets.azure_sharedresources_service_bus_namespace_auth_rule_name }}
-      TF_VAR_azure_sharedresources_sbq_messagehub_dataavailable: ${{ secrets.azure_sharedresources_sbq_messagehub_dataavailable }}
+      TF_VAR_shared_resources_resource_group_name: ${{ secrets.AZURE_SHARED_RESOURCES_RESOURCE_GROUP_NAME }}
+      TF_VAR_shared_resources_key_vault_name: ${{ secrets.AZURE_SHARED_RESOURCES_KEY_VAULT_NAME }}
+      TF_VAR_shared_resources_sbq_data_available_name: ${{ secrets.AZURE_SHARED_RESOURCES_SBQ_DATA_AVAILABLE_NAME }}
     steps:
       - name: Checkout code
         uses: actions/checkout@master
@@ -68,10 +67,9 @@ jobs:
     environment:
       name: Test
     env:
-      TF_VAR_azure_sharedresources_resource_group_name: ${{ secrets.azure_sharedresources_resource_group_name }}
-      TF_VAR_azure_sharedresources_service_bus_namespace_name: ${{ secrets.sharedresources_service_bus_namespace_name }}
-      TF_VAR_azure_sharedresources_service_bus_namespace_auth_rule_name: ${{ secrets.sharedresources_service_bus_namespace_auth_rule_name }}
-      TF_VAR_azure_sharedresources_sbq_messagehub_dataavailable: ${{ secrets.azure_sharedresources_sbq_messagehub_dataavailable }}      
+      TF_VAR_shared_resources_resource_group_name: ${{ secrets.AZURE_SHARED_RESOURCES_RESOURCE_GROUP_NAME }}
+      TF_VAR_shared_resources_key_vault_name: ${{ secrets.AZURE_SHARED_RESOURCES_KEY_VAULT_NAME }}
+      TF_VAR_shared_resources_sbq_data_available_name: ${{ secrets.AZURE_SHARED_RESOURCES_SBQ_DATA_AVAILABLE_NAME }}
     steps:
       - name: Checkout code
         uses: actions/checkout@master
@@ -104,10 +102,9 @@ jobs:
     environment:
       name: Preproduction
     env:
-      TF_VAR_azure_sharedresources_resource_group_name: ${{ secrets.azure_sharedresources_resource_group_name }}
-      TF_VAR_azure_sharedresources_service_bus_namespace_name: ${{ secrets.sharedresources_service_bus_namespace_name }}
-      TF_VAR_azure_sharedresources_service_bus_namespace_auth_rule_name: ${{ secrets.sharedresources_service_bus_namespace_auth_rule_name }}
-      TF_VAR_azure_sharedresources_sbq_messagehub_dataavailable: ${{ secrets.azure_sharedresources_sbq_messagehub_dataavailable }}
+      TF_VAR_shared_resources_resource_group_name: ${{ secrets.AZURE_SHARED_RESOURCES_RESOURCE_GROUP_NAME }}
+      TF_VAR_shared_resources_key_vault_name: ${{ secrets.AZURE_SHARED_RESOURCES_KEY_VAULT_NAME }}
+      TF_VAR_shared_resources_sbq_data_available_name: ${{ secrets.AZURE_SHARED_RESOURCES_SBQ_DATA_AVAILABLE_NAME }}
     steps:
       - name: Checkout code
         uses: actions/checkout@master
@@ -140,10 +137,9 @@ jobs:
     environment:
       name: Production
     env:
-      TF_VAR_azure_sharedresources_resource_group_name: ${{ secrets.azure_sharedresources_resource_group_name }}
-      TF_VAR_azure_sharedresources_service_bus_namespace_name: ${{ secrets.sharedresources_service_bus_namespace_name }}
-      TF_VAR_azure_sharedresources_service_bus_namespace_auth_rule_name: ${{ secrets.sharedresources_service_bus_namespace_auth_rule_name }}
-      TF_VAR_azure_sharedresources_sbq_messagehub_dataavailable: ${{ secrets.azure_sharedresources_sbq_messagehub_dataavailable }}
+      TF_VAR_shared_resources_resource_group_name: ${{ secrets.AZURE_SHARED_RESOURCES_RESOURCE_GROUP_NAME }}
+      TF_VAR_shared_resources_key_vault_name: ${{ secrets.AZURE_SHARED_RESOURCES_KEY_VAULT_NAME }}
+      TF_VAR_shared_resources_sbq_data_available_name: ${{ secrets.AZURE_SHARED_RESOURCES_SBQ_DATA_AVAILABLE_NAME }}
     steps:
       - name: Checkout code
         uses: actions/checkout@master

@@ -32,7 +32,7 @@ module "azfun_marketoperator_peek" {
     MESSAGES_DB_NAME                    = azurerm_cosmosdb_sql_database.db.name
     BlobStorageConnectionString         = module.stor_marketoperator_response.primary_connection_string
     BlobStorageContainerName            = module.container_postoffice_reply.name
-    ServiceBusConnectionString          = azurerm_servicebus_queue_authorization_rule.sbnar_integrationevents_messagehub.primary_connection_string
+    ServiceBusConnectionString          = data.azurerm_key_vault_secret.shared_resources_integration_events_transceiver_connection_string.value
     StorageAccountConnectionString      = module.stor_marketoperator_response.primary_connection_string
   }
   dependencies                              = [
