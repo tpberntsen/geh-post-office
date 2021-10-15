@@ -18,11 +18,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure
 {
     public class CosmosDatabaseConfig
     {
-        public CosmosDatabaseConfig(string databaseId)
+        public CosmosDatabaseConfig(string messageHubDatabaseId, string logDatabaseId)
         {
-            DatabaseId = databaseId ?? throw new ArgumentNullException(nameof(databaseId));
+            MessageHubDatabaseId = messageHubDatabaseId ?? throw new ArgumentNullException(nameof(messageHubDatabaseId));
+            LogDatabaseId = logDatabaseId;
         }
 
-        public string DatabaseId { get; }
+        public string MessageHubDatabaseId { get; }
+        public string LogDatabaseId { get; }
     }
 }

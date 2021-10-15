@@ -23,12 +23,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
     internal static class CosmosTestIntegration
     {
         private const string AzureCosmosDatabaseName = "post-office";
+        private const string AzureCosmosLogDatabaseName = "Log";
         private const string AzureCosmosEmulatorConnectionString = "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 
         public static async Task InitializeAsync()
         {
             Environment.SetEnvironmentVariable("MESSAGES_DB_NAME", AzureCosmosDatabaseName);
             Environment.SetEnvironmentVariable("MESSAGES_DB_CONNECTION_STRING", AzureCosmosEmulatorConnectionString);
+            Environment.SetEnvironmentVariable("LOG_DB_NAME", AzureCosmosLogDatabaseName);
 
             using var cosmosClient = new CosmosClient(AzureCosmosEmulatorConnectionString);
 
@@ -36,7 +38,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
                 .CreateDatabaseIfNotExistsAsync(AzureCosmosDatabaseName)
                 .ConfigureAwait(true);
 
+            var logDatabaseResponse = await cosmosClient
+                .CreateDatabaseIfNotExistsAsync(AzureCosmosLogDatabaseName)
+                .ConfigureAwait(true);
+
             var testDatabase = databaseResponse.Database;
+            var logDatabase = logDatabaseResponse.Database;
 
             await testDatabase
                 .CreateContainerIfNotExistsAsync("dataavailable", "/recipient")
@@ -44,6 +51,10 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
 
             var bundlesResponse = await testDatabase
                 .CreateContainerIfNotExistsAsync("bundles", "/recipient")
+                .ConfigureAwait(true);
+
+            await logDatabase
+                .CreateContainerIfNotExistsAsync("Logs", "/marketOperator")
                 .ConfigureAwait(true);
 
             var singleBundleViolationTrigger = new TriggerProperties

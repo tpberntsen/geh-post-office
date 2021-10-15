@@ -12,28 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Diagnostics.CodeAnalysis;
+using System;
 
-namespace Energinet.DataHub.PostOffice.Domain.Model
+namespace Energinet.DataHub.PostOffice.Domain.Model.Logging
 {
-    public sealed record ProcessId
+    public abstract class Log
     {
-        private readonly string _processId;
-
-        public ProcessId([NotNull] Uuid bundleId, [NotNull] MarketOperator recipient)
+        protected Log(ProcessId processId)
         {
-            BundleId = bundleId;
-            Recipient = recipient;
-            _processId = string.Join("_", bundleId.ToString(), recipient.Gln.Value);
+            ProcessId = processId;
         }
 
-        public Uuid BundleId { get; }
-
-        public MarketOperator Recipient { get; }
-
-        public override string ToString()
-        {
-            return _processId;
-        }
+        public Guid Id { get; } = Guid.NewGuid();
+        public DateTime Timestamp { get; } = DateTime.Now;
+        public abstract string EndpointType { get; }
+        public ProcessId ProcessId { get; }
     }
 }

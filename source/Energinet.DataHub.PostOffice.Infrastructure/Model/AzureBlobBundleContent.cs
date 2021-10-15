@@ -33,6 +33,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Model
         }
 
         public Uri ContentPath { get; }
+        public string LogIdentifier => ContentPath.ToString();
 
         public Task<Stream> OpenAsync()
         {

@@ -12,28 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Diagnostics.CodeAnalysis;
+using Microsoft.Azure.Cosmos;
 
-namespace Energinet.DataHub.PostOffice.Domain.Model
+namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
 {
-    public sealed record ProcessId
+    public class LogRepositoryContainer : ILogRepositoryContainer
     {
-        private readonly string _processId;
+        private readonly CosmosClient _client;
+        private readonly CosmosDatabaseConfig _cosmosConfig;
 
-        public ProcessId([NotNull] Uuid bundleId, [NotNull] MarketOperator recipient)
+        public LogRepositoryContainer(CosmosClient client, CosmosDatabaseConfig cosmosConfig)
         {
-            BundleId = bundleId;
-            Recipient = recipient;
-            _processId = string.Join("_", bundleId.ToString(), recipient.Gln.Value);
+            _client = client;
+            _cosmosConfig = cosmosConfig;
         }
 
-        public Uuid BundleId { get; }
-
-        public MarketOperator Recipient { get; }
-
-        public override string ToString()
-        {
-            return _processId;
-        }
+        public Container Container => _client.GetContainer(_cosmosConfig.LogDatabaseId, "Logs");
     }
 }

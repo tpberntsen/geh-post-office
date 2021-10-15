@@ -21,6 +21,8 @@ using Energinet.DataHub.MessageHub.Client.Dequeue;
 using Energinet.DataHub.MessageHub.Client.Model;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Domain.Model.Logging;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using MediatR;
 using DomainOrigin = Energinet.DataHub.MessageHub.Client.Model.DomainOrigin;
@@ -31,13 +33,16 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
     {
         private readonly IMarketOperatorDataDomainService _marketOperatorDataDomainService;
         private readonly IDequeueNotificationSender _dequeueNotificationSender;
+        private readonly ILogRepository _log;
 
         public DequeueHandler(
             IMarketOperatorDataDomainService marketOperatorDataDomainService,
-            IDequeueNotificationSender dequeueNotificationSender)
+            IDequeueNotificationSender dequeueNotificationSender,
+            ILogRepository log)
         {
             _marketOperatorDataDomainService = marketOperatorDataDomainService;
             _dequeueNotificationSender = dequeueNotificationSender;
+            _log = log;
         }
 
         public async Task<DequeueResponse> Handle(DequeueCommand request, CancellationToken cancellationToken)
@@ -69,6 +74,11 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                     // TODO: Currently ignored until we know what to do if this call fails.
                     // This ensures that Dequeue is working for now
                 }
+
+                await _log.SaveDequeueLogOccurrenceAsync(
+                        new DequeueLog(
+                            dequeuedBundle.ProcessId))
+                    .ConfigureAwait(false);
             }
 
             return new DequeueResponse(isDequeued);
