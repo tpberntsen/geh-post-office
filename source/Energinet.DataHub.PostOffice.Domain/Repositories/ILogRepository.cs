@@ -12,22 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.IO;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model.Logging;
 
-namespace Energinet.DataHub.PostOffice.Domain.Model
+namespace Energinet.DataHub.PostOffice.Domain.Repositories
 {
     /// <summary>
-    /// Represents data for a specific bundle.
+    /// Saves log occurence in data storage.
     /// </summary>
-    public interface IBundleContent : IProviderLogIdentifier
+    public interface ILogRepository
     {
         /// <summary>
-        /// Opens a stream to the content contained within the bundle.
-        /// It is the responsibility of the caller to close the stream after use.
+        /// Save Peek log occurence to data storage.
         /// </summary>
-        /// <returns>A stream to the content contained within the bundle.</returns>
-        Task<Stream> OpenAsync();
+        /// <param name="log">The log occurence to save.</param>
+        Task SavePeekLogOccurrenceAsync(PeekLog log);
+
+        /// <summary>
+        /// Save Dequeue log occurence to data storage.
+        /// </summary>
+        /// <param name="log">The log occurence to save.</param>
+        Task SaveDequeueLogOccurrenceAsync(DequeueLog log);
     }
 }

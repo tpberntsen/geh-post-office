@@ -12,28 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Diagnostics.CodeAnalysis;
-
-namespace Energinet.DataHub.PostOffice.Domain.Model
+namespace Energinet.DataHub.PostOffice.Domain.Model.Logging
 {
-    public sealed record ProcessId
+    public class PeekMasterDataLog : PeekLog
     {
-        private readonly string _processId;
-
-        public ProcessId([NotNull] Uuid bundleId, [NotNull] MarketOperator recipient)
+        public PeekMasterDataLog(ProcessId processId, IBundleContent bundleReference)
+            : base(processId, bundleReference)
         {
-            BundleId = bundleId;
-            Recipient = recipient;
-            _processId = string.Join("_", bundleId.ToString(), recipient.Gln.Value);
         }
 
-        public Uuid BundleId { get; }
-
-        public MarketOperator Recipient { get; }
-
-        public override string ToString()
-        {
-            return _processId;
-        }
+        public override string EndpointType => "PeekMasterData";
     }
 }
