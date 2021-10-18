@@ -39,10 +39,4 @@ limitations under the License.
     <ProjectReference Include="..\Energinet.DataHub.PostOffice.Infrastructure\Energinet.DataHub.PostOffice.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="GreenEnergyHub.Messaging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\poor-man-package-sharing\GreenEnergyHub.Messaging.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>

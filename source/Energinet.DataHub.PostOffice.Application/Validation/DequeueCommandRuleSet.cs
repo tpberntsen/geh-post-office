@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.Validation.Rules;
 using FluentValidation;
 
 namespace Energinet.DataHub.PostOffice.Application.Validation
 {
-    public class DequeueCommandRuleSet : AbstractValidator<Commands.DequeueCommand>
+    public class DequeueCommandRuleSet : AbstractRuleSet<DequeueCommand>
     {
         public DequeueCommandRuleSet()
         {

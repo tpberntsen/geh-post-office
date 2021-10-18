@@ -16,7 +16,6 @@ using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Client;
 using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Common.Extensions;
 using Energinet.DataHub.PostOffice.Common.MediatR;
 using Energinet.DataHub.PostOffice.Common.SimpleInjector;
 using Microsoft.Azure.Functions.Worker;
@@ -46,8 +45,6 @@ namespace Energinet.DataHub.PostOffice.Common
         {
             SwitchToSimpleInjector(services);
 
-            // FluentValidation
-            services.DiscoverValidation(new[] { typeof(ApplicationAssemblyReference).Assembly });
             services.AddLogging();
             services.AddSimpleInjector(Container, x => x.DisposeContainerWithServiceProvider = !true);
 
