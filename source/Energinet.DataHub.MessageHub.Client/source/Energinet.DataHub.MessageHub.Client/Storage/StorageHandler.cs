@@ -68,7 +68,7 @@ namespace Energinet.DataHub.MessageHub.Client.Storage
                     throw new ArgumentNullException(nameof(contentPath));
 
                 var storageClient = _storageServiceClientFactory.Create();
-                var containerClient = storageClient.GetBlobContainerClient("postoffice-blobstorage");
+                var containerClient = storageClient.GetBlobContainerClient(_storageConfig.AzureBlobStorageContainerName);
                 var blob = containerClient.GetBlobClient(contentPath.Segments.Last());
                 var response = await blob.DownloadStreamingAsync().ConfigureAwait(false);
                 return response.Value.Content;
