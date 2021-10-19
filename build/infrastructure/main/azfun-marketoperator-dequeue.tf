@@ -33,7 +33,6 @@ module "azfun_marketoperator_dequeue" {
     BlobStorageConnectionString         = data.azurerm_key_vault_secret.shared_resources_marketoperator_response_connection_string.value
     BlobStorageContainerName            = data.azurerm_key_vault_secret.shared_resources_marketoperator_container_reply_name.value
     ServiceBusConnectionString          = data.azurerm_key_vault_secret.shared_resources_integration_events_transceiver_connection_string.value
-    StorageAccountConnectionString      = data.azurerm_key_vault_secret.shared_resources_marketoperator_response_connection_string.value
   }
   dependencies                              = [
     module.azfun_marketoperator_dequeue_plan.dependent_on,

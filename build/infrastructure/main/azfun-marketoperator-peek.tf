@@ -23,17 +23,18 @@ module "azfun_marketoperator_peek" {
   tags                                      = data.azurerm_resource_group.postoffice.tags
   app_settings                              = {
     # Region: Default Values
-    WEBSITE_ENABLE_SYNC_UPDATE_SITE     = true
-    WEBSITE_RUN_FROM_PACKAGE            = 1
-    WEBSITES_ENABLE_APP_SERVICE_STORAGE = true
-    FUNCTIONS_WORKER_RUNTIME            = "dotnet-isolated"
+    WEBSITE_ENABLE_SYNC_UPDATE_SITE       = true
+    WEBSITE_RUN_FROM_PACKAGE              = 1
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE   = true
+    FUNCTIONS_WORKER_RUNTIME              = "dotnet-isolated"
     # Endregion
-    MESSAGES_DB_CONNECTION_STRING       = local.message_db_connection_string
-    MESSAGES_DB_NAME                    = azurerm_cosmosdb_sql_database.db.name
-    BlobStorageConnectionString         = data.azurerm_key_vault_secret.shared_resources_marketoperator_response_connection_string.value
-    BlobStorageContainerName            = data.azurerm_key_vault_secret.shared_resources_marketoperator_container_reply_name.value
-    ServiceBusConnectionString          = data.azurerm_key_vault_secret.shared_resources_integration_events_transceiver_connection_string.value
-    StorageAccountConnectionString      = data.azurerm_key_vault_secret.shared_resources_marketoperator_response_connection_string.value
+    MESSAGES_DB_CONNECTION_STRING         = local.message_db_connection_string
+    MESSAGES_DB_NAME                      = azurerm_cosmosdb_sql_database.db.name
+    BlobStorageConnectionString           = data.azurerm_key_vault_secret.shared_resources_marketoperator_response_connection_string.value
+    BlobStorageContainerName              = data.azurerm_key_vault_secret.shared_resources_marketoperator_container_reply_name.value
+    ServiceBusConnectionString            = data.azurerm_key_vault_secret.shared_resources_integration_events_transceiver_connection_string.value
+    DATAAVAILABLE_QUEUE_CONNECTION_STRING = data.azurerm_key_vault_secret.shared_resources_integration_events_transceiver_connection_string.value
+    DATAAVAILABLE_QUEUE_NAME              = var.shared_resources_sbq_data_available_name
   }
   dependencies                              = [
     module.azfun_marketoperator_peek_plan.dependent_on,
