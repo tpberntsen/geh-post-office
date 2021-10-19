@@ -30,16 +30,16 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
     public class DataBundleRequestSenderTests
     {
         private static readonly PeekRequestConfig _peekRequestConfig = new(
-            "fake_value",
-            "fake_value",
-            "fake_value",
-            "fake_value",
-            "fake_value",
-            "fake_value",
-            "fake_value",
-            "fake_value",
-            "fake_value",
-            "fake_value");
+            $"sbq-{DomainOrigin.TimeSeries}",
+            $"sbq-{DomainOrigin.TimeSeries}-reply",
+            $"sbq-{DomainOrigin.Charges}",
+            $"sbq-{DomainOrigin.Charges}-reply",
+            $"sbq-{DomainOrigin.MarketRoles}",
+            $"sbq-{DomainOrigin.MarketRoles}-reply",
+            $"sbq-{DomainOrigin.MeteringPoints}",
+            $"sbq-{DomainOrigin.MeteringPoints}-reply",
+            $"sbq-{DomainOrigin.Aggregations}",
+            $"sbq-{DomainOrigin.Aggregations}-reply");
 
         [Fact]
         public async Task Send_DtoIsNull_ThrowsArgumentNullException()
@@ -58,11 +58,15 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             await Assert.ThrowsAsync<ArgumentNullException>(() => target.SendAsync(null!, DomainOrigin.Aggregations)).ConfigureAwait(false);
         }
 
-        [Fact]
-        public async Task Send_AllIsOk_ReturnsResponse()
+        [Theory]
+        [InlineData(DomainOrigin.Aggregations)]
+        [InlineData(DomainOrigin.Charges)]
+        [InlineData(DomainOrigin.MarketRoles)]
+        [InlineData(DomainOrigin.MeteringPoints)]
+        [InlineData(DomainOrigin.TimeSeries)]
+        public async Task Send_AllIsOk_ReturnsResponse(DomainOrigin domainOrigin)
         {
             // arrange
-            const DomainOrigin domainOrigin = DomainOrigin.Charges;
             var queue = $"sbq-{domainOrigin}";
             var replyQueue = $"sbq-{domainOrigin}-reply";
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
@@ -90,7 +94,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
                 new RequestBundleParser(),
                 new ResponseBundleParser(),
                 serviceBusClientFactoryMock.Object,
-                _peekRequestConfig with { ChargesQueue = queue, ChargesReplyQueue = replyQueue });
+                _peekRequestConfig);
 
             // act
             var result = await target.SendAsync(
@@ -134,7 +138,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
                 new RequestBundleParser(),
                 new ResponseBundleParser(),
                 serviceBusClientFactoryMock.Object,
-                _peekRequestConfig with { ChargesQueue = queue, ChargesReplyQueue = replyQueue });
+                _peekRequestConfig);
 
             // act
             var result = await target.SendAsync(
@@ -156,7 +160,17 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             var queue = $"sbq-{domainOrigin}";
             var replyQueue = $"sbq-{domainOrigin}-reply";
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
-            var requestBundleResponse = new DataBundleResponseContract { Success = new DataBundleResponseContract.Types.FileResource { ContentUri = "http://localhost", DataAvailableNotificationIds = { new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" } } } };
+            var requestBundleResponse = new DataBundleResponseContract
+            {
+                Success = new DataBundleResponseContract.Types.FileResource
+                {
+                    ContentUri = "http://localhost", DataAvailableNotificationIds =
+                    {
+                        new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" }
+                    }
+                }
+            };
+
             var bytes = requestBundleResponse.ToByteArray();
 
             var serviceBusReceivedMessage = MockedServiceBusReceivedMessage.Create(bytes);
@@ -180,7 +194,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
                 new RequestBundleParser(),
                 new ResponseBundleParser(),
                 serviceBusClientFactoryMock.Object,
-                _peekRequestConfig with { ChargesQueue = queue, ChargesReplyQueue = replyQueue });
+                _peekRequestConfig);
 
             // act
             await target.SendAsync(

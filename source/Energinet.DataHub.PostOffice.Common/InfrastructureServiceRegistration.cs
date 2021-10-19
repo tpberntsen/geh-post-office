@@ -34,7 +34,7 @@ namespace Energinet.DataHub.PostOffice.Common
                 var configuration = container.GetService<IConfiguration>();
                 var connectionString = configuration.GetConnectionStringOrSetting("BlobStorageConnectionString");
 
-                if (string.IsNullOrEmpty(connectionString))
+                if (string.IsNullOrWhiteSpace(connectionString))
                 {
                     throw new InvalidOperationException(
                         "Please specify a valid BlobStorageConnectionString in the appSettings.json file or your Azure Functions Settings.");
