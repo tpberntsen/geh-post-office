@@ -38,7 +38,7 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
             }
             catch (InvalidProtocolBufferException e)
             {
-                throw new PostOfficeCommunicatorException("Error parsing byte array for DataAvailableNotification", e);
+                throw new MessageHubException("Error parsing byte array for DataAvailableNotification", e);
             }
         }
     }

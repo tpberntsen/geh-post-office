@@ -53,7 +53,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Dequeue
             var corruptBytes = new byte[] { 1, 2, 3 };
 
             // act, assert
-            Assert.Throws<PostOfficeCommunicatorException>(() => target.Parse(corruptBytes));
+            Assert.Throws<MessageHubException>(() => target.Parse(corruptBytes));
         }
 
         [Fact]

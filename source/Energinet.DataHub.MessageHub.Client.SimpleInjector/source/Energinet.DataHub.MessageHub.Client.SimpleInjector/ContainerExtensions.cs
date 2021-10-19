@@ -24,7 +24,7 @@ namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
 {
     public static class ContainerExtensions
     {
-        public static void AddPostOfficeCommunication(
+        public static void AddMessageHubCommunication(
             this Container container,
             string serviceBusConnectionString,
             MessageHubConfig messageHubConfig,

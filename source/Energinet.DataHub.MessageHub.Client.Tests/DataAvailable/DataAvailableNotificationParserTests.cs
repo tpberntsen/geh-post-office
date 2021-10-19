@@ -60,7 +60,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
             var target = new DataAvailableNotificationParser();
 
             // Act + Assert
-            Assert.Throws<PostOfficeCommunicatorException>(() => target.Parse(new byte[] { 1, 2, 3 }));
+            Assert.Throws<MessageHubException>(() => target.Parse(new byte[] { 1, 2, 3 }));
         }
     }
 }

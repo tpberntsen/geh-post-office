@@ -27,7 +27,7 @@ namespace Energinet.DataHub.MessageHub.Client.Dequeue
         /// </summary>
         /// <param name="dequeueNotificationContract">A byte array containing the DequeueNotification protobuf contract.</param>
         /// <returns><see cref="DequeueNotificationDto"/></returns>
-        /// <exception cref="PostOfficeCommunicatorException">
+        /// <exception cref="MessageHubException">
         /// Throws an exception if byte array cannot be parsed.
         /// </exception>
         DequeueNotificationDto Parse(byte[] dequeueNotificationContract);
