@@ -21,6 +21,6 @@ resource "azurerm_cosmosdb_sql_container" "collection_logs" {
   name                = "Logs"
   resource_group_name = var.resource_group_name
   account_name        = azurerm_cosmosdb_account.post_office.name
-  database_name       = azurerm_cosmosdb_sql_database.log_db
+  database_name       = azurerm_cosmosdb_sql_database.log_db.name
   partition_key_path  = "/marketOperator"
 }
