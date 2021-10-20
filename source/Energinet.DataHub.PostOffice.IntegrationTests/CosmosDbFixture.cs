@@ -17,16 +17,17 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
+using Xunit;
 
 namespace Energinet.DataHub.PostOffice.IntegrationTests
 {
-    internal static class CosmosTestIntegration
+    internal sealed class CosmosDbFixture : IAsyncLifetime
     {
         private const string AzureCosmosDatabaseName = "post-office";
         private const string AzureCosmosLogDatabaseName = "Log";
         private const string AzureCosmosEmulatorConnectionString = "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 
-        public static async Task InitializeAsync()
+        public async Task InitializeAsync()
         {
             Environment.SetEnvironmentVariable("MESSAGES_DB_NAME", AzureCosmosDatabaseName);
             Environment.SetEnvironmentVariable("MESSAGES_DB_CONNECTION_STRING", AzureCosmosEmulatorConnectionString);
@@ -103,6 +104,11 @@ function trigger() {
             }
 
             await scripts.CreateTriggerAsync(singleBundleViolationTrigger).ConfigureAwait(false);
+        }
+
+        public Task DisposeAsync()
+        {
+            return Task.CompletedTask;
         }
     }
 }
