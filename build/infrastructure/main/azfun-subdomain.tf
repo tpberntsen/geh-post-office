@@ -35,6 +35,8 @@ module "azfun_dataavailable" {
     ServiceBusConnectionString                = data.azurerm_key_vault_secret.shared_resources_integration_events_transceiver_connection_string.value
     BlobStorageConnectionString               = data.azurerm_key_vault_secret.shared_resources_marketoperator_response_connection_string.value
     BlobStorageContainerName                  = data.azurerm_key_vault_secret.shared_resources_marketoperator_container_reply_name.value
+    LOG_DB_NAME                               = azurerm_cosmosdb_sql_database.log_db.name
+    LOG_DB_CONTAINER                          = azurerm_cosmosdb_sql_container.collection_logs.name
   }
   dependencies                              = [
     module.appi_postoffice.dependent_on,

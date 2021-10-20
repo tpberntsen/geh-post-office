@@ -35,6 +35,8 @@ module "azfun_marketoperator_peek" {
     ServiceBusConnectionString            = data.azurerm_key_vault_secret.shared_resources_integration_events_transceiver_connection_string.value
     DATAAVAILABLE_QUEUE_CONNECTION_STRING = data.azurerm_key_vault_secret.shared_resources_integration_events_transceiver_connection_string.value
     DATAAVAILABLE_QUEUE_NAME              = var.shared_resources_sbq_data_available_name
+    LOG_DB_NAME                           = azurerm_cosmosdb_sql_database.log_db.name
+    LOG_DB_CONTAINER                      = azurerm_cosmosdb_sql_container.collection_logs.name
   }
   dependencies                              = [
     module.azfun_marketoperator_peek_plan.dependent_on,
