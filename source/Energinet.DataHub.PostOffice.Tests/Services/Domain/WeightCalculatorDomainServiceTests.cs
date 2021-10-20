@@ -24,10 +24,10 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
     public class WeightCalculatorDomainServiceTests
     {
         [Theory]
-        [InlineData(DomainOrigin.TimeSeries, 1)]
-        [InlineData(DomainOrigin.Aggregations, 1)]
-        [InlineData(DomainOrigin.MeteringPoints, 1)]
-        [InlineData(DomainOrigin.MarketRoles, 1)]
+        [InlineData(DomainOrigin.TimeSeries, 51200)]
+        [InlineData(DomainOrigin.Aggregations, 51200)]
+        [InlineData(DomainOrigin.MeteringPoints, 51200)]
+        [InlineData(DomainOrigin.MarketRoles, 51200)]
         [InlineData(DomainOrigin.Charges, 1)]
         public void Map_ContentType_ReturnsWeight(DomainOrigin domainOrigin, int expectedWeight)
         {

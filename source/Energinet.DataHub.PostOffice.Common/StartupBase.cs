@@ -52,9 +52,11 @@ namespace Energinet.DataHub.PostOffice.Common
             var config = services.BuildServiceProvider().GetService<IConfiguration>()!;
             Container.RegisterSingleton(() => config);
             Container.AddDatabaseCosmosConfig();
-            Container.AddServiceBusConfig();
             Container.AddCosmosClientBuilder(false);
+            Container.AddServiceBusConfig();
             Container.AddServiceBus();
+            Container.AddAzureBlobStorageConfig();
+            Container.AddAzureBlobStorage();
 
             // services
             Container.AddRepositories();
@@ -63,7 +65,6 @@ namespace Energinet.DataHub.PostOffice.Common
             Container.AddInfrastructureServices();
 
             // TODO: Add to config later.
-            Container.RegisterSingleton(() => new StorageConfig("postoffice-blobstorage"));
             Container.RegisterSingleton(() => new PeekRequestConfig(
                 "sbq-timeseries",
                 "sbq-timeseries-reply",

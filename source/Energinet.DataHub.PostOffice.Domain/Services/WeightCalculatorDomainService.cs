@@ -25,9 +25,10 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             {
                 case DomainOrigin.Aggregations:
                 case DomainOrigin.TimeSeries:
-                case DomainOrigin.Charges:
                 case DomainOrigin.MeteringPoints:
                 case DomainOrigin.MarketRoles:
+                    return new Weight(50 * 1024);
+                case DomainOrigin.Charges:
                     return new Weight(1);
                 case DomainOrigin.Unknown:
                     throw new InvalidOperationException($"Mapping of enum {nameof(DomainOrigin)}.{nameof(DomainOrigin.Unknown)} to type {nameof(Weight)} is undefined.");

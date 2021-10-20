@@ -14,7 +14,7 @@
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public class DataAvailableNotification
+    public sealed class DataAvailableNotification
     {
         public DataAvailableNotification(
             Uuid notificationId,

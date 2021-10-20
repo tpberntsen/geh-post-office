@@ -173,7 +173,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 recipient,
                 new ContentType("fake_value"),
                 DomainOrigin.Aggregations,
-                new SupportsBundling(false),
+                new SupportsBundling(true),
                 new Weight(1));
 
             for (var i = 0; i < 5; i++)
@@ -193,7 +193,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             // Act
             var actual = await dataAvailableNotificationRepository
-                .GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations, new ContentType("target"), new Weight(1))
+                .GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations, new ContentType("target"), new Weight(5))
                 .ConfigureAwait(false);
 
             // Assert
@@ -215,7 +215,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 recipient,
                 new ContentType("target"),
                 DomainOrigin.Aggregations,
-                new SupportsBundling(false),
+                new SupportsBundling(true),
                 new Weight(1));
 
             for (var i = 0; i < 5; i++)
@@ -244,6 +244,109 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var list = actual.ToList();
             Assert.Single(list);
             Assert.Single(list, x => x.NotificationId == expected.NotificationId);
+        }
+
+        [Fact]
+        public async Task GetNextUnacknowledgedAsync_LimitedWeight_ReturnsUpToWeight()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            var maxWeight = new Weight(3);
+            var recipient = new MarketOperator(new MockedGln());
+            var expected = new DataAvailableNotification(
+                new Uuid(Guid.NewGuid()),
+                recipient,
+                new ContentType("target"),
+                DomainOrigin.Aggregations,
+                new SupportsBundling(true),
+                new Weight(1));
+
+            for (var i = 0; i < 5; i++)
+            {
+                var other = new DataAvailableNotification(
+                    new Uuid(Guid.NewGuid()),
+                    expected.Recipient,
+                    expected.ContentType,
+                    expected.Origin,
+                    expected.SupportsBundling,
+                    expected.Weight);
+
+                await dataAvailableNotificationRepository.SaveAsync(other).ConfigureAwait(false);
+            }
+
+            await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations, new ContentType("target"), maxWeight)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.Equal(3, actual.Count());
+        }
+
+        [Fact]
+        public async Task GetNextUnacknowledgedAsync_LargeWeight_ReturnsAtLeastOneItem()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            var maxWeight = new Weight(3);
+            var recipient = new MarketOperator(new MockedGln());
+            var expected = new DataAvailableNotification(
+                new Uuid(Guid.NewGuid()),
+                recipient,
+                new ContentType("target"),
+                DomainOrigin.Aggregations,
+                new SupportsBundling(true),
+                new Weight(10));
+
+            await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations, new ContentType("target"), maxWeight)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.Single(actual);
+        }
+
+        [Fact]
+        public async Task GetNextUnacknowledgedAsync_NoBundling_ReturnsAtLeastOneItem()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            var maxWeight = new Weight(100);
+            var recipient = new MarketOperator(new MockedGln());
+            var expected = new DataAvailableNotification(
+                new Uuid(Guid.NewGuid()),
+                recipient,
+                new ContentType("target"),
+                DomainOrigin.Aggregations,
+                new SupportsBundling(false),
+                new Weight(0));
+
+            await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations, new ContentType("target"), maxWeight)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.Single(actual);
         }
 
         [Fact]
