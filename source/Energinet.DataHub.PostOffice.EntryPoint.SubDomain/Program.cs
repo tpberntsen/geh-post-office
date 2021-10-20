@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Common.SimpleInjector;
 using Microsoft.Extensions.Hosting;
 using SimpleInjector;
@@ -29,7 +30,11 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain
             await using (startup.ConfigureAwait(false))
             {
                 var host = new HostBuilder()
-                    .ConfigureFunctionsWorkerDefaults(options => options.UseMiddleware<SimpleInjectorScopedRequest>())
+                    .ConfigureFunctionsWorkerDefaults(options =>
+                    {
+                        options.UseMiddleware<SimpleInjectorScopedRequest>();
+                        options.UseMiddleware<EntryPointTelemetryScopeMiddleware>();
+                    })
                     .ConfigureServices(startup.ConfigureServices)
                     .Build()
                     .UseSimpleInjector(startup.Container);

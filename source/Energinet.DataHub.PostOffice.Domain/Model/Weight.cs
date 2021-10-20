@@ -12,7 +12,75 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+
+#pragma warning disable CA2225
+
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public record Weight(int Value);
+    public readonly struct Weight : IEquatable<Weight>
+    {
+        public Weight(int value)
+        {
+            Value = value;
+        }
+
+        public int Value { get; init; }
+
+        public static Weight operator +(Weight left, Weight right)
+        {
+            return new Weight(left.Value + right.Value);
+        }
+
+        public static Weight operator -(Weight left, Weight right)
+        {
+            return new Weight(left.Value - right.Value);
+        }
+
+        public static bool operator <(Weight left, Weight right)
+        {
+            return left.Value < right.Value;
+        }
+
+        public static bool operator <=(Weight left, Weight right)
+        {
+            return left.Value <= right.Value;
+        }
+
+        public static bool operator >(Weight left, Weight right)
+        {
+            return left.Value > right.Value;
+        }
+
+        public static bool operator >=(Weight left, Weight right)
+        {
+            return left.Value >= right.Value;
+        }
+
+        public static bool operator ==(Weight left, Weight right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Weight left, Weight right)
+        {
+            return !(left == right);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Weight w && w.Value == Value;
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
+        public bool Equals(Weight other)
+        {
+            return other.Value == Value;
+        }
+    }
+#pragma warning restore CA2225
 }

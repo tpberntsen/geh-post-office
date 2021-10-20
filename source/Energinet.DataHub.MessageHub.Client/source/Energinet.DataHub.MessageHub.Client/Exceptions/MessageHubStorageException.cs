@@ -12,18 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Domain.Services;
-using Energinet.DataHub.PostOffice.Infrastructure.Services;
-using SimpleInjector;
+using System;
 
-namespace Energinet.DataHub.PostOffice.Common
+namespace Energinet.DataHub.MessageHub.Client.Exceptions
 {
-    internal static class InfrastructureServiceRegistration
+    public class MessageHubStorageException : Exception
     {
-        public static void AddInfrastructureServices(this Container container)
+        public MessageHubStorageException(string message)
+            : base(message)
         {
-            container.Register<IBundleContentRequestService, BundleContentRequestService>(Lifestyle.Scoped);
-            container.Register<IMarketOperatorDataStorageService, MarketOperatorDataStorageService>(Lifestyle.Scoped);
+        }
+
+        public MessageHubStorageException()
+        {
+        }
+
+        public MessageHubStorageException(string message, Exception innerException)
+            : base(message, innerException)
+        {
         }
     }
 }

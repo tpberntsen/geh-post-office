@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
@@ -124,6 +125,77 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             Assert.True(responseB.HasContent);
         }
 
+        [Theory]
+        [InlineData(false, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, false, true)]
+        public async Task PeekCommand_NotificationCannotBundle_ReturnsFirstNotification(bool first, bool second, bool third)
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var expectedGuid = await AddBundlingNotificationAsync(recipientGln, "TimeSeries", first).ConfigureAwait(false);
+            var unexpectedGuidA = await AddBundlingNotificationAsync(recipientGln, "TimeSeries", second).ConfigureAwait(false);
+            var unexpectedGuidB = await AddBundlingNotificationAsync(recipientGln, "TimeSeries", third).ConfigureAwait(false);
+            var bundleId = Guid.NewGuid().ToString();
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var peekCommand = new PeekCommand(recipientGln, bundleId);
+
+            // Act
+            var response = await mediator.Send(peekCommand).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.HasContent);
+
+            var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
+            Assert.Single(bundleContents.DataAvailableNotificationIds);
+            Assert.Contains(expectedGuid, bundleContents.DataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidA, bundleContents.DataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidB, bundleContents.DataAvailableNotificationIds);
+        }
+
+        [Fact]
+        public async Task PeekCommand_AllNotificationsCanBundle_ReturnsBundle()
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var expectedGuidA = await AddBundlingNotificationAsync(recipientGln, "TimeSeries", true).ConfigureAwait(false);
+            var expectedGuidB = await AddBundlingNotificationAsync(recipientGln, "TimeSeries", true).ConfigureAwait(false);
+            var expectedGuidC = await AddBundlingNotificationAsync(recipientGln, "TimeSeries", true).ConfigureAwait(false);
+            var bundleId = Guid.NewGuid().ToString();
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var peekCommand = new PeekCommand(recipientGln, bundleId);
+
+            // Act
+            var response = await mediator.Send(peekCommand).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.HasContent);
+
+            var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
+            Assert.Equal(3, bundleContents.DataAvailableNotificationIds.Count());
+            Assert.Contains(expectedGuidA, bundleContents.DataAvailableNotificationIds);
+            Assert.Contains(expectedGuidB, bundleContents.DataAvailableNotificationIds);
+            Assert.Contains(expectedGuidC, bundleContents.DataAvailableNotificationIds);
+        }
+
         [Fact]
         public async Task PeekTimeSeriesCommand_InvalidCommand_ThrowsException()
         {
@@ -223,6 +295,77 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             Assert.True(responseB.HasContent);
         }
 
+        [Theory]
+        [InlineData(false, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, false, true)]
+        public async Task PeekTimeSeriesCommand_NotificationCannotBundle_ReturnsFirstNotification(bool first, bool second, bool third)
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var expectedGuid = await AddBundlingNotificationAsync(recipientGln, "TimeSeries", first).ConfigureAwait(false);
+            var unexpectedGuidA = await AddBundlingNotificationAsync(recipientGln, "TimeSeries", second).ConfigureAwait(false);
+            var unexpectedGuidB = await AddBundlingNotificationAsync(recipientGln, "TimeSeries", third).ConfigureAwait(false);
+            var bundleId = Guid.NewGuid().ToString();
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var peekCommand = new PeekTimeSeriesCommand(recipientGln, bundleId);
+
+            // Act
+            var response = await mediator.Send(peekCommand).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.HasContent);
+
+            var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
+            Assert.Single(bundleContents.DataAvailableNotificationIds);
+            Assert.Contains(expectedGuid, bundleContents.DataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidA, bundleContents.DataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidB, bundleContents.DataAvailableNotificationIds);
+        }
+
+        [Fact]
+        public async Task PeekTimeSeriesCommand_AllNotificationsCanBundle_ReturnsBundle()
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var expectedGuidA = await AddBundlingNotificationAsync(recipientGln, "TimeSeries", true).ConfigureAwait(false);
+            var expectedGuidB = await AddBundlingNotificationAsync(recipientGln, "TimeSeries", true).ConfigureAwait(false);
+            var expectedGuidC = await AddBundlingNotificationAsync(recipientGln, "TimeSeries", true).ConfigureAwait(false);
+            var bundleId = Guid.NewGuid().ToString();
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var peekCommand = new PeekTimeSeriesCommand(recipientGln, bundleId);
+
+            // Act
+            var response = await mediator.Send(peekCommand).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.HasContent);
+
+            var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
+            Assert.Equal(3, bundleContents.DataAvailableNotificationIds.Count());
+            Assert.Contains(expectedGuidA, bundleContents.DataAvailableNotificationIds);
+            Assert.Contains(expectedGuidB, bundleContents.DataAvailableNotificationIds);
+            Assert.Contains(expectedGuidC, bundleContents.DataAvailableNotificationIds);
+        }
+
         [Fact]
         public async Task PeekAggregationsCommand_InvalidCommand_ThrowsException()
         {
@@ -318,6 +461,77 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             Assert.True(responseA.HasContent);
             Assert.NotNull(responseB);
             Assert.True(responseB.HasContent);
+        }
+
+        [Theory]
+        [InlineData(false, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, false, true)]
+        public async Task PeekAggregationsCommand_NotificationCannotBundle_ReturnsFirstNotification(bool first, bool second, bool third)
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var expectedGuid = await AddBundlingNotificationAsync(recipientGln, "Aggregations", first).ConfigureAwait(false);
+            var unexpectedGuidA = await AddBundlingNotificationAsync(recipientGln, "Aggregations", second).ConfigureAwait(false);
+            var unexpectedGuidB = await AddBundlingNotificationAsync(recipientGln, "Aggregations", third).ConfigureAwait(false);
+            var bundleId = Guid.NewGuid().ToString();
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var peekCommand = new PeekAggregationsCommand(recipientGln, bundleId);
+
+            // Act
+            var response = await mediator.Send(peekCommand).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.HasContent);
+
+            var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
+            Assert.Single(bundleContents.DataAvailableNotificationIds);
+            Assert.Contains(expectedGuid, bundleContents.DataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidA, bundleContents.DataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidB, bundleContents.DataAvailableNotificationIds);
+        }
+
+        [Fact]
+        public async Task PeekAggregationsCommand_AllNotificationsCanBundle_ReturnsBundle()
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var expectedGuidA = await AddBundlingNotificationAsync(recipientGln, "Aggregations", true).ConfigureAwait(false);
+            var expectedGuidB = await AddBundlingNotificationAsync(recipientGln, "Aggregations", true).ConfigureAwait(false);
+            var expectedGuidC = await AddBundlingNotificationAsync(recipientGln, "Aggregations", true).ConfigureAwait(false);
+            var bundleId = Guid.NewGuid().ToString();
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var peekCommand = new PeekAggregationsCommand(recipientGln, bundleId);
+
+            // Act
+            var response = await mediator.Send(peekCommand).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.HasContent);
+
+            var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
+            Assert.Equal(3, bundleContents.DataAvailableNotificationIds.Count());
+            Assert.Contains(expectedGuidA, bundleContents.DataAvailableNotificationIds);
+            Assert.Contains(expectedGuidB, bundleContents.DataAvailableNotificationIds);
+            Assert.Contains(expectedGuidC, bundleContents.DataAvailableNotificationIds);
         }
 
         [Fact]
@@ -499,6 +713,77 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             Assert.DoesNotContain(unexpectedGuidB, bundleContents.DataAvailableNotificationIds);
         }
 
+        [Theory]
+        [InlineData(false, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, false, true)]
+        public async Task PeekMasterDataCommand_NotificationCannotBundle_ReturnsFirstNotification(bool first, bool second, bool third)
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var expectedGuid = await AddBundlingNotificationAsync(recipientGln, "MeteringPoints", first).ConfigureAwait(false);
+            var unexpectedGuidA = await AddBundlingNotificationAsync(recipientGln, "MeteringPoints", second).ConfigureAwait(false);
+            var unexpectedGuidB = await AddBundlingNotificationAsync(recipientGln, "MeteringPoints", third).ConfigureAwait(false);
+            var bundleId = Guid.NewGuid().ToString();
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var peekCommand = new PeekMasterDataCommand(recipientGln, bundleId);
+
+            // Act
+            var response = await mediator.Send(peekCommand).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.HasContent);
+
+            var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
+            Assert.Single(bundleContents.DataAvailableNotificationIds);
+            Assert.Contains(expectedGuid, bundleContents.DataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidA, bundleContents.DataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidB, bundleContents.DataAvailableNotificationIds);
+        }
+
+        [Fact]
+        public async Task PeekMasterDataCommand_AllNotificationsCanBundle_ReturnsBundle()
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var expectedGuidA = await AddBundlingNotificationAsync(recipientGln, "MeteringPoints", true).ConfigureAwait(false);
+            var expectedGuidB = await AddBundlingNotificationAsync(recipientGln, "MeteringPoints", true).ConfigureAwait(false);
+            var expectedGuidC = await AddBundlingNotificationAsync(recipientGln, "MeteringPoints", true).ConfigureAwait(false);
+            var bundleId = Guid.NewGuid().ToString();
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var peekCommand = new PeekMasterDataCommand(recipientGln, bundleId);
+
+            // Act
+            var response = await mediator.Send(peekCommand).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.HasContent);
+
+            var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
+            Assert.Equal(3, bundleContents.DataAvailableNotificationIds.Count());
+            Assert.Contains(expectedGuidA, bundleContents.DataAvailableNotificationIds);
+            Assert.Contains(expectedGuidB, bundleContents.DataAvailableNotificationIds);
+            Assert.Contains(expectedGuidC, bundleContents.DataAvailableNotificationIds);
+        }
+
         private static async Task AddTimeSeriesNotificationAsync(string recipientGln)
         {
             var dataAvailableUuid = Guid.NewGuid();
@@ -566,6 +851,21 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 "charges",
                 "Charges",
                 false,
+                1);
+
+            await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
+            return dataAvailableUuid;
+        }
+
+        private static async Task<Guid> AddBundlingNotificationAsync(string recipientGln, string origin, bool supportsBundling)
+        {
+            var dataAvailableUuid = Guid.NewGuid();
+            var dataAvailableCommand = new DataAvailableNotificationCommand(
+                dataAvailableUuid.ToString(),
+                recipientGln,
+                "content_type",
+                origin,
+                supportsBundling,
                 1);
 
             await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);

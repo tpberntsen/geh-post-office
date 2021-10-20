@@ -15,6 +15,7 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
+using Energinet.DataHub.MessageHub.Client;
 using Energinet.DataHub.MessageHub.Client.Factories;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Infrastructure;
@@ -54,6 +55,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
         {
             // Arrange
             var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton<IConfiguration>(BuildConfig());
             var configureContainerMock = new Mock<Action>();
             await using var target = new TestOfStartupBase { ConfigureContainer = configureContainerMock.Object };
 
@@ -62,6 +64,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
 
             // Assert
             configureContainerMock.Verify(x => x(), Times.Once);
+        }
+
+        private static IConfigurationRoot BuildConfig()
+        {
+            return new ConfigurationBuilder().AddEnvironmentVariables().Build();
         }
 
         private sealed class TestOfStartupBase : StartupBase
@@ -79,6 +86,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
                 container.Options.AllowOverridingRegistrations = true;
                 container.RegisterSingleton<ServiceBusClient>(() => new MockedServiceBusClient());
                 container.RegisterSingleton<CosmosClient>(() => new MockedCosmosClient());
+                container.RegisterSingleton(() => new StorageConfig("fake_value"));
                 container.RegisterSingleton(() => new ServiceBusConfig("fake_value", "fake_value"));
                 container.RegisterSingleton(() => new CosmosDatabaseConfig("fake_value", "fake_value"));
                 container.RegisterSingleton<IServiceBusClientFactory>(() => new MockedServiceBusClientFactory());

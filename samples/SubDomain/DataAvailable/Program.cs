@@ -49,13 +49,15 @@ namespace DataAvailableNotification
             {
                 var msgDto = CreateDto(domainOrigin, messageType, recipient);
 
+                Console.WriteLine($"Sending message number: {i + 1}.");
+
                 await dataAvailableNotificationSender.SendAsync(msgDto).ConfigureAwait(false);
 
                 if (i + 1 < interval)
-                    Thread.Sleep(5000);
+                    Thread.Sleep(2000);
             }
 
-            Console.WriteLine("A batch of messages has been published to the queue.");
+            Console.WriteLine("Message sender completed.");
         }
 
         private static DataAvailableNotificationDto CreateDto(DomainOrigin origin, string messageType, string recipient)

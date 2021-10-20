@@ -45,7 +45,7 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
             }
             catch (InvalidProtocolBufferException e)
             {
-                throw new PostOfficeCommunicatorException("Error parsing bytes for DataBundleRequestDto", e);
+                throw new MessageHubException("Error parsing bytes for DataBundleRequestDto", e);
             }
         }
     }

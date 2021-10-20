@@ -33,7 +33,7 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
         /// Parses the protobuf contract response.
         /// </summary>
         /// <param name="dataBundleReplyContract">The bytes containing the protobuf contract.</param>
-        /// <exception cref="PostOfficeCommunicatorException">
+        /// <exception cref="MessageHubException">
         /// Throws an exception if byte array cannot be parsed.
         /// </exception>
         /// <returns><see cref="DataBundleResponseDto"/>Returns a dto with the object or null if it wasn't a success</returns>

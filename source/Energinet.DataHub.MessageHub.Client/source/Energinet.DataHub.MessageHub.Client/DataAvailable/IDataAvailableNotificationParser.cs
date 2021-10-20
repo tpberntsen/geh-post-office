@@ -27,7 +27,7 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
         /// </summary>
         /// <param name="dataAvailableContract">A byte array containing the DataAvailable protobuf contract.</param>
         /// <returns>The parsed DataAvailableNotificationDto.</returns>
-        /// <exception cref="PostOfficeCommunicatorException">
+        /// <exception cref="MessageHubException">
         /// Throws an exception if byte array cannot be parsed.
         /// </exception>
         DataAvailableNotificationDto Parse(byte[] dataAvailableContract);

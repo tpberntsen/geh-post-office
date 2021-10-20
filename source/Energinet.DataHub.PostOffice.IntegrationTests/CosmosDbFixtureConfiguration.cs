@@ -12,18 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Domain.Services;
-using Energinet.DataHub.PostOffice.Infrastructure.Services;
-using SimpleInjector;
+using Xunit;
 
-namespace Energinet.DataHub.PostOffice.Common
+namespace Energinet.DataHub.PostOffice.IntegrationTests
 {
-    internal static class InfrastructureServiceRegistration
+    [CollectionDefinition("IntegrationTest")]
+    public sealed class CosmosDbFixtureConfiguration : ICollectionFixture<CosmosDbFixture>
     {
-        public static void AddInfrastructureServices(this Container container)
-        {
-            container.Register<IBundleContentRequestService, BundleContentRequestService>(Lifestyle.Scoped);
-            container.Register<IMarketOperatorDataStorageService, MarketOperatorDataStorageService>(Lifestyle.Scoped);
-        }
+        // This class has no code, and is never created. Its purpose is simply
+        // to be the place to apply [CollectionDefinition] and all the
+        // ICollectionFixture<> interfaces.
     }
 }
