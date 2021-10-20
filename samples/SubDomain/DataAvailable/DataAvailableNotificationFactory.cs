@@ -23,7 +23,7 @@ namespace DataAvailableNotification
         {
             return new DataAvailableNotificationDto(
                 Guid.NewGuid(),
-                new GlobalLocationNumberDto(string.IsNullOrWhiteSpace(recipient) ? Guid.NewGuid().ToString() : recipient),
+                new GlobalLocationNumberDto(string.IsNullOrWhiteSpace(recipient) ? GlnHelper.CreateRandomGln() : recipient),
                 new MessageTypeDto(string.IsNullOrWhiteSpace(messageType) ? "timeseries" : messageType),
                 origin,
                 false,

@@ -27,6 +27,7 @@ limitations under the License.
     <PackageReference Include="FluentValidation" Version="9.5.1" />
     <PackageReference Include="Energinet.DataHub.MessageHub.Client" Version="1.3.0" />
     <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.18.0" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.5.1" />

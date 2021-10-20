@@ -58,6 +58,9 @@ namespace Energinet.DataHub.PostOffice.Common
             Container.AddAzureBlobStorageConfig();
             Container.AddAzureBlobStorage();
 
+            // Add Application insights telemetry
+            services.SetupApplicationInsightTelemetry(config);
+
             // services
             Container.AddRepositories();
             Container.AddDomainServices();

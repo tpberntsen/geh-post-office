@@ -55,6 +55,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
         {
             // Arrange
             var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton<IConfiguration>(BuildConfig());
             var configureContainerMock = new Mock<Action>();
             await using var target = new TestOfStartupBase { ConfigureContainer = configureContainerMock.Object };
 
@@ -63,6 +64,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
 
             // Assert
             configureContainerMock.Verify(x => x(), Times.Once);
+        }
+
+        private static IConfigurationRoot BuildConfig()
+        {
+            return new ConfigurationBuilder().AddEnvironmentVariables().Build();
         }
 
         private sealed class TestOfStartupBase : StartupBase
