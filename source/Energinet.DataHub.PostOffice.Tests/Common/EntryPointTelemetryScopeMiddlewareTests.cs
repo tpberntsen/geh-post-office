@@ -86,6 +86,23 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
             Assert.True(nextCalled);
         }
 
+        [Fact]
+        public async Task Invoke_AllGood_WithoutBindingData_NextCalled()
+        {
+            // arrange
+            var nextCalled = false;
+            TelemetryClient mockTelemetryClient = InitializeMockTelemetryChannel();
+            var target = new EntryPointTelemetryScopeMiddleware(mockTelemetryClient);
+
+            var functionContextMock = BuildFunctionContext(new Dictionary<string, object?>(), "Test");
+
+            // act, assert
+            await target.Invoke(functionContextMock, _ => Task.FromResult(nextCalled = true)).ConfigureAwait(false);
+
+            // assert
+            Assert.True(nextCalled);
+        }
+
         private static FunctionContext BuildFunctionContext(Dictionary<string, object?> bindingData, string functionName)
         {
             var mockedFunctionContext = new MockedFunctionContext();
@@ -101,7 +118,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
 
         private static TelemetryClient InitializeMockTelemetryChannel()
         {
-            var mockTelemetryChannel = new MockTelemetryChannel();
+            var mockTelemetryChannel = new MockTelemetryChannel()
+            {
+                DeveloperMode = false,
+                EndpointAddress = string.Empty
+            };
+
             using var mockTelemetryConfig = new TelemetryConfiguration()
             {
                 TelemetryChannel = mockTelemetryChannel,
