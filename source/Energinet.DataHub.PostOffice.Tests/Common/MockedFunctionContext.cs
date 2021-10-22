@@ -22,6 +22,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
     public sealed class MockedFunctionContext
     {
         private readonly Mock<FunctionContext> _functionContextMock = new();
+        private readonly Mock<BindingContext> _bindingContextMock = new();
+        private readonly Mock<FunctionDefinition> _functionDefinitionMock = new();
         private readonly Mock<IServiceProvider> _serviceProvicerMock = new();
         private readonly Mock<ILoggerFactory> _loggerFactoryMock = new();
 
@@ -42,10 +44,20 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
             _functionContextMock
                 .Setup(x => x.InstanceServices)
                 .Returns(_serviceProvicerMock.Object);
+
+            _functionContextMock
+                .Setup(f => f.BindingContext)
+                .Returns(_bindingContextMock.Object);
+
+            _functionContextMock
+                .Setup(f => f.FunctionDefinition)
+                .Returns(_functionDefinitionMock.Object);
         }
 
         public FunctionContext FunctionContext => _functionContextMock.Object;
         public Mock<IServiceProvider> Services => _serviceProvicerMock;
+        public Mock<BindingContext> BindingContext => _bindingContextMock;
+        public Mock<FunctionDefinition> FunctionDefinitionMock => _functionDefinitionMock;
 
 #pragma warning disable
         public static implicit operator FunctionContext(MockedFunctionContext mock)
