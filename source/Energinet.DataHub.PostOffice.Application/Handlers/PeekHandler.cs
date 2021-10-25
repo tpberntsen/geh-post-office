@@ -88,7 +88,8 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
             if (bundle != null && bundle.TryGetContent(out var bundleContent))
             {
-                await _log.SavePeekLogOccurrenceAsync(logProvider(bundle.ProcessId, bundleContent!)).ConfigureAwait(false);
+                var peekLog = logProvider(bundle.ProcessId, bundleContent);
+                await _log.SavePeekLogOccurrenceAsync(peekLog).ConfigureAwait(false);
 
                 return new PeekResponse(true, await bundleContent.OpenAsync().ConfigureAwait(false));
             }

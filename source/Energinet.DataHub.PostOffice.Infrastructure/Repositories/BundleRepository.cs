@@ -125,16 +125,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 .ConfigureAwait(false);
         }
 
-        public async Task SaveAsync(Bundle bundle)
+        public Task SaveAsync(Bundle bundle)
         {
             if (bundle == null)
                 throw new ArgumentNullException(nameof(bundle));
 
             var messageDocument = BundleMapper.MapToDocument(bundle);
 
-            await _repositoryContainer.Container
-                .ReplaceItemAsync(messageDocument, messageDocument.Id)
-                .ConfigureAwait(false);
+            return _repositoryContainer.Container.ReplaceItemAsync(messageDocument, messageDocument.Id);
         }
 
         private static bool IsConcurrencyError(CosmosException ex)

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
@@ -434,6 +435,47 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             // Assert: Only one notification should be acknowledged.
             Assert.Null(await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipientA).ConfigureAwait(false));
             Assert.NotNull(await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipientB).ConfigureAwait(false));
+        }
+
+        [Fact]
+        public async Task AcknowledgeAsync_BundleOverItemCap_AcknowledgesWithourError()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            var recipient = new MarketOperator(new MockedGln());
+            var addedUuids = new List<Uuid>();
+
+            for (var i = 0; i < 110; i++)
+            {
+                var notificationId = new Uuid(Guid.NewGuid());
+                addedUuids.Add(notificationId);
+
+                var expected = new DataAvailableNotification(
+                    notificationId,
+                    recipient,
+                    new ContentType("target"),
+                    DomainOrigin.Aggregations,
+                    new SupportsBundling(true),
+                    new Weight(1));
+
+                await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
+            }
+
+            // Act
+            await dataAvailableNotificationRepository
+                .AcknowledgeAsync(recipient, addedUuids)
+                .ConfigureAwait(false);
+
+            var acknowledged = await dataAvailableNotificationRepository
+                .GetNextUnacknowledgedAsync(recipient)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.Null(acknowledged);
         }
 
         [Fact]

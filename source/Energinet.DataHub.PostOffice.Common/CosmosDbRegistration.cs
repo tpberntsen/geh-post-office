@@ -24,7 +24,7 @@ namespace Energinet.DataHub.PostOffice.Common
 {
     internal static class CosmosDbRegistration
     {
-        public static void AddCosmosClientBuilder(this Container container, bool useBulkExecution)
+        public static void AddCosmosClientBuilder(this Container container)
         {
             container.RegisterSingleton(() =>
             {
@@ -38,7 +38,7 @@ namespace Energinet.DataHub.PostOffice.Common
                 }
 
                 return new CosmosClientBuilder(connectionString)
-                    .WithBulkExecution(useBulkExecution)
+                    .WithBulkExecution(false)
                     .WithSerializerOptions(new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase })
                     .Build();
             });
