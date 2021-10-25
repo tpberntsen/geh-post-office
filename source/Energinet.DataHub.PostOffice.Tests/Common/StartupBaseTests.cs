@@ -15,8 +15,8 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.MessageHub.Client;
-using Energinet.DataHub.MessageHub.Client.Factories;
+using Energinet.DataHub.MessageHub.Core;
+using Energinet.DataHub.MessageHub.Core.Factories;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using Microsoft.Azure.Cosmos;

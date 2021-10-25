@@ -13,7 +13,7 @@
 // limitations under the License.
 
 using Azure.Storage.Blobs;
-using Energinet.DataHub.MessageHub.Client.Factories;
+using Energinet.DataHub.MessageHub.Core.Factories;
 
 namespace Energinet.DataHub.PostOffice.Tests.Common
 {

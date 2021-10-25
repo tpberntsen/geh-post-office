@@ -1,3 +1,3 @@
 # Documentation
-Notes regarding usage of types in the NuGet package `GreenEnergyHub.PostOffice.Communicator.SimpleInjector`. 
+Notes regarding usage of types in the NuGet package `Energinet.DataHub.MessageHub.SimpleInjector`. 
 

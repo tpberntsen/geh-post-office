@@ -18,11 +18,10 @@ using System.IO;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-using Energinet.DataHub.MessageHub.Client.Exceptions;
 using Energinet.DataHub.MessageHub.Client.Factories;
-using Energinet.DataHub.MessageHub.Client.Model;
 using Energinet.DataHub.MessageHub.Client.Storage;
+using Energinet.DataHub.MessageHub.Model.Exceptions;
+using Energinet.DataHub.MessageHub.Model.Model;
 using Moq;
 using Xunit;
 using Xunit.Categories;
@@ -160,103 +159,6 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
 
             // assert
             Assert.Equal(testUri, result);
-        }
-
-        [Fact]
-        public async Task GetStreamFromStorageAsync_UriIsValid_ReturnsStream()
-        {
-            // arrange
-            var mockedStorageServiceClientFactory = new Mock<IStorageServiceClientFactory>();
-            var mockedBlobServiceClient = new Mock<BlobServiceClient>();
-            var mockedBlobContainerClient = new Mock<BlobContainerClient>();
-            var mockedBlobClient = new Mock<BlobClient>();
-            var mockedResponse = new Mock<Response<BlobDownloadStreamingResult>>();
-            await using var inputStream = new MemoryStream(new byte[] { 1, 2, 3 });
-            var mockedBlobDownloadStreamingResult = MockedBlobDownloadStreamingResult.Create(inputStream);
-            var testUri = new Uri("https://test.test.dk/FileStorage/postoffice-blobstorage");
-
-            mockedResponse.Setup(
-                    x => x.Value)
-                .Returns(mockedBlobDownloadStreamingResult);
-
-            mockedBlobClient.Setup(
-                    x => x.DownloadStreamingAsync(
-                        default,
-                        default,
-                        default,
-                        default))
-                .ReturnsAsync(mockedResponse.Object);
-
-            mockedBlobContainerClient.Setup(
-                    x => x.GetBlobClient(It.IsAny<string>()))
-                .Returns(mockedBlobClient.Object);
-
-            mockedBlobServiceClient.Setup(
-                    x => x.GetBlobContainerClient(It.IsAny<string>()))
-                .Returns(mockedBlobContainerClient.Object);
-
-            mockedStorageServiceClientFactory.Setup(
-                    x => x.Create())
-                .Returns(mockedBlobServiceClient.Object);
-
-            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
-
-            // act
-            var result = await target.GetStreamFromStorageAsync(testUri).ConfigureAwait(false);
-
-            // assert
-            Assert.NotNull(result);
-        }
-
-        [Fact]
-        public async Task GetStreamFromStorageAsync_ContentPathIsNull_ThrowsArgumentNullException()
-        {
-            // arrange
-            var mockedStorageServiceClientFactory = new Mock<IStorageServiceClientFactory>();
-            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
-
-            // act, assert
-            await Assert.ThrowsAsync<ArgumentNullException>(
-                    () => target.GetStreamFromStorageAsync(null!))
-                .ConfigureAwait(false);
-        }
-
-        [Fact]
-        public async Task GetStreamFromStorageAsync_StorageFailure_ThrowsCustomException()
-        {
-            // arrange
-            var mockedStorageServiceClientFactory = new Mock<IStorageServiceClientFactory>();
-            var mockedBlobServiceClient = new Mock<BlobServiceClient>();
-            var mockedBlobContainerClient = new Mock<BlobContainerClient>();
-            var mockedBlobClient = new Mock<BlobClient>();
-            var testUri = new Uri("https://test.test.dk/FileStorage/postoffice-blobstorage");
-
-            mockedBlobClient.Setup(
-                    x => x.DownloadStreamingAsync(
-                        default,
-                        default,
-                        default,
-                        default))
-                .ThrowsAsync(new RequestFailedException("test"));
-
-            mockedBlobContainerClient.Setup(
-                    x => x.GetBlobClient(It.IsAny<string>()))
-                .Returns(mockedBlobClient.Object);
-
-            mockedBlobServiceClient.Setup(
-                    x => x.GetBlobContainerClient(It.IsAny<string>()))
-                .Returns(mockedBlobContainerClient.Object);
-
-            mockedStorageServiceClientFactory.Setup(
-                    x => x.Create())
-                .Returns(mockedBlobServiceClient.Object);
-
-            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
-
-            // act, assert
-            await Assert.ThrowsAsync<MessageHubStorageException>(
-                    () => target.GetStreamFromStorageAsync(testUri))
-                .ConfigureAwait(false);
         }
     }
 }

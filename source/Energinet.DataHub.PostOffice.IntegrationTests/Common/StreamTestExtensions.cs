@@ -15,8 +15,8 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Energinet.DataHub.MessageHub.Client.Model;
-using Energinet.DataHub.MessageHub.Client.Peek;
+using Energinet.DataHub.MessageHub.Model.Model;
+using Energinet.DataHub.MessageHub.Model.Peek;
 
 namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
 {

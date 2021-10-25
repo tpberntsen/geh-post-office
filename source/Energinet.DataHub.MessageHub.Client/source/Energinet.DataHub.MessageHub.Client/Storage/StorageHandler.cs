@@ -14,12 +14,11 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Azure;
-using Energinet.DataHub.MessageHub.Client.Exceptions;
 using Energinet.DataHub.MessageHub.Client.Factories;
-using Energinet.DataHub.MessageHub.Client.Model;
+using Energinet.DataHub.MessageHub.Model.Exceptions;
+using Energinet.DataHub.MessageHub.Model.Model;
 
 namespace Energinet.DataHub.MessageHub.Client.Storage
 {
@@ -53,25 +52,6 @@ namespace Energinet.DataHub.MessageHub.Client.Storage
                 await blobClient.UploadAsync(stream, true).ConfigureAwait(false);
                 var blobUri = blobClient.Uri;
                 return blobUri;
-            }
-            catch (RequestFailedException e)
-            {
-                throw new MessageHubStorageException("Error uploading file to storage", e);
-            }
-        }
-
-        public async Task<Stream> GetStreamFromStorageAsync(Uri contentPath)
-        {
-            try
-            {
-                if (contentPath is null)
-                    throw new ArgumentNullException(nameof(contentPath));
-
-                var storageClient = _storageServiceClientFactory.Create();
-                var containerClient = storageClient.GetBlobContainerClient(_storageConfig.AzureBlobStorageContainerName);
-                var blob = containerClient.GetBlobClient(contentPath.Segments.Last());
-                var response = await blob.DownloadStreamingAsync().ConfigureAwait(false);
-                return response.Value.Content;
             }
             catch (RequestFailedException e)
             {

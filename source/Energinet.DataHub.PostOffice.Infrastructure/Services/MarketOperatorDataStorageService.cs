@@ -15,7 +15,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Energinet.DataHub.MessageHub.Client.Storage;
+using Energinet.DataHub.MessageHub.Core.Storage;
 using Energinet.DataHub.PostOffice.Domain.Services;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Services
