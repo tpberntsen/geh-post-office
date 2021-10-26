@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Client;
 using Energinet.DataHub.MessageHub.Client.DataAvailable;
 using Energinet.DataHub.MessageHub.Client.Factories;
-using Energinet.DataHub.MessageHub.Client.Model;
+using Energinet.DataHub.MessageHub.Model.Model;
 using Microsoft.Extensions.Configuration;
 
 namespace DataAvailableNotification

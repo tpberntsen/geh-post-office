@@ -46,7 +46,9 @@ namespace DataAvailableNotification
         {
             for (var i = 0; i < 12; i++)
             {
+#pragma warning disable CA5394
                 yield return _rng.Next(0, 10);
+#pragma warning restore CA5394
             }
         }
 

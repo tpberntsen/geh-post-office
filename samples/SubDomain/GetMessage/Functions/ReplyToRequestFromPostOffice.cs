@@ -16,11 +16,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Energinet.DataHub.MessageHub.Client.Exceptions;
-using Energinet.DataHub.MessageHub.Client.Extensions;
-using Energinet.DataHub.MessageHub.Client.Model;
 using Energinet.DataHub.MessageHub.Client.Peek;
 using Energinet.DataHub.MessageHub.Client.Storage;
+using Energinet.DataHub.MessageHub.Model.Exceptions;
+using Energinet.DataHub.MessageHub.Model.Extensions;
+using Energinet.DataHub.MessageHub.Model.Model;
+using Energinet.DataHub.MessageHub.Model.Peek;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -52,6 +53,9 @@ namespace GetMessage.Functions
             byte[] message,
             FunctionContext context)
         {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+
             var logger = context.GetLogger("ReplyToRequestFromPostOffice");
             logger.LogInformation($"C# ServiceBus queue trigger function processesing message: {message}");
 
@@ -73,7 +77,7 @@ namespace GetMessage.Functions
                         sessionId ?? string.Empty)
                     .ConfigureAwait(false);
             }
-            catch (PostOfficeCommunicatorStorageException e)
+            catch (MessageHubStorageException e)
             {
                 logger.LogError("Error Processing message: {0}", e);
                 throw;
@@ -99,9 +103,9 @@ namespace GetMessage.Functions
         {
             if (requestDto.DataAvailableNotificationIds.Contains(new Guid("0ae6c542-385f-4d89-bfba-d6c451915a1b")))
                 return CreateFailedResponse(requestDto, DataBundleResponseErrorReason.DatasetNotFound);
-            else if (requestDto.DataAvailableNotificationIds.Contains(new Guid("3cfce64e-aa1d-4003-924d-69c8739e73a6")))
+            if (requestDto.DataAvailableNotificationIds.Contains(new Guid("3cfce64e-aa1d-4003-924d-69c8739e73a6")))
                 return CreateFailedResponse(requestDto, DataBundleResponseErrorReason.DatasetNotAvailable);
-            else if (requestDto.DataAvailableNotificationIds.Contains(new Guid("befdcf5a-f58d-493b-9a17-e5231609c8f6")))
+            if (requestDto.DataAvailableNotificationIds.Contains(new Guid("befdcf5a-f58d-493b-9a17-e5231609c8f6")))
                 return CreateFailedResponse(requestDto, DataBundleResponseErrorReason.InternalError);
 
             return await CreateSuccessResponseAsync(requestDto).ConfigureAwait(false);

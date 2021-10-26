@@ -13,23 +13,12 @@
 // limitations under the License.
 
 using System;
-using Energinet.DataHub.MessageHub.Client.Model;
+using Energinet.DataHub.MessageHub.Model.Model;
 
 namespace DataAvailableNotification
 {
     public static class DataAvailableNotificationFactory
     {
-        public static DataAvailableNotificationDto CreateDto(DomainOrigin origin, string messageType, string recipient)
-        {
-            return new DataAvailableNotificationDto(
-                Guid.NewGuid(),
-                new GlobalLocationNumberDto(string.IsNullOrWhiteSpace(recipient) ? GlnHelper.CreateRandomGln() : recipient),
-                new MessageTypeDto(string.IsNullOrWhiteSpace(messageType) ? "timeseries" : messageType),
-                origin,
-                false,
-                1);
-        }
-
         public static DataAvailableNotificationDto CreateTimeSeriesDto(string messageType, string recipient)
         {
             var dto = CreateDto(DomainOrigin.TimeSeries, messageType, recipient);
@@ -40,6 +29,17 @@ namespace DataAvailableNotification
         {
             var dto = CreateDto(origin, messageType, recipient);
             return dto;
+        }
+
+        private static DataAvailableNotificationDto CreateDto(DomainOrigin origin, string messageType, string recipient)
+        {
+            return new DataAvailableNotificationDto(
+                Guid.NewGuid(),
+                new GlobalLocationNumberDto(string.IsNullOrWhiteSpace(recipient) ? GlnHelper.CreateRandomGln() : recipient),
+                new MessageTypeDto(string.IsNullOrWhiteSpace(messageType) ? "timeseries" : messageType),
+                origin,
+                false,
+                1);
         }
     }
 }
