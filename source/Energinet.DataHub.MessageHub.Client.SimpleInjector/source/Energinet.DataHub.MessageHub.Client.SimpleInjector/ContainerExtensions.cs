@@ -14,10 +14,11 @@
 
 using System;
 using Energinet.DataHub.MessageHub.Client.DataAvailable;
-using Energinet.DataHub.MessageHub.Client.Dequeue;
 using Energinet.DataHub.MessageHub.Client.Factories;
 using Energinet.DataHub.MessageHub.Client.Peek;
 using Energinet.DataHub.MessageHub.Client.Storage;
+using Energinet.DataHub.MessageHub.Model.Dequeue;
+using Energinet.DataHub.MessageHub.Model.Peek;
 using SimpleInjector;
 
 namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
