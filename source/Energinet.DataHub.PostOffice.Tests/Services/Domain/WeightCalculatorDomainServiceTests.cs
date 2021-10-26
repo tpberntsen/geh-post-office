@@ -28,7 +28,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
         [InlineData(DomainOrigin.Aggregations, 51200)]
         [InlineData(DomainOrigin.MeteringPoints, 51200)]
         [InlineData(DomainOrigin.MarketRoles, 51200)]
-        [InlineData(DomainOrigin.Charges, 1)]
+        [InlineData(DomainOrigin.Charges, 51200)]
         public void Map_ContentType_ReturnsWeight(DomainOrigin domainOrigin, int expectedWeight)
         {
             // arrange
