@@ -29,7 +29,6 @@ namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
             this Container container,
             string serviceBusConnectionString,
             MessageHubConfig messageHubConfig,
-            string storageServiceConnectionString,
             StorageConfig storageConfig)
         {
             if (container == null)
@@ -41,9 +40,6 @@ namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
             if (messageHubConfig == null)
                 throw new ArgumentNullException(nameof(messageHubConfig));
 
-            if (string.IsNullOrWhiteSpace(storageServiceConnectionString))
-                throw new ArgumentNullException(nameof(storageServiceConnectionString));
-
             if (storageConfig == null)
                 throw new ArgumentNullException(nameof(storageConfig));
 
@@ -51,7 +47,7 @@ namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
             container.RegisterSingleton(() => storageConfig);
             container.AddServiceBus(serviceBusConnectionString);
             container.AddApplicationServices();
-            container.AddStorageHandler(storageServiceConnectionString);
+            container.AddStorageHandler(storageConfig.AzureBlobStorageServiceConnectionString);
         }
 
         private static void AddServiceBus(this Container container, string serviceBusConnectionString)
