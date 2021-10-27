@@ -256,7 +256,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var bundleContentMock = new Mock<IBundleContent>();
             var setupBundle = new Bundle(
-                new Uuid(Guid.NewGuid()),
+                new Uuid("7dfb2080-fb56-4a37-a85d-1ac2f1559b45"),
                 DomainOrigin.TimeSeries,
                 recipient,
                 Array.Empty<Uuid>(),
@@ -291,7 +291,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var bundleContentMock = new Mock<IBundleContent>();
             var setupBundle = new Bundle(
-                new Uuid(Guid.NewGuid()),
+                new Uuid("7dfb2080-fb56-4a37-a85d-1ac2f1559b45"),
                 DomainOrigin.TimeSeries,
                 recipient,
                 Array.Empty<Uuid>());
