@@ -21,15 +21,20 @@ namespace Energinet.DataHub.MessageHub.Client.Storage
 {
     public class BundleRepository : IBundleRepository
     {
-        private CosmosClient _cosmosClient;
+        private readonly CosmosClient _cosmosClient;
+        private readonly StorageConfig _storageConfig;
 
-        public BundleRepository(CosmosClient cosmosClient)
+        public BundleRepository(CosmosClient cosmosClient, StorageConfig storageConfig)
         {
             _cosmosClient = cosmosClient;
+            _storageConfig = storageConfig;
         }
 
         public IReadOnlyList<Guid> GetDataAvailableIdsForRequest(DataBundleRequestDto requestDto)
         {
+            var container = _cosmosClient.GetContainer(_storageConfig.MessageHubDatabaseId, "bundles");
+
+            var query = "SELECT * FROM "
             throw new NotImplementedException();
         }
     }
