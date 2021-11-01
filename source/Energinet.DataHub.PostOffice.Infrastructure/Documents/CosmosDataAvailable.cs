@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using Newtonsoft.Json;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
@@ -25,6 +26,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
             Origin = null!;
             Recipient = null!;
             Timestamp = null!;
+            PartitionKey = DateTime.Now.Ticks % 200;
         }
 
         public string Id { get; init; }
@@ -34,6 +36,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
         public bool SupportsBundling { get; init; }
         public int RelativeWeight { get; init; }
         public bool Acknowledge { get; init; }
+        public long PartitionKey { get; init; }
 
         [JsonProperty(PropertyName = "_ts")]
         public string Timestamp { get; init; }

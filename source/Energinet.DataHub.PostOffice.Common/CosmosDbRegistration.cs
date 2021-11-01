@@ -14,6 +14,7 @@
 
 using System;
 using Energinet.DataHub.PostOffice.Infrastructure;
+using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Configuration;
@@ -41,6 +42,34 @@ namespace Energinet.DataHub.PostOffice.Common
                     .WithBulkExecution(false)
                     .WithSerializerOptions(new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase })
                     .Build();
+            });
+
+            container.Register<IDataAvailableNotificationRepositoryContainer>(() =>
+            {
+                var configuration = container.GetService<IConfiguration>();
+                var connectionString = configuration.GetConnectionStringOrSetting("MESSAGES_DB_CONNECTION_STRING");
+
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException(
+                        "Please specify a valid CosmosDBConnection in the appSettings.json file or your Azure Functions Settings.");
+                }
+
+                var normal = new CosmosClientBuilder(connectionString)
+                    .WithBulkExecution(false)
+                    .WithSerializerOptions(new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase })
+                    .Build();
+
+                var bulk = new CosmosClientBuilder(connectionString)
+                    .WithBulkExecution(true)
+                    .WithSerializerOptions(new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase })
+                    .Build();
+
+                var messageHubDatabaseId = configuration.GetValue<string>("MESSAGES_DB_NAME");
+                var logDatabaseId = configuration.GetValue<string>("LOG_DB_NAME");
+                var config = new CosmosDatabaseConfig(messageHubDatabaseId, logDatabaseId);
+
+                return new DataAvailableNotificationRepositoryContainer(normal, bulk, config);
             });
         }
 
