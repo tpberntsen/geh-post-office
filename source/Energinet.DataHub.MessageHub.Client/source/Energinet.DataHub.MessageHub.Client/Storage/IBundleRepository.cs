@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Model.Model;
 
 namespace Energinet.DataHub.MessageHub.Client.Storage
@@ -28,6 +29,6 @@ namespace Energinet.DataHub.MessageHub.Client.Storage
         /// </summary>
         /// <param name="requestDto">the request</param>
         /// <returns>List of ids</returns>
-        IReadOnlyList<Guid> GetDataAvailableIdsForRequest(DataBundleRequestDto requestDto);
+        Task<IReadOnlyList<Guid>> GetDataAvailableIdsForRequestAsync(DataBundleRequestDto requestDto);
     }
 }
