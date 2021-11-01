@@ -50,7 +50,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 Acknowledge = false
             };
 
-            return _repositoryContainer.BulkContainer.CreateItemAsync(cosmosDocument);
+            return _repositoryContainer.Container.CreateItemAsync(cosmosDocument);
         }
 
         public Task<DataAvailableNotification?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
