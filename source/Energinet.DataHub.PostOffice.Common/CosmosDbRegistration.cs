@@ -44,7 +44,7 @@ namespace Energinet.DataHub.PostOffice.Common
                     .Build();
             });
 
-            container.RegisterSingleton<IDataAvailableNotificationRepositoryContainer>(() =>
+            container.Register<IDataAvailableNotificationRepositoryContainer>(() =>
             {
                 var configuration = container.GetService<IConfiguration>();
                 var connectionString = configuration.GetConnectionStringOrSetting("MESSAGES_DB_CONNECTION_STRING");
