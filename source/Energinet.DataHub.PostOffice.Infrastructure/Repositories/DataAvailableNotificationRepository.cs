@@ -136,7 +136,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var stringIds = dataAvailableNotificationUuids
                 .Select((value, index) => new { value, index })
-                .GroupBy(x => x.index % 10);
+                .GroupBy(x => x.index % 5);
 
             foreach (var groupOfIds in stringIds)
             {
