@@ -90,7 +90,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 if (existingBundle.BundleId != bundleId)
                     throw new ValidationException($"The provided bundleId does not match current scoped bundleId: {existingBundle.BundleId}");
 
-                return null;
+                return await AskSubDomainForContentAsync(existingBundle).ConfigureAwait(false);
             }
 
             var dataAvailableNotification = await _dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipient, domains).ConfigureAwait(false);
@@ -106,11 +106,28 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
             return bundleCreatedResponse switch
             {
-                BundleCreatedResponse.Success => null,
+                BundleCreatedResponse.Success => await AskSubDomainForContentAsync(newBundle).ConfigureAwait(false),
                 BundleCreatedResponse.AnotherBundleExists => null,
                 BundleCreatedResponse.BundleIdAlreadyInUse => throw new ValidationException(nameof(BundleCreatedResponse.BundleIdAlreadyInUse)),
                 _ => throw new InvalidOperationException($"bundleCreatedResponse was {bundleCreatedResponse}")
             };
+        }
+
+        private async Task<Bundle?> AskSubDomainForContentAsync(Bundle bundle)
+        {
+            if (bundle.TryGetContent(out _))
+                return bundle;
+
+            var bundleContent = await _requestBundleDomainService
+                .WaitForBundleContentFromSubDomainAsync(bundle)
+                .ConfigureAwait(false);
+
+            if (bundleContent == null)
+                return null; // Timeout or error. Currently returned as "no new data".
+
+            bundle.AssignContent(bundleContent);
+            await _bundleRepository.SaveAsync(bundle).ConfigureAwait(false);
+            return bundle;
         }
 
         private async Task<Bundle> CreateNextBundleAsync(Uuid bundleUuid, DataAvailableNotification source)

@@ -114,6 +114,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             {
                 if (allUnacknowledged.Count == 0 || (currentWeight + item.Weight <= maxWeight && item.SupportsBundling.Value))
                 {
+                    // TODO: Bundles are limited to 800 guids * 296 bytes ~ 231,25 KB until
+                    // issue with ServiceBus message size is resolved.
+                    if (allUnacknowledged.Count == 800)
+                        break;
+
                     currentWeight += item.Weight;
                     allUnacknowledged.Add(item);
                 }
@@ -135,31 +140,55 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 throw new ArgumentNullException(nameof(dataAvailableNotificationUuids));
 
             var stringIds = dataAvailableNotificationUuids
-                .Select((value, index) => new { value, index })
-                .GroupBy(x => x.index % 5);
+                .Select(x => x.ToString());
 
-            foreach (var groupOfIds in stringIds)
+            var container = _repositoryContainer.Container;
+            var asLinq = container
+                .GetItemLinqQueryable<CosmosDataAvailable>();
+
+            var query =
+                from dataAvailable in asLinq
+                where dataAvailable.Recipient == recipient.Gln.Value && stringIds.Contains(dataAvailable.Id)
+                select dataAvailable;
+
+            TransactionalBatch? batch = null;
+            var partitionKey = new PartitionKey(recipient.Gln.Value);
+            var batchSize = 0;
+
+            await foreach (var document in query.AsCosmosIteratorAsync().ConfigureAwait(false))
             {
-                var ids = groupOfIds.Select(x => x.value.ToString());
+                var updatedDocument = document with { Acknowledge = true };
 
-                var container = _repositoryContainer.BulkContainer;
-                var asLinq = container
-                    .GetItemLinqQueryable<CosmosDataAvailable>();
+                batch ??= container.CreateTransactionalBatch(partitionKey);
+                batch.ReplaceItem(updatedDocument.Id, updatedDocument);
 
-                var query =
-                    from dataAvailable in asLinq
-                    where dataAvailable.Recipient == recipient.Gln.Value && ids.Contains(dataAvailable.Id)
-                    select dataAvailable;
+                batchSize++;
 
-                var updateTasks = new List<Task>();
-
-                await foreach (var document in query.AsCosmosIteratorAsync().ConfigureAwait(false))
+                // Microsoft decided on an arbitrary batch limit of 100.
+                if (batchSize == 100)
                 {
-                    var cosmosDataAvailable = document with { Acknowledge = true };
-                    updateTasks.Add(container.ReplaceItemAsync(cosmosDataAvailable, cosmosDataAvailable.Id));
-                }
+                    using var innerResult = await batch.ExecuteAsync().ConfigureAwait(false);
 
-                await Task.WhenAll(updateTasks).ConfigureAwait(false);
+                    // As written in docs, _this_ API does not throw exceptions and has to be checked.
+                    if (!innerResult.IsSuccessStatusCode)
+                    {
+                        throw new InvalidOperationException(innerResult.ErrorMessage);
+                    }
+
+                    batch = null;
+                    batchSize = 0;
+                }
+            }
+
+            if (batch != null)
+            {
+                using var outerResult = await batch.ExecuteAsync().ConfigureAwait(false);
+
+                // As written in docs, _this_ API does not throw exceptions and has to be checked.
+                if (!outerResult.IsSuccessStatusCode)
+                {
+                    throw new InvalidOperationException(outerResult.ErrorMessage);
+                }
             }
         }
 

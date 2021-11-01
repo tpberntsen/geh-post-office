@@ -26,7 +26,7 @@ namespace Energinet.DataHub.PostOffice.Common
             container.Register<IDataAvailableNotificationRepository, DataAvailableNotificationRepository>(Lifestyle.Scoped);
             container.Register<ILogRepository, LogRepository>(Lifestyle.Scoped);
             container.Register<ILogRepositoryContainer, LogRepositoryContainer>(Lifestyle.Scoped);
-            //container.Register<IDataAvailableNotificationRepositoryContainer, DataAvailableNotificationRepositoryContainer>(Lifestyle.Scoped);
+            container.Register<IDataAvailableNotificationRepositoryContainer, DataAvailableNotificationRepositoryContainer>(Lifestyle.Scoped);
             container.Register<IBundleRepository, BundleRepository>(Lifestyle.Scoped);
             container.Register<IBundleRepositoryContainer, BundleRepositoryContainer>(Lifestyle.Scoped);
         }

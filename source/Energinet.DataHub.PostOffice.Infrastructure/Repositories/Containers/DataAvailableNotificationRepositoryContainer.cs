@@ -19,17 +19,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
     public sealed class DataAvailableNotificationRepositoryContainer : IDataAvailableNotificationRepositoryContainer
     {
         private readonly CosmosClient _client;
-        private readonly CosmosClient _bulkClient;
         private readonly CosmosDatabaseConfig _cosmosDatabaseConfig;
 
-        public DataAvailableNotificationRepositoryContainer(CosmosClient client, CosmosClient bulkClient, CosmosDatabaseConfig cosmosDatabaseConfig)
+        public DataAvailableNotificationRepositoryContainer(CosmosClient client, CosmosDatabaseConfig cosmosDatabaseConfig)
         {
             _client = client;
-            _bulkClient = bulkClient;
             _cosmosDatabaseConfig = cosmosDatabaseConfig;
         }
 
         public Container Container => _client.GetContainer(_cosmosDatabaseConfig.MessageHubDatabaseId, "dataavailable");
-        public Container BulkContainer => _bulkClient.GetContainer(_cosmosDatabaseConfig.MessageHubDatabaseId, "dataavailable");
     }
 }

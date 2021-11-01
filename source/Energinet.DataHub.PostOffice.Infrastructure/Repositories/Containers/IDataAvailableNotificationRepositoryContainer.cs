@@ -27,11 +27,5 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
         /// </summary>
         /// <returns>Bundle</returns>
         public Container Container { get; }
-
-        /// <summary>
-        /// The CosmosDB container to use with DataAvailableNotificationRepository.
-        /// </summary>
-        /// <returns>Bundle</returns>
-        public Container BulkContainer { get; }
     }
 }
