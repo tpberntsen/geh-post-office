@@ -54,37 +54,37 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 .ConfigureAwait(false);
         }
 
-        [Fact]
-        public async Task DataAvailable_WithData_CanBePeekedBack()
-        {
-            // Arrange
-            var recipientGln = new MockedGln();
-            var bundleId = Guid.NewGuid().ToString();
+        //[Fact]
+        //public async Task DataAvailable_WithData_CanBePeekedBack()
+        //{
+        //    // Arrange
+        //    var recipientGln = new MockedGln();
+        //    var bundleId = Guid.NewGuid().ToString();
 
-            await using var host = await MarketOperatorIntegrationTestHost
-                .InitializeAsync()
-                .ConfigureAwait(false);
+        //    await using var host = await MarketOperatorIntegrationTestHost
+        //        .InitializeAsync()
+        //        .ConfigureAwait(false);
 
-            await using var scope = host.BeginScope();
-            var mediator = scope.GetInstance<IMediator>();
+        //    await using var scope = host.BeginScope();
+        //    var mediator = scope.GetInstance<IMediator>();
 
-            var dataAvailableNotificationCommand = new DataAvailableNotificationCommand(
-                Guid.NewGuid().ToString(),
-                recipientGln,
-                "timeseries",
-                "timeseries",
-                false,
-                1);
+        //    var dataAvailableNotificationCommand = new DataAvailableNotificationCommand(
+        //        Guid.NewGuid().ToString(),
+        //        recipientGln,
+        //        "timeseries",
+        //        "timeseries",
+        //        false,
+        //        1);
 
-            // Act
-            var response = await mediator.Send(dataAvailableNotificationCommand).ConfigureAwait(false);
+        //    // Act
+        //    var response = await mediator.Send(dataAvailableNotificationCommand).ConfigureAwait(false);
 
-            // Assert
-            Assert.NotNull(response);
+        //    // Assert
+        //    Assert.NotNull(response);
 
-            var peekResponse = await mediator.Send(new PeekCommand(recipientGln, bundleId)).ConfigureAwait(false);
-            Assert.NotNull(peekResponse);
-            Assert.True(peekResponse.HasContent);
-        }
+        //    var peekResponse = await mediator.Send(new PeekCommand(recipientGln, bundleId)).ConfigureAwait(false);
+        //    Assert.NotNull(peekResponse);
+        //    Assert.True(peekResponse.HasContent);
+        //}
     }
 }
