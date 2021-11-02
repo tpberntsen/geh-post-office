@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Model.Model;
 using Microsoft.Azure.Cosmos;
@@ -37,20 +38,23 @@ namespace Energinet.DataHub.MessageHub.Client.Storage
                 throw new ArgumentNullException(nameof(requestDto));
 
             var container = _cosmosClient.GetContainer(_storageConfig.MessageHubDatabaseId, "bundles");
-            var results = new List<Guid>();
             var query = new QueryDefinition("SELECT c.NotificationIds FROM c WHERE c.id = @id")
                 .WithParameter("@id", requestDto.IdempotencyId);
+            var documentQuery = new QueryDefinition("SELECT * FROM c in c.NotificationIds WHERE c.id = @id")
+                .WithParameter($"@id", requestDto.IdempotencyId);
             using FeedIterator<Guid> feedIterator =
                 container.GetItemQueryIterator<Guid>(query);
 
+            var resultList = new List<Guid>();
             while (feedIterator.HasMoreResults)
             {
-                var dataAvailableGuids = await feedIterator.ReadNextAsync()
-                        .ConfigureAwait(false);
-                results.AddRange(dataAvailableGuids);
+                var guid = await feedIterator
+                    .ReadNextAsync()
+                    .ConfigureAwait(false);
+                resultList.Add(guid.SingleOrDefault());
             }
 
-            return results;
+            return resultList;
         }
     }
 }
