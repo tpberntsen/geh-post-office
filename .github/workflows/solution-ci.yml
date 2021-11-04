@@ -14,37 +14,14 @@
 name: Solution CI and Code Coverage
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch: {}
+  workflow_call:
 
 env:
   SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.sln'
   DOTNET_VERSION: '5.0'
   
 jobs:
-  pre_job:
-    runs-on: ubuntu-latest
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - name: Should skip?
-        id: skip_check
-        uses: fkirc/skip-duplicate-actions@v1.4.0
-        with:
-          github_token: ${{ github.token }}
-          paths: '[
-            "source/**",
-            ".github/workflows/solution-ci.yml",
-            ".github/workflows/package-ci.yml"
-          ]'
-
   solution_ci:
-    needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' || github.ref == 'refs/heads/main' }}
     name: solution_ci
     runs-on: windows-latest
@@ -84,5 +61,5 @@ jobs:
       - name: Publish artifact
         uses: actions/upload-artifact@v2
         with:
-          name: drop
+          name: postoffice
           path: '${{ github.workspace }}/output'
