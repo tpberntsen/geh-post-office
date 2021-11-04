@@ -15,19 +15,23 @@ variable "resource_group_name" {
   type = string
 }
 
-variable "environment" {
-  type          = string
-  description   = "Enviroment that the infrastructure code is deployed into"
+variable subscription_id {
+  type = string
 }
 
-variable "project" {
+variable environment_short {
   type          = string
-  description   = "Project that is running the infrastructure code"
+  description   = "Enviroment that the infrastructure code is deployed into."
 }
 
-variable "organisation" {
+variable environment_instance {
   type          = string
-  description   = "Organisation that is running the infrastructure code"
+  description   = "Enviroment instance that the infrastructure code is deployed into."
+}
+
+variable project_name {
+  type          = string
+  description   = "Name of the project this infrastructure is a part of."
 }
 
 variable "shared_resources_resource_group_name" {
@@ -37,7 +41,7 @@ variable "shared_resources_resource_group_name" {
 
 variable "shared_resources_key_vault_name" {
   type          = string
-  description   = "Name of the shared resources Key Vault"
+  description   = "Name of the Core keyvault, that contains shared secrets"
 }
 
 variable shared_resources_sbq_data_available_name {
