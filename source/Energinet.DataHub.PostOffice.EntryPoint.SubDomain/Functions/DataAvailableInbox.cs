@@ -46,8 +46,8 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
         }
 
         [Function(FunctionName)]
-        public async Task RunAsync(
-            [Microsoft.Azure.Functions.Worker.TimerTrigger("0 */1 * * * *")]TimerInfo timerInfo, ILogger logger)
+        public void Run(
+            [TimerTrigger("*/1 * * * * *")]FunctionContext context)
             // [Microsoft.Azure.Functions.Worker.ServiceBusTrigger(
             //     "%" + ServiceBusConfig.DataAvailableQueueNameKey + "%", // TODO: Rename configs
                 // Connection = ServiceBusConfig.DataAvailableQueueConnectionStringKey)]
