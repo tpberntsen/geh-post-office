@@ -21,7 +21,9 @@ using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using TimerInfo = Microsoft.Azure.Functions.Worker.TimerInfo;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
 {
@@ -45,29 +47,24 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
 
         [Function(FunctionName)]
         public async Task RunAsync(
-            [ServiceBusTrigger(
-                "%" + ServiceBusConfig.DataAvailableQueueNameKey + "%", // TODO: Rename configs
-                Connection = ServiceBusConfig.DataAvailableQueueConnectionStringKey)]
-            byte[] message,
-            FunctionContext context)
+            [Microsoft.Azure.Functions.Worker.TimerTrigger("0 */1 * * * *")]TimerInfo timerInfo, ILogger logger)
+            // [Microsoft.Azure.Functions.Worker.ServiceBusTrigger(
+            //     "%" + ServiceBusConfig.DataAvailableQueueNameKey + "%", // TODO: Rename configs
+                // Connection = ServiceBusConfig.DataAvailableQueueConnectionStringKey)]
         {
-            if (message is null)
-                throw new ArgumentNullException(nameof(message));
-
-            var logger = context.GetLogger<DataAvailableInbox>();
-            logger.LogInformation($"C# ServiceBus topic trigger function processed message in {FunctionName}");
-
-            try
-            {
-                var dataAvailableNotification = _dataAvailableNotificationParser.Parse(message);
-                var dataAvailableCommand = _dataAvailableNotificationMapper.Map(dataAvailableNotification);
-                await _mediator.Send(dataAvailableCommand).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                logger.LogError(exception, "Error in {FunctionName}", FunctionName);
-                throw;
-            }
+            // logger.LogInformation($"C# ServiceBus topic trigger function processed message in {FunctionName}");
+            //
+            // try
+            // {
+            //     var dataAvailableNotification = _dataAvailableNotificationParser.Parse(message);
+            //     var dataAvailableCommand = _dataAvailableNotificationMapper.Map(dataAvailableNotification);
+            //     await _mediator.Send(dataAvailableCommand).ConfigureAwait(false);
+            // }
+            // catch (Exception exception)
+            // {
+            //     logger.LogError(exception, "Error in {FunctionName}", FunctionName);
+            //     throw;
+            // }
         }
     }
 }
