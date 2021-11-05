@@ -21,6 +21,7 @@ using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.ServiceBus.Core;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using TimerInfo = Microsoft.Azure.Functions.Worker.TimerInfo;
@@ -34,24 +35,31 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
         private readonly IMediator _mediator;
         private readonly IDataAvailableNotificationParser _dataAvailableNotificationParser;
         private readonly IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand> _dataAvailableNotificationMapper;
+        private readonly ServiceBusConfig _serviceBusConfig;
 
         public DataAvailableInbox(
             IMediator mediator,
             IDataAvailableNotificationParser dataAvailableNotificationParser,
             IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand> dataAvailableNotificationMapper)
+            // ServiceBusConfig serviceBusConfig)
         {
             _mediator = mediator;
             _dataAvailableNotificationParser = dataAvailableNotificationParser;
             _dataAvailableNotificationMapper = dataAvailableNotificationMapper;
+            _serviceBusConfig = null;
         }
 
         [Function(FunctionName)]
-        public void Run(
+        public async Task RunAsync(
             [TimerTrigger("*/1 * * * * *")]FunctionContext context)
             // [Microsoft.Azure.Functions.Worker.ServiceBusTrigger(
             //     "%" + ServiceBusConfig.DataAvailableQueueNameKey + "%", // TODO: Rename configs
                 // Connection = ServiceBusConfig.DataAvailableQueueConnectionStringKey)]
         {
+            var receiver = new MessageReceiver(_serviceBusConfig.DataAvailableQueueConnectionString, _serviceBusConfig.DataAvailableQueueName);
+
+            // receiver.PrefetchCount = 1000;
+            var messages = await receiver.ReceiveAsync().ConfigureAwait(false);
             // logger.LogInformation($"C# ServiceBus topic trigger function processed message in {FunctionName}");
             //
             // try
