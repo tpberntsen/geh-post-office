@@ -108,3 +108,11 @@ NoContentResult
 BadRequestErrorMessageResult
 NotFoundResult
 OkResult
+messageType
+relativeWeight
+supportsBundling
+uri
+energinet
+greenenergyhub
+protobuf
+ArgumentNullException
