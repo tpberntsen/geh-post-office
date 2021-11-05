@@ -46,7 +46,7 @@ This means that when a domain places a document in the `timeseries` topic, this 
 
 ### Format
 
-All documents inserted into the topics will have to comply with the protobuf contract exposed [here](source/Contracts/v1/Document.proto).
+All documents inserted into the topics will have to comply with the protobuf contract.
 
 If a document is inserted into the queue that does not comply with this contract, **IT WILL NOT** be handled.
 
