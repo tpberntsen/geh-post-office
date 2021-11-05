@@ -23,10 +23,17 @@ jobs:
   ci_base:
     uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@1.13.0
 
-  dotnet_solution_ci:
+  post_office_ci:
     uses: Energinet-DataHub/.github/.github/workflows/dotnet-solution-ci.yml@1.13.0
     with:
       SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.sln'
+      DOTNET_VERSION: '5.0'
+      USE_COSMOS_EMULATOR: 'true'
+      
+  package_ci:
+    uses: Energinet-DataHub/.github/.github/workflows/dotnet-solution-ci.yml@1.13.0
+    with:
+      SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Libraries.sln'
       DOTNET_VERSION: '5.0'
 
   terraform_validate:
@@ -36,7 +43,10 @@ jobs:
       TERRAFORM_VERSION: '1.0.6'
 
   market_operator_ci:
-    needs: dotnet_solution_ci
+    needs: [
+      post_office_ci,
+      package_ci
+    ]
     uses: Energinet-DataHub/.github/.github/workflows/dotnet-function-build.yml@1.13.0
     with:
       CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.EntryPoint.MarketOperator/Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.csproj'
@@ -44,7 +54,10 @@ jobs:
       ARTIFACT_NAME: marketoperator
 
   subdomain_ci:
-    needs: dotnet_solution_ci
+    needs: [
+      post_office_ci,
+      package_ci
+    ]
     uses: Energinet-DataHub/.github/.github/workflows/dotnet-function-build.yml@1.13.0
     with:
       CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.EntryPoint.SubDomain/Energinet.DataHub.PostOffice.EntryPoint.SubDomain.csproj'
