@@ -27,14 +27,14 @@ runs:
         mkdir ${{ inputs.RELEASE_FOLDER_PATH }}
         cp -fR ${{ inputs.LOCAL_REPO_FOLDER_PATH }}/build/infrastructure ${{ inputs.RELEASE_FOLDER_PATH }} 2>/dev/null || :
 
-    - name: Publish Post office solution to release folder
+    - name: Publish Market operator to release folder
       uses: actions/download-artifact@v2
       with:
-        name: postoffice
-        path: ${{ inputs.RELEASE_FOLDER_PATH }}/postoffice
+        name: marketoperator
+        path: ${{ inputs.RELEASE_FOLDER_PATH }}/marketoperator
 
-    - name: Publish Package solution to release folder
+    - name: Publish Sub domain to release folder
       uses: actions/download-artifact@v2
       with:
-        name: package
-        path: ${{ inputs.RELEASE_FOLDER_PATH }}/package
+        name: subdomain
+        path: ${{ inputs.RELEASE_FOLDER_PATH }}/subdomain
