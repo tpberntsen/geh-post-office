@@ -70,6 +70,7 @@ jobs:
         run: |
           dotnet tool install --tool-path ./temp/reportgenerator dotnet-reportgenerator-globaltool
           dotnet test ${{ env.SOLUTION_FILE_PATH }} --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+
       - name: Upload coverage
         uses: codecov/codecov-action@v1
         with:
