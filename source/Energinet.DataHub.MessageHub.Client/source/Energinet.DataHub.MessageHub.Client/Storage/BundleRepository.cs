@@ -1,4 +1,4 @@
-// // Copyright 2020 Energinet DataHub A/S
+﻿// // Copyright 2020 Energinet DataHub A/S
 // //
 // // Licensed under the Apache License, Version 2.0 (the "License2");
 // // you may not use this file except in compliance with the License.
@@ -38,10 +38,8 @@ namespace Energinet.DataHub.MessageHub.Client.Storage
                 throw new ArgumentNullException(nameof(requestDto));
 
             var container = _cosmosClient.GetContainer(_storageConfig.MessageHubDatabaseId, "bundles");
-            var query = new QueryDefinition("SELECT c.NotificationIds FROM c WHERE c.id = @id")
+            var query = new QueryDefinition("SELECT * FROM c in t.notificationIds WHERE c.id = @id")
                 .WithParameter("@id", requestDto.IdempotencyId);
-            var documentQuery = new QueryDefinition("SELECT * FROM c in c.NotificationIds WHERE c.id = @id")
-                .WithParameter($"@id", requestDto.IdempotencyId);
             using FeedIterator<Guid> feedIterator =
                 container.GetItemQueryIterator<Guid>(query);
 
