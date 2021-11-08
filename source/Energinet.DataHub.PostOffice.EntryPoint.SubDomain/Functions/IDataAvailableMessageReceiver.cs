@@ -12,25 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
-using Microsoft.Azure.ServiceBus.Core;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
 {
-
     // TODO: Configure timer from settings.json
     // TODO: Configure batch size from settings.json
     // TODO: Configure batch timeout from settings.json
 
+    /// <summary>
+    /// Message receiver for DataAvailable
+    /// </summary>
     public interface IDataAvailableMessageReceiver
     {
+        /// <summary>
+        /// Retrieves a batch of messages.
+        /// </summary>
+        /// <returns>A list containing the messages</returns>
         Task<IReadOnlyList<Message>> ReceiveAsync();
+
+        /// <summary>
+        /// Sends the messages contained in the list to the dead letter queue
+        /// </summary>
+        /// <param name="messages">The list of messages</param>
         Task DeadLetterAsync(IEnumerable<Message> messages);
+
+        /// <summary>
+        /// Marks the messages completed
+        /// </summary>
+        /// <param name="messages">The list of messages</param>
         Task CompleteAsync(IEnumerable<Message> messages);
     }
 }

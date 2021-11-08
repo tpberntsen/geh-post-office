@@ -16,18 +16,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Energinet.DataHub.MessageHub.Core.Factories;
 using Energinet.DataHub.MessageHub.Model.DataAvailable;
 using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.Commands;
-using Energinet.DataHub.PostOffice.Infrastructure;
-using FluentValidation;
-using Google.Protobuf;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.ServiceBus;
-using Microsoft.Azure.ServiceBus.Core;
 using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
@@ -75,8 +70,9 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             {
                 await Task.WhenAll(list.Select(x => x.Task)).ConfigureAwait(false);
             }
-            catch (Exception) // TODO: Which exceptions to catch?
+            catch (Exception)
             {
+                // TODO: Which exceptions to catch?
                 var allFaultedMessages = list
                     .Where(x => !x.Task.IsCompletedSuccessfully)
                     .Select(x => x.Message);
@@ -99,8 +95,9 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
                 var dataAvailableCommand = _dataAvailableNotificationMapper.Map(dataAvailableNotification);
                 return _mediator.Send(dataAvailableCommand);
             }
-            catch (Exception ex) // TODO: Which exceptions to catch?
+            catch (Exception ex)
             {
+                // TODO: Which exceptions to catch?
                 return Task.FromException(ex);
             }
         }
