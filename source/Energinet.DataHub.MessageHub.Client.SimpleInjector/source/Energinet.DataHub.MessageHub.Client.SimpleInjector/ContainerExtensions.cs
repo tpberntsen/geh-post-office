@@ -47,7 +47,7 @@ namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
             container.RegisterSingleton(() => storageConfig);
             container.AddServiceBus(serviceBusConnectionString);
             container.AddApplicationServices();
-            container.AddStorageHandler(storageConfig.AzureBlobStorageServiceConnectionString);
+            //container.AddStorageHandler(storageConfig.AzureBlobStorageServiceConnectionString);
         }
 
         private static void AddServiceBus(this Container container, string serviceBusConnectionString)
