@@ -31,10 +31,10 @@ runs:
       uses: actions/download-artifact@v2
       with:
         name: marketoperator
-        path: ${{ inputs.RELEASE_FOLDER_PATH }}/marketoperator
+        path: ${{ inputs.RELEASE_FOLDER_PATH }}/functions/marketoperator
 
     - name: Publish Sub domain to release folder
       uses: actions/download-artifact@v2
       with:
         name: subdomain
-        path: ${{ inputs.RELEASE_FOLDER_PATH }}/subdomain
+        path: ${{ inputs.RELEASE_FOLDER_PATH }}functions/subdomain
