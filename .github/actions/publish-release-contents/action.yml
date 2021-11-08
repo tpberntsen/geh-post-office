@@ -37,4 +37,4 @@ runs:
       uses: actions/download-artifact@v2
       with:
         name: subdomain
-        path: ${{ inputs.RELEASE_FOLDER_PATH }}functions/subdomain
+        path: ${{ inputs.RELEASE_FOLDER_PATH }}/functions/subdomain
