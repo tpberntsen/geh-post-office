@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 resource "azurerm_cosmosdb_account" "post_office" {
-  name                = "cosmos-messages-${lower(var.project_name)}-${lower(var.environment_short)}-${lower(var.environment_instance)}"
+  name                = "cosmos-messages-${lower(var.domain_name_short)}-${lower(var.environment_short)}-${lower(var.environment_instance)}"
   resource_group_name = data.azurerm_resource_group.this.name
   location            = data.azurerm_resource_group.this.location
   offer_type          = "Standard"

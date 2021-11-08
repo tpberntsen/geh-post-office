@@ -15,7 +15,7 @@ module "func_marketoperator_peek" {
   source                                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/function-app?ref=5.1.0"
 
   name                                      = "marketoperator-peek"
-  project_name                              = var.project_name
+  project_name                              = var.domain_name_short
   environment_short                         = var.environment_short
   environment_instance                      = var.environment_instance
   resource_group_name                       = data.azurerm_resource_group.this.name
@@ -31,11 +31,11 @@ module "func_marketoperator_peek" {
     # Endregion
     MESSAGES_DB_CONNECTION_STRING         = local.message_db_connection_string
     MESSAGES_DB_NAME                      = azurerm_cosmosdb_sql_database.db.name
-    BlobStorageConnectionString           = data.azurerm_key_vault_secret.shared_resources_marketoperator_response_connection_string.value
-    BlobStorageContainerName              = data.azurerm_key_vault_secret.shared_resources_marketoperator_container_reply_name.value
-    ServiceBusConnectionString            = data.azurerm_key_vault_secret.shared_resources_integration_events_transceiver_connection_string.value
-    DATAAVAILABLE_QUEUE_CONNECTION_STRING = data.azurerm_key_vault_secret.shared_resources_integration_events_transceiver_connection_string.value
-    DATAAVAILABLE_QUEUE_NAME              = var.shared_resources_sbq_data_available_name
+    BlobStorageConnectionString           = data.azurerm_key_vault_secret.st_market_operator_response_primary_connection_string.value
+    BlobStorageContainerName              = data.azurerm_key_vault_secret.st_market_operator_response_postofficereply_container_name.value
+    ServiceBusConnectionString            = data.azurerm_key_vault_secret.sb_domain_relay_transceiver_connection_string.value
+    DATAAVAILABLE_QUEUE_CONNECTION_STRING = data.azurerm_key_vault_secret.sb_domain_relay_transceiver_connection_string.value
+    DATAAVAILABLE_QUEUE_NAME              = data.azurerm_key_vault_secret.sbq_data_available_name.value
     LOG_DB_NAME                           = azurerm_cosmosdb_sql_database.log_db.name
     LOG_DB_CONTAINER                      = azurerm_cosmosdb_sql_container.collection_logs.name
   }

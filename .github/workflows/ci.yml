@@ -42,10 +42,7 @@ jobs:
       TERRAFORM_VERSION: '1.0.6'
 
   market_operator_ci:
-    needs: [
-      post_office_ci,
-      package_ci
-    ]
+    needs: [ci_base, post_office_ci, package_ci, terraform_validate]
     uses: Energinet-DataHub/.github/.github/workflows/dotnet-function-build.yml@1.13.0
     with:
       CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.EntryPoint.MarketOperator/Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.csproj'
@@ -53,10 +50,7 @@ jobs:
       ARTIFACT_NAME: marketoperator
 
   subdomain_ci:
-    needs: [
-      post_office_ci,
-      package_ci
-    ]
+    needs: [ci_base, post_office_ci, package_ci, terraform_validate]
     uses: Energinet-DataHub/.github/.github/workflows/dotnet-function-build.yml@1.13.0
     with:
       CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.EntryPoint.SubDomain/Energinet.DataHub.PostOffice.EntryPoint.SubDomain.csproj'
@@ -64,12 +58,7 @@ jobs:
       ARTIFACT_NAME: subdomain
 
   create_prerelease:
-    needs: [
-      ci_base,
-      terraform_validate,
-      market_operator_ci,
-      subdomain_ci
-    ]
+    needs: [market_operator_ci, subdomain_ci]
     uses: Energinet-DataHub/.github/.github/workflows/create-prerelease.yml@1.13.0
     with:
       CALLER_REPOSITORY_PATH: Energinet-DataHub/geh-post-office
