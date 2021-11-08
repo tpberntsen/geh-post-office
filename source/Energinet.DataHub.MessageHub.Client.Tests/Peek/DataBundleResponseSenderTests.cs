@@ -34,10 +34,11 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
         {
             // Arrange
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
+            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
             var config = new MessageHubConfig("fake_value", "fake_value");
             await using var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
-                serviceBusClientFactory.Object,
+                messageBusFactory,
                 config);
             var requestMock = new DataBundleRequestDto(
                 "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
@@ -58,10 +59,11 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
         {
             // Arrange
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
+            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
             var config = new MessageHubConfig("fake_value", "fake_value");
             await using var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
-                serviceBusClientFactory.Object,
+                messageBusFactory,
                 config);
 
             var response = new DataBundleResponseDto(
@@ -87,10 +89,11 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
         {
             // Arrange
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
+            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
             var config = new MessageHubConfig("fake_value", "fake_value");
             await using var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
-                serviceBusClientFactory.Object,
+                messageBusFactory,
                 config);
 
             var response = new DataBundleResponseDto(
@@ -123,12 +126,13 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
 
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
+            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
 
             var config = new MessageHubConfig("fake_value", queueName);
 
             await using var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
-                serviceBusClientFactory.Object,
+                messageBusFactory,
                 config);
 
             var response = new DataBundleResponseDto(
@@ -166,13 +170,14 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
 
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
+            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
 
             var config = new MessageHubConfig("fake_value", sbqTimeseriesReply);
 
             // ServiceBusMessage
             await using var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
-                serviceBusClientFactory.Object,
+                messageBusFactory,
                 config);
 
             var response = new DataBundleResponseDto(

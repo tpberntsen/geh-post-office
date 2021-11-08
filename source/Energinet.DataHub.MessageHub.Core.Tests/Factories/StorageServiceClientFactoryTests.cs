@@ -14,9 +14,11 @@
 
 using Energinet.DataHub.MessageHub.Core.Factories;
 using Xunit;
+using Xunit.Categories;
 
 namespace Energinet.DataHub.MessageHub.Core.Tests.Factories
 {
+    [UnitTest]
     public sealed class StorageServiceClientFactoryTests
     {
         [Fact]

@@ -12,22 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Azure.Messaging.ServiceBus;
+using System.Threading.Tasks;
 
 namespace Energinet.DataHub.MessageHub.Client.Factories
 {
-    public sealed class ServiceBusClientFactory : IServiceBusClientFactory
+    /// <summary>
+    /// Abstraction for messagebus factory
+    /// </summary>
+    public interface IMessageBusFactory
     {
-        private readonly string _connectionString;
+        /// <summary>
+        /// Creates sender reference
+        /// </summary>
+        /// <param name="queueOrTopicName"></param>
+        ISenderMessageBus GetSenderClient(string queueOrTopicName);
 
-        public ServiceBusClientFactory(string connectionString)
-        {
-            _connectionString = connectionString;
-        }
-
-        public ServiceBusClient Create()
-        {
-            return new(_connectionString);
-        }
+        /// <summary>
+        /// Creates session receiver reference
+        /// </summary>
+        /// <returns><see cref="IReceiverMessageBus"/></returns>
+        public Task<IReceiverMessageBus> GetSessionReceiverClientAsync(string queueOrTopicName, string sessionId);
     }
 }
