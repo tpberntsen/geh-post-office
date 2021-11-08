@@ -86,7 +86,12 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         {
             var existingBundle = await _bundleRepository.GetNextUnacknowledgedAsync(recipient, domains).ConfigureAwait(false);
             if (existingBundle != null)
+            {
+                if (existingBundle.BundleId != bundleId)
+                    throw new ValidationException($"The provided bundleId does not match current scoped bundleId: {existingBundle.BundleId}");
+
                 return await AskSubDomainForContentAsync(existingBundle).ConfigureAwait(false);
+            }
 
             var dataAvailableNotification = await _dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipient, domains).ConfigureAwait(false);
             if (dataAvailableNotification == null)
