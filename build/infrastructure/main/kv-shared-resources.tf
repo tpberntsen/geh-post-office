@@ -17,16 +17,21 @@ data "azurerm_key_vault" "kv_sharedresources" {
 }
 
 data "azurerm_key_vault_secret" "shared_resources_integration_events_transceiver_connection_string" {
-  name         = "SHARED-RESOURCES--SB-INTEGRATIONEVENTS-TRANSCEIVER-CONNECTION-STRING"
+  name         = "sb-domain-relay-transceiver-connection-string"
   key_vault_id = data.azurerm_key_vault.kv_sharedresources.id
 }
 
 data "azurerm_key_vault_secret" "shared_resources_marketoperator_response_connection_string" {
-  name         = "SHARED-RESOURCES-MARKETOPERATOR-RESPONSE-CONNECTION-STRING"
+  name         = "st-marketres-primary-connection-string"
   key_vault_id = data.azurerm_key_vault.kv_sharedresources.id
 }
 
 data "azurerm_key_vault_secret" "shared_resources_marketoperator_container_reply_name" {
-  name         = "SHARED-RESOURCES-MARKETOPERATOR-CONTAINER-REPLY-NAME"
+  name         = "st-marketres-postofficereply-container-name"
+  key_vault_id = data.azurerm_key_vault.kv_sharedresources.id
+}
+
+data "azurerm_key_vault_secret" "appi_instrumentation_key" {
+  name         = "appi-shared-instrumentation-key"
   key_vault_id = data.azurerm_key_vault.kv_sharedresources.id
 }
