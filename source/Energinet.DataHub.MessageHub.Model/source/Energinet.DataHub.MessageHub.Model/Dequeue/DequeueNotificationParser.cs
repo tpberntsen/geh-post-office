@@ -32,9 +32,9 @@ namespace Energinet.DataHub.MessageHub.Model.Dequeue
                     dequeueContract.DataAvailableNotificationIds.Select(Guid.Parse).ToList(),
                     new GlobalLocationNumberDto(dequeueContract.MarketOperator));
             }
-            catch (InvalidProtocolBufferException e)
+            catch (Exception ex) when (ex is InvalidProtocolBufferException or FormatException)
             {
-                throw new MessageHubException("Error parsing bytes for dequeue", e);
+                throw new MessageHubException("Error parsing bytes for DequeueNotificationDto.", ex);
             }
         }
 

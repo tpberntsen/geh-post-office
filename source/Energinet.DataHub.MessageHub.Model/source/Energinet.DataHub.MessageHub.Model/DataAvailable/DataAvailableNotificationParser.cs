@@ -36,9 +36,9 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
                     SupportsBundling: dataAvailable.SupportsBundling,
                     RelativeWeight: dataAvailable.RelativeWeight);
             }
-            catch (InvalidProtocolBufferException e)
+            catch (Exception ex) when (ex is InvalidProtocolBufferException or FormatException)
             {
-                throw new MessageHubException("Error parsing byte array for DataAvailableNotification", e);
+                throw new MessageHubException("Error parsing byte array for DataAvailableNotification", ex);
             }
         }
     }

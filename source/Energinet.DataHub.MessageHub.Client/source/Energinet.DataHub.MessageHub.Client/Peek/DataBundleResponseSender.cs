@@ -52,7 +52,7 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
             var contractBytes = _responseBundleParser.Parse(dataBundleResponseDto);
             var serviceBusReplyMessage = new ServiceBusMessage(contractBytes)
             {
-                SessionId = requestDto.IdempotencyId,
+                SessionId = requestDto.SessionId,
             }.AddDataBundleResponseIntegrationEvents(requestDto.IdempotencyId);
 
             var sender = _messageBusFactory.GetSenderClient(_messageHubConfig.DomainReplyQueue);

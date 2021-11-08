@@ -56,9 +56,9 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
                         new Uri(bundleResponse.Success.ContentUri),
                         bundleResponse.Success.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
             }
-            catch (InvalidProtocolBufferException e)
+            catch (Exception ex) when (ex is InvalidProtocolBufferException or FormatException)
             {
-                throw new MessageHubException("Error parsing bytes for DataBundleRequestDto", e);
+                throw new MessageHubException("Error parsing bytes for DataBundleRequestDto", ex);
             }
         }
 

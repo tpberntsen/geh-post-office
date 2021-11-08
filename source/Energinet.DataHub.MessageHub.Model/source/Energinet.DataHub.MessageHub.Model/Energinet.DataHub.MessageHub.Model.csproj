@@ -28,7 +28,7 @@ limitations under the License.
 
   <PropertyGroup>
     <PackageId>Energinet.DataHub.MessageHub.Model</PackageId>
-	<PackageVersion>1.0.0$(VersionSuffix)</PackageVersion>
+	<PackageVersion>1.1.0$(VersionSuffix)</PackageVersion>
     <Title>Energinet.DataHub.MessageHub.Model library</Title>
     <Company>Energinet-DataHub</Company>
     <Authors>Energinet-DataHub</Authors>
@@ -65,8 +65,8 @@ https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energine
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.18.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.41.0">
+    <PackageReference Include="Google.Protobuf" Version="3.19.1" />
+    <PackageReference Include="Grpc.Tools" Version="2.41.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -103,6 +103,13 @@ https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energine
 	  <CompileOutputs>True</CompileOutputs>
       <OutputDir>obj\Debug\net5.0\</OutputDir>
     </Protobuf>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="17.0.63">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

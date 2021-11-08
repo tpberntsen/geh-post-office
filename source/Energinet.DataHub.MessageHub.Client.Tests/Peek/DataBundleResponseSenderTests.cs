@@ -22,7 +22,6 @@ using Energinet.DataHub.MessageHub.Model.Peek;
 using Moq;
 using Xunit;
 using Xunit.Categories;
-using static System.Guid;
 
 namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
 {
@@ -34,7 +33,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
         {
             // Arrange
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
-            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
+            await using var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
             var config = new MessageHubConfig("fake_value", "fake_value");
             await using var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
@@ -53,12 +52,12 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
                 .ConfigureAwait(false);
         }
 
-        [Fact(Skip = "Behaviour changed - we dont supply a session id, but use the idempotency id instead")]
+        [Fact]
         public async Task SendAsync_NullSessionId_ThrowsException()
         {
             // Arrange
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
-            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
+            await using var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
             var config = new MessageHubConfig("fake_value", "fake_value");
             await using var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),

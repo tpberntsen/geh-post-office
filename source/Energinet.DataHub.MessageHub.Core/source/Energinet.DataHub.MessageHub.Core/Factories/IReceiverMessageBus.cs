@@ -26,6 +26,6 @@ namespace Energinet.DataHub.MessageHub.Core.Factories
         /// <summary>
         /// Abstraction for receiving messages
         /// </summary>
-        Task<ServiceBusReceivedMessage> ReceiveMessageAsync<T>(TimeSpan timeout);
+        Task<ServiceBusReceivedMessage?> ReceiveMessageAsync<T>(TimeSpan timeout);
     }
 }

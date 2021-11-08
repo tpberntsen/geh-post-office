@@ -32,7 +32,7 @@ namespace Energinet.DataHub.MessageHub.Core.Factories
             await _serviceBusSessionReceiver.DisposeAsync().ConfigureAwait(false);
         }
 
-        public async Task<ServiceBusReceivedMessage> ReceiveMessageAsync<T>(TimeSpan timeout)
+        public async Task<ServiceBusReceivedMessage?> ReceiveMessageAsync<T>(TimeSpan timeout)
         {
             return await _serviceBusSessionReceiver.ReceiveMessageAsync(timeout).ConfigureAwait(false);
         }
