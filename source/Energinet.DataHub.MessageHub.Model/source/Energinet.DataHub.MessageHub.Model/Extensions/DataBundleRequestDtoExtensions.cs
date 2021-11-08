@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using Energinet.DataHub.MessageHub.Model.Model;
 
 namespace Energinet.DataHub.MessageHub.Model.Extensions
@@ -24,13 +25,14 @@ namespace Energinet.DataHub.MessageHub.Model.Extensions
         /// </summary>
         /// <param name="request">The request to create a response from.</param>
         /// <param name="path">The path of the created bundle.</param>
+        /// <param name="dataAvailableNotificationIds">A collection of guids identifying which data has been requested.</param>
         /// <returns>The response to the specified request.</returns>
-        public static DataBundleResponseDto CreateResponse(this DataBundleRequestDto request, Uri path)
+        public static DataBundleResponseDto CreateResponse(this DataBundleRequestDto request, Uri path, IEnumerable<Guid> dataAvailableNotificationIds)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            return new DataBundleResponseDto(path, request.DataAvailableNotificationIds);
+            return new DataBundleResponseDto(path, dataAvailableNotificationIds);
         }
     }
 }

@@ -13,7 +13,6 @@
 // // limitations under the License.
 
 using System.Collections.Generic;
-using Newtonsoft.Json;
 
 namespace Energinet.DataHub.MessageHub.Client.Storage.Documents
 {
@@ -21,24 +20,9 @@ namespace Energinet.DataHub.MessageHub.Client.Storage.Documents
     {
         public CosmosBundleDocument()
         {
-            Id = string.Empty;
-            Origin = string.Empty;
-            Recipient = string.Empty;
             NotificationIds = new List<string>();
-            ContentPath = string.Empty;
-            ProcessId = string.Empty;
-            Timestamp = null!;
         }
 
-        public string Id { get; init; }
-        public string Origin { get; init; }
-        public string Recipient { get; init; }
         public ICollection<string> NotificationIds { get; init; }
-        public bool Dequeued { get; init; }
-        public string ContentPath { get; init; }
-        public string ProcessId { get; init; }
-
-        [JsonProperty(PropertyName = "_ts")]
-        public string Timestamp { get; init; }
     }
 }

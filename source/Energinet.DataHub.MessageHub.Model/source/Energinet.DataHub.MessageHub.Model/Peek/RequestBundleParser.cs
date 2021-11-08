@@ -31,7 +31,6 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
             var message = new DataBundleRequestContract
             {
                 IdempotencyId = request.IdempotencyId,
-                DataAvailableNotificationIds = { request.DataAvailableNotificationIds.Select(x => x.ToString()) }
             };
             return message.ToByteArray();
         }
@@ -41,7 +40,7 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
             try
             {
                 var bundleResponse = DataBundleRequestContract.Parser.ParseFrom(dataBundleRequestContract);
-                return new DataBundleRequestDto(bundleResponse.IdempotencyId, bundleResponse.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
+                return new DataBundleRequestDto(bundleResponse.IdempotencyId);
             }
             catch (InvalidProtocolBufferException e)
             {

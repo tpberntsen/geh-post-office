@@ -28,7 +28,7 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Model
         public void CreateResponse_RequestNull_Throws()
         {
             // arrange, act, assert
-            Assert.Throws<ArgumentNullException>(() => ((DataBundleRequestDto)null)!.CreateResponse(new Uri("http://localhost")));
+            Assert.Throws<ArgumentNullException>(() => ((DataBundleRequestDto)null)!.CreateResponse(new Uri("http://localhost"), new List<Guid>()));
         }
 
         [Fact]
@@ -36,11 +36,11 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Model
         {
             // arrage
             var dataAvailableNotificationIds = new List<Guid> { Guid.NewGuid() };
-            var request = new DataBundleRequestDto("some_value", dataAvailableNotificationIds);
+            var request = new DataBundleRequestDto("some_value");
             var uri = new Uri("http://localhost");
 
             // act
-            var actual = request.CreateResponse(uri);
+            var actual = request.CreateResponse(uri, dataAvailableNotificationIds);
 
             // assert
             Assert.Equal(uri, actual.ContentUri);

@@ -19,5 +19,4 @@ option csharp_namespace = "Energinet.DataHub.MessageHub.Model.Protobuf";
 
 message DataBundleRequestContract {
   string IdempotencyId = 1; // An Id for sub domains to check if it has received the same message multiple times
-  repeated string DataAvailableNotificationIds = 2; // Requested dataset identifications
 }
