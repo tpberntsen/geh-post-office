@@ -13,8 +13,8 @@
 # limitations under the License.
 resource "azurerm_cosmosdb_account" "post_office" {
   name                = "cosmos-messages-${lower(var.domain_name_short)}-${lower(var.environment_short)}-${lower(var.environment_instance)}"
-  resource_group_name = data.azurerm_resource_group.this.name
-  location            = data.azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
   offer_type          = "Standard"
   kind                = "GlobalDocumentDB"
   # To enable global failover change to true and uncomment second geo_location
@@ -25,16 +25,16 @@ resource "azurerm_cosmosdb_account" "post_office" {
   }
   
   geo_location {
-    location          = data.azurerm_resource_group.this.location
+    location          = azurerm_resource_group.this.location
     failover_priority = 0
   }
 
-  tags                = data.azurerm_resource_group.this.tags
+  tags                = azurerm_resource_group.this.tags
 }
 
 resource "azurerm_cosmosdb_sql_database" "db" {
   name                = "post-office"
-  resource_group_name = data.azurerm_resource_group.this.name
+  resource_group_name = azurerm_resource_group.this.name
   account_name        = azurerm_cosmosdb_account.post_office.name
 }
 

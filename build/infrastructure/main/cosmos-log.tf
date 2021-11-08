@@ -13,7 +13,7 @@
 # limitations under the License.
 resource "azurerm_cosmosdb_sql_database" "log_db" {
   name                = "Log"
-  resource_group_name = data.azurerm_resource_group.this.name
+  resource_group_name = azurerm_resource_group.this.name
   account_name        = azurerm_cosmosdb_account.post_office.name
 }
 
