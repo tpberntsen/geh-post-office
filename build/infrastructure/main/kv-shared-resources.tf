@@ -36,7 +36,7 @@ data "azurerm_key_vault_secret" "appi_instrumentation_key" {
   key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
 }
 
-data "azurerm_key_vault_secret" "sbq_data_availablkvs_sql_data_namee_name" {
+data "azurerm_key_vault_secret" "sbq_data_available_name" {
   name         = "sbq-data-available-name"
   key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
 }
