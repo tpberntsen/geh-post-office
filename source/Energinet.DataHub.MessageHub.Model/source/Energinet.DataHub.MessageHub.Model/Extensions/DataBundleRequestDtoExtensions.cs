@@ -30,7 +30,21 @@ namespace Energinet.DataHub.MessageHub.Model.Extensions
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            return new DataBundleResponseDto(path, request.DataAvailableNotificationIds);
+            return new DataBundleResponseDto(request.RequestId, path, request.DataAvailableNotificationIds);
+        }
+
+        /// <summary>
+        /// Creates a failed <see cref="DataBundleResponseDto"/> from <see cref="DataBundleRequestDto"/>.
+        /// </summary>
+        /// <param name="request">The request to create a response from.</param>
+        /// <param name="errorResponse">A description of the error.</param>
+        /// <returns>The response to the specified request.</returns>
+        public static DataBundleResponseDto CreateErrorResponse(this DataBundleRequestDto request, DataBundleResponseErrorDto errorResponse)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            return new DataBundleResponseDto(request.RequestId, errorResponse, request.DataAvailableNotificationIds);
         }
     }
 }

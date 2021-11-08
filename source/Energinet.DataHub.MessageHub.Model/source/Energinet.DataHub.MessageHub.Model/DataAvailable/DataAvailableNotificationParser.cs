@@ -20,7 +20,7 @@ using Google.Protobuf;
 
 namespace Energinet.DataHub.MessageHub.Model.DataAvailable
 {
-    public class DataAvailableNotificationParser : IDataAvailableNotificationParser
+    public sealed class DataAvailableNotificationParser : IDataAvailableNotificationParser
     {
         public DataAvailableNotificationDto Parse(byte[] dataAvailableContract)
         {

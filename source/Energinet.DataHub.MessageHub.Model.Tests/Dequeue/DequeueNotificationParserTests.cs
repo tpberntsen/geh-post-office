@@ -46,7 +46,22 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Dequeue
         }
 
         [Fact]
-        public void Parse_BytesInvalid_Throws_Exception()
+        public void Parse_GuidInvalid_ThrowsException()
+        {
+            // arrange
+            var target = new DequeueNotificationParser();
+            var contract = new DequeueContract
+            {
+                MarketOperator = "06FD1AB3-D650-45BC-860E-EE598A3623CA",
+                DataAvailableNotificationIds = { "invalid_guid" }
+            };
+
+            // act, assert
+            Assert.Throws<MessageHubException>(() => target.Parse(contract.ToByteArray()));
+        }
+
+        [Fact]
+        public void Parse_BytesInvalid_ThrowsException()
         {
             // arrange
             var target = new DequeueNotificationParser();

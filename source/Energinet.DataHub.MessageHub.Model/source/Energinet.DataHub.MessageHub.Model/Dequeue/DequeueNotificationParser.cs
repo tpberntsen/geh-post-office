@@ -21,7 +21,7 @@ using Google.Protobuf;
 
 namespace Energinet.DataHub.MessageHub.Model.Dequeue
 {
-    public class DequeueNotificationParser : IDequeueNotificationParser
+    public sealed class DequeueNotificationParser : IDequeueNotificationParser
     {
         public DequeueNotificationDto Parse(byte[] dequeueNotificationContract)
         {

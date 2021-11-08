@@ -19,9 +19,11 @@ option csharp_namespace = "Energinet.DataHub.MessageHub.Model.Protobuf";
 
 message DataBundleResponseContract {
 
+  string RequestId = 1; // Uniquely identififies the initial request that the current response is for.
+
   oneof Reply {
-    FileResource Success = 1;
-    RequestFailure Failure = 2;
+    FileResource Success = 2;
+    RequestFailure Failure = 3;
   }
 
   /**

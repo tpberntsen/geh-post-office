@@ -36,7 +36,7 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
         /// <exception cref="MessageHubException">
         /// Throws an exception if byte array cannot be parsed.
         /// </exception>
-        /// <returns><see cref="DataBundleResponseDto"/>Returns a dto with the object or null if it wasn't a success</returns>
-        DataBundleResponseDto? Parse(byte[] dataBundleReplyContract);
+        /// <returns><see cref="DataBundleResponseDto"/>Returns a dto with the object</returns>
+        DataBundleResponseDto Parse(byte[] dataBundleReplyContract);
     }
 }
