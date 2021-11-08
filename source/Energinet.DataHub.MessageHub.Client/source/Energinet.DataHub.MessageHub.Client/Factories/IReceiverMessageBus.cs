@@ -12,22 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 
 namespace Energinet.DataHub.MessageHub.Client.Factories
 {
-    public sealed class ServiceBusClientFactory : IServiceBusClientFactory
+    /// <summary>
+    /// Abstraction for receiver
+    /// </summary>
+    public interface IReceiverMessageBus : IAsyncDisposable
     {
-        private readonly string _connectionString;
-
-        public ServiceBusClientFactory(string connectionString)
-        {
-            _connectionString = connectionString;
-        }
-
-        public ServiceBusClient Create()
-        {
-            return new(_connectionString);
-        }
+        /// <summary>
+        /// Abstraction for receiving messages
+        /// </summary>
+        Task<ServiceBusReceivedMessage> ReceiveMessageAsync<T>(TimeSpan timeout);
     }
 }
