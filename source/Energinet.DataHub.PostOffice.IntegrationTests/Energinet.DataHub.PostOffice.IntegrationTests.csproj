@@ -38,10 +38,10 @@ limitations under the License.
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="Google.Protobuf" Version="3.18.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.39.1" PrivateAssets="All" />
+    <PackageReference Include="Google.Protobuf" Version="3.19.1" />
+    <PackageReference Include="Grpc.Tools" Version="2.41.1" PrivateAssets="All" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="NodaTime.Serialization.Protobuf" Version="2.0.0" />
     <PackageReference Include="SimpleInjector" Version="5.3.2" />
@@ -49,6 +49,13 @@ limitations under the License.
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.categories" Version="2.0.5" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="17.0.63">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

@@ -31,14 +31,21 @@ limitations under the License.
     <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.18.0" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.5.1" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.6.0" />
     <PackageReference Include="SimpleInjector" Version="5.3.2" />
     <PackageReference Include="SimpleInjector.Integration.GenericHost" Version="5.3.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Energinet.DataHub.PostOffice.Infrastructure\Energinet.DataHub.PostOffice.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="17.0.63">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
