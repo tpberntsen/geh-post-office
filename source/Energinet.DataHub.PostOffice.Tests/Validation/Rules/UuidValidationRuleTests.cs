@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using Energinet.DataHub.PostOffice.Application.Validation.Rules;
+using FluentValidation.Validators;
 using Xunit;
 using Xunit.Categories;
 
@@ -32,7 +33,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation.Rules
             var rule = new UuidValidationRuleTester();
 
             // Act
-            var result = rule.IsValid(value);
+            var result = rule.Validate(value);
 
             // Assert
             Assert.False(result);
@@ -47,7 +48,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation.Rules
             var rule = new UuidValidationRuleTester();
 
             // Act
-            var result = rule.IsValid(value);
+            var result = rule.Validate(value);
 
             // Assert
             Assert.True(result);
@@ -55,9 +56,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation.Rules
 
         private sealed class UuidValidationRuleTester : UuidValidationRule
         {
-            public bool IsValid(string value)
+            public bool Validate(string value)
             {
-                return IsValid(value, null!);
+                return IsValid(new PropertyValidatorContext(null, null, null, value));
             }
         }
     }

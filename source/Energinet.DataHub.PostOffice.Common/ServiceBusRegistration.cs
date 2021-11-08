@@ -13,7 +13,7 @@
 // limitations under the License.
 
 using System;
-using Energinet.DataHub.MessageHub.Client.Factories;
+using Energinet.DataHub.MessageHub.Core.Factories;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,6 +37,13 @@ namespace Energinet.DataHub.PostOffice.Common
                 }
 
                 return new ServiceBusClientFactory(connectionString);
+            });
+
+            container.RegisterSingleton<IMessageBusFactory>(() =>
+            {
+                var serviceBusClientFactory = container.GetInstance<IServiceBusClientFactory>();
+
+                return new AzureServiceBusFactory(serviceBusClientFactory);
             });
         }
 

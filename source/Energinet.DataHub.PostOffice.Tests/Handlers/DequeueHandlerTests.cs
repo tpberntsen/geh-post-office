@@ -15,8 +15,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Energinet.DataHub.MessageHub.Client.Dequeue;
-using Energinet.DataHub.MessageHub.Client.Model;
+using Energinet.DataHub.MessageHub.Core.Dequeue;
+using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.Handlers;
 using Energinet.DataHub.PostOffice.Domain.Model;
@@ -74,7 +74,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var dequeueNotificationSenderMock = new Mock<IDequeueNotificationSender>();
             dequeueNotificationSenderMock.Setup(x => x.SendAsync(
                 It.IsAny<DequeueNotificationDto>(),
-                It.IsAny<Energinet.DataHub.MessageHub.Client.Model.DomainOrigin>())).Returns(Task.CompletedTask);
+                It.IsAny<Energinet.DataHub.MessageHub.Model.Model.DomainOrigin>())).Returns(Task.CompletedTask);
 
             var target = new DequeueHandler(
                 warehouseDomainServiceMock.Object,
@@ -90,7 +90,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             dequeueNotificationSenderMock.Verify(
                 x => x.SendAsync(
                     It.IsAny<DequeueNotificationDto>(),
-                    It.IsAny<Energinet.DataHub.MessageHub.Client.Model.DomainOrigin>()),
+                    It.IsAny<Energinet.DataHub.MessageHub.Model.Model.DomainOrigin>()),
                 Times.Once);
         }
 

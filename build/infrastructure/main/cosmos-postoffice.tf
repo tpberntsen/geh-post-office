@@ -58,17 +58,29 @@ resource "azurerm_cosmosdb_sql_trigger" "triggers_ensuresingleunacknowledgedbund
   name         = "EnsureSingleUnacknowledgedBundle"
   container_id = azurerm_cosmosdb_sql_container.collection_bundles.id
   body         = <<EOT
-    function trigger() { 
-      var context = getContext(); 
-      var container = context.getCollection(); 
-      var response = context.getResponse(); 
-      var createdItem = response.getBody(); 
-      var filterQuery = `SELECT * FROM bundles b WHERE b.recipient = '$${createdItem.recipient}' and b.dequeued = false`; 
-      var accept = container.queryDocuments(container.getSelfLink(), filterQuery, function(err, items, options) { 
-        if (err) throw err; 
-        if (items.length !== 0) throw 'SingleBundleViolation'; 
-      }); 
-      if (!accept) throw 'queryDocuments in trigger failed.'; }
+    function trigger() {
+
+    var context = getContext();
+    var container = context.getCollection();
+    var response = context.getResponse();
+    var createdItem = response.getBody();
+
+    var filterQuery = `
+    SELECT * FROM bundles b
+    WHERE b.recipient = '$${createdItem.recipient}' AND
+          b.dequeued = false AND (
+          b.origin = '$${createdItem.origin}' OR
+         ((b.origin = 'MarketRoles' OR b.origin = 'Charges') AND '$${createdItem.origin}' = 'MeteringPoints') OR
+         ((b.origin = 'Charges' OR b.origin = 'MeteringPoints') AND '$${createdItem.origin}' = 'MarketRoles') OR
+         ((b.origin = 'MarketRoles' OR b.origin = 'MeteringPoints') AND '$${createdItem.origin}' = 'Charges'))`;
+
+    var accept = container.queryDocuments(container.getSelfLink(), filterQuery, function(err, items, options)
+    {
+        if (err) throw err;
+        if (items.length !== 0) throw 'SingleBundleViolation';
+    });
+
+    if (!accept) throw 'queryDocuments in trigger failed.'; }
       EOT
   operation    = "Create"
   type         = "Post"

@@ -14,9 +14,8 @@
 
 using System;
 using System.Threading.Tasks;
-using Energinet.DataHub.MessageHub.Client;
+using Energinet.DataHub.MessageHub.Core;
 using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Common.Extensions;
 using Energinet.DataHub.PostOffice.Common.MediatR;
 using Energinet.DataHub.PostOffice.Common.SimpleInjector;
 using Microsoft.Azure.Functions.Worker;
@@ -46,8 +45,6 @@ namespace Energinet.DataHub.PostOffice.Common
         {
             SwitchToSimpleInjector(services);
 
-            // FluentValidation
-            services.DiscoverValidation(new[] { typeof(ApplicationAssemblyReference).Assembly });
             services.AddLogging();
             services.AddSimpleInjector(Container, x => x.DisposeContainerWithServiceProvider = !true);
 
@@ -55,9 +52,14 @@ namespace Energinet.DataHub.PostOffice.Common
             var config = services.BuildServiceProvider().GetService<IConfiguration>()!;
             Container.RegisterSingleton(() => config);
             Container.AddDatabaseCosmosConfig();
+            Container.AddCosmosClientBuilder();
             Container.AddServiceBusConfig();
-            Container.AddCosmosClientBuilder(false);
             Container.AddServiceBus();
+            Container.AddAzureBlobStorageConfig();
+            Container.AddAzureBlobStorage();
+
+            // Add Application insights telemetry
+            services.SetupApplicationInsightTelemetry(config);
 
             // services
             Container.AddRepositories();
@@ -66,7 +68,6 @@ namespace Energinet.DataHub.PostOffice.Common
             Container.AddInfrastructureServices();
 
             // TODO: Add to config later.
-            Container.RegisterSingleton(() => new StorageConfig("postoffice-blobstorage"));
             Container.RegisterSingleton(() => new PeekRequestConfig(
                 "sbq-timeseries",
                 "sbq-timeseries-reply",

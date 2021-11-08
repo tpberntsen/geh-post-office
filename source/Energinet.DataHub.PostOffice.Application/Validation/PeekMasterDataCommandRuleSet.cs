@@ -18,7 +18,7 @@ using FluentValidation;
 
 namespace Energinet.DataHub.PostOffice.Application.Validation
 {
-    public sealed class PeekMasterDataCommandRuleSet : AbstractValidator<PeekMasterDataCommand>
+    public sealed class PeekMasterDataCommandRuleSet : AbstractRuleSet<PeekMasterDataCommand>
     {
         public PeekMasterDataCommandRuleSet()
         {

@@ -14,17 +14,18 @@
 
 using System;
 using Energinet.DataHub.MessageHub.Client.DataAvailable;
-using Energinet.DataHub.MessageHub.Client.Dequeue;
 using Energinet.DataHub.MessageHub.Client.Factories;
 using Energinet.DataHub.MessageHub.Client.Peek;
 using Energinet.DataHub.MessageHub.Client.Storage;
+using Energinet.DataHub.MessageHub.Model.Dequeue;
+using Energinet.DataHub.MessageHub.Model.Peek;
 using SimpleInjector;
 
 namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
 {
     public static class ContainerExtensions
     {
-        public static void AddPostOfficeCommunication(
+        public static void AddMessageHubCommunication(
             this Container container,
             string serviceBusConnectionString,
             MessageHubConfig messageHubConfig,
@@ -64,6 +65,11 @@ namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
                 }
 
                 return new ServiceBusClientFactory(serviceBusConnectionString);
+            });
+            container.RegisterSingleton<IMessageBusFactory>(() =>
+            {
+                var serviceBusClientFactory = container.GetInstance<IServiceBusClientFactory>();
+                return new AzureServiceBusFactory(serviceBusClientFactory);
             });
         }
 

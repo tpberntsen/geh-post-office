@@ -17,15 +17,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.MessageHub.Client.Dequeue;
-using Energinet.DataHub.MessageHub.Client.Model;
+using Energinet.DataHub.MessageHub.Core.Dequeue;
+using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Model.Logging;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using MediatR;
-using DomainOrigin = Energinet.DataHub.MessageHub.Client.Model.DomainOrigin;
+using DomainOrigin = Energinet.DataHub.MessageHub.Model.Model.DomainOrigin;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {

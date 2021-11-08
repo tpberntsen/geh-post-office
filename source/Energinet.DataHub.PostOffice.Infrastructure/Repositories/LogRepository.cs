@@ -30,7 +30,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             _logRepositoryContainer = logRepositoryContainer;
         }
 
-        public async Task SavePeekLogOccurrenceAsync(PeekLog log)
+        public Task SavePeekLogOccurrenceAsync(PeekLog log)
         {
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
@@ -43,10 +43,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 log.ProcessId.ToString(),
                 log.BundleReference.LogIdentifier);
 
-            await _logRepositoryContainer.Container.CreateItemAsync(instanceToLog).ConfigureAwait(false);
+            return _logRepositoryContainer.Container.CreateItemAsync(instanceToLog);
         }
 
-        public async Task SaveDequeueLogOccurrenceAsync(DequeueLog log)
+        public Task SaveDequeueLogOccurrenceAsync(DequeueLog log)
         {
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
@@ -58,7 +58,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 log.ProcessId.Recipient.Gln.Value,
                 log.ProcessId.ToString());
 
-            await _logRepositoryContainer.Container.CreateItemAsync(instanceToLog).ConfigureAwait(false);
+            return _logRepositoryContainer.Container.CreateItemAsync(instanceToLog);
         }
     }
 }

@@ -19,7 +19,7 @@ using FluentValidation;
 
 namespace Energinet.DataHub.PostOffice.Application.Validation
 {
-    public sealed class DataAvailableNotificationCommandRuleSet : AbstractValidator<DataAvailableNotificationCommand>
+    public sealed class DataAvailableNotificationCommandRuleSet : AbstractRuleSet<DataAvailableNotificationCommand>
     {
         public DataAvailableNotificationCommandRuleSet()
         {

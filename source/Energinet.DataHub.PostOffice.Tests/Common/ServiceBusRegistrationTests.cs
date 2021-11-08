@@ -13,7 +13,7 @@
 // limitations under the License.
 
 using System.Threading.Tasks;
-using Energinet.DataHub.MessageHub.Client.Factories;
+using Energinet.DataHub.MessageHub.Core.Factories;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using Microsoft.Extensions.Configuration;
@@ -32,7 +32,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
         {
             // arrange
             var configMock = new Mock<IConfiguration>();
-            configMock.Setup(x => x["ServiceBusConnectionString"]).Returns("fake_connection_string");
+            configMock.Setup(x => x["ServiceBusConnectionString"]).Returns(
+                "Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test");
 
             await using var container = new Container();
             container.Register(() => configMock.Object, Lifestyle.Singleton);

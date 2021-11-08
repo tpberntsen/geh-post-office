@@ -17,7 +17,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.MessageHub.Client.Protobuf;
+using Energinet.DataHub.MessageHub.Model.Protobuf;
 using Google.Protobuf;
 
 namespace Energinet.DataHub.PostOffice.IntegrationTests.Common

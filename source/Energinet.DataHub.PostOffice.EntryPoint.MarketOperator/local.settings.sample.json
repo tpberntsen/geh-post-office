@@ -11,7 +11,6 @@
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "APPINSIGHTS_INSTRUMENTATIONKEY": "",
     "MessageReplyTopic": "",
-    "StorageAccountConnectionString": "",
     "LOG_DB_NAME": "",
     "LOG_DB_CONTAINER": "",
     "DATAAVAILABLE_QUEUE_NAME": "",

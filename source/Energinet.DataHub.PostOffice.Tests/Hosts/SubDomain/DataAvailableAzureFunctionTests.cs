@@ -14,8 +14,8 @@
 
 using System;
 using System.Threading.Tasks;
-using Energinet.DataHub.MessageHub.Client.DataAvailable;
-using Energinet.DataHub.MessageHub.Client.Model;
+using Energinet.DataHub.MessageHub.Model.DataAvailable;
+using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
@@ -59,16 +59,41 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain
             mockedMediator.Verify(mediator => mediator.Send(It.IsAny<DataAvailableNotificationCommand>(), default));
         }
 
-        //[Fact]
-        //public void Run_InvalidInput_IsHandled()
-        //{
-        //    // TODO: Error handling not defined.
-        //}
+        [Fact]
+        public async Task Run_InvalidMessage_IsHandled()
+        {
+            // Arrange
+            var mockedMediator = new Mock<IMediator>();
+            var mockedParser = new Mock<IDataAvailableNotificationParser>();
+            var mockedMapper = new DataAvailableMapper();
+            var mockedFunctionContext = new MockedFunctionContext();
 
-        //[Fact]
-        //public void Run_HandlerException_IsHandled()
-        //{
-        //    // TODO: Error handling not defined.
-        //}
+            var target = new DataAvailableInbox(mockedMediator.Object, mockedParser.Object, mockedMapper);
+
+            byte[] fakeProtobuf = null!;
+
+            // Act Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(async () => await target.RunAsync(fakeProtobuf, mockedFunctionContext).ConfigureAwait(false))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task Run_HandlerException_ParseInvalid_IsHandled()
+        {
+            // Arrange
+            var mockedMediator = new Mock<IMediator>();
+            var mockedParser = new Mock<IDataAvailableNotificationParser>();
+            var mockedMapper = new DataAvailableMapper();
+            var mockedFunctionContext = new MockedFunctionContext();
+
+            var target = new DataAvailableInbox(mockedMediator.Object, mockedParser.Object, mockedMapper);
+
+            var fakeProtobuf = System.Text.Encoding.ASCII.GetBytes("invalid contract");
+
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(async () => await target.RunAsync(fakeProtobuf, mockedFunctionContext).ConfigureAwait(false))
+                .ConfigureAwait(false);
+        }
     }
 }

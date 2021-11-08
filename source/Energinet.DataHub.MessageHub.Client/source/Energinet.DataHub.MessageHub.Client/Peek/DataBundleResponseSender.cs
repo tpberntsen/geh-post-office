@@ -17,24 +17,25 @@ using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.MessageHub.Client.Extensions;
 using Energinet.DataHub.MessageHub.Client.Factories;
-using Energinet.DataHub.MessageHub.Client.Model;
+using Energinet.DataHub.MessageHub.Model.Model;
+using Energinet.DataHub.MessageHub.Model.Peek;
 
 namespace Energinet.DataHub.MessageHub.Client.Peek
 {
     public sealed class DataBundleResponseSender : IDataBundleResponseSender, IAsyncDisposable
     {
         private readonly IResponseBundleParser _responseBundleParser;
-        private readonly IServiceBusClientFactory _serviceBusClientFactory;
+        private readonly IMessageBusFactory _messageBusFactory;
         private readonly MessageHubConfig _messageHubConfig;
         private ServiceBusClient? _serviceBusClient;
 
         public DataBundleResponseSender(
             IResponseBundleParser responseBundleParser,
-            IServiceBusClientFactory serviceBusClientFactory,
+            IMessageBusFactory messageBusFactory,
             MessageHubConfig messageHubConfig)
         {
             _responseBundleParser = responseBundleParser;
-            _serviceBusClientFactory = serviceBusClientFactory;
+            _messageBusFactory = messageBusFactory;
             _messageHubConfig = messageHubConfig;
         }
 
@@ -54,9 +55,8 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
                 SessionId = requestDto.IdempotencyId,
             }.AddDataBundleResponseIntegrationEvents(requestDto.IdempotencyId);
 
-            _serviceBusClient ??= _serviceBusClientFactory.Create();
-            await using var sender = _serviceBusClient.CreateSender(_messageHubConfig.DomainReplyQueue);
-            await sender.SendMessageAsync(serviceBusReplyMessage).ConfigureAwait(false);
+            var sender = _messageBusFactory.GetSenderClient(_messageHubConfig.DomainReplyQueue);
+            await sender.PublishMessageAsync<ServiceBusMessage>(serviceBusReplyMessage).ConfigureAwait(false);
         }
 
         public async ValueTask DisposeAsync()

@@ -14,7 +14,7 @@
 
 using System;
 using System.Threading.Tasks;
-using Energinet.DataHub.MessageHub.Client.Factories;
+using Energinet.DataHub.MessageHub.Core.Factories;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
@@ -34,10 +34,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
             _startup = new Startup();
         }
 
-        public static async Task<MarketOperatorIntegrationTestHost> InitializeAsync()
+        public static Task<MarketOperatorIntegrationTestHost> InitializeAsync()
         {
-            await CosmosTestIntegration.InitializeAsync().ConfigureAwait(false);
-
             var host = new MarketOperatorIntegrationTestHost();
 
             var serviceCollection = new ServiceCollection();
@@ -48,7 +46,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
             InitTestBlobStorage(host._startup.Container);
             InitTestServiceBus(host._startup.Container);
 
-            return host;
+            return Task.FromResult(host);
         }
 
         public Scope BeginScope()

@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Client;
 using Energinet.DataHub.MessageHub.Client.DataAvailable;
 using Energinet.DataHub.MessageHub.Client.Factories;
-using Energinet.DataHub.MessageHub.Client.Model;
+using Energinet.DataHub.MessageHub.Model.Model;
 using Microsoft.Extensions.Configuration;
 
 namespace DataAvailableNotification
@@ -41,21 +41,24 @@ namespace DataAvailableNotification
             var domainOrigin = origin != null ? Enum.Parse<DomainOrigin>(origin, true) : DomainOrigin.TimeSeries;
 
             var serviceBusClientFactory = new ServiceBusClientFactory(connectionString);
+            var azureServiceFactory = new AzureServiceBusFactory(serviceBusClientFactory);
             var messageHubConfig = new MessageHubConfig(dataAvailableQueueName, domainReplyQueueName);
 
-            await using var dataAvailableNotificationSender = new DataAvailableNotificationSender(serviceBusClientFactory, messageHubConfig);
+            var dataAvailableNotificationSender = new DataAvailableNotificationSender(azureServiceFactory, messageHubConfig);
 
             for (var i = 0; i < interval; i++)
             {
                 var msgDto = CreateDto(domainOrigin, messageType, recipient);
 
+                Console.WriteLine($"Sending message number: {i + 1}.");
+
                 await dataAvailableNotificationSender.SendAsync(msgDto).ConfigureAwait(false);
 
                 if (i + 1 < interval)
-                    Thread.Sleep(5000);
+                    Thread.Sleep(100);
             }
 
-            Console.WriteLine("A batch of messages has been published to the queue.");
+            Console.WriteLine("Message sender completed.");
         }
 
         private static DataAvailableNotificationDto CreateDto(DomainOrigin origin, string messageType, string recipient)

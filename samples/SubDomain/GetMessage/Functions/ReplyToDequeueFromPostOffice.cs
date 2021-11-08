@@ -13,8 +13,7 @@
 // limitations under the License.
 
 using System;
-using System.Threading.Tasks;
-using Energinet.DataHub.MessageHub.Client.Dequeue;
+using Energinet.DataHub.MessageHub.Model.Dequeue;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
@@ -30,7 +29,7 @@ namespace GetMessage.Functions
         }
 
         [Function("ReplyToDequeueFromPostOffice")]
-        public async Task RunAsync(
+        public void Run(
             [ServiceBusTrigger(
             "%QueueListenerNameForDequeue%",
             Connection = "ServiceBusConnectionString")]
@@ -47,7 +46,7 @@ namespace GetMessage.Functions
             }
             catch (Exception e)
             {
-                throw new Exception("Could not process message.", e);
+                throw new InvalidOperationException("Could not process message.", e);
             }
         }
     }

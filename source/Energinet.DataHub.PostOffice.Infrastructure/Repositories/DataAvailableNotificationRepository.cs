@@ -21,6 +21,7 @@ using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Common;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
+using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
@@ -33,7 +34,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             _repositoryContainer = repositoryContainer;
         }
 
-        public async Task SaveAsync(DataAvailableNotification dataAvailableNotification)
+        public Task SaveAsync(DataAvailableNotification dataAvailableNotification)
         {
             if (dataAvailableNotification is null)
                 throw new ArgumentNullException(nameof(dataAvailableNotification));
@@ -49,12 +50,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 Acknowledge = false
             };
 
-            await _repositoryContainer.Container
-                .CreateItemAsync(cosmosDocument)
-                .ConfigureAwait(false);
+            return _repositoryContainer.Container.CreateItemAsync(cosmosDocument);
         }
 
-        public async Task<DataAvailableNotification?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
+        public Task<DataAvailableNotification?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
         {
             if (recipient is null)
                 throw new ArgumentNullException(nameof(recipient));
@@ -79,14 +78,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 orderby dataAvailable.Timestamp
                 select dataAvailable;
 
-            return await ExecuteQueryAsync(query).FirstOrDefaultAsync().ConfigureAwait(false);
+            return ExecuteQueryAsync(query).FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<DataAvailableNotification>> GetNextUnacknowledgedAsync(
             MarketOperator recipient,
             DomainOrigin domainOrigin,
             ContentType contentType,
-            Weight weight)
+            Weight maxWeight)
         {
             if (recipient is null)
                 throw new ArgumentNullException(nameof(recipient));
@@ -108,7 +107,28 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 orderby dataAvailable.Timestamp
                 select dataAvailable;
 
-            return await ExecuteQueryAsync(query).ToListAsync().ConfigureAwait(false);
+            var currentWeight = new Weight(0);
+            var allUnacknowledged = new List<DataAvailableNotification>();
+
+            await foreach (var item in ExecuteBatchAsync(query).ConfigureAwait(false))
+            {
+                if (allUnacknowledged.Count == 0 || (currentWeight + item.Weight <= maxWeight && item.SupportsBundling.Value))
+                {
+                    // TODO: Bundles are limited to 800 guids * 296 bytes ~ 231,25 KB until
+                    // issue with ServiceBus message size is resolved.
+                    if (allUnacknowledged.Count == 800)
+                        break;
+
+                    currentWeight += item.Weight;
+                    allUnacknowledged.Add(item);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return allUnacknowledged;
         }
 
         public async Task AcknowledgeAsync(MarketOperator recipient, IEnumerable<Uuid> dataAvailableNotificationUuids)
@@ -131,13 +151,69 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 where dataAvailable.Recipient == recipient.Gln.Value && stringIds.Contains(dataAvailable.Id)
                 select dataAvailable;
 
+            TransactionalBatch? batch = null;
+            var partitionKey = new PartitionKey(recipient.Gln.Value);
+            var batchSize = 0;
+
             await foreach (var document in query.AsCosmosIteratorAsync().ConfigureAwait(false))
             {
                 var updatedDocument = document with { Acknowledge = true };
-                await container
-                    .ReplaceItemAsync(updatedDocument, updatedDocument.Id)
-                    .ConfigureAwait(false);
+
+                batch ??= container.CreateTransactionalBatch(partitionKey);
+                batch.ReplaceItem(updatedDocument.Id, updatedDocument);
+
+                batchSize++;
+
+                // Microsoft decided on an arbitrary batch limit of 100.
+                if (batchSize == 100)
+                {
+                    using var innerResult = await batch.ExecuteAsync().ConfigureAwait(false);
+
+                    // As written in docs, _this_ API does not throw exceptions and has to be checked.
+                    if (!innerResult.IsSuccessStatusCode)
+                    {
+                        throw new InvalidOperationException(innerResult.ErrorMessage);
+                    }
+
+                    batch = null;
+                    batchSize = 0;
+                }
             }
+
+            if (batch != null)
+            {
+                using var outerResult = await batch.ExecuteAsync().ConfigureAwait(false);
+
+                // As written in docs, _this_ API does not throw exceptions and has to be checked.
+                if (!outerResult.IsSuccessStatusCode)
+                {
+                    throw new InvalidOperationException(outerResult.ErrorMessage);
+                }
+            }
+        }
+
+        private static async IAsyncEnumerable<DataAvailableNotification> ExecuteBatchAsync(IQueryable<CosmosDataAvailable> query)
+        {
+            const int batchSize = 10000;
+
+            var batchStart = 0;
+            bool canHaveMoreItems;
+
+            do
+            {
+                var nextBatchQuery = query.Skip(batchStart).Take(batchSize);
+                var returnedItems = 0;
+
+                await foreach (var item in ExecuteQueryAsync(nextBatchQuery).ConfigureAwait(false))
+                {
+                    yield return item;
+                    returnedItems++;
+                }
+
+                batchStart += batchSize;
+                canHaveMoreItems = returnedItems == batchSize;
+            }
+            while (canHaveMoreItems);
         }
 
         private static async IAsyncEnumerable<DataAvailableNotification> ExecuteQueryAsync(IQueryable<CosmosDataAvailable> query)

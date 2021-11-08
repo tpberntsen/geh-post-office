@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.MessageHub.Client.DataAvailable;
-using Energinet.DataHub.MessageHub.Client.Dequeue;
-using Energinet.DataHub.MessageHub.Client.Peek;
-using Energinet.DataHub.MessageHub.Client.Storage;
+using Energinet.DataHub.MessageHub.Core.Dequeue;
+using Energinet.DataHub.MessageHub.Core.Peek;
+using Energinet.DataHub.MessageHub.Core.Storage;
+using Energinet.DataHub.MessageHub.Model.DataAvailable;
+using Energinet.DataHub.MessageHub.Model.Peek;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.Validation;
 using FluentValidation;

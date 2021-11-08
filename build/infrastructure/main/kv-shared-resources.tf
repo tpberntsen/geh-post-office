@@ -20,3 +20,13 @@ data "azurerm_key_vault_secret" "shared_resources_integration_events_transceiver
   name         = "SHARED-RESOURCES--SB-INTEGRATIONEVENTS-TRANSCEIVER-CONNECTION-STRING"
   key_vault_id = data.azurerm_key_vault.kv_sharedresources.id
 }
+
+data "azurerm_key_vault_secret" "shared_resources_marketoperator_response_connection_string" {
+  name         = "SHARED-RESOURCES-MARKETOPERATOR-RESPONSE-CONNECTION-STRING"
+  key_vault_id = data.azurerm_key_vault.kv_sharedresources.id
+}
+
+data "azurerm_key_vault_secret" "shared_resources_marketoperator_container_reply_name" {
+  name         = "SHARED-RESOURCES-MARKETOPERATOR-CONTAINER-REPLY-NAME"
+  key_vault_id = data.azurerm_key_vault.kv_sharedresources.id
+}

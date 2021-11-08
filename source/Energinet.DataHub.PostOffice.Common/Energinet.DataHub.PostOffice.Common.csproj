@@ -24,9 +24,11 @@ limitations under the License.
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Energinet.DataHub.MessageHub.Core" Version="1.1.0" />
+    <PackageReference Include="Energinet.DataHub.MessageHub.Model" Version="1.0.0" />
     <PackageReference Include="FluentValidation" Version="9.5.1" />
-    <PackageReference Include="Energinet.DataHub.MessageHub.Client" Version="1.2.0" />
     <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.18.0" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.5.1" />
@@ -37,12 +39,6 @@ limitations under the License.
 
   <ItemGroup>
     <ProjectReference Include="..\Energinet.DataHub.PostOffice.Infrastructure\Energinet.DataHub.PostOffice.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="GreenEnergyHub.Messaging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\poor-man-package-sharing\GreenEnergyHub.Messaging.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

@@ -27,7 +27,7 @@ namespace Energinet.DataHub.MessageHub.Client.Factories
 
         public ServiceBusClient Create()
         {
-            return new ServiceBusClient(_connectionString);
+            return new(_connectionString);
         }
     }
 }
