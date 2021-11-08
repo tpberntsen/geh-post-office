@@ -36,12 +36,12 @@ variable domain_name_short {
   description   = "Shortest possible edition of the domain name."
 }
 
-variable shared_resources_resource_group_name {
+variable shared_resources_keyvault_name {
   type          = string
-  description   = "Auth rule for send and listen on servicebus namespace"
+  description   = "Name of the KeyVault, that contains the shared secrets"
 }
 
-variable shared_resources_key_vault_name {
+variable shared_resources_resource_group_name {
   type          = string
-  description   = "Name of the Core keyvault, that contains shared secrets"
+  description   = "Name of the Resource Group, that contains the shared resources."
 }

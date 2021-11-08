@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 data "azurerm_key_vault" "kv_shared_resources" {
-  name                = var.shared_resources_key_vault_name
+  name                = var.shared_resources_keyvault_name
   resource_group_name = var.shared_resources_resource_group_name
 }
 
