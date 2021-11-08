@@ -38,6 +38,13 @@ namespace Energinet.DataHub.PostOffice.Common
 
                 return new ServiceBusClientFactory(connectionString);
             });
+
+            container.RegisterSingleton<IMessageBusFactory>(() =>
+            {
+                var serviceBusClientFactory = container.GetInstance<IServiceBusClientFactory>();
+
+                return new AzureServiceBusFactory(serviceBusClientFactory);
+            });
         }
 
         public static void AddServiceBusConfig(this Container container)
