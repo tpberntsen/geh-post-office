@@ -32,8 +32,9 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
         {
             // Arrange
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
+            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
             var config = new MessageHubConfig("fake_value", "fake_value");
-            await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object, config);
+            var target = new DataAvailableNotificationSender(messageBusFactory, config);
 
             // Act + Assert
             await Assert.ThrowsAsync<ArgumentNullException>(() => target.SendAsync(null!)).ConfigureAwait(false);
@@ -55,10 +56,11 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
 
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
+            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
 
             var config = new MessageHubConfig(dataAvailableQueue, "fake_value");
 
-            await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object, config);
+            var target = new DataAvailableNotificationSender(messageBusFactory, config);
 
             var dataAvailable = new DataAvailableNotificationDto(
                 Guid.Parse("F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E"),
@@ -91,10 +93,10 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
 
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
-
+            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
             var config = new MessageHubConfig(dataAvailableQueue, "fake_value");
 
-            await using var target = new DataAvailableNotificationSender(serviceBusClientFactory.Object, config);
+            var target = new DataAvailableNotificationSender(messageBusFactory, config);
 
             var dataAvailable = new DataAvailableNotificationDto(
                 Guid.Parse("F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E"),
