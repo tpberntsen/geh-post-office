@@ -14,6 +14,7 @@
 
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Client.Storage;
 using Energinet.DataHub.MessageHub.Model.Model;
@@ -26,7 +27,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
     [UnitTest]
     public class BundleRepositoryTests
     {
-        [Fact]
+        [Fact(Skip = "Needs adjustment to run in CI/CD")]
         public async Task TestFetchIds()
         {
             var cosmosClient = new CosmosClient("AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==");
@@ -37,7 +38,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
                 "post-office");
 
             var bundleRepo = new BundleRepository(cosmosClient, storageConfig);
-            var requestDto = new DataBundleRequestDto("f379ac91-1e95-40f3-8e9f-a299be59c25a", Enumerable.Empty<Guid>());
+            var requestDto = new DataBundleRequestDto("9ce5d31a-17ce-454a-b4ea-e7f505da6f4b", Enumerable.Empty<Guid>());
             var guids = await bundleRepo.GetDataAvailableIdsForRequestAsync(requestDto);
         }
     }
