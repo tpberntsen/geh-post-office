@@ -71,5 +71,4 @@ https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energine
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
-
 </Project>
