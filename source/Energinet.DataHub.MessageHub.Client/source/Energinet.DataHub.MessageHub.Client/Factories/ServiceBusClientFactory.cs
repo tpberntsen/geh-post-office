@@ -18,7 +18,9 @@ namespace Energinet.DataHub.MessageHub.Client.Factories
 {
     public sealed class ServiceBusClientFactory : IServiceBusClientFactory
     {
+        private readonly object _lockObject = new();
         private readonly string _connectionString;
+        private ServiceBusClient? _serviceBusClient;
 
         public ServiceBusClientFactory(string connectionString)
         {
@@ -27,7 +29,15 @@ namespace Energinet.DataHub.MessageHub.Client.Factories
 
         public ServiceBusClient Create()
         {
-            return new(_connectionString);
+            if (_serviceBusClient != null)
+                return _serviceBusClient;
+
+            lock (_lockObject)
+            {
+                _serviceBusClient ??= new(_connectionString);
+            }
+
+            return _serviceBusClient;
         }
     }
 }

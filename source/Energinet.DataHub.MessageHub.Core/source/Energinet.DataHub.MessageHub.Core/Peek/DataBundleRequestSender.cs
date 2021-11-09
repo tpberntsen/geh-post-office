@@ -51,7 +51,8 @@ namespace Energinet.DataHub.MessageHub.Core.Peek
 
             var bytes = _requestBundleParser.Parse(dataBundleRequestDto);
 
-            var sessionId = Guid.NewGuid().ToString();
+            var sessionId = dataBundleRequestDto.RequestId.ToString();
+
             var replyQueue = GetReplyQueueName(domainOrigin);
             var targetQueue = GetQueueName(domainOrigin);
 
@@ -64,13 +65,13 @@ namespace Energinet.DataHub.MessageHub.Core.Peek
 
             var serviceBusClient = _messageBusFactory.GetSenderClient(targetQueue);
 
-            await serviceBusClient.PublishMessageAsync<ServiceBusMessage>(serviceBusMessage)
+            await serviceBusClient
+                .PublishMessageAsync<ServiceBusMessage>(serviceBusMessage)
                 .ConfigureAwait(false);
 
             await using var receiverMessageBus = await _messageBusFactory.GetSessionReceiverClientAsync(replyQueue, sessionId).ConfigureAwait(false);
 
             var response = await receiverMessageBus.ReceiveMessageAsync<ServiceBusMessage>(_defaultTimeout).ConfigureAwait(false);
-
             if (response == null)
                 return null;
 
