@@ -25,7 +25,7 @@ on:
 env:
   SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Libraries.sln'
   DOTNET_VERSION: '5.0'
-  
+
 jobs:
   pre_job:
     runs-on: ubuntu-latest

@@ -1,6 +1,6 @@
-[![codecov](https://codecov.io/gh/Energinet-DataHub/geh-post-office/branch/main/graph/badge.svg?token=Z6XE42U97U)](https://codecov.io/gh/Energinet-DataHub/geh-post-office)
-
 # Post Office
+
+[![codecov](https://codecov.io/gh/Energinet-DataHub/geh-post-office/branch/main/graph/badge.svg?token=Z6XE42U97U)](https://codecov.io/gh/Energinet-DataHub/geh-post-office)
 
 - [Intro](#intro)
 - [Delivering documents to the post office](#delivering-documents-to-the-post-office)
@@ -46,7 +46,7 @@ This means that when a domain places a document in the `timeseries` topic, this 
 
 ### Format
 
-All documents inserted into the topics will have to comply with the protobuf contract exposed [here](source/Contracts/v1/Document.proto).
+All documents inserted into the topics will have to comply with the protobuf contract.
 
 If a document is inserted into the queue that does not comply with this contract, **IT WILL NOT** be handled.
 

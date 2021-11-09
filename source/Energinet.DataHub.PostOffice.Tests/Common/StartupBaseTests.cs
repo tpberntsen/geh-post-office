@@ -89,7 +89,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
                 container.RegisterSingleton(() => new StorageConfig("fake_value"));
                 container.RegisterSingleton(() => new ServiceBusConfig("fake_value", "fake_value"));
                 container.RegisterSingleton(() => new CosmosDatabaseConfig("fake_value", "fake_value"));
-                container.RegisterSingleton<IServiceBusClientFactory>(() => new MockedServiceBusClientFactory());
+                container.RegisterSingleton<IServiceBusClientFactory>(() => new MockedServiceBusClientFactory(new MockedServiceBusClient()));
                 container.RegisterSingleton<IStorageServiceClientFactory>(() => new MockedStorageServiceClientFactory());
             }
         }
