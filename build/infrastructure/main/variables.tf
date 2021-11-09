@@ -11,36 +11,37 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-variable "resource_group_name" {
-  type = string
+variable subscription_id {
+  type        = string
+  description = "Subscription that the infrastructure code is deployed into."
 }
 
-variable "environment" {
-  type          = string
-  description   = "Enviroment that the infrastructure code is deployed into"
+variable resource_group_name {
+  type        = string
+  description = "Resource Group that the infrastructure code is deployed into."
 }
 
-variable "project" {
+variable environment_short {
   type          = string
-  description   = "Project that is running the infrastructure code"
+  description   = "1 character name of the enviroment that the infrastructure code is deployed into."
 }
 
-variable "organisation" {
+variable environment_instance {
   type          = string
-  description   = "Organisation that is running the infrastructure code"
+  description   = "Enviroment instance that the infrastructure code is deployed into."
 }
 
-variable "shared_resources_resource_group_name" {
+variable domain_name_short {
   type          = string
-  description   = "Auth rule for send and listen on servicebus namespace"
+  description   = "Shortest possible edition of the domain name."
 }
 
-variable "shared_resources_key_vault_name" {
+variable shared_resources_keyvault_name {
   type          = string
-  description   = "Name of the shared resources Key Vault"
+  description   = "Name of the KeyVault, that contains the shared secrets"
 }
 
-variable shared_resources_sbq_data_available_name {
+variable shared_resources_resource_group_name {
   type          = string
-  description   = "Name of the Data Available Service Bus Queue in the shared resources."
+  description   = "Name of the Resource Group, that contains the shared resources."
 }
