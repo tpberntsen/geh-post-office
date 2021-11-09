@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
@@ -36,17 +37,33 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             if (request is null)
                 throw new ArgumentNullException(nameof(request));
 
-            var dataAvailableNotification = new DataAvailableNotification(
+            var dataAvailableNotification = MapToDataAvailableNotification(request);
+            await _dataAvailableNotificationRepository.SaveAsync(dataAvailableNotification).ConfigureAwait(false);
+            return new DataAvailableNotificationResponse();
+        }
+
+        public async Task<DataAvailableNotificationResponse> Handle(DataAvailableNotificationListCommand request, CancellationToken cancellationToken)
+        {
+            if (request is null)
+                throw new ArgumentNullException(nameof(request));
+
+            var mappedDataAvailable = request
+                .DataAvailableNotifications
+                .Select(MapToDataAvailableNotification);
+
+            await _dataAvailableNotificationRepository.SaveAsync(mappedDataAvailable).ConfigureAwait(false);
+            return new DataAvailableNotificationResponse();
+        }
+
+        private static DataAvailableNotification MapToDataAvailableNotification(DataAvailableNotificationCommand request)
+        {
+            return new DataAvailableNotification(
                 new Uuid(request.Uuid),
                 new MarketOperator(new GlobalLocationNumber(request.Recipient)),
                 new ContentType(request.ContentType),
                 Enum.Parse<DomainOrigin>(request.Origin, true),
                 new SupportsBundling(request.SupportsBundling),
                 new Weight(request.Weight));
-
-            await _dataAvailableNotificationRepository.SaveAsync(dataAvailableNotification).ConfigureAwait(false);
-
-            return new DataAvailableNotificationResponse();
         }
     }
 }

@@ -14,6 +14,7 @@
 
 using System;
 using Energinet.DataHub.PostOffice.Infrastructure;
+using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers.CosmosClients;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Configuration;
@@ -26,7 +27,7 @@ namespace Energinet.DataHub.PostOffice.Common
     {
         public static void AddCosmosClientBuilder(this Container container)
         {
-            container.RegisterSingleton(() =>
+            container.RegisterSingleton<ICosmosBulkClient>(() =>
             {
                 var configuration = container.GetService<IConfiguration>();
                 var connectionString = configuration.GetConnectionStringOrSetting("MESSAGES_DB_CONNECTION_STRING");
@@ -37,10 +38,31 @@ namespace Energinet.DataHub.PostOffice.Common
                         "Please specify a valid CosmosDBConnection in the appSettings.json file or your Azure Functions Settings.");
                 }
 
-                return new CosmosClientBuilder(connectionString)
+                var cosmosClient = new CosmosClientBuilder(connectionString)
+                    .WithBulkExecution(true)
+                    .WithSerializerOptions(new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase })
+                    .Build();
+
+                return new CosmosClientProvider(cosmosClient);
+            });
+
+            container.RegisterSingleton<ICosmosClient>(() =>
+            {
+                var configuration = container.GetService<IConfiguration>();
+                var connectionString = configuration.GetConnectionStringOrSetting("MESSAGES_DB_CONNECTION_STRING");
+
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException(
+                        "Please specify a valid CosmosDBConnection in the appSettings.json file or your Azure Functions Settings.");
+                }
+
+                var cosmosClient = new CosmosClientBuilder(connectionString)
                     .WithBulkExecution(false)
                     .WithSerializerOptions(new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase })
                     .Build();
+
+                return new CosmosClientProvider(cosmosClient);
             });
         }
 

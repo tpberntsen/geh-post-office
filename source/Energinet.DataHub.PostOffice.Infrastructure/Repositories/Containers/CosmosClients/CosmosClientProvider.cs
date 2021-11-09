@@ -12,22 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers.CosmosClients;
 using Microsoft.Azure.Cosmos;
 
-namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
+namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers.CosmosClients
 {
-    public class LogRepositoryContainer : ILogRepositoryContainer
+    public class CosmosClientProvider : ICosmosClient, ICosmosBulkClient
     {
-        private readonly CosmosClient _client;
-        private readonly CosmosDatabaseConfig _cosmosConfig;
-
-        public LogRepositoryContainer(ICosmosClient clientProvider, CosmosDatabaseConfig cosmosConfig)
+        public CosmosClientProvider(CosmosClient client)
         {
-            _client = clientProvider.Client;
-            _cosmosConfig = cosmosConfig;
+            Client = client;
         }
 
-        public Container Container => _client.GetContainer(_cosmosConfig.LogDatabaseId, "Logs");
+        public CosmosClient Client { get; set; }
     }
 }

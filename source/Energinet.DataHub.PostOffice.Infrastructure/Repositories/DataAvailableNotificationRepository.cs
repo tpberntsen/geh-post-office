@@ -53,6 +53,32 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             return _repositoryContainer.Container.CreateItemAsync(cosmosDocument);
         }
 
+        public async Task SaveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications)
+        {
+            if (dataAvailableNotifications is null)
+                throw new ArgumentNullException(nameof(dataAvailableNotifications));
+
+            var concurrentTasks = new List<Task>();
+
+            foreach (var dataAvailableNotification in dataAvailableNotifications)
+            {
+                var item = new CosmosDataAvailable
+                {
+                    Id = dataAvailableNotification.NotificationId.ToString(),
+                    Recipient = dataAvailableNotification.Recipient.Gln.Value,
+                    ContentType = dataAvailableNotification.ContentType.Value,
+                    Origin = dataAvailableNotification.Origin.ToString(),
+                    SupportsBundling = dataAvailableNotification.SupportsBundling.Value,
+                    RelativeWeight = dataAvailableNotification.Weight.Value,
+                    Acknowledge = false
+                };
+
+                concurrentTasks.Add(_repositoryContainer.Container.CreateItemAsync(item, new PartitionKey(item.Recipient + item.Origin + item.ContentType)));
+            }
+
+            await Task.WhenAll(concurrentTasks);
+        }
+
         public Task<DataAvailableNotification?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
         {
             if (recipient is null)
