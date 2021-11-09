@@ -1,7 +1,7 @@
 # Protocol Documentation
 
-This document describes contracts used to communicate with PostOffice from within DataHub/GreenEnergyHub. 
-The first section is for .NET users who can benefit from the nuget package provided. 
+This document describes contracts used to communicate with PostOffice from within DataHub/GreenEnergyHub.
+The first section is for .NET users who can benefit from the nuget package provided.
 All other users should skip the first section and only read section two where ProtoBuf contracts are described.
 
 ## Table of Contents
@@ -20,6 +20,7 @@ All other users should skip the first section and only read section two where Pr
 <a name=".NETusers"></a>
 
 ## .NET users
+
 The nuget package provided contains all necessary logic and infrastructure components to enable communication between PostOffice and a sub domain within DataHub/GreenEnergyHub.
 Here, all the contracts (DTO's) are described.
 
@@ -77,13 +78,13 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 
 <br>
 <br>
-    
+
 <hr>
-    
+
 <a name=".OtherUsers"></a>
-    
+
 ## Other users
-    
+
 <a name=".DataAvailableNotificationContract.proto"></a>
 
 ### DataAvailableNotificationContract.proto
@@ -98,7 +99,7 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 | relativeWeight | int32 | required | The relative weight of the dataset | Must be a number between 0 and 2147483647 (Int32.MaxValue) |
 
 <br>
-    
+
 <a name=".DataBundleRequestContract.proto"></a>
 
 ### DataBundleRequestContract.proto
@@ -107,9 +108,9 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 | ----- | ---- | ----- | ----------- | ------ |
 | IdempotencyId | string | required | An Id for sub domains to check whether or not it has received the same message multiple times | None at the moment |
 | UUID | repeated string | required | Unique dataset identification | Must be a valid Guid in string format |
-    
+
 <br>
-    
+
 <a name=".DataBundleResponseContract.proto"></a>
 
 ### DataBundleResponseContract.proto
@@ -117,46 +118,46 @@ To get the nuget package, search for 'GreenEnergyHub.PostOffice.Communicator' fr
 DataBundleResponseContract consists of four components. Below are five tables which describe each component in the message. The first component is the DataBundleResponseContract itself. This component contains the four components in the inner layer of DataBundleResponseContract.
 
 <b>DataBundleResponseContract</b>
-    
+
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | Reply | oneof | required | Signals if the request was a success or a failure |
 | FileResource | message | requried if Reply is Success | Uri to get requested data along with dataset identifications |
 | RequestFailure | message | requried if Reply is Failure | Failure reason and description along with dataset identifications |
 | Reason | enum | requried if Reply is Failure | Multiple failure reasons to choose from |
-    
+
 <b>Reply</b>
-    
+
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | Success | FileResource | optional | Successful request |
 | Failure | RequestFailure | optional | Failed request |
-    
+
 <b>FileResource</b>
-    
+
 | Field | Type | Label | Description | Limits |
 | ----- | ---- | ----- | ----------- | ------ |
 | UUID | repeated string | required | Unique dataset identification | Must be a valid Guid in string format |
 | uri | string | requried | Uri to get requested data | Must be a valid Uri to data storage |
-    
+
 <b>RequestFailure</b>
-    
+
 | Field | Type | Label | Description | Limits |
 | ----- | ---- | ----- | ----------- | ------ |
 | UUID | repeated string | required | Unique dataset identification | Must be a valid Guid in string format |
 | reason | Reason | requried | Failure reason | Must be a constant from Reason |
 | failureDescription | string | optional | Description of the failure | N/A |
-    
+
 <b>Reason</b>
-    
+
 | Field | Value |
 | ----- | ---- |
 | DatasetNotFound | 0 |
 | DatasetNotAvailable | 1 |
 | InternalError | 15 |
-    
+
 <br>
-    
+
 <a name=".DequeueContract.proto"></a>
 
 ### DequeueContract.proto
