@@ -60,8 +60,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
 
             var bundle = new Bundle(
                 new Uuid(request.BundleId),
-                DomainOrigin.TimeSeries,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object);
 
@@ -146,8 +147,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
 
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object);
 
@@ -227,8 +229,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
 
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.Charges,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.Charges,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object);
 
@@ -309,8 +312,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
 
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.MarketRoles,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.MarketRoles,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object);
 
@@ -378,8 +382,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
 
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.MarketRoles,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.MarketRoles,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object);
 

@@ -147,8 +147,9 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             {
                 return new Bundle(
                     bundleUuid,
-                    domainOrigin,
                     recipient,
+                    domainOrigin,
+                    contentType,
                     new[] { source.NotificationId });
             }
 
@@ -162,8 +163,9 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
             return new Bundle(
                 bundleUuid,
-                domainOrigin,
                 recipient,
+                domainOrigin,
+                contentType,
                 notificationIds);
         }
     }

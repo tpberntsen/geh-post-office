@@ -131,7 +131,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 throw new ArgumentNullException(nameof(bundle));
 
             var messageDocument = BundleMapper.MapToDocument(bundle);
-
             return _repositoryContainer.Container.ReplaceItemAsync(messageDocument, messageDocument.Id);
         }
 
@@ -160,8 +159,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             return new Bundle(
                 new Uuid(bundleDocument.Id),
-                Enum.Parse<DomainOrigin>(bundleDocument.Origin),
                 recipient,
+                Enum.Parse<DomainOrigin>(bundleDocument.Origin),
+                new ContentType(bundleDocument.MessageType),
                 bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList(),
                 bundleContent);
         }

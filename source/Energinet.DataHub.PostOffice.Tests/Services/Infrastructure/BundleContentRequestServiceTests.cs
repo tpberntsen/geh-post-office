@@ -40,12 +40,13 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
 
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             dataBundleRequestSenderMock
-                .Setup(x => x.SendAsync(It.IsAny<DataBundleRequestDto>(), Energinet.DataHub.MessageHub.Model.Model.DomainOrigin.TimeSeries))
+                .Setup(x => x.SendAsync(It.IsAny<DataBundleRequestDto>(), MessageHub.Model.Model.DomainOrigin.TimeSeries))
                 .ReturnsAsync((DataBundleResponseDto?)null);
 
             // Act
@@ -65,15 +66,20 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
 
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             var contentUri = new Uri("https://test.test.dk");
-            var response = new DataBundleResponseDto(contentUri, Array.Empty<Guid>());
+            var response = new DataBundleResponseDto(
+                Guid.NewGuid(),
+                string.Empty,
+                contentUri,
+                Array.Empty<Guid>());
 
             dataBundleRequestSenderMock
-                .Setup(x => x.SendAsync(It.IsAny<DataBundleRequestDto>(), Energinet.DataHub.MessageHub.Model.Model.DomainOrigin.TimeSeries))
+                .Setup(x => x.SendAsync(It.IsAny<DataBundleRequestDto>(), MessageHub.Model.Model.DomainOrigin.TimeSeries))
                 .ReturnsAsync(response);
 
             // Act
