@@ -52,12 +52,14 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
             {
                 var bundleResponse = DataBundleResponseContract.Parser.ParseFrom(dataBundleReplyContract);
                 var requestId = Guid.Parse(bundleResponse.RequestId);
+                var requestIdempotency = bundleResponse.RequestIdempotencyId;
 
                 if (bundleResponse.ReplyCase == DataBundleResponseContract.ReplyOneofCase.Success)
                 {
                     var successReply = bundleResponse.Success;
                     return new DataBundleResponseDto(
                         requestId,
+                        requestIdempotency,
                         new Uri(successReply.ContentUri),
                         successReply.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
                 }
@@ -71,6 +73,7 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
 
                 return new DataBundleResponseDto(
                     requestId,
+                    requestIdempotency,
                     errorResponse,
                     failureReply.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
             }

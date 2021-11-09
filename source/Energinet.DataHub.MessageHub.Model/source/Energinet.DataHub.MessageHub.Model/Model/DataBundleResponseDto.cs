@@ -25,10 +25,12 @@ namespace Energinet.DataHub.MessageHub.Model.Model
     {
         internal DataBundleResponseDto(
             Guid requestId,
+            string requestIdempotencyId,
             DataBundleResponseErrorDto responseError,
             IEnumerable<Guid> dataAvailableNotificationIds)
         {
             RequestId = requestId;
+            RequestIdempotencyId = requestIdempotencyId;
             DataAvailableNotificationIds = dataAvailableNotificationIds;
             ResponseError = responseError;
             IsErrorResponse = true;
@@ -36,10 +38,12 @@ namespace Energinet.DataHub.MessageHub.Model.Model
 
         internal DataBundleResponseDto(
             Guid requestId,
+            string requestIdempotencyId,
             Uri contentUri,
             IEnumerable<Guid> dataAvailableNotificationIds)
         {
             RequestId = requestId;
+            RequestIdempotencyId = requestIdempotencyId;
             DataAvailableNotificationIds = dataAvailableNotificationIds;
             ContentUri = contentUri;
             IsErrorResponse = false;
@@ -49,6 +53,11 @@ namespace Energinet.DataHub.MessageHub.Model.Model
         /// The unique identifier of the request targeted by this response.
         /// </summary>
         public Guid RequestId { get; }
+
+        /// <summary>
+        /// The unique identifier for the contents of the request targeted by this response.
+        /// </summary>
+        public string RequestIdempotencyId { get; }
 
         /// <summary>
         /// Specifies whether the response has succeeded.

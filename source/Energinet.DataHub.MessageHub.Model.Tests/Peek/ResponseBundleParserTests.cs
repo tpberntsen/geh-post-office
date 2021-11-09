@@ -133,6 +133,7 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Peek
             var target = new ResponseBundleParser();
             var valid = new DataBundleResponseDto(
                 Guid.NewGuid(),
+                "A052186D-89E1-4975-8811-2B4E6137491A",
                 new Uri("https://test.test.dk"),
                 new[] { Guid.NewGuid(), Guid.NewGuid() });
 
@@ -150,6 +151,7 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Peek
             var target = new ResponseBundleParser();
             var valid = new DataBundleResponseDto(
                 Guid.NewGuid(),
+                "A052186D-89E1-4975-8811-2B4E6137491A",
                 new DataBundleResponseErrorDto
                 {
                     FailureDescription = "error",

@@ -30,7 +30,11 @@ namespace Energinet.DataHub.MessageHub.Model.Extensions
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            return new DataBundleResponseDto(request.RequestId, path, request.DataAvailableNotificationIds);
+            return new DataBundleResponseDto(
+                request.RequestId,
+                request.IdempotencyId,
+                path,
+                request.DataAvailableNotificationIds);
         }
 
         /// <summary>
@@ -44,7 +48,11 @@ namespace Energinet.DataHub.MessageHub.Model.Extensions
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            return new DataBundleResponseDto(request.RequestId, errorResponse, request.DataAvailableNotificationIds);
+            return new DataBundleResponseDto(
+                request.RequestId,
+                request.IdempotencyId,
+                errorResponse,
+                request.DataAvailableNotificationIds);
         }
     }
 }
