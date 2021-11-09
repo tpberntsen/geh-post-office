@@ -40,6 +40,7 @@ namespace Energinet.DataHub.PostOffice.Common
                 return new CosmosClientBuilder(connectionString)
                     .WithBulkExecution(false)
                     .WithSerializerOptions(new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase })
+                    .WithContentResponseOnWrite(false)
                     .Build();
             });
         }

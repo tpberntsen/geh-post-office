@@ -55,6 +55,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
         public MarketOperator Recipient { get; }
         public IReadOnlyCollection<Uuid> NotificationIds { get; }
         public ProcessId ProcessId { get; }
+        public bool NotificationsArchived { get; set; }
 
         public bool TryGetContent([NotNullWhen(true)] out IBundleContent? bundleContent)
         {

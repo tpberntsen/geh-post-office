@@ -27,6 +27,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
             NotificationIds = new List<string>();
             ContentPath = string.Empty;
             ProcessId = string.Empty;
+            NotificationsArchived = false;
             Timestamp = null!;
         }
 
@@ -37,6 +38,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
         public bool Dequeued { get; init; }
         public string ContentPath { get; init; }
         public string ProcessId { get; init; }
+        public bool NotificationsArchived { get; init; }
 
         [JsonProperty(PropertyName = "_ts")]
         public string Timestamp { get; init; }

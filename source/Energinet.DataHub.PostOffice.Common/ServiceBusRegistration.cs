@@ -55,6 +55,7 @@ namespace Energinet.DataHub.PostOffice.Common
 
                 return new ServiceBusConfig(
                     configuration.GetValue<string>(ServiceBusConfig.DataAvailableQueueNameKey),
+                    configuration.GetValue<string>(ServiceBusConfig.DataAvailableCleanUpQueueNameKey),
                     configuration.GetValue<string>(ServiceBusConfig.DataAvailableQueueConnectionStringKey));
             });
         }

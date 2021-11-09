@@ -30,7 +30,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Infrastructure
             const string connectionString = "connectionString";
 
             // act
-            var actual = new ServiceBusConfig(queueName,  connectionString);
+            var actual = new ServiceBusConfig(queueName, queueName, connectionString);
 
             // assert
             Assert.Equal(queueName, actual.DataAvailableQueueName);
@@ -44,7 +44,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Infrastructure
         public void Ctor_QueueNameNullOrWhitespace_Throws(string value)
         {
             // arrange, act, assert
-            Assert.Throws<ArgumentException>(() => new ServiceBusConfig(value, "b"));
+            Assert.Throws<ArgumentException>(() => new ServiceBusConfig(value, "a", "b"));
         }
 
         [Theory]
@@ -54,7 +54,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Infrastructure
         public void Ctor_ConnectionStringNullOrWhitespace_Throws(string value)
         {
             // arrange, act, assert
-            Assert.Throws<ArgumentException>(() => new ServiceBusConfig("a", value));
+            Assert.Throws<ArgumentException>(() => new ServiceBusConfig("a", "b", value));
         }
     }
 }

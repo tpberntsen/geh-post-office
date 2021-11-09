@@ -28,5 +28,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
         }
 
         public Container Container => _client.GetContainer(_cosmosDatabaseConfig.MessageHubDatabaseId, "dataavailable");
+        public Container ArchiveContainer => _client.GetContainer(_cosmosDatabaseConfig.MessageHubDatabaseId, "dataavailable-archive");
     }
 }

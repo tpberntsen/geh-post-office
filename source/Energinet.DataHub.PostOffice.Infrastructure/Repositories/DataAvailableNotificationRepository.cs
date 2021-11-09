@@ -192,6 +192,33 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
+        public async Task WriteToArchiveAsync(IEnumerable<Uuid> dataAvailableNotifications)
+        {
+            var documentsToSelect = dataAvailableNotifications
+                .Select(e => new { Id = e.ToString(), PartitionKey = new PartitionKey(e.ToString()) }).ToList();
+
+            IReadOnlyList<(string, PartitionKey)> readInputList = new List<(string, PartitionKey)>();
+            readInputList.Append<>(documentsToSelect);
+
+            var documentsToArchive = await _repositoryContainer
+                .Container
+                .ReadManyItemsAsync<CosmosDataAvailable>(readInputList).ConfigureAwait(false);
+
+            foreach (var documentToWrite in documentsToArchive)
+            {
+                await ArchiveDocumentAsync(documentToWrite);
+            }
+        }
+
+        public async Task DeleteAsync(IEnumerable<Uuid> dataAvailableNotifications, MarketOperator recipient)
+        {
+            var deleteTasks = dataAvailableNotifications
+                .Select(dataAvailableNotification =>
+                    _repositoryContainer.Container.DeleteItemStreamAsync(dataAvailableNotification.ToString(), new PartitionKey(recipient.ToString()))).ToList();
+
+            await Task.WhenAll(deleteTasks);
+        }
+
         private static async IAsyncEnumerable<DataAvailableNotification> ExecuteBatchAsync(IQueryable<CosmosDataAvailable> query)
         {
             const int batchSize = 10000;
@@ -228,6 +255,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     new SupportsBundling(document.SupportsBundling),
                     new Weight(document.RelativeWeight));
             }
+        }
+
+        private async Task ArchiveDocumentAsync(CosmosDataAvailable documentToWrite)
+        {
+            var partitionKey = string.Join("_", documentToWrite.Id, documentToWrite.Recipient, documentToWrite.Origin);
+            await _repositoryContainer
+                .ArchiveContainer.UpsertItemAsync(documentToWrite, new PartitionKey(partitionKey)).ConfigureAwait(false);
         }
     }
 }

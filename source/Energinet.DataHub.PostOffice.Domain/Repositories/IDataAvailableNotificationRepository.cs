@@ -61,5 +61,18 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// <param name="recipient">The market operator the next notifications belong to.</param>
         /// <param name="dataAvailableNotificationUuids">The list of notification ids to acknowledge.</param>
         Task AcknowledgeAsync(MarketOperator recipient, IEnumerable<Uuid> dataAvailableNotificationUuids);
+
+        /// <summary>
+        /// Writes copy of DataAvailableNotification to archive
+        /// </summary>
+        /// <param name="dataAvailableNotifications"></param>
+        Task WriteToArchiveAsync(IEnumerable<Uuid> dataAvailableNotifications);
+
+        /// <summary>
+        /// Deletes a range of dataavailablenotification documents
+        /// </summary>
+        /// <param name="dataAvailableNotifications">ids to delete</param>
+        /// <param name="recipient">partition key</param>
+        Task DeleteAsync(IEnumerable<Uuid> dataAvailableNotifications, MarketOperator recipient);
     }
 }
