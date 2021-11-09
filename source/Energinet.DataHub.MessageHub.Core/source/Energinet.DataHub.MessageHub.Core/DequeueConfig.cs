@@ -14,7 +14,7 @@
 
 namespace Energinet.DataHub.MessageHub.Core
 {
-    public record DequeueConfig(
+    public sealed record DequeueConfig(
         string TimeSeriesDequeueQueue,
         string ChargesDequeueQueue,
         string MarketRolesDequeueQueue,
