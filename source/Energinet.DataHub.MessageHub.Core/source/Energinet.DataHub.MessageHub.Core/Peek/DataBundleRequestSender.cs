@@ -51,13 +51,15 @@ namespace Energinet.DataHub.MessageHub.Core.Peek
 
             var bytes = _requestBundleParser.Parse(dataBundleRequestDto);
 
+            var sessionId = dataBundleRequestDto.RequestId.ToString();
+
             var replyQueue = GetReplyQueueName(domainOrigin);
             var targetQueue = GetQueueName(domainOrigin);
 
             var serviceBusMessage = new ServiceBusMessage(bytes)
             {
-                SessionId = dataBundleRequestDto.SessionId,
-                ReplyToSessionId = dataBundleRequestDto.SessionId,
+                SessionId = sessionId,
+                ReplyToSessionId = sessionId,
                 ReplyTo = replyQueue
             }.AddRequestDataBundleIntegrationEvents(dataBundleRequestDto.IdempotencyId);
 

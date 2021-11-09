@@ -27,14 +27,14 @@ namespace Energinet.DataHub.MessageHub.Core.Factories
             _serviceBusSessionReceiver = serviceBusSessionReceiver;
         }
 
-        public async ValueTask DisposeAsync()
+        public ValueTask DisposeAsync()
         {
-            await _serviceBusSessionReceiver.DisposeAsync().ConfigureAwait(false);
+            return _serviceBusSessionReceiver.DisposeAsync();
         }
 
-        public async Task<ServiceBusReceivedMessage?> ReceiveMessageAsync<T>(TimeSpan timeout)
+        public Task<ServiceBusReceivedMessage?> ReceiveMessageAsync<T>(TimeSpan timeout)
         {
-            return await _serviceBusSessionReceiver.ReceiveMessageAsync(timeout).ConfigureAwait(false);
+            return _serviceBusSessionReceiver.ReceiveMessageAsync(timeout);
         }
 
         internal static AzureSessionReceiverServiceBus Wrap(ServiceBusSessionReceiver sessionReceiver)

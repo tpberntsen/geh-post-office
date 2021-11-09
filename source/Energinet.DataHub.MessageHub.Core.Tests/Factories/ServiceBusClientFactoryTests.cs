@@ -27,7 +27,6 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Factories
         {
             // arrange
             var connectionString = "Endpoint=sb://sbn-postoffice.servicebus.windows.net/;SharedAccessKeyName=Hello;SharedAccessKey=there";
-
             var serviceBusClientFactory = new ServiceBusClientFactory(connectionString);
 
             // act

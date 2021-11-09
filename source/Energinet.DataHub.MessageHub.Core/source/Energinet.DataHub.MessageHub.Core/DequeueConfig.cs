@@ -14,15 +14,10 @@
 
 namespace Energinet.DataHub.MessageHub.Core
 {
-    public sealed record PeekRequestConfig(
-        string TimeSeriesQueue,
-        string TimeSeriesReplyQueue,
-        string ChargesQueue,
-        string ChargesReplyQueue,
-        string MarketRolesQueue,
-        string MarketRolesReplyQueue,
-        string MeteringPointsQueue,
-        string MeteringPointsReplyQueue,
-        string AggregationsQueue,
-        string AggregationsReplyQueue);
+    public record DequeueConfig(
+        string TimeSeriesDequeueQueue,
+        string ChargesDequeueQueue,
+        string MarketRolesDequeueQueue,
+        string MeteringPointsDequeueQueue,
+        string AggregationsDequeueQueue);
 }

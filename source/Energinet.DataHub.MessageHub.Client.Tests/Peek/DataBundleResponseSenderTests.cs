@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.MessageHub.Client.Factories;
 using Energinet.DataHub.MessageHub.Client.Peek;
+using Energinet.DataHub.MessageHub.Model.Extensions;
 using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.MessageHub.Model.Peek;
 using Moq;
@@ -32,77 +33,28 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
         public async Task SendAsync_NullDto_ThrowsException()
         {
             // Arrange
+            var serviceBusSenderMock = new Mock<ServiceBusSender>();
+            var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
+
+            await using var mockedServiceBusClient = new MockedServiceBusClient(
+                string.Empty,
+                string.Empty,
+                serviceBusSenderMock.Object,
+                serviceBusSessionReceiverMock.Object);
+
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
+            serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
             await using var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
-            var config = new MessageHubConfig("fake_value", "fake_value");
-            await using var target = new DataBundleResponseSender(
-                new ResponseBundleParser(),
-                messageBusFactory,
-                config);
-            var requestMock = new DataBundleRequestDto(
-                "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
-                new[] { Guid.NewGuid(), Guid.NewGuid() });
 
-            // Act + Assert
-            await Assert
-                .ThrowsAsync<ArgumentNullException>(() =>
-                    target.SendAsync(
-                        null!,
-                        requestMock))
-                .ConfigureAwait(false);
-        }
-
-        [Fact]
-        public async Task SendAsync_NullSessionId_ThrowsException()
-        {
-            // Arrange
-            var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
-            await using var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
             var config = new MessageHubConfig("fake_value", "fake_value");
-            await using var target = new DataBundleResponseSender(
+            var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
                 messageBusFactory,
                 config);
 
-            var response = new DataBundleResponseDto(
-                new Uri("https://test.dk/test"),
-                new[] { NewGuid(), NewGuid() });
-
-            var requestMock = new DataBundleRequestDto(
-                "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
-                new[] { Guid.NewGuid(), Guid.NewGuid() });
-
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() =>
-                    target.SendAsync(
-                        response,
-                        requestMock))
-                .ConfigureAwait(false);
-        }
-
-        [Fact]
-        public async Task SendAsync_NullRequestDto_ThrowsException()
-        {
-            // Arrange
-            var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
-            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
-            var config = new MessageHubConfig("fake_value", "fake_value");
-            await using var target = new DataBundleResponseSender(
-                new ResponseBundleParser(),
-                messageBusFactory,
-                config);
-
-            var response = new DataBundleResponseDto(
-                new Uri("https://test.dk/test"),
-                new[] { NewGuid(), NewGuid() });
-
-            // Act + Assert
-            await Assert
-                .ThrowsAsync<ArgumentNullException>(() =>
-                    target.SendAsync(
-                        response,
-                        null!))
+                .ThrowsAsync<ArgumentNullException>(() => target.SendAsync(null!))
                 .ConfigureAwait(false);
         }
 
@@ -122,28 +74,25 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
 
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
-            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
+            await using var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
 
             var config = new MessageHubConfig("fake_value", queueName);
 
-            await using var target = new DataBundleResponseSender(
+            var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
                 messageBusFactory,
                 config);
 
-            var response = new DataBundleResponseDto(
-                new Uri("https://test.dk/test"),
-                new[] { NewGuid(), NewGuid() });
-
             var requestMock = new DataBundleRequestDto(
+                Guid.NewGuid(),
+                "7E9D048D-F0D8-476D-8739-AAA83284C9C6",
                 "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
                 new[] { Guid.NewGuid(), Guid.NewGuid() });
 
+            var response = requestMock.CreateResponse(new Uri("https://test.dk/test"));
+
             // Act
-            await target.SendAsync(
-                response,
-                requestMock)
-            .ConfigureAwait(false);
+            await target.SendAsync(response).ConfigureAwait(false);
 
             // Assert
             serviceBusSenderMock.Verify(x => x.SendMessageAsync(It.IsAny<ServiceBusMessage>(), default), Times.Once);
@@ -165,29 +114,26 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
 
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
-            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
+            await using var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
 
             var config = new MessageHubConfig("fake_value", sbqTimeseriesReply);
 
             // ServiceBusMessage
-            await using var target = new DataBundleResponseSender(
+            var target = new DataBundleResponseSender(
                 new ResponseBundleParser(),
                 messageBusFactory,
                 config);
 
-            var response = new DataBundleResponseDto(
-                new Uri("https://test.dk/test"),
-                new[] { NewGuid(), NewGuid() });
-
             var requestMock = new DataBundleRequestDto(
+                Guid.NewGuid(),
+                "42D509CB-1D93-430D-A2D4-7DBB9AE56771",
                 "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
                 new[] { Guid.NewGuid(), Guid.NewGuid() });
 
+            var response = requestMock.CreateResponse(new Uri("https://test.dk/test"));
+
             // Act
-            await target.SendAsync(
-                    response,
-                    requestMock)
-                .ConfigureAwait(false);
+            await target.SendAsync(response).ConfigureAwait(false);
 
             // Assert
             serviceBusSenderMock.Verify(
