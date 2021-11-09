@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 
 namespace Energinet.DataHub.MessageHub.Core.Factories
@@ -27,7 +28,7 @@ namespace Energinet.DataHub.MessageHub.Core.Factories
 
         public ServiceBusClient Create()
         {
-            return new ServiceBusClient(_connectionString);
+            return new(_connectionString, new ServiceBusClientOptions { TransportType = ServiceBusTransportType.AmqpTcp });
         }
     }
 }

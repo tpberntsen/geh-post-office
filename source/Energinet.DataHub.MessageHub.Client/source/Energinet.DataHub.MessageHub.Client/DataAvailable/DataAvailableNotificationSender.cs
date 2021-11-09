@@ -23,26 +23,23 @@ using Google.Protobuf;
 
 namespace Energinet.DataHub.MessageHub.Client.DataAvailable
 {
-    public sealed class DataAvailableNotificationSender : IDataAvailableNotificationSender, IAsyncDisposable
+    public sealed class DataAvailableNotificationSender : IDataAvailableNotificationSender
     {
-        private readonly IServiceBusClientFactory _serviceBusClientFactory;
+        private readonly IMessageBusFactory _messageBusFactory;
         private readonly MessageHubConfig _messageHubConfig;
-        private ServiceBusClient? _serviceBusClient;
 
-        public DataAvailableNotificationSender(IServiceBusClientFactory serviceBusClientFactory, MessageHubConfig messageHubConfig)
+        public DataAvailableNotificationSender(IMessageBusFactory messageBusFactory, MessageHubConfig messageHubConfig)
         {
-            _serviceBusClientFactory = serviceBusClientFactory;
+            _messageBusFactory = messageBusFactory;
             _messageHubConfig = messageHubConfig;
         }
 
-        public async Task SendAsync(DataAvailableNotificationDto dataAvailableNotificationDto)
+        public Task SendAsync(DataAvailableNotificationDto dataAvailableNotificationDto)
         {
             if (dataAvailableNotificationDto == null)
                 throw new ArgumentNullException(nameof(dataAvailableNotificationDto));
 
-            _serviceBusClient ??= _serviceBusClientFactory.Create();
-
-            await using var sender = _serviceBusClient.CreateSender(_messageHubConfig.DataAvailableQueue);
+            var sender = _messageBusFactory.GetSenderClient(_messageHubConfig.DataAvailableQueue);
 
             var contract = new DataAvailableNotificationContract
             {
@@ -57,16 +54,7 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
             var message = new ServiceBusMessage(new BinaryData(contract.ToByteArray()))
                 .AddDataAvailableIntegrationEvents(dataAvailableNotificationDto.Uuid.ToString());
 
-            await sender.SendMessageAsync(message).ConfigureAwait(false);
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            if (_serviceBusClient != null)
-            {
-                await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
-                _serviceBusClient = null;
-            }
+            return sender.PublishMessageAsync<ServiceBusMessage>(message);
         }
     }
 }

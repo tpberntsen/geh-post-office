@@ -1,3 +1,3 @@
 # Documentation
-Notes regarding usage of types in the NuGet package `Energinet.DataHub.MessageHub.Model`. 
 
+Notes regarding usage of types in the NuGet package `Energinet.DataHub.MessageHub.Model`.
