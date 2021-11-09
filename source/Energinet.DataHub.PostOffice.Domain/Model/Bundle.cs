@@ -62,6 +62,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
         public ContentType ContentType { get; }
 
         public IReadOnlyCollection<Uuid> NotificationIds { get; }
+        public bool NotificationsArchived { get; set; }
 
         public bool TryGetContent([NotNullWhen(true)] out IBundleContent? bundleContent)
         {

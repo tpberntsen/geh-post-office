@@ -58,6 +58,7 @@ namespace Energinet.DataHub.PostOffice.Common
             var cosmosClient = new CosmosClientBuilder(connectionString)
                 .WithBulkExecution(bulkConfiguration)
                 .WithSerializerOptions(new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase })
+                .WithContentResponseOnWrite(false)
                 .Build();
 
             return new CosmosClientProvider(cosmosClient);

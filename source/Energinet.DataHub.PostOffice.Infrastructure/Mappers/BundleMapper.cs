@@ -34,7 +34,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 MessageType = source.ContentType.Value,
 
                 NotificationIds = source.NotificationIds.Select(id => id.ToString()).ToList(),
-                ContentPath = MapBundleContent(source)
+                ContentPath = MapBundleContent(source),
+                NotificationsArchived = source.NotificationsArchived
             };
         }
 

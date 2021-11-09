@@ -23,6 +23,13 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
     public interface IBundleRepository
     {
         /// <summary>
+        /// Get bundle by bundle id
+        /// </summary>
+        /// <param name="bundleId"></param>
+        /// <returns>Complete bundle</returns>
+        Task<Bundle?> GetBundleAsync(Uuid bundleId);
+
+        /// <summary>
         /// Gets the next bundle for the given recipient and domains that has yet to be acknowledged.
         /// </summary>
         /// <param name="recipient">The market operator to retrieve the next bundle for.</param>
