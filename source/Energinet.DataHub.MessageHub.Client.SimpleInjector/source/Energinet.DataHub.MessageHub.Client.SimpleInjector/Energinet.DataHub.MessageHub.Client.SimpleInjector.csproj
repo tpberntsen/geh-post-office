@@ -28,7 +28,7 @@ limitations under the License.
 
   <PropertyGroup>
     <PackageId>Energinet.DataHub.MessageHub.Client.SimpleInjector</PackageId>
-	  <PackageVersion>1.5.0$(VersionSuffix)</PackageVersion>
+	  <PackageVersion>1.5.1$(VersionSuffix)</PackageVersion>
 	  <Title>Energinet.DataHub.MessageHub.Client.SimpleInjector library</Title>
     <Company>Energinet-DataHub</Company>
     <Authors>Energinet-DataHub</Authors>
@@ -65,7 +65,7 @@ https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energine
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Energinet.DataHub.MessageHub.Client" Version="1.5.0" />
+    <PackageReference Include="Energinet.DataHub.MessageHub.Client" Version="1.6.0-alpha-20211109T102223" />
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.3.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
