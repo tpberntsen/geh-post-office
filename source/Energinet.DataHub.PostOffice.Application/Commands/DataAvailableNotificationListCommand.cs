@@ -17,7 +17,7 @@ using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public record DataAvailableNotificationListCommand : IRequest<DataAvailableNotificationResponse>
+    public class DataAvailableNotificationListCommand : IRequest<DataAvailableNotificationResponse>
     {
         public DataAvailableNotificationListCommand(IEnumerable<DataAvailableNotificationCommand> dataAvailableNotifications)
         {

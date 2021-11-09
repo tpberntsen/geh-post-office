@@ -23,7 +23,9 @@ using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
-    public class DataAvailableNotificationHandler : IRequestHandler<DataAvailableNotificationCommand, DataAvailableNotificationResponse>
+    public class DataAvailableNotificationHandler
+        : IRequestHandler<DataAvailableNotificationCommand, DataAvailableNotificationResponse>,
+            IRequestHandler<DataAvailableNotificationListCommand, DataAvailableNotificationResponse>
     {
         private readonly IDataAvailableNotificationRepository _dataAvailableNotificationRepository;
 

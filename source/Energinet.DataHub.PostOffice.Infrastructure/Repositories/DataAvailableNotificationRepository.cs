@@ -70,13 +70,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     Origin = dataAvailableNotification.Origin.ToString(),
                     SupportsBundling = dataAvailableNotification.SupportsBundling.Value,
                     RelativeWeight = dataAvailableNotification.Weight.Value,
-                    Acknowledge = false
+                    Acknowledge = false,
+                    PartitionKey = dataAvailableNotification.Recipient.Gln.Value + dataAvailableNotification.Origin + dataAvailableNotification.ContentType.Value
                 };
 
-                concurrentTasks.Add(_repositoryContainer.Container.CreateItemAsync(item, new PartitionKey(item.Recipient + item.Origin + item.ContentType)));
+                concurrentTasks.Add(_repositoryContainer.Container.CreateItemAsync(item));
             }
 
-            await Task.WhenAll(concurrentTasks);
+            await Task.WhenAll(concurrentTasks).ConfigureAwait(false);
         }
 
         public Task<DataAvailableNotification?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
