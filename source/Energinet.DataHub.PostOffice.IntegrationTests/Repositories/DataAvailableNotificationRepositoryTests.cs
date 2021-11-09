@@ -544,11 +544,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             // Act
             await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
 
+            var totalWeight = new Weight(dataAvailableNotifications.Sum(item => item.Weight.Value));
             var response = await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(
                 dataAvailableNotifications.First().Recipient,
                 dataAvailableNotifications.First().Origin,
                 dataAvailableNotifications.First().ContentType,
-                new Weight(5)).ConfigureAwait(false);
+                totalWeight).ConfigureAwait(false);
 
             var result = response.OrderBy(x => x.NotificationId.AsGuid()).ToList();
 
