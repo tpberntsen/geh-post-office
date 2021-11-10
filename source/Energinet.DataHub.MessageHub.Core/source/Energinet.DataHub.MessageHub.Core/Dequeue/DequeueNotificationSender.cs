@@ -27,10 +27,12 @@ namespace Energinet.DataHub.MessageHub.Core.Dequeue
     public sealed class DequeueNotificationSender : IDequeueNotificationSender
     {
         private readonly IMessageBusFactory _messageBusFactory;
+        private readonly DequeueConfig _dequeueConfig;
 
-        public DequeueNotificationSender(IMessageBusFactory messageBusFactory)
+        public DequeueNotificationSender(IMessageBusFactory messageBusFactory, DequeueConfig dequeueConfig)
         {
             _messageBusFactory = messageBusFactory;
+            _dequeueConfig = dequeueConfig;
         }
 
         public Task SendAsync(DequeueNotificationDto dequeueNotificationDto, DomainOrigin domainOrigin)
@@ -38,7 +40,8 @@ namespace Energinet.DataHub.MessageHub.Core.Dequeue
             if (dequeueNotificationDto is null)
                 throw new ArgumentNullException(nameof(dequeueNotificationDto));
 
-            var serviceBusSender = _messageBusFactory.GetSenderClient($"sbq-{domainOrigin}-dequeue");
+            var queueName = GetQueueName(domainOrigin);
+            var serviceBusSender = _messageBusFactory.GetSenderClient(queueName);
 
             var contract = new DequeueContract
             {
@@ -48,6 +51,25 @@ namespace Energinet.DataHub.MessageHub.Core.Dequeue
 
             var dequeueMessage = new ServiceBusMessage(new BinaryData(contract.ToByteArray())).AddDequeueIntegrationEvents();
             return serviceBusSender.PublishMessageAsync<ServiceBusMessage>(dequeueMessage);
+        }
+
+        private string GetQueueName(DomainOrigin domainOrigin)
+        {
+            switch (domainOrigin)
+            {
+                case DomainOrigin.Charges:
+                    return _dequeueConfig.ChargesDequeueQueue;
+                case DomainOrigin.TimeSeries:
+                    return _dequeueConfig.TimeSeriesDequeueQueue;
+                case DomainOrigin.Aggregations:
+                    return _dequeueConfig.AggregationsDequeueQueue;
+                case DomainOrigin.MarketRoles:
+                    return _dequeueConfig.MarketRolesDequeueQueue;
+                case DomainOrigin.MeteringPoints:
+                    return _dequeueConfig.MeteringPointsDequeueQueue;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(domainOrigin), domainOrigin, null);
+            }
         }
     }
 }

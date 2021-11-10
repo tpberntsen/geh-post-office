@@ -26,12 +26,15 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
             return new CosmosBundleDocument
             {
                 Id = source.BundleId.ToString(),
-                Origin = source.Origin.ToString(),
-                Recipient = source.Recipient.Gln.Value,
-                NotificationIds = source.NotificationIds.Select(id => id.ToString()).ToList(),
+                ProcessId = source.ProcessId.ToString(),
                 Dequeued = false,
-                ContentPath = MapBundleContent(source),
-                ProcessId = source.ProcessId.ToString()
+
+                Recipient = source.Recipient.Gln.Value,
+                Origin = source.Origin.ToString(),
+                MessageType = source.ContentType.Value,
+
+                NotificationIds = source.NotificationIds.Select(id => id.ToString()).ToList(),
+                ContentPath = MapBundleContent(source)
             };
         }
 

@@ -21,21 +21,22 @@ using Google.Protobuf;
 
 namespace Energinet.DataHub.MessageHub.Model.Peek
 {
-    public class ResponseBundleParser : IResponseBundleParser
+    public sealed class ResponseBundleParser : IResponseBundleParser
     {
         public byte[] Parse(DataBundleResponseDto dataBundleResponseDto)
         {
             if (dataBundleResponseDto == null)
                 throw new ArgumentNullException(nameof(dataBundleResponseDto));
-            var contract = new DataBundleResponseContract();
+
+            var contract = new DataBundleResponseContract { RequestId = dataBundleResponseDto.RequestId.ToString() };
 
             if (!dataBundleResponseDto.IsErrorResponse)
             {
-                contract.Success = new DataBundleResponseContract.Types.FileResource { ContentUri = dataBundleResponseDto.ContentUri?.AbsoluteUri };
+                contract.Success = new DataBundleResponseContract.Types.FileResource { ContentUri = dataBundleResponseDto.ContentUri.AbsoluteUri };
                 return contract.ToByteArray();
             }
 
-            var contractErrorReason = MapToFailureReason(dataBundleResponseDto.ResponseError!.Reason);
+            var contractErrorReason = MapToFailureReason(dataBundleResponseDto.ResponseError.Reason);
             contract.Failure = new DataBundleResponseContract.Types.RequestFailure
             {
                 Reason = contractErrorReason,
@@ -45,20 +46,40 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
             return contract.ToByteArray();
         }
 
-        public DataBundleResponseDto? Parse(byte[] dataBundleReplyContract)
+        public DataBundleResponseDto Parse(byte[] dataBundleReplyContract)
         {
             try
             {
                 var bundleResponse = DataBundleResponseContract.Parser.ParseFrom(dataBundleReplyContract);
-                return bundleResponse!.ReplyCase != DataBundleResponseContract.ReplyOneofCase.Success
-                    ? null
-                    : new DataBundleResponseDto(
-                        new Uri(bundleResponse.Success.ContentUri),
-                        bundleResponse.Success.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
+                var requestId = Guid.Parse(bundleResponse.RequestId);
+                var requestIdempotency = bundleResponse.RequestIdempotencyId;
+
+                if (bundleResponse.ReplyCase == DataBundleResponseContract.ReplyOneofCase.Success)
+                {
+                    var successReply = bundleResponse.Success;
+                    return new DataBundleResponseDto(
+                        requestId,
+                        requestIdempotency,
+                        new Uri(successReply.ContentUri),
+                        successReply.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
+                }
+
+                var failureReply = bundleResponse.Failure;
+                var errorResponse = new DataBundleResponseErrorDto
+                {
+                    FailureDescription = failureReply.FailureDescription,
+                    Reason = MapToFailureReason(failureReply.Reason)
+                };
+
+                return new DataBundleResponseDto(
+                    requestId,
+                    requestIdempotency,
+                    errorResponse,
+                    failureReply.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
             }
-            catch (InvalidProtocolBufferException e)
+            catch (Exception ex) when (ex is InvalidProtocolBufferException or FormatException)
             {
-                throw new MessageHubException("Error parsing bytes for DataBundleRequestDto", e);
+                throw new MessageHubException("Error parsing bytes for DataBundleRequestDto", ex);
             }
         }
 
@@ -70,6 +91,17 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
                 DataBundleResponseErrorReason.DatasetNotAvailable => DataBundleResponseContract.Types.RequestFailure.Types.Reason.DatasetNotAvailable,
                 DataBundleResponseErrorReason.InternalError => DataBundleResponseContract.Types.RequestFailure.Types.Reason.InternalError,
                 _ => DataBundleResponseContract.Types.RequestFailure.Types.Reason.InternalError
+            };
+        }
+
+        private static DataBundleResponseErrorReason MapToFailureReason(DataBundleResponseContract.Types.RequestFailure.Types.Reason errorReason)
+        {
+            return errorReason switch
+            {
+                DataBundleResponseContract.Types.RequestFailure.Types.Reason.DatasetNotFound => DataBundleResponseErrorReason.DatasetNotFound,
+                DataBundleResponseContract.Types.RequestFailure.Types.Reason.DatasetNotAvailable => DataBundleResponseErrorReason.DatasetNotAvailable,
+                DataBundleResponseContract.Types.RequestFailure.Types.Reason.InternalError => DataBundleResponseErrorReason.InternalError,
+                _ => DataBundleResponseErrorReason.InternalError
             };
         }
     }

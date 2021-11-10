@@ -31,8 +31,19 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
         public async Task SendAsync_NullArgument_ThrowsException()
         {
             // Arrange
+            var serviceBusSenderMock = new Mock<ServiceBusSender>();
+            var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
+
+            await using var mockedServiceBusClient = new MockedServiceBusClient(
+                string.Empty,
+                string.Empty,
+                serviceBusSenderMock.Object,
+                serviceBusSessionReceiverMock.Object);
+
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
-            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
+            serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
+            await using var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
+
             var config = new MessageHubConfig("fake_value", "fake_value");
             var target = new DataAvailableNotificationSender(messageBusFactory, config);
 
@@ -56,7 +67,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
 
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
-            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
+            await using var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
 
             var config = new MessageHubConfig(dataAvailableQueue, "fake_value");
 
@@ -93,7 +104,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
 
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
             serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
-            var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
+            await using var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
             var config = new MessageHubConfig(dataAvailableQueue, "fake_value");
 
             var target = new DataAvailableNotificationSender(messageBusFactory, config);
