@@ -18,5 +18,7 @@ syntax = "proto3";
 option csharp_namespace = "Energinet.DataHub.MessageHub.Model.Protobuf";
 
 message DataBundleRequestContract {
-  string IdempotencyId = 1; // An Id for sub domains to check if it has received the same message multiple times
+  string RequestId = 1; // Uniquely identififies the current request.
+  string IdempotencyId = 2; // Uniquely identififies the contents of the message. Domains can use this property to ensure idempotency.
+  string MessageType = 3; // Specifies the common message type for the requested bundle.
 }

@@ -16,7 +16,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.MessageHub.Core.Dequeue;
 using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.PostOffice.Application.Commands;
@@ -50,38 +49,33 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             if (request is null)
                 throw new ArgumentNullException(nameof(request));
 
-            var (isDequeued, dequeuedBundle) = await _marketOperatorDataDomainService
-                .TryAcknowledgeAsync(
-                    new MarketOperator(new GlobalLocationNumber(request.MarketOperator)),
-                    new Uuid(request.BundleId))
+            var recipient = new MarketOperator(new GlobalLocationNumber(request.MarketOperator));
+            var bundleId = new Uuid(request.BundleId);
+
+            var (canAcknowledge, bundle) = await _marketOperatorDataDomainService
+                .CanAcknowledgeAsync(recipient, bundleId)
                 .ConfigureAwait(false);
 
-            // TODO: Should we capture an exception here, and in case one happens, what should we do?
-            if (isDequeued && dequeuedBundle is not null)
-            {
-                try
-                {
-                    var dequeueNotificationDto = new DequeueNotificationDto(
-                        dequeuedBundle.NotificationIds.Select(x => x.AsGuid()).ToList(),
-                        new GlobalLocationNumberDto(request.MarketOperator));
+            if (!canAcknowledge)
+                return new DequeueResponse(false);
 
-                    await _dequeueNotificationSender
-                        .SendAsync(dequeueNotificationDto, (DomainOrigin)dequeuedBundle.Origin)
-                        .ConfigureAwait(false);
-                }
-                catch (ServiceBusException)
-                {
-                    // TODO: Currently ignored until we know what to do if this call fails.
-                    // This ensures that Dequeue is working for now
-                }
+            var dequeueNotification = new DequeueNotificationDto(
+                bundle!.NotificationIds.Select(x => x.AsGuid()).ToList(),
+                new GlobalLocationNumberDto(request.MarketOperator));
 
-                await _log.SaveDequeueLogOccurrenceAsync(
-                        new DequeueLog(
-                            dequeuedBundle.ProcessId))
-                    .ConfigureAwait(false);
-            }
+            await _dequeueNotificationSender
+                .SendAsync(dequeueNotification, (DomainOrigin)bundle.Origin)
+                .ConfigureAwait(false);
 
-            return new DequeueResponse(isDequeued);
+            await _log
+                .SaveDequeueLogOccurrenceAsync(new DequeueLog(bundle.ProcessId))
+                .ConfigureAwait(false);
+
+            await _marketOperatorDataDomainService
+                .AcknowledgeAsync(bundle)
+                .ConfigureAwait(false);
+
+            return new DequeueResponse(true);
         }
     }
 }

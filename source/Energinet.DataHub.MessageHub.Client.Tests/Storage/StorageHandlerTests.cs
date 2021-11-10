@@ -25,7 +25,6 @@ using Energinet.DataHub.MessageHub.Model.Model;
 using Moq;
 using Xunit;
 using Xunit.Categories;
-using static System.Guid;
 
 namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
 {
@@ -39,8 +38,10 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
             var mockedStorageServiceClientFactory = new Mock<IStorageServiceClientFactory>();
             var mockedBlobServiceClient = new Mock<BlobServiceClient>();
             var mockedDataBundleRequestDto = new DataBundleRequestDto(
-                NewGuid().ToString(),
-                new List<Guid> { NewGuid(), NewGuid(), NewGuid() });
+                Guid.NewGuid(),
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() });
 
             mockedStorageServiceClientFactory.Setup(
                     x => x.Create())
@@ -63,8 +64,8 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
             var mockedStorageServiceClientFactory = new Mock<IStorageServiceClientFactory>();
             var mockedBlobServiceClient = new Mock<BlobServiceClient>();
 
-            mockedStorageServiceClientFactory.Setup(
-                    x => x.Create())
+            mockedStorageServiceClientFactory
+                .Setup(x => x.Create())
                 .Returns(mockedBlobServiceClient.Object);
 
             var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value", "fake_value", "fake_value", "fake_value"));
@@ -86,8 +87,10 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
             var mockedBlobContainerClient = new Mock<BlobContainerClient>();
             var mockedBlobClient = new Mock<BlobClient>();
             var mockedDataBundleRequestDto = new DataBundleRequestDto(
-                NewGuid().ToString(),
-                new List<Guid> { NewGuid(), NewGuid(), NewGuid() });
+                Guid.NewGuid(),
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() });
 
             mockedBlobServiceClient.Setup(
                     x => x.GetBlobContainerClient(It.IsAny<string>()))
@@ -128,8 +131,10 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
             var mockedBlobContainerClient = new Mock<BlobContainerClient>();
             var mockedBlobClient = new Mock<BlobClient>();
             var mockedDataBundleRequestDto = new DataBundleRequestDto(
-                NewGuid().ToString(),
-                new List<Guid> { NewGuid(), NewGuid(), NewGuid() });
+                Guid.NewGuid(),
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() });
 
             var testUri = new Uri("https://test.test.dk/FileStorage/postoffice-blobstorage");
             mockedBlobClient.Setup(

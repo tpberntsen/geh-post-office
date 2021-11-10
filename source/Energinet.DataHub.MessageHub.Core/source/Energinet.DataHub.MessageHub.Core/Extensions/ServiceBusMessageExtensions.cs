@@ -15,8 +15,6 @@
 using System;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.MessageHub.Model.IntegrationEvents;
-using static System.DateTimeOffset;
-using static System.Guid;
 
 namespace Energinet.DataHub.MessageHub.Core.Extensions
 {
@@ -25,9 +23,9 @@ namespace Energinet.DataHub.MessageHub.Core.Extensions
         public static ServiceBusMessage AddDequeueIntegrationEvents(this ServiceBusMessage serviceBusMessage)
         {
             return serviceBusMessage.AddIntegrationsEvents(
-                NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
                 IntegrationEventsMessageType.Dequeue,
-                NewGuid().ToString());
+                Guid.NewGuid().ToString());
         }
 
         public static ServiceBusMessage AddRequestDataBundleIntegrationEvents(this ServiceBusMessage serviceBusMessage, string operationCorrelationId)
@@ -35,7 +33,7 @@ namespace Energinet.DataHub.MessageHub.Core.Extensions
             return serviceBusMessage.AddIntegrationsEvents(
                 operationCorrelationId,
                 IntegrationEventsMessageType.RequestDataBundle,
-                NewGuid().ToString());
+                Guid.NewGuid().ToString());
         }
 
         private static ServiceBusMessage AddIntegrationsEvents(
@@ -47,7 +45,7 @@ namespace Energinet.DataHub.MessageHub.Core.Extensions
             if (serviceBusMessage is null)
                 throw new ArgumentNullException(nameof(serviceBusMessage));
 
-            serviceBusMessage.ApplicationProperties.Add("OperationTimestamp", UtcNow);
+            serviceBusMessage.ApplicationProperties.Add("OperationTimestamp", DateTimeOffset.UtcNow);
             serviceBusMessage.ApplicationProperties.Add("OperationCorrelationId", operationCorrelationId);
             serviceBusMessage.ApplicationProperties.Add("MessageVersion", 1);
             serviceBusMessage.ApplicationProperties.Add("MessageType", messageType.ToString());

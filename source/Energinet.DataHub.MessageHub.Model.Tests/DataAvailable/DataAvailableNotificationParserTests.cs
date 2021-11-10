@@ -54,6 +54,25 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.DataAvailable
         }
 
         [Fact]
+        public void Parse_InvalidGuid_ThrowsException()
+        {
+            // Arrange
+            var target = new DataAvailableNotificationParser();
+            var contract = new DataAvailableNotificationContract
+            {
+                UUID = "invalid_guid",
+                MessageType = "messageType",
+                Origin = "TimeSeries",
+                Recipient = "recipient",
+                RelativeWeight = 5,
+                SupportsBundling = true
+            };
+
+            // Act + Assert
+            Assert.Throws<MessageHubException>(() => target.Parse(contract.ToByteArray()));
+        }
+
+        [Fact]
         public void Parse_InvalidInput_ThrowsException()
         {
             // Arrange

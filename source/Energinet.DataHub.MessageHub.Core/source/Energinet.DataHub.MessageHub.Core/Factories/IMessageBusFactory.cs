@@ -31,6 +31,6 @@ namespace Energinet.DataHub.MessageHub.Core.Factories
         /// Creates session receiver reference
         /// </summary>
         /// <returns><see cref="IReceiverMessageBus"/></returns>
-        public Task<IReceiverMessageBus> GetSessionReceiverClientAsync(string queueOrTopicName, string sessionId);
+        Task<IReceiverMessageBus> GetSessionReceiverClientAsync(string queueOrTopicName, string sessionId);
     }
 }

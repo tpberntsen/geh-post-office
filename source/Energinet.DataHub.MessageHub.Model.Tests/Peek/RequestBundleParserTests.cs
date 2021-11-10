@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using Energinet.DataHub.MessageHub.Model.Exceptions;
 using Energinet.DataHub.MessageHub.Model.Peek;
 using Energinet.DataHub.MessageHub.Model.Protobuf;
@@ -25,13 +26,16 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Peek
     public class RequestBundleParserTests
     {
         [Fact]
-        public void Parse_BytesValid_Returns_Valid_Object()
+        public void Parse_BytesValid_ReturnsValidObject()
         {
             // arrange
             var target = new RequestBundleParser();
             var validBytes = new DataBundleRequestContract
             {
+                RequestId = "07814976-6567-4E43-8C31-26630FEA3671",
                 IdempotencyId = "06FD1AB3-D650-45BC-860E-EE598A3623CA",
+                MessageType = "some_message_type",
+                DataAvailableNotificationIds = { "1360036D-2AFB-4021-846E-2C3FF5AD8DBD" }
             }.ToByteArray();
 
             // act
@@ -39,11 +43,13 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Peek
 
             // assert
             Assert.NotNull(actual);
+            Assert.Equal(Guid.Parse("07814976-6567-4E43-8C31-26630FEA3671"), actual.RequestId);
             Assert.Equal("06FD1AB3-D650-45BC-860E-EE598A3623CA", actual.IdempotencyId);
+            Assert.Equal("some_message_type", actual.MessageType);
         }
 
         [Fact]
-        public void Parse_BytesInvalid_Throws_Exception()
+        public void Parse_BytesInvalid_ThrowsException()
         {
             // arrange
             var target = new RequestBundleParser();
@@ -51,6 +57,23 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Peek
 
             // act, assert
             Assert.Throws<MessageHubException>(() => target.Parse(corruptBytes));
+        }
+
+        [Fact]
+        public void Parse_GuidInvalid_ThrowsException()
+        {
+            // arrange
+            var target = new RequestBundleParser();
+            var contract = new DataBundleRequestContract
+            {
+                RequestId = "invalid_guid",
+                IdempotencyId = "06FD1AB3-D650-45BC-860E-EE598A3623CA",
+                MessageType = "some_message_type",
+                DataAvailableNotificationIds = { "1360036D-2AFB-4021-846E-2C3FF5AD8DBD" }
+            };
+
+            // act, assert
+            Assert.Throws<MessageHubException>(() => target.Parse(contract.ToByteArray()));
         }
     }
 }

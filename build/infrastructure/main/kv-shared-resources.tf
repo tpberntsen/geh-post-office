@@ -11,22 +11,32 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-data "azurerm_key_vault" "kv_sharedresources" {
-  name                = var.shared_resources_key_vault_name
+data "azurerm_key_vault" "kv_shared_resources" {
+  name                = var.shared_resources_keyvault_name
   resource_group_name = var.shared_resources_resource_group_name
 }
 
-data "azurerm_key_vault_secret" "shared_resources_integration_events_transceiver_connection_string" {
-  name         = "SHARED-RESOURCES--SB-INTEGRATIONEVENTS-TRANSCEIVER-CONNECTION-STRING"
-  key_vault_id = data.azurerm_key_vault.kv_sharedresources.id
+data "azurerm_key_vault_secret" "sb_domain_relay_transceiver_connection_string" {
+  name         = "sb-domain-relay-transceiver-connection-string"
+  key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
 }
 
-data "azurerm_key_vault_secret" "shared_resources_marketoperator_response_connection_string" {
-  name         = "SHARED-RESOURCES-MARKETOPERATOR-RESPONSE-CONNECTION-STRING"
-  key_vault_id = data.azurerm_key_vault.kv_sharedresources.id
+data "azurerm_key_vault_secret" "st_market_operator_response_primary_connection_string" {
+  name         = "st-marketres-primary-connection-string"
+  key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
 }
 
-data "azurerm_key_vault_secret" "shared_resources_marketoperator_container_reply_name" {
-  name         = "SHARED-RESOURCES-MARKETOPERATOR-CONTAINER-REPLY-NAME"
-  key_vault_id = data.azurerm_key_vault.kv_sharedresources.id
+data "azurerm_key_vault_secret" "st_market_operator_response_postofficereply_container_name" {
+  name         = "st-marketres-postofficereply-container-name"
+  key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
+}
+
+data "azurerm_key_vault_secret" "appi_instrumentation_key" {
+  name         = "appi-shared-instrumentation-key"
+  key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
+}
+
+data "azurerm_key_vault_secret" "sbq_data_available_name" {
+  name         = "sbq-data-available-name"
+  key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
 }

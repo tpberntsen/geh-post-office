@@ -33,8 +33,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var target = new RequestBundleDomainService(bundleContentRequestServiceMock.Object);
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             bundleContentRequestServiceMock
@@ -57,8 +58,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var target = new RequestBundleDomainService(bundleContentRequestServiceMock.Object);
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             bundleContentRequestServiceMock

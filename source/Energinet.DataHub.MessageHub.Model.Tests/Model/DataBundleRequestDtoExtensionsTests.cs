@@ -32,19 +32,54 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Model
         }
 
         [Fact]
+        public void CreateErrorResponse_RequestNull_Throws()
+        {
+            // arrange, act, assert
+            Assert.Throws<ArgumentNullException>(() => ((DataBundleRequestDto)null)!.CreateErrorResponse(new DataBundleResponseErrorDto()));
+        }
+
+        [Fact]
         public void CreateResponse_ReturnsResponse()
         {
             // arrage
             var dataAvailableNotificationIds = new List<Guid> { Guid.NewGuid() };
-            var request = new DataBundleRequestDto("some_value");
+            var requestId = Guid.Parse("BCDFAF35-B914-488E-A8FB-C41FC377097D");
             var uri = new Uri("http://localhost");
+            var request = new DataBundleRequestDto(
+                requestId,
+                "D5D400AD-CC11-409A-B757-75EB9AA8B0EA",
+                "message_type",
+                dataAvailableNotificationIds);
 
             // act
             var actual = request.CreateResponse(uri, dataAvailableNotificationIds);
 
             // assert
+            Assert.Equal(requestId, actual.RequestId);
             Assert.Equal(uri, actual.ContentUri);
             Assert.Equal(dataAvailableNotificationIds, actual.DataAvailableNotificationIds);
+        }
+
+        [Fact]
+        public void CreateErrorResponse_ReturnsResponse()
+        {
+            // arrage
+            var dataAvailableNotificationIds = new List<Guid> { Guid.NewGuid() };
+            var requestId = Guid.Parse("BCDFAF35-B914-488E-A8FB-C41FC377097D");
+            var request = new DataBundleRequestDto(
+                requestId,
+                "D5D400AD-CC11-409A-B757-75EB9AA8B0EA",
+                "message_type",
+                dataAvailableNotificationIds);
+
+            var dataBundleResponseErrorDto = new DataBundleResponseErrorDto();
+
+            // act
+            var actual = request.CreateErrorResponse(dataBundleResponseErrorDto);
+
+            // assert
+            Assert.Equal(requestId, actual.RequestId);
+            Assert.Equal(dataBundleResponseErrorDto, actual.ResponseError);
         }
     }
 }
