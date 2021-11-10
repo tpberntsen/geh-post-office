@@ -47,10 +47,38 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 Origin = dataAvailableNotification.Origin.ToString(),
                 SupportsBundling = dataAvailableNotification.SupportsBundling.Value,
                 RelativeWeight = dataAvailableNotification.Weight.Value,
-                Acknowledge = false
+                Acknowledge = false,
+                PartitionKey = dataAvailableNotification.Recipient.Gln.Value + dataAvailableNotification.Origin + dataAvailableNotification.ContentType.Value
             };
 
             return _repositoryContainer.Container.CreateItemAsync(cosmosDocument);
+        }
+
+        public async Task SaveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications)
+        {
+            if (dataAvailableNotifications is null)
+                throw new ArgumentNullException(nameof(dataAvailableNotifications));
+
+            var concurrentTasks = new List<Task>();
+
+            foreach (var dataAvailableNotification in dataAvailableNotifications)
+            {
+                var item = new CosmosDataAvailable
+                {
+                    Id = dataAvailableNotification.NotificationId.ToString(),
+                    Recipient = dataAvailableNotification.Recipient.Gln.Value,
+                    ContentType = dataAvailableNotification.ContentType.Value,
+                    Origin = dataAvailableNotification.Origin.ToString(),
+                    SupportsBundling = dataAvailableNotification.SupportsBundling.Value,
+                    RelativeWeight = dataAvailableNotification.Weight.Value,
+                    Acknowledge = false,
+                    PartitionKey = dataAvailableNotification.Recipient.Gln.Value + dataAvailableNotification.Origin + dataAvailableNotification.ContentType.Value
+                };
+
+                concurrentTasks.Add(_repositoryContainer.Container.CreateItemAsync(item));
+            }
+
+            await Task.WhenAll(concurrentTasks).ConfigureAwait(false);
         }
 
         public Task<DataAvailableNotification?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
@@ -152,14 +180,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 select dataAvailable;
 
             TransactionalBatch? batch = null;
-            var partitionKey = new PartitionKey(recipient.Gln.Value);
+
             var batchSize = 0;
 
             await foreach (var document in query.AsCosmosIteratorAsync().ConfigureAwait(false))
             {
                 var updatedDocument = document with { Acknowledge = true };
 
-                batch ??= container.CreateTransactionalBatch(partitionKey);
+                batch ??= container.CreateTransactionalBatch(new PartitionKey(updatedDocument.PartitionKey));
                 batch.ReplaceItem(updatedDocument.Id, updatedDocument);
 
                 batchSize++;

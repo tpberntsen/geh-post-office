@@ -25,6 +25,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
             Origin = null!;
             Recipient = null!;
             Timestamp = null!;
+            PartitionKey = null!;
         }
 
         public string Id { get; init; }
@@ -34,6 +35,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
         public bool SupportsBundling { get; init; }
         public int RelativeWeight { get; init; }
         public bool Acknowledge { get; init; }
+        public string PartitionKey { get; init; }
 
         [JsonProperty(PropertyName = "_ts")]
         public string Timestamp { get; init; }
