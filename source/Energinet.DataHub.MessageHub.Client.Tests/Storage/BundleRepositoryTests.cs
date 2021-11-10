@@ -43,13 +43,13 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
                 .WithSerializerOptions(new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase })
                 .Build();
 
-            var bundleId = await AddTestBundle(cosmosClient, storageConfig);
+            var bundleId = await AddTestBundle(cosmosClient, storageConfig).ConfigureAwait(false);
             var bundleRepo = new BundleRepository(cosmosClient, storageConfig);
             var requestDto = new DataBundleRequestDto(Guid.NewGuid(), bundleId, "test");
             var expected = new List<Guid>() { Guid.Parse("364710E4-051B-47DF-8020-7C1A589268BF"), Guid.Parse("3D373E58-2AFE-4793-9025-060FC433AC7A"), Guid.Parse("9F1C27BC-258E-458C-9001-24246566290F") };
 
             // act
-            var actual = await bundleRepo.GetDataAvailableIdsForRequestAsync(requestDto);
+            var actual = await bundleRepo.GetDataAvailableIdsForRequestAsync(requestDto).ConfigureAwait(false);
 
             // assert
             Assert.Equal(expected, actual);
@@ -68,14 +68,14 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
                 }
             };
 
-            var databaseResponse = await client.CreateDatabaseIfNotExistsAsync(config.MessageHubDatabaseId); // GetDatabase(config.MessageHubDatabaseId);
+            var databaseResponse = await client.CreateDatabaseIfNotExistsAsync(config.MessageHubDatabaseId).ConfigureAwait(false); // GetDatabase(config.MessageHubDatabaseId);
             var bundlesResponse = await databaseResponse
                 .Database
                 .CreateContainerIfNotExistsAsync("bundles", "/pk")
                 .ConfigureAwait(true);
 
             Container container = bundlesResponse.Container;
-            var result = await container.UpsertItemAsync(bundle);
+            var result = await container.UpsertItemAsync(bundle).ConfigureAwait(false);
             return bundle.Id;
         }
     }
