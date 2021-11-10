@@ -80,6 +80,14 @@ namespace Energinet.DataHub.PostOffice.Common
                 "sbq-aggregations",
                 "sbq-aggregations-reply"));
 
+            // TODO: Add to config later.
+            Container.RegisterSingleton(() => new DequeueConfig(
+                "sbq-timeseries-dequeue",
+                "sbq-charges-dequeue",
+                "sbq-marketroles-dequeue",
+                "sbq-meteringpoints-dequeue",
+                "sbq-aggregations-dequeue"));
+
             // Add MediatR
             Container.BuildMediator(new[] { typeof(ApplicationAssemblyReference).Assembly });
 

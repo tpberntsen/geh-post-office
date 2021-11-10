@@ -43,7 +43,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
                 throw new ArgumentNullException(nameof(bundle));
 
             var request = new DataBundleRequestDto(
+                Guid.NewGuid(),
                 bundle.ProcessId.ToString(),
+                bundle.ContentType.Value,
                 bundle.NotificationIds.Select(x => x.AsGuid()));
 
             var response = await _dataBundleRequestSender.SendAsync(request, (DomainOrigin)bundle.Origin).ConfigureAwait(false);
