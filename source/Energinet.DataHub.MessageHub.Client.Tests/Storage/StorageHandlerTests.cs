@@ -40,8 +40,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
             var mockedDataBundleRequestDto = new DataBundleRequestDto(
                 Guid.NewGuid(),
                 Guid.NewGuid().ToString(),
-                Guid.NewGuid().ToString(),
-                new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() });
+                Guid.NewGuid().ToString());
 
             mockedStorageServiceClientFactory.Setup(
                     x => x.Create())
@@ -89,8 +88,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
             var mockedDataBundleRequestDto = new DataBundleRequestDto(
                 Guid.NewGuid(),
                 Guid.NewGuid().ToString(),
-                Guid.NewGuid().ToString(),
-                new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() });
+                Guid.NewGuid().ToString());
 
             mockedBlobServiceClient.Setup(
                     x => x.GetBlobContainerClient(It.IsAny<string>()))
@@ -133,8 +131,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
             var mockedDataBundleRequestDto = new DataBundleRequestDto(
                 Guid.NewGuid(),
                 Guid.NewGuid().ToString(),
-                Guid.NewGuid().ToString(),
-                new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() });
+                Guid.NewGuid().ToString());
 
             var testUri = new Uri("https://test.test.dk/FileStorage/postoffice-blobstorage");
             mockedBlobClient.Setup(

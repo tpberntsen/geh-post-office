@@ -105,8 +105,4 @@ https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energine
     </Protobuf>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Documents" />
-  </ItemGroup>
-
 </Project>
