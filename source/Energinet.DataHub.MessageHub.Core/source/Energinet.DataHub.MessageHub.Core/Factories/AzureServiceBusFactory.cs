@@ -22,28 +22,27 @@ namespace Energinet.DataHub.MessageHub.Core.Factories
     public sealed class AzureServiceBusFactory : IMessageBusFactory, IAsyncDisposable
     {
         private readonly ServiceBusClient _client;
-
         private readonly ConcurrentDictionary<string, ServiceBusSender> _senders = new();
 
         public AzureServiceBusFactory(IServiceBusClientFactory serviceBusClientFactory)
         {
-            if (serviceBusClientFactory == null) throw new ArgumentNullException(nameof(serviceBusClientFactory));
+            if (serviceBusClientFactory == null)
+                throw new ArgumentNullException(nameof(serviceBusClientFactory));
 
             _client = serviceBusClientFactory.Create();
         }
 
         public ISenderMessageBus GetSenderClient(string queueOrTopicName)
         {
-            var key = $"{queueOrTopicName}";
-
-            var sender = _senders.GetOrAdd(key, k => _client.CreateSender(queueOrTopicName));
-
+            var sender = _senders.GetOrAdd(queueOrTopicName, _client.CreateSender);
             return AzureSenderServiceBus.Wrap(sender);
         }
 
         public async Task<IReceiverMessageBus> GetSessionReceiverClientAsync(string queueOrTopicName, string sessionId)
         {
-            var receiver = await _client.AcceptSessionAsync(queueOrTopicName, sessionId).ConfigureAwait(false);
+            var receiver = await _client
+                .AcceptSessionAsync(queueOrTopicName, sessionId)
+                .ConfigureAwait(false);
 
             return AzureSessionReceiverServiceBus.Wrap(receiver);
         }
@@ -55,9 +54,9 @@ namespace Energinet.DataHub.MessageHub.Core.Factories
                 await senderKeyValuePair.Value.DisposeAsync().ConfigureAwait(false);
             }
 
-            await _client.DisposeAsync().ConfigureAwait(false);
-
             _senders.Clear();
+
+            await _client.DisposeAsync().ConfigureAwait(false);
         }
     }
 }

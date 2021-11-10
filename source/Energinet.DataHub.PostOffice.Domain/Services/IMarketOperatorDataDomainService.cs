@@ -59,12 +59,18 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         Task<Bundle?> GetNextUnacknowledgedAggregationsAsync(MarketOperator recipient, Uuid bundleId);
 
         /// <summary>
-        /// Acknowledges the current bundle, as returned by GetNextUnacknowledgedAsync.
+        /// Checks if the current bundle can be acknowledged.
         /// If there is nothing to acknowledge or the id does not match the bundle, the method returns false.
         /// </summary>
         /// <param name="recipient">The market operator that is the recipient of the bundle.</param>
         /// <param name="bundleId">The id of the bundle that is being acknowledged.</param>
-        /// <returns>true is the bundle was acknowledged; false if the id is incorrect or there is nothing to acknowledge.</returns>
-        Task<(bool IsAcknowledged, Bundle? AcknowledgedBundle)> TryAcknowledgeAsync(MarketOperator recipient, Uuid bundleId);
+        /// <returns>true is the bundle can be acknowledged; false if the id is incorrect or there is nothing to acknowledge.</returns>
+        Task<(bool CanAcknowledge, Bundle? Bundle)> CanAcknowledgeAsync(MarketOperator recipient, Uuid bundleId);
+
+        /// <summary>
+        /// Acknowledges the current bundle, as returned by GetNextUnacknowledgedAsync.
+        /// </summary>
+        /// <param name="bundle">The the bundle that is being acknowledged.</param>
+        Task AcknowledgeAsync(Bundle bundle);
     }
 }
