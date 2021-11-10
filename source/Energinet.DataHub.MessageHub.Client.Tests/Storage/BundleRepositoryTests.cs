@@ -29,7 +29,6 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
     [UnitTest]
     public class BundleRepositoryTests
     {
-        //[Fact(Skip = "Needs adjustment to run in CI/CD")]
         [Fact]
         public async Task TestFetchIds()
         {
