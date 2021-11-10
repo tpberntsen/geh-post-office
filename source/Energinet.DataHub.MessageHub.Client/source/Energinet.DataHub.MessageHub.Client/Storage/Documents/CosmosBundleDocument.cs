@@ -20,9 +20,11 @@ namespace Energinet.DataHub.MessageHub.Client.Storage.Documents
     {
         public CosmosBundleDocument()
         {
+            Id = string.Empty;
             NotificationIds = new List<string>();
         }
 
+        public string Id { get; init; }
         public ICollection<string> NotificationIds { get; init; }
     }
 }
