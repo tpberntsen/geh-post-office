@@ -46,8 +46,7 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
                 return new DataBundleRequestDto(
                     Guid.Parse(bundleResponse.RequestId),
                     bundleResponse.IdempotencyId,
-                    bundleResponse.MessageType,
-                    bundleResponse.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
+                    bundleResponse.MessageType);
             }
             catch (Exception ex) when (ex is InvalidProtocolBufferException or FormatException)
             {

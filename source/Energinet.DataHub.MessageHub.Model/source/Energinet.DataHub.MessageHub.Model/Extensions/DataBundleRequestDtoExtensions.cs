@@ -36,7 +36,7 @@ namespace Energinet.DataHub.MessageHub.Model.Extensions
                 request.RequestId,
                 request.IdempotencyId,
                 path,
-                request.DataAvailableNotificationIds);
+                dataAvailableNotificationIds);
         }
 
         /// <summary>
@@ -44,8 +44,9 @@ namespace Energinet.DataHub.MessageHub.Model.Extensions
         /// </summary>
         /// <param name="request">The request to create a response from.</param>
         /// <param name="errorResponse">A description of the error.</param>
+        /// <param name="dataAvailableNotificationIds">A collection of guids identifying which data has been requested.</param>
         /// <returns>The response to the specified request.</returns>
-        public static DataBundleResponseDto CreateErrorResponse(this DataBundleRequestDto request, DataBundleResponseErrorDto errorResponse)
+        public static DataBundleResponseDto CreateErrorResponse(this DataBundleRequestDto request, DataBundleResponseErrorDto errorResponse, IEnumerable<Guid> dataAvailableNotificationIds)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
@@ -54,7 +55,7 @@ namespace Energinet.DataHub.MessageHub.Model.Extensions
                 request.RequestId,
                 request.IdempotencyId,
                 errorResponse,
-                request.DataAvailableNotificationIds);
+                dataAvailableNotificationIds);
         }
     }
 }

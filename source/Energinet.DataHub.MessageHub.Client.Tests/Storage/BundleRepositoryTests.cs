@@ -45,7 +45,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
 
             var bundleId = await AddTestBundle(cosmosClient, storageConfig);
             var bundleRepo = new BundleRepository(cosmosClient, storageConfig);
-            var requestDto = new DataBundleRequestDto(bundleId, Enumerable.Empty<Guid>());
+            var requestDto = new DataBundleRequestDto(Guid.NewGuid(), bundleId, "test", new List<Guid>());
             var expected = new List<Guid>() { Guid.Parse("364710E4-051B-47DF-8020-7C1A589268BF"), Guid.Parse("3D373E58-2AFE-4793-9025-060FC433AC7A"), Guid.Parse("9F1C27BC-258E-458C-9001-24246566290F") };
 
             // act
@@ -74,7 +74,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
                 .ConfigureAwait(true);
 
             Container container = bundlesResponse.Container;
-            var result = await container.CreateItemAsync(bundle);
+            var result = await container.UpsertItemAsync(bundle);
             return bundle.Id;
         }
     }

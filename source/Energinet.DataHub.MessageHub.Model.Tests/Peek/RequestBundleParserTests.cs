@@ -34,8 +34,7 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Peek
             {
                 RequestId = "07814976-6567-4E43-8C31-26630FEA3671",
                 IdempotencyId = "06FD1AB3-D650-45BC-860E-EE598A3623CA",
-                MessageType = "some_message_type",
-                DataAvailableNotificationIds = { "1360036D-2AFB-4021-846E-2C3FF5AD8DBD" }
+                MessageType = "some_message_type"
             }.ToByteArray();
 
             // act
@@ -68,8 +67,7 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Peek
             {
                 RequestId = "invalid_guid",
                 IdempotencyId = "06FD1AB3-D650-45BC-860E-EE598A3623CA",
-                MessageType = "some_message_type",
-                DataAvailableNotificationIds = { "1360036D-2AFB-4021-846E-2C3FF5AD8DBD" }
+                MessageType = "some_message_type"
             };
 
             // act, assert

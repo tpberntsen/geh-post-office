@@ -35,7 +35,7 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Model
         public void CreateErrorResponse_RequestNull_Throws()
         {
             // arrange, act, assert
-            Assert.Throws<ArgumentNullException>(() => ((DataBundleRequestDto)null)!.CreateErrorResponse(new DataBundleResponseErrorDto()));
+            Assert.Throws<ArgumentNullException>(() => ((DataBundleRequestDto)null)!.CreateErrorResponse(new DataBundleResponseErrorDto(), new List<Guid>()));
         }
 
         [Fact]
@@ -48,8 +48,7 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Model
             var request = new DataBundleRequestDto(
                 requestId,
                 "D5D400AD-CC11-409A-B757-75EB9AA8B0EA",
-                "message_type",
-                dataAvailableNotificationIds);
+                "message_type");
 
             // act
             var actual = request.CreateResponse(uri, dataAvailableNotificationIds);
@@ -69,13 +68,12 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Model
             var request = new DataBundleRequestDto(
                 requestId,
                 "D5D400AD-CC11-409A-B757-75EB9AA8B0EA",
-                "message_type",
-                dataAvailableNotificationIds);
+                "message_type");
 
             var dataBundleResponseErrorDto = new DataBundleResponseErrorDto();
 
             // act
-            var actual = request.CreateErrorResponse(dataBundleResponseErrorDto);
+            var actual = request.CreateErrorResponse(dataBundleResponseErrorDto, new List<Guid>());
 
             // assert
             Assert.Equal(requestId, actual.RequestId);
