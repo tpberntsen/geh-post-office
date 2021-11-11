@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -26,7 +25,6 @@ using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using Energinet.DataHub.PostOffice.Infrastructure.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Microsoft.Azure.Cosmos;
-using PartitionKey = Microsoft.Azure.Cosmos.Serialization.HybridRow.Schemas.PartitionKey;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
@@ -57,8 +55,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     ? null
                     : new Bundle(
                         new Uuid(bundleDocument.Id),
-                        Enum.Parse<DomainOrigin>(bundleDocument.Origin),
                         new MarketOperator(new GlobalLocationNumber(bundleDocument.Recipient)),
+                        Enum.Parse<DomainOrigin>(bundleDocument.Origin),
+                        new ContentType(bundleDocument.MessageType),
                         bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList());
         }
 
