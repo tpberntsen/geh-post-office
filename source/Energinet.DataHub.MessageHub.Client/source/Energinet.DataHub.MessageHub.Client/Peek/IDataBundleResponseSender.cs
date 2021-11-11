@@ -26,11 +26,6 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
         /// Responds to a post office request for bundle contents, specifying that the contents are ready and where they are located.
         /// </summary>
         /// <param name="dataBundleResponseDto">The response to the request.</param>
-        /// <param name="requestDto">The request dto that the response is in reply to.</param>
-        /// <param name="sessionId">The ServiceBus session id received from the session-enabled ServiceBusTrigger.</param>
-        Task SendAsync(
-            DataBundleResponseDto dataBundleResponseDto,
-            DataBundleRequestDto requestDto,
-            string sessionId);
+        Task SendAsync(DataBundleResponseDto dataBundleResponseDto);
     }
 }

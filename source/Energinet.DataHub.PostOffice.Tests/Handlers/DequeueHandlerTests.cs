@@ -61,20 +61,22 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var bundleContentMock = new Mock<IBundleContent>();
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object);
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
-            warehouseDomainServiceMock.Setup(x => x.TryAcknowledgeAsync(
+            warehouseDomainServiceMock.Setup(x => x.CanAcknowledgeAsync(
                     It.Is<MarketOperator>(r => string.Equals(r.Gln.Value, request.MarketOperator, StringComparison.OrdinalIgnoreCase)),
                     It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleId, StringComparison.OrdinalIgnoreCase))))
                 .ReturnsAsync((true, bundle));
+
             var dequeueNotificationSenderMock = new Mock<IDequeueNotificationSender>();
             dequeueNotificationSenderMock.Setup(x => x.SendAsync(
                 It.IsAny<DequeueNotificationDto>(),
-                It.IsAny<Energinet.DataHub.MessageHub.Model.Model.DomainOrigin>())).Returns(Task.CompletedTask);
+                It.IsAny<MessageHub.Model.Model.DomainOrigin>())).Returns(Task.CompletedTask);
 
             var target = new DequeueHandler(
                 warehouseDomainServiceMock.Object,
@@ -90,7 +92,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             dequeueNotificationSenderMock.Verify(
                 x => x.SendAsync(
                     It.IsAny<DequeueNotificationDto>(),
-                    It.IsAny<Energinet.DataHub.MessageHub.Model.Model.DomainOrigin>()),
+                    It.IsAny<MessageHub.Model.Model.DomainOrigin>()),
                 Times.Once);
         }
 
@@ -102,7 +104,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var request = new DequeueCommand("fake_value", "E3A22C4F-BA71-4BC0-9571-85F7F906D20D");
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
-            warehouseDomainServiceMock.Setup(x => x.TryAcknowledgeAsync(
+            warehouseDomainServiceMock.Setup(x => x.CanAcknowledgeAsync(
                     It.Is<MarketOperator>(r => string.Equals(r.Gln.Value, request.MarketOperator, StringComparison.OrdinalIgnoreCase)),
                     It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleId, StringComparison.OrdinalIgnoreCase))))
                 .ReturnsAsync((false, null));
@@ -130,13 +132,14 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var bundleContentMock = new Mock<IBundleContent>();
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object);
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
-            warehouseDomainServiceMock.Setup(x => x.TryAcknowledgeAsync(
+            warehouseDomainServiceMock.Setup(x => x.CanAcknowledgeAsync(
                     It.Is<MarketOperator>(r => string.Equals(r.Gln.Value, request.MarketOperator, StringComparison.OrdinalIgnoreCase)),
                     It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleId, StringComparison.OrdinalIgnoreCase))))
                 .ReturnsAsync((true, bundle));
@@ -164,7 +167,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             Bundle bundle = null!;
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
-            warehouseDomainServiceMock.Setup(x => x.TryAcknowledgeAsync(
+            warehouseDomainServiceMock.Setup(x => x.CanAcknowledgeAsync(
                     It.Is<MarketOperator>(r => string.Equals(r.Gln.Value, request.MarketOperator, StringComparison.OrdinalIgnoreCase)),
                     It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleId, StringComparison.OrdinalIgnoreCase))))
                 .ReturnsAsync((false, bundle));

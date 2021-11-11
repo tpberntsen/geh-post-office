@@ -52,8 +52,8 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Factories
         public async Task Create_ReturnsServiceBusClientSessionReceiver()
         {
             // arrange
-            var queueName = $"sbq-test";
-            var replyQueue = $"sbq-test-reply";
+            var queueName = "sbq-test";
+            var replyQueue = "sbq-test-reply";
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
             var requestBundleResponse = new DataBundleResponseContract { Success = new DataBundleResponseContract.Types.FileResource { ContentUri = "http://localhost", DataAvailableNotificationIds = { new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" } } } };
             var bytes = requestBundleResponse.ToByteArray();
@@ -79,8 +79,8 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Factories
 
             // act
             var actualAdd = await messageBusFactory.GetSessionReceiverClientAsync(replyQueue, It.IsAny<string>()).ConfigureAwait(false);
-            var returnMessage = await actualAdd.ReceiveMessageAsync<ServiceBusMessage>(It.IsAny<TimeSpan>());
-            await actualAdd.DisposeAsync();
+            var returnMessage = await actualAdd.ReceiveMessageAsync<ServiceBusMessage>(It.IsAny<TimeSpan>()).ConfigureAwait(false);
+            await actualAdd.DisposeAsync().ConfigureAwait(false);
 
             // assert
             Assert.NotNull(returnMessage);

@@ -29,8 +29,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
             // Arrange
             var target = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 new Mock<IBundleContent>().Object);
 
@@ -48,8 +49,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
             // Arrange
             var target = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             // Act
@@ -67,8 +69,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
             var bundleContentMock = new Mock<IBundleContent>();
             var target = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             // Act
@@ -86,8 +89,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
             var bundleContentMock = new Mock<IBundleContent>();
             var target = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object);
 
