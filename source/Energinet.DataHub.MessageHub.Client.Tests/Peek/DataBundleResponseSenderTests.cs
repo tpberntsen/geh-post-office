@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.MessageHub.Client.Factories;
@@ -86,10 +87,9 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             var requestMock = new DataBundleRequestDto(
                 Guid.NewGuid(),
                 "7E9D048D-F0D8-476D-8739-AAA83284C9C6",
-                "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
-                new[] { Guid.NewGuid(), Guid.NewGuid() });
+                "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3");
 
-            var response = requestMock.CreateResponse(new Uri("https://test.dk/test"));
+            var response = requestMock.CreateResponse(new Uri("https://test.dk/test"), new List<Guid>());
 
             // Act
             await target.SendAsync(response).ConfigureAwait(false);
@@ -127,10 +127,9 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
             var requestMock = new DataBundleRequestDto(
                 Guid.NewGuid(),
                 "42D509CB-1D93-430D-A2D4-7DBB9AE56771",
-                "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
-                new[] { Guid.NewGuid(), Guid.NewGuid() });
+                "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3");
 
-            var response = requestMock.CreateResponse(new Uri("https://test.dk/test"));
+            var response = requestMock.CreateResponse(new Uri("https://test.dk/test"), new[] { Guid.NewGuid(), Guid.NewGuid() });
 
             // Act
             await target.SendAsync(response).ConfigureAwait(false);

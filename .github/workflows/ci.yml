@@ -34,6 +34,7 @@ jobs:
     with:
       SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Libraries.sln'
       DOTNET_VERSION: '5.0'
+      USE_COSMOS_DB_EMULATOR: true
 
   terraform_validate:
     uses: Energinet-DataHub/.github/.github/workflows/terraform-validate.yml@1.13.0

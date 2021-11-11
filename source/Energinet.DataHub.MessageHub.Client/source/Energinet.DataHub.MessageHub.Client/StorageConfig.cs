@@ -14,5 +14,9 @@
 
 namespace Energinet.DataHub.MessageHub.Client
 {
-    public record StorageConfig(string AzureBlobStorageContainerName);
+    public record StorageConfig(
+        string AzureBlobStorageContainerName,
+        string AzureBlobStorageServiceConnectionString,
+        string MessageHubConnectionString,
+        string MessageHubDatabaseId);
 }

@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 namespace Energinet.DataHub.MessageHub.Core.Storage
 {
     /// <summary>
-    /// Handles storing file data from the SubDomains
+    /// Handles retrieving file data stored from the SubDomains
     /// </summary>
     public interface IStorageHandler
     {

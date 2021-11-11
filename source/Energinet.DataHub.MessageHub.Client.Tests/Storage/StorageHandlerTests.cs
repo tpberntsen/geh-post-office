@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Azure;
@@ -40,14 +39,13 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
             var mockedDataBundleRequestDto = new DataBundleRequestDto(
                 Guid.NewGuid(),
                 Guid.NewGuid().ToString(),
-                Guid.NewGuid().ToString(),
-                new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() });
+                Guid.NewGuid().ToString());
 
             mockedStorageServiceClientFactory.Setup(
                     x => x.Create())
                 .Returns(mockedBlobServiceClient.Object);
 
-            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
+            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value", "fake_value", "fake_value", "fake_value"));
 
             // act, assert
             await Assert.ThrowsAsync<ArgumentException>(
@@ -68,7 +66,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
                 .Setup(x => x.Create())
                 .Returns(mockedBlobServiceClient.Object);
 
-            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
+            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value", "fake_value", "fake_value", "fake_value"));
 
             // act, assert
             await Assert.ThrowsAsync<ArgumentNullException>(
@@ -89,8 +87,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
             var mockedDataBundleRequestDto = new DataBundleRequestDto(
                 Guid.NewGuid(),
                 Guid.NewGuid().ToString(),
-                Guid.NewGuid().ToString(),
-                new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() });
+                Guid.NewGuid().ToString());
 
             mockedBlobServiceClient.Setup(
                     x => x.GetBlobContainerClient(It.IsAny<string>()))
@@ -111,7 +108,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
                     x => x.Create())
                 .Returns(mockedBlobServiceClient.Object);
 
-            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
+            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value", "fake_value", "fake_value", "fake_value"));
 
             // act, assert
             await using var inputStream = new MemoryStream(new byte[] { 1, 2, 3 });
@@ -133,8 +130,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
             var mockedDataBundleRequestDto = new DataBundleRequestDto(
                 Guid.NewGuid(),
                 Guid.NewGuid().ToString(),
-                Guid.NewGuid().ToString(),
-                new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() });
+                Guid.NewGuid().ToString());
 
             var testUri = new Uri("https://test.test.dk/FileStorage/postoffice-blobstorage");
             mockedBlobClient.Setup(
@@ -156,7 +152,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Storage
                     x => x.Create())
                 .Returns(mockedBlobServiceClient.Object);
 
-            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
+            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value", "fake_value", "fake_value", "fake_value"));
 
             // act
             await using var inputStream = new MemoryStream(new byte[] { 1, 2, 3 });
