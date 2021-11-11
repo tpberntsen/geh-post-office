@@ -43,7 +43,7 @@ resource "azurerm_cosmosdb_sql_container" "collection_dataavailable" {
   resource_group_name = var.resource_group_name
   account_name        = azurerm_cosmosdb_account.post_office.name
   database_name       = azurerm_cosmosdb_sql_database.db.name
-  partition_key_path  = "/recipient"
+  partition_key_path  = "/partitionKey"
 }
 
 resource "azurerm_cosmosdb_sql_container" "collection_bundles" {
