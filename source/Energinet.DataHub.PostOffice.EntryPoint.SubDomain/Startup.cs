@@ -34,13 +34,14 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain
             container.RegisterSingleton<IDataAvailableMessageReceiver>(() =>
             {
                 var configuration = container.GetService<IConfiguration>();
-                var batchSize = configuration.GetValue<int>("DATAAVAILABLE_BATCH_SIZE", 10000);
-                var timeoutInMs = configuration.GetValue<int>("DATAAVAILABLE_TIMEOUT_IN_MS", 1000);
+                var batchSize = configuration.GetValue<int>("DATAAVAILABLE_BATCH_SIZE");
+                var timeoutInMs = configuration.GetValue<int>("DATAAVAILABLE_TIMEOUT_IN_MS");
 
                 var serviceBusConfig = container.GetInstance<ServiceBusConfig>();
                 var messageReceiver = new MessageReceiver(
                     serviceBusConfig.DataAvailableQueueConnectionString,
-                    serviceBusConfig.DataAvailableQueueName);
+                    serviceBusConfig.DataAvailableQueueName,
+                    prefetchCount: batchSize);
 
                 return new DataAvailableMessageReceiver(messageReceiver, batchSize, TimeSpan.FromMilliseconds(timeoutInMs));
             });

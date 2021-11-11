@@ -36,7 +36,10 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
 
         public async Task<IReadOnlyList<Message>> ReceiveAsync()
         {
-            return (await _messageReceiver.ReceiveAsync(_batchSize, _timeout).ConfigureAwait(false)).ToList();
+            var messages = await _messageReceiver.ReceiveAsync(_batchSize, _timeout).ConfigureAwait(false);
+            return messages != null
+                ? messages.ToList()
+                : new List<Message>();
         }
 
         public Task DeadLetterAsync(IEnumerable<Message> messages)

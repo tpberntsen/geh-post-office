@@ -17,9 +17,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Model.DataAvailable;
+using Energinet.DataHub.MessageHub.Model.Exceptions;
 using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using FluentValidation;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.ServiceBus;
@@ -57,7 +59,13 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             var messages = await _messageReceiver.ReceiveAsync().ConfigureAwait(false);
             logger.LogInformation("Received a DataAvailableNotification batch of size {0}.", messages.Count);
 
-            await ProcessMessagesAsync(messages).ConfigureAwait(false);
+            if (messages.Count > 0)
+                await ProcessMessagesAsync(messages).ConfigureAwait(false);
+        }
+
+        private static bool ExceptionFilter(Exception exception)
+        {
+            return exception is MessageHubException or ValidationException or System.ComponentModel.DataAnnotations.ValidationException;
         }
 
         private async Task ProcessMessagesAsync(IEnumerable<Message> messages)
@@ -70,9 +78,8 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             {
                 await Task.WhenAll(list.Select(x => x.Task)).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex) when (ExceptionFilter(ex))
             {
-                // TODO: Which exceptions to catch?
                 var allFaultedMessages = list
                     .Where(x => !x.Task.IsCompletedSuccessfully)
                     .Select(x => x.Message);
@@ -95,9 +102,8 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
                 var dataAvailableCommand = _dataAvailableNotificationMapper.Map(dataAvailableNotification);
                 return _mediator.Send(dataAvailableCommand);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ExceptionFilter(ex))
             {
-                // TODO: Which exceptions to catch?
                 return Task.FromException(ex);
             }
         }
