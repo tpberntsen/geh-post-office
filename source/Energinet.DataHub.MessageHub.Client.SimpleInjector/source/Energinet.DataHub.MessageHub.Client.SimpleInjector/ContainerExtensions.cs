@@ -19,7 +19,10 @@ using Energinet.DataHub.MessageHub.Client.Peek;
 using Energinet.DataHub.MessageHub.Client.Storage;
 using Energinet.DataHub.MessageHub.Model.Dequeue;
 using Energinet.DataHub.MessageHub.Model.Peek;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Fluent;
 using SimpleInjector;
+using Container = SimpleInjector.Container;
 
 namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
 {
@@ -47,7 +50,8 @@ namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
             container.RegisterSingleton(() => storageConfig);
             container.AddServiceBus(serviceBusConnectionString);
             container.AddApplicationServices();
-            //container.AddStorageHandler(storageConfig.AzureBlobStorageServiceConnectionString);
+            container.AddStorageHandler(storageConfig.AzureBlobStorageServiceConnectionString);
+            container.AddBundleRepository(storageConfig);
         }
 
         private static void AddServiceBus(this Container container, string serviceBusConnectionString)
@@ -92,6 +96,30 @@ namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
             });
 
             container.Register<IStorageHandler, StorageHandler>(Lifestyle.Singleton);
+        }
+
+        private static void AddBundleRepository(this Container container, StorageConfig config)
+        {
+            container.RegisterSingleton(() =>
+            {
+                if (string.IsNullOrWhiteSpace(config.MessageHubConnectionString))
+                {
+                    throw new InvalidOperationException(
+                        "Please specify a valid MessageHubConnectionString in the config object.");
+                }
+
+                if (string.IsNullOrWhiteSpace(config.MessageHubDatabaseId))
+                {
+                    throw new InvalidOperationException(
+                        "Please specify a valid MessageHubDatabaseId in the config object.");
+                }
+
+                return new CosmosClientBuilder(config.MessageHubConnectionString)
+                    .WithBulkExecution(false)
+                    .WithSerializerOptions(new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase })
+                    .Build();
+            });
+            container.Register<IBundleRepository, BundleRepository>(Lifestyle.Singleton);
         }
     }
 }

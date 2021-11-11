@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Azure.Storage.Blobs;
 using Energinet.DataHub.MessageHub.Core.Factories;
 using Xunit;
 using Xunit.Categories;
@@ -32,6 +33,7 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Factories
 
             // assert
             Assert.NotNull(actual);
+            Assert.IsType<BlobServiceClient>(actual);
         }
     }
 }
