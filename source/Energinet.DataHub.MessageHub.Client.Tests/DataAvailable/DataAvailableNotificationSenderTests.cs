@@ -28,7 +28,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
     public sealed class DataAvailableNotificationSenderTests
     {
         [Fact]
-        public async Task SendAsync_NullArgument_ThrowsException()
+        public async Task SendAsync_NullNotification_ThrowsException()
         {
             // Arrange
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
@@ -48,7 +48,43 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
             var target = new DataAvailableNotificationSender(messageBusFactory, config);
 
             // Act + Assert
-            await Assert.ThrowsAsync<ArgumentNullException>(() => target.SendAsync(null!)).ConfigureAwait(false);
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() => target.SendAsync("F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E", null!))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task SendAsync_NullCorrelationId_ThrowsException()
+        {
+            // Arrange
+            var serviceBusSenderMock = new Mock<ServiceBusSender>();
+            var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
+
+            await using var mockedServiceBusClient = new MockedServiceBusClient(
+                string.Empty,
+                string.Empty,
+                serviceBusSenderMock.Object,
+                serviceBusSessionReceiverMock.Object);
+
+            var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
+            serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
+            await using var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
+
+            var config = new MessageHubConfig("fake_value", "fake_value");
+            var target = new DataAvailableNotificationSender(messageBusFactory, config);
+
+            var dataAvailable = new DataAvailableNotificationDto(
+                Guid.Parse("F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E"),
+                new GlobalLocationNumberDto("fake_value"),
+                new MessageTypeDto("fake_value"),
+                DomainOrigin.TimeSeries,
+                true,
+                1);
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() => target.SendAsync(null!, dataAvailable))
+                .ConfigureAwait(false);
         }
 
         [Fact]
@@ -70,7 +106,6 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
             await using var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
 
             var config = new MessageHubConfig(dataAvailableQueue, "fake_value");
-
             var target = new DataAvailableNotificationSender(messageBusFactory, config);
 
             var dataAvailable = new DataAvailableNotificationDto(
@@ -82,7 +117,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
                 1);
 
             // Act
-            await target.SendAsync(dataAvailable).ConfigureAwait(false);
+            await target.SendAsync("F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E", dataAvailable).ConfigureAwait(false);
 
             // Assert
             serviceBusSenderMock.Verify(x => x.SendMessageAsync(It.IsAny<ServiceBusMessage>(), default), Times.Once);
@@ -118,7 +153,7 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
                 1);
 
             // Act
-            await target.SendAsync(dataAvailable).ConfigureAwait(false);
+            await target.SendAsync("F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E", dataAvailable).ConfigureAwait(false);
 
             // Assert
             serviceBusSenderMock.Verify(
