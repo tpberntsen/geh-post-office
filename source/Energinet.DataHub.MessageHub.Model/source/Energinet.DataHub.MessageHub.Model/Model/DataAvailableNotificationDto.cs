@@ -24,9 +24,6 @@ namespace Energinet.DataHub.MessageHub.Model.Model
     /// A guid uniquely identifying the data. This guid will be passed back
     /// to the sub-domain with the request for data to be generated.
     /// </param>
-    /// <param name="CorrelationId">
-    /// The correlation id that can be used to track the data represented by the notification.
-    /// </param>
     /// <param name="Recipient">
     /// A Global Location Number identifying the market operator.
     /// </param>
@@ -51,7 +48,6 @@ namespace Energinet.DataHub.MessageHub.Model.Model
     /// </param>
     public sealed record DataAvailableNotificationDto(
         Guid Uuid,
-        string CorrelationId,
         GlobalLocationNumberDto Recipient,
         MessageTypeDto MessageType,
         DomainOrigin Origin,
