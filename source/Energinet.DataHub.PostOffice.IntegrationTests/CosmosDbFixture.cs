@@ -47,7 +47,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
             var logDatabase = logDatabaseResponse.Database;
 
             await testDatabase
-                .CreateContainerIfNotExistsAsync("dataavailable", "/recipient")
+                .CreateContainerIfNotExistsAsync("dataavailable", "/partitionKey")
                 .ConfigureAwait(true);
 
             var bundlesResponse = await testDatabase

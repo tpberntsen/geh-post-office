@@ -33,10 +33,24 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         {
             // Arrange
             var target = new DataAvailableNotificationHandler(new Mock<IDataAvailableNotificationRepository>().Object);
+            DataAvailableNotificationCommand command = null!;
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.Handle(null!, CancellationToken.None))
+                .ThrowsAsync<ArgumentNullException>(() => target.Handle(command, CancellationToken.None))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task Handle_ListWithNullArgument_ThrowsException()
+        {
+            // Arrange
+            var target = new DataAvailableNotificationHandler(new Mock<IDataAvailableNotificationRepository>().Object);
+            DataAvailableNotificationListCommand command = null!;
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() => target.Handle(command, CancellationToken.None))
                 .ConfigureAwait(false);
         }
 
