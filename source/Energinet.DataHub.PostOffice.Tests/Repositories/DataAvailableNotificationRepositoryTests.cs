@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
@@ -112,10 +113,25 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
             // Arrange
             var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
             var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+            DataAvailableNotification dataAvailableNotification = null!;
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.SaveAsync(null!))
+                .ThrowsAsync<ArgumentNullException>(() => target.SaveAsync(dataAvailableNotification))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task SaveAsync_ListWithNullNotification_ThrowsException()
+        {
+            // Arrange
+            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
+            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+            IEnumerable<DataAvailableNotification> dataAvailableNotifications = null!;
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() => target.SaveAsync(dataAvailableNotifications))
                 .ConfigureAwait(false);
         }
     }
