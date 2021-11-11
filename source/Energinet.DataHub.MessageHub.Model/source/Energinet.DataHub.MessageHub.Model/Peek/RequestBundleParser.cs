@@ -30,9 +30,12 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
 
             var message = new DataBundleRequestContract
             {
+                RequestId = request.RequestId.ToString(),
                 IdempotencyId = request.IdempotencyId,
+                MessageType = request.MessageType,
                 DataAvailableNotificationIds = { request.DataAvailableNotificationIds.Select(x => x.ToString()) }
             };
+
             return message.ToByteArray();
         }
 
@@ -41,11 +44,15 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
             try
             {
                 var bundleResponse = DataBundleRequestContract.Parser.ParseFrom(dataBundleRequestContract);
-                return new DataBundleRequestDto(bundleResponse.IdempotencyId, bundleResponse.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
+                return new DataBundleRequestDto(
+                    Guid.Parse(bundleResponse.RequestId),
+                    bundleResponse.IdempotencyId,
+                    bundleResponse.MessageType,
+                    bundleResponse.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
             }
-            catch (InvalidProtocolBufferException e)
+            catch (Exception ex) when (ex is InvalidProtocolBufferException or FormatException)
             {
-                throw new MessageHubException("Error parsing bytes for DataBundleRequestDto", e);
+                throw new MessageHubException("Error parsing bytes for DataBundleRequestDto", ex);
             }
         }
     }

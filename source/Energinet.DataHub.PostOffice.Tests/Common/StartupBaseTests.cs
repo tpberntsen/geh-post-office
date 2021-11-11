@@ -19,7 +19,7 @@ using Energinet.DataHub.MessageHub.Core;
 using Energinet.DataHub.MessageHub.Core.Factories;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Infrastructure;
-using Microsoft.Azure.Cosmos;
+using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers.CosmosClients;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -85,7 +85,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
             {
                 container.Options.AllowOverridingRegistrations = true;
                 container.RegisterSingleton<ServiceBusClient>(() => new MockedServiceBusClient());
-                container.RegisterSingleton<CosmosClient>(() => new MockedCosmosClient());
+                container.RegisterSingleton<ICosmosBulkClient>(() => new CosmosClientProvider(new MockedCosmosClient()));
+                container.RegisterSingleton<ICosmosClient>(() => new CosmosClientProvider(new MockedCosmosClient()));
                 container.RegisterSingleton(() => new StorageConfig("fake_value"));
                 container.RegisterSingleton(() => new ServiceBusConfig("fake_value", "fake_value", "fake_value"));
                 container.RegisterSingleton(() => new CosmosDatabaseConfig("fake_value", "fake_value"));

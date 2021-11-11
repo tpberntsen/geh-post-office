@@ -23,29 +23,41 @@ namespace Energinet.DataHub.MessageHub.Model.Model
     /// </summary>
     public sealed class DataBundleResponseDto
     {
-        /// <summary>
-        /// Creates a failure response to the bundle contents request.
-        /// </summary>
-        /// <param name="responseError">The information about the error.</param>
-        /// <param name="dataAvailableNotificationIds">A collection of guids identifying which data has been requested.</param>
-        public DataBundleResponseDto(DataBundleResponseErrorDto responseError, IEnumerable<Guid> dataAvailableNotificationIds)
+        internal DataBundleResponseDto(
+            Guid requestId,
+            string requestIdempotencyId,
+            DataBundleResponseErrorDto responseError,
+            IEnumerable<Guid> dataAvailableNotificationIds)
         {
+            RequestId = requestId;
+            RequestIdempotencyId = requestIdempotencyId;
             DataAvailableNotificationIds = dataAvailableNotificationIds;
             ResponseError = responseError;
             IsErrorResponse = true;
         }
 
-        /// <summary>
-        /// Creates a successful response to the bundle contents request.
-        /// </summary>
-        /// <param name="contentUri">The location of the bundle in Azure Blob Storage.</param>
-        /// <param name="dataAvailableNotificationIds">A collection of guids identifying which data has been requested.</param>
-        internal DataBundleResponseDto(Uri contentUri, IEnumerable<Guid> dataAvailableNotificationIds)
+        internal DataBundleResponseDto(
+            Guid requestId,
+            string requestIdempotencyId,
+            Uri contentUri,
+            IEnumerable<Guid> dataAvailableNotificationIds)
         {
+            RequestId = requestId;
+            RequestIdempotencyId = requestIdempotencyId;
             DataAvailableNotificationIds = dataAvailableNotificationIds;
             ContentUri = contentUri;
             IsErrorResponse = false;
         }
+
+        /// <summary>
+        /// The unique identifier of the request targeted by this response.
+        /// </summary>
+        public Guid RequestId { get; }
+
+        /// <summary>
+        /// The unique identifier for the contents of the request targeted by this response.
+        /// </summary>
+        public string RequestIdempotencyId { get; }
 
         /// <summary>
         /// Specifies whether the response has succeeded.

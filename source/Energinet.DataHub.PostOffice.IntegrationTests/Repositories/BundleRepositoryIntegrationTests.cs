@@ -66,8 +66,9 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var setupBundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
                 recipient,
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 new[] { new Uuid(Guid.NewGuid()) });
 
             await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
@@ -93,8 +94,9 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var setupBundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
-                DomainOrigin.TimeSeries,
                 recipient,
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 new[] { new Uuid(Guid.NewGuid()) });
 
             await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
@@ -188,15 +190,17 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             // The uuid is only unique pr. partition and can be reused.
             var bundleA = new Bundle(
                 commonGuid,
-                DomainOrigin.TimeSeries,
                 recipientA,
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 new[] { commonGuid });
 
             // Everything should match to detect change of partition key.
             var bundleB = new Bundle(
                 bundleA.BundleId,
-                bundleA.Origin,
                 recipientB,
+                bundleA.Origin,
+                new ContentType("fake_value"),
                 bundleA.NotificationIds);
 
             await target.TryAddNextUnacknowledgedAsync(bundleA).ConfigureAwait(false);
@@ -390,8 +394,9 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         {
             return new Bundle(
                 new Uuid(Guid.NewGuid()),
-                domainOrigin,
                 recipient,
+                domainOrigin,
+                new ContentType("fake_value"),
                 new[] { new Uuid(Guid.NewGuid()) },
                 bundleContent);
         }
@@ -400,8 +405,9 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         {
             return new Bundle(
                 new Uuid(bundleId),
-                DomainOrigin.TimeSeries,
                 recipient,
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 new[] { new Uuid(Guid.NewGuid()) },
                 bundleContent);
         }

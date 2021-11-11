@@ -38,7 +38,7 @@ namespace DataAvailableNotification
                 new GlobalLocationNumberDto(string.IsNullOrWhiteSpace(recipient) ? GlnHelper.CreateRandomGln() : recipient),
                 new MessageTypeDto(string.IsNullOrWhiteSpace(messageType) ? "timeseries" : messageType),
                 origin,
-                false,
+                true,
                 1);
         }
     }

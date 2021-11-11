@@ -18,9 +18,9 @@ namespace Energinet.DataHub.MessageHub.Client.Factories
 {
     public sealed class StorageServiceClientFactory : IStorageServiceClientFactory
     {
-        private static readonly object _lockObject = new();
-        private static BlobServiceClient? _blobServiceClient;
+        private readonly object _lockObject = new();
         private readonly string _connectionString;
+        private BlobServiceClient? _blobServiceClient;
 
         public StorageServiceClientFactory(string connectionString)
         {
@@ -29,6 +29,9 @@ namespace Energinet.DataHub.MessageHub.Client.Factories
 
         public BlobServiceClient Create()
         {
+            if (_blobServiceClient != null)
+                return _blobServiceClient;
+
             lock (_lockObject)
             {
                 _blobServiceClient ??= new BlobServiceClient(_connectionString);

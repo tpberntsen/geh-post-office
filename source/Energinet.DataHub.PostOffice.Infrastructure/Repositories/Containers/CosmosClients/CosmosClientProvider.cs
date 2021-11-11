@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Energinet.DataHub.MessageHub.Core
+using Microsoft.Azure.Cosmos;
+
+namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers.CosmosClients
 {
-    public sealed record PeekRequestConfig(
-        string TimeSeriesQueue,
-        string TimeSeriesReplyQueue,
-        string ChargesQueue,
-        string ChargesReplyQueue,
-        string MarketRolesQueue,
-        string MarketRolesReplyQueue,
-        string MeteringPointsQueue,
-        string MeteringPointsReplyQueue,
-        string AggregationsQueue,
-        string AggregationsReplyQueue);
+    public class CosmosClientProvider : ICosmosClient, ICosmosBulkClient
+    {
+        public CosmosClientProvider(CosmosClient client)
+        {
+            Client = client;
+        }
+
+        public CosmosClient Client { get; set; }
+    }
 }

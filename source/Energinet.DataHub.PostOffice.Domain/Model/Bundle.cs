@@ -24,12 +24,14 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
 
         public Bundle(
             Uuid bundleId,
-            DomainOrigin origin,
             MarketOperator recipient,
+            DomainOrigin origin,
+            ContentType contentType,
             IReadOnlyCollection<Uuid> notificationIds)
         {
             BundleId = bundleId;
             Origin = origin;
+            ContentType = contentType;
             Recipient = recipient;
             NotificationIds = notificationIds;
             ProcessId = new ProcessId(bundleId, recipient);
@@ -37,13 +39,15 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
 
         public Bundle(
             Uuid bundleId,
-            DomainOrigin origin,
             MarketOperator recipient,
+            DomainOrigin origin,
+            ContentType contentType,
             IReadOnlyCollection<Uuid> notificationIds,
             IBundleContent? bundleContent)
         {
             BundleId = bundleId;
             Origin = origin;
+            ContentType = contentType;
             Recipient = recipient;
             NotificationIds = notificationIds;
             _bundleContent = bundleContent;
@@ -51,10 +55,13 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
         }
 
         public Uuid BundleId { get; }
-        public DomainOrigin Origin { get; }
-        public MarketOperator Recipient { get; }
-        public IReadOnlyCollection<Uuid> NotificationIds { get; }
         public ProcessId ProcessId { get; }
+
+        public MarketOperator Recipient { get; }
+        public DomainOrigin Origin { get; }
+        public ContentType ContentType { get; }
+
+        public IReadOnlyCollection<Uuid> NotificationIds { get; }
         public bool NotificationsArchived { get; set; }
 
         public bool TryGetContent([NotNullWhen(true)] out IBundleContent? bundleContent)

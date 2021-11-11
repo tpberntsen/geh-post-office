@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.MessageHub.Model.IntegrationEvents;
-using static System.DateTimeOffset;
-using static System.Guid;
 
 namespace Energinet.DataHub.MessageHub.Client.Extensions
 {
@@ -26,7 +25,7 @@ namespace Energinet.DataHub.MessageHub.Client.Extensions
             return serviceBusMessage.AddIntegrationsEvents(
                 operationCorrelationId,
                 IntegrationEventsMessageType.DataBundleResponse,
-                NewGuid().ToString());
+                Guid.NewGuid().ToString());
         }
 
         public static ServiceBusMessage AddDataAvailableIntegrationEvents(this ServiceBusMessage serviceBusMessage, string operationCorrelationId)
@@ -34,7 +33,7 @@ namespace Energinet.DataHub.MessageHub.Client.Extensions
             return serviceBusMessage.AddIntegrationsEvents(
                 operationCorrelationId,
                 IntegrationEventsMessageType.DataAvailable,
-                NewGuid().ToString());
+                Guid.NewGuid().ToString());
         }
 
         private static ServiceBusMessage AddIntegrationsEvents(
@@ -43,7 +42,7 @@ namespace Energinet.DataHub.MessageHub.Client.Extensions
             IntegrationEventsMessageType messageType,
             string eventIdentification)
         {
-            serviceBusMessage.ApplicationProperties.Add("OperationTimestamp", UtcNow);
+            serviceBusMessage.ApplicationProperties.Add("OperationTimestamp", DateTimeOffset.UtcNow);
             serviceBusMessage.ApplicationProperties.Add("OperationCorrelationId", operationCorrelationId);
             serviceBusMessage.ApplicationProperties.Add("MessageVersion", 1);
             serviceBusMessage.ApplicationProperties.Add("MessageType", messageType.ToString());

@@ -27,7 +27,6 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Factories
         {
             // arrange
             var connectionString = "Endpoint=sb://sbn-postoffice.servicebus.windows.net/;SharedAccessKeyName=Hello;SharedAccessKey=there";
-
             var serviceBusClientFactory = new ServiceBusClientFactory(connectionString);
 
             // act
@@ -36,6 +35,21 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Factories
             // assert
             Assert.IsType<ServiceBusClient>(actual);
             Assert.NotNull(actual);
+        }
+
+        [Fact]
+        public void Create_ReturnsSingleton()
+        {
+            // arrange
+            var target = new ServiceBusClientFactory("Endpoint=sb://sbn-postoffice.servicebus.windows.net/;SharedAccessKeyName=Hello;SharedAccessKey=there");
+
+            // act
+            var actualA = target.Create();
+            var actualB = target.Create();
+
+            // assert
+            Assert.NotNull(actualA);
+            Assert.Equal(actualA, actualB);
         }
     }
 }

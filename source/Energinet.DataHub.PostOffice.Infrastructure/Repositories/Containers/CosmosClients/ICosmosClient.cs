@@ -12,25 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
+using Microsoft.Azure.Cosmos;
 
-namespace Energinet.DataHub.MessageHub.Client.Factories
+namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers.CosmosClients
 {
     /// <summary>
-    /// Abstraction for messagebus factory
+    /// Provides access to the CosmosDB container without bulk execution.
     /// </summary>
-    public interface IMessageBusFactory
+    public interface ICosmosClient
     {
         /// <summary>
-        /// Creates sender reference
+        /// Placeholder for the Cosmos client without bulk execution.
         /// </summary>
-        /// <param name="queueOrTopicName"></param>
-        ISenderMessageBus GetSenderClient(string queueOrTopicName);
-
-        /// <summary>
-        /// Creates session receiver reference
-        /// </summary>
-        /// <returns><see cref="IReceiverMessageBus"/></returns>
-        Task<IReceiverMessageBus> GetSessionReceiverClientAsync(string queueOrTopicName, string sessionId);
+        /// <returns>A Cosmos client without bulk execution.</returns>
+        public CosmosClient Client { get; set; }
     }
 }

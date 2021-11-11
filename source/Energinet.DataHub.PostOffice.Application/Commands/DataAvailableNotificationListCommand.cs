@@ -12,17 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Energinet.DataHub.MessageHub.Core
+using System.Collections.Generic;
+using MediatR;
+
+namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public sealed record PeekRequestConfig(
-        string TimeSeriesQueue,
-        string TimeSeriesReplyQueue,
-        string ChargesQueue,
-        string ChargesReplyQueue,
-        string MarketRolesQueue,
-        string MarketRolesReplyQueue,
-        string MeteringPointsQueue,
-        string MeteringPointsReplyQueue,
-        string AggregationsQueue,
-        string AggregationsReplyQueue);
+    public class DataAvailableNotificationListCommand : IRequest<DataAvailableNotificationResponse>
+    {
+        public DataAvailableNotificationListCommand(IEnumerable<DataAvailableNotificationCommand> dataAvailableNotifications)
+        {
+            DataAvailableNotifications = dataAvailableNotifications;
+        }
+
+        public IEnumerable<DataAvailableNotificationCommand> DataAvailableNotifications { get; }
+    }
 }

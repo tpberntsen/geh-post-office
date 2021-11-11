@@ -91,6 +91,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
 
                 var protobufMessage = new DataBundleResponseContract
                 {
+                    RequestId = Guid.NewGuid().ToString(),
                     Success = new DataBundleResponseContract.Types.FileResource
                     {
                         ContentUri = pathWithMessage,
