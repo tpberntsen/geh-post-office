@@ -116,3 +116,4 @@ energinet
 greenenergyhub
 protobuf
 ArgumentNullException
+IntegrationTesting
