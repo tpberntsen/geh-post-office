@@ -25,14 +25,35 @@ using Xunit.Categories;
 namespace Energinet.DataHub.MessageHub.Core.Tests.Dequeue
 {
     [UnitTest]
-    public class DequeueNotificationSenderTests
+    public sealed class DequeueNotificationSenderTests
     {
+        private readonly DequeueConfig _testConfig = new DequeueConfig(
+            "sbq-TimeSeries-dequeue",
+            "sbq-Charges-dequeue",
+            "sbq-MarketRoles-dequeue",
+            "sbq-MeteringPoints-dequeue",
+            "sbq-Aggregations-dequeue");
+
         [Fact]
         public async Task SendAsync_NullArgument_ThrowsException()
         {
             // Arrange
+            var serviceBusSenderMock = new Mock<ServiceBusSender>();
+            var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
+
+            await using var mockedServiceBusClient = new MockedServiceBusClient(
+                string.Empty,
+                string.Empty,
+                serviceBusSenderMock.Object,
+                serviceBusSessionReceiverMock.Object);
+
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
-            await using var target = new DequeueNotificationSender(serviceBusClientFactory.Object);
+            serviceBusClientFactory
+                .Setup(x => x.Create())
+                .Returns(mockedServiceBusClient);
+
+            await using var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
+            var target = new DequeueNotificationSender(messageBusFactory, _testConfig);
 
             // Act + Assert
             await Assert
@@ -59,9 +80,12 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Dequeue
                 serviceBusSessionReceiverMock.Object);
 
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
-            serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
+            serviceBusClientFactory
+                .Setup(x => x.Create())
+                .Returns(mockedServiceBusClient);
 
-            await using var target = new DequeueNotificationSender(serviceBusClientFactory.Object);
+            await using var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
+            var target = new DequeueNotificationSender(messageBusFactory, _testConfig);
 
             var dataAvailable = new DequeueNotificationDto(
                 new[] { Guid.NewGuid(), Guid.NewGuid() },
@@ -80,17 +104,21 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Dequeue
             // Arrange
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
             var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
+            var queueName = "sbq-TimeSeries-dequeue";
 
             await using var mockedServiceBusClient = new MockedServiceBusClient(
-                "sbq-TimeSeries-dequeue",
+                queueName,
                 string.Empty,
                 serviceBusSenderMock.Object,
                 serviceBusSessionReceiverMock.Object);
 
             var serviceBusClientFactory = new Mock<IServiceBusClientFactory>();
-            serviceBusClientFactory.Setup(x => x.Create()).Returns(mockedServiceBusClient);
+            serviceBusClientFactory
+                .Setup(x => x.Create())
+                .Returns(mockedServiceBusClient);
 
-            await using var target = new DequeueNotificationSender(serviceBusClientFactory.Object);
+            await using var messageBusFactory = new AzureServiceBusFactory(serviceBusClientFactory.Object);
+            var target = new DequeueNotificationSender(messageBusFactory, _testConfig);
 
             var dataAvailable = new DequeueNotificationDto(
                 new[] { Guid.NewGuid(), Guid.NewGuid() },

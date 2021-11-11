@@ -24,16 +24,7 @@ limitations under the License.
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Energinet.DataHub.MessageHub.Core" Version="1.0.0-alpha-20211022T130337" />
-      <PackageReference Include="Energinet.DataHub.MessageHub.Model" Version="1.0.0-alpha-20211022T130337" />
       <PackageReference Include="NodaTime" Version="3.0.9" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="17.0.63">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
     </ItemGroup>
   
 </Project>

@@ -24,11 +24,10 @@ limitations under the License.
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Energinet.DataHub.MessageHub.Core" Version="1.0.0-alpha-20211022T130337" />
-    <PackageReference Include="Energinet.DataHub.MessageHub.Model" Version="1.0.0-alpha-20211022T130337" />
+    <PackageReference Include="Energinet.DataHub.MessageHub.Core" Version="1.2.*" />
     <PackageReference Include="FluentValidation" Version="9.5.1" />
     <PackageReference Include="MediatR" Version="9.0.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.18.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.19.0" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.6.0" />

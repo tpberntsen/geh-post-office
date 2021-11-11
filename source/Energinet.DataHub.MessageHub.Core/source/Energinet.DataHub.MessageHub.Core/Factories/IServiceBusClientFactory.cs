@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 
 namespace Energinet.DataHub.MessageHub.Core.Factories
 {
     /// <summary>
-    /// Factory creating a new <see cref="ServiceBusClient"/>
+    /// Factory creating a new <see cref="ServiceBusSender"/> and <see cref="ServiceBusSessionReceiver"/>
     /// </summary>
     public interface IServiceBusClientFactory
     {

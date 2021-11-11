@@ -22,55 +22,37 @@ using Energinet.DataHub.MessageHub.Model.Peek;
 
 namespace Energinet.DataHub.MessageHub.Client.Peek
 {
-    public sealed class DataBundleResponseSender : IDataBundleResponseSender, IAsyncDisposable
+    public sealed class DataBundleResponseSender : IDataBundleResponseSender
     {
         private readonly IResponseBundleParser _responseBundleParser;
-        private readonly IServiceBusClientFactory _serviceBusClientFactory;
+        private readonly IMessageBusFactory _messageBusFactory;
         private readonly MessageHubConfig _messageHubConfig;
-        private ServiceBusClient? _serviceBusClient;
 
         public DataBundleResponseSender(
             IResponseBundleParser responseBundleParser,
-            IServiceBusClientFactory serviceBusClientFactory,
+            IMessageBusFactory messageBusFactory,
             MessageHubConfig messageHubConfig)
         {
             _responseBundleParser = responseBundleParser;
-            _serviceBusClientFactory = serviceBusClientFactory;
+            _messageBusFactory = messageBusFactory;
             _messageHubConfig = messageHubConfig;
         }
 
-        public async Task SendAsync(
-            DataBundleResponseDto dataBundleResponseDto,
-            DataBundleRequestDto requestDto,
-            string sessionId)
+        public Task SendAsync(DataBundleResponseDto dataBundleResponseDto)
         {
             if (dataBundleResponseDto is null)
                 throw new ArgumentNullException(nameof(dataBundleResponseDto));
 
-            if (sessionId is null)
-                throw new ArgumentNullException(nameof(sessionId));
-
-            if (requestDto is null)
-                throw new ArgumentNullException(nameof(requestDto));
+            var sessionId = dataBundleResponseDto.RequestId.ToString();
 
             var contractBytes = _responseBundleParser.Parse(dataBundleResponseDto);
             var serviceBusReplyMessage = new ServiceBusMessage(contractBytes)
             {
                 SessionId = sessionId,
-            }.AddDataBundleResponseIntegrationEvents(requestDto.IdempotencyId);
+            }.AddDataBundleResponseIntegrationEvents(dataBundleResponseDto.RequestIdempotencyId);
 
-            _serviceBusClient ??= _serviceBusClientFactory.Create();
-            await using var sender = _serviceBusClient.CreateSender(_messageHubConfig.DomainReplyQueue);
-            await sender.SendMessageAsync(serviceBusReplyMessage).ConfigureAwait(false);
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            if (_serviceBusClient is not null)
-            {
-                await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
-                _serviceBusClient = null;
-            }
+            var sender = _messageBusFactory.GetSenderClient(_messageHubConfig.DomainReplyQueue);
+            return sender.PublishMessageAsync<ServiceBusMessage>(serviceBusReplyMessage);
         }
     }
 }

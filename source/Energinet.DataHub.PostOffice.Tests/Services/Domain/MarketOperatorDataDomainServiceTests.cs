@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
@@ -257,8 +256,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleContentMock = new Mock<IBundleContent>();
             var setupBundle = new Bundle(
                 new Uuid("7dfb2080-fb56-4a37-a85d-1ac2f1559b45"),
-                DomainOrigin.TimeSeries,
                 recipient,
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object);
 
@@ -292,8 +292,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleContentMock = new Mock<IBundleContent>();
             var setupBundle = new Bundle(
                 new Uuid("7dfb2080-fb56-4a37-a85d-1ac2f1559b45"),
-                DomainOrigin.TimeSeries,
                 recipient,
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
@@ -332,8 +333,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleId = new Uuid("7dfb2080-fb56-4a37-a85d-1ac2f1559b45");
             var setupBundle = new Bundle(
                 bundleId,
-                DomainOrigin.TimeSeries,
                 recipient,
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
@@ -649,8 +651,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleContentMock = new Mock<IBundleContent>();
             var setupBundle = new Bundle(
                 bundleId,
-                DomainOrigin.TimeSeries,
                 recipient,
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object);
 
@@ -683,8 +686,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleContentMock = new Mock<IBundleContent>();
             var setupBundle = new Bundle(
                 bundleId,
-                DomainOrigin.TimeSeries,
                 recipient,
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
@@ -723,8 +727,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleId = new Uuid(Guid.NewGuid());
             var setupBundle = new Bundle(
                 bundleId,
-                DomainOrigin.TimeSeries,
                 recipient,
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
@@ -1041,8 +1046,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleContentMock = new Mock<IBundleContent>();
             var setupBundle = new Bundle(
                 bundleId,
-                DomainOrigin.Aggregations,
                 recipient,
+                DomainOrigin.Aggregations,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object);
 
@@ -1076,8 +1082,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleContentMock = new Mock<IBundleContent>();
             var setupBundle = new Bundle(
                 bundleId,
-                DomainOrigin.Aggregations,
                 recipient,
+                DomainOrigin.Aggregations,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
@@ -1116,8 +1123,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleId = new Uuid(Guid.NewGuid());
             var setupBundle = new Bundle(
                 bundleId,
-                DomainOrigin.Aggregations,
                 recipient,
+                DomainOrigin.Aggregations,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
@@ -1531,8 +1539,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleContentMock = new Mock<IBundleContent>();
             var setupBundle = new Bundle(
                 bundleId,
-                DomainOrigin.MarketRoles,
                 recipient,
+                DomainOrigin.MarketRoles,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object);
 
@@ -1571,8 +1580,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleContentMock = new Mock<IBundleContent>();
             var setupBundle = new Bundle(
                 bundleId,
-                DomainOrigin.MarketRoles,
                 recipient,
+                DomainOrigin.MarketRoles,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
@@ -1616,8 +1626,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleId = new Uuid(Guid.NewGuid());
             var setupBundle = new Bundle(
                 bundleId,
-                DomainOrigin.MarketRoles,
                 recipient,
+                DomainOrigin.MarketRoles,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
@@ -1789,7 +1800,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
         }
 
         [Fact]
-        public async Task TryAcknowledgeAsync_HasBundle_ReturnsTrue()
+        public async Task CanAcknowledgeAsync_HasBundle_ReturnsTrue()
         {
             // Arrange
             var recipient = new MarketOperator(new GlobalLocationNumber("fake_value"));
@@ -1804,8 +1815,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var bundle = new Bundle(
                 bundleUuid,
-                DomainOrigin.TimeSeries,
                 recipient,
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 idsInBundle);
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
@@ -1824,16 +1836,14 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentTypeWeightMapMock.Object);
 
             // Act
-            var result = await target.TryAcknowledgeAsync(recipient, bundleUuid).ConfigureAwait(false);
+            var result = await target.CanAcknowledgeAsync(recipient, bundleUuid).ConfigureAwait(false);
 
             // Assert
-            Assert.True(result.IsAcknowledged);
-            bundleRepositoryMock.Verify(x => x.AcknowledgeAsync(recipient, bundleUuid), Times.Once);
-            dataAvailableNotificationRepositoryMock.Verify(x => x.AcknowledgeAsync(recipient, idsInBundle), Times.Once);
+            Assert.True(result.CanAcknowledge);
         }
 
         [Fact]
-        public async Task TryAcknowledgeAsync_HasNoBundle_ReturnsFalse()
+        public async Task CanAcknowledgeAsync_HasNoBundle_ReturnsFalse()
         {
             // Arrange
             var recipient = new MarketOperator(new GlobalLocationNumber("fake_value"));
@@ -1854,16 +1864,14 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentTypeWeightMapMock.Object);
 
             // Act
-            var result = await target.TryAcknowledgeAsync(recipient, bundleUuid).ConfigureAwait(false);
+            var result = await target.CanAcknowledgeAsync(recipient, bundleUuid).ConfigureAwait(false);
 
             // Assert
-            Assert.False(result.IsAcknowledged);
-            bundleRepositoryMock.Verify(x => x.AcknowledgeAsync(recipient, It.IsAny<Uuid>()), Times.Never);
-            dataAvailableNotificationRepositoryMock.Verify(x => x.AcknowledgeAsync(recipient, It.IsAny<IEnumerable<Uuid>>()), Times.Never);
+            Assert.False(result.CanAcknowledge);
         }
 
         [Fact]
-        public async Task TryAcknowledgeAsync_WrongId_ReturnsFalse()
+        public async Task CanAcknowledgeAsync_WrongId_ReturnsFalse()
         {
             // Arrange
             var recipient = new MarketOperator(new GlobalLocationNumber("fake_value"));
@@ -1873,8 +1881,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var bundle = new Bundle(
                 bundleUuid,
-                DomainOrigin.TimeSeries,
                 recipient,
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
                 Array.Empty<Uuid>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
@@ -1891,12 +1900,50 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentTypeWeightMapMock.Object);
 
             // Act
-            var result = await target.TryAcknowledgeAsync(recipient, incorrectId).ConfigureAwait(false);
+            var result = await target.CanAcknowledgeAsync(recipient, incorrectId).ConfigureAwait(false);
 
             // Assert
-            Assert.False(result.IsAcknowledged);
-            bundleRepositoryMock.Verify(x => x.AcknowledgeAsync(recipient, It.IsAny<Uuid>()), Times.Never);
-            dataAvailableNotificationRepositoryMock.Verify(x => x.AcknowledgeAsync(recipient, It.IsAny<IEnumerable<Uuid>>()), Times.Never);
+            Assert.False(result.CanAcknowledge);
+        }
+
+        [Fact]
+        public async Task AcknowledgeAsync_HasBundle_Succeeds()
+        {
+            // Arrange
+            var recipient = new MarketOperator(new GlobalLocationNumber("fake_value"));
+            var bundleUuid = new Uuid("1E0A906E-8895-4C86-B4FC-48E9BAF2A2B6");
+            var idsInBundle = new[]
+            {
+                new Uuid("5AA0BDE7-EAB7-408D-B4A4-BBF1EEFF3F7E"),
+                new Uuid("7E188D0E-A923-4AD5-A7CB-39889884241B"),
+                new Uuid("9DEA909A-179B-413B-A669-E38D4C812009"),
+                new Uuid("B0425457-8E0A-4E66-80EF-2717562EAEA7")
+            };
+
+            var bundle = new Bundle(
+                bundleUuid,
+                recipient,
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
+                idsInBundle);
+
+            var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
+            var bundleRepositoryMock = new Mock<IBundleRepository>();
+
+            var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
+            var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
+            var target = new MarketOperatorDataDomainService(
+                bundleRepositoryMock.Object,
+                dataAvailableNotificationRepositoryMock.Object,
+                requestDomainServiceMock.Object,
+                contentTypeWeightMapMock.Object);
+
+            // Act
+            await target.AcknowledgeAsync(bundle).ConfigureAwait(false);
+
+            // Assert
+            bundleRepositoryMock.Verify(x => x.AcknowledgeAsync(recipient, bundleUuid), Times.Once);
+            dataAvailableNotificationRepositoryMock.Verify(x => x.AcknowledgeAsync(recipient, idsInBundle), Times.Once);
         }
 
         private static DataAvailableNotification CreateDataAvailableNotification(

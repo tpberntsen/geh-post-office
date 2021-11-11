@@ -12,24 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.MessageHub.Core.Factories;
 using Xunit;
+using Xunit.Categories;
 
 namespace Energinet.DataHub.MessageHub.Core.Tests.Factories
 {
+    [UnitTest]
     public sealed class ServiceBusClientFactoryTests
     {
         [Fact]
         public void Create_ReturnsServiceBusClient()
         {
             // arrange
+            var connectionString = "Endpoint=sb://sbn-postoffice.servicebus.windows.net/;SharedAccessKeyName=Hello;SharedAccessKey=there";
+            var serviceBusClientFactory = new ServiceBusClientFactory(connectionString);
+
+            // act
+            var actual = serviceBusClientFactory.Create();
+
+            // assert
+            Assert.IsType<ServiceBusClient>(actual);
+            Assert.NotNull(actual);
+        }
+
+        [Fact]
+        public void Create_ReturnsSingleton()
+        {
+            // arrange
             var target = new ServiceBusClientFactory("Endpoint=sb://sbn-postoffice.servicebus.windows.net/;SharedAccessKeyName=Hello;SharedAccessKey=there");
 
             // act
-            var actual = target.Create();
+            var actualA = target.Create();
+            var actualB = target.Create();
 
             // assert
-            Assert.NotNull(actual);
+            Assert.NotNull(actualA);
+            Assert.Equal(actualA, actualB);
         }
     }
 }

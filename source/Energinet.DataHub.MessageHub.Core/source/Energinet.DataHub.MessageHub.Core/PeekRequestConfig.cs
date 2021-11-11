@@ -14,7 +14,7 @@
 
 namespace Energinet.DataHub.MessageHub.Core
 {
-    public record PeekRequestConfig(
+    public sealed record PeekRequestConfig(
         string TimeSeriesQueue,
         string TimeSeriesReplyQueue,
         string ChargesQueue,

@@ -19,9 +19,16 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
 {
     internal sealed class MockedServiceBusClientFactory : IServiceBusClientFactory
     {
+        private readonly MockedServiceBusClient _serviceBusClient;
+
+        internal MockedServiceBusClientFactory(MockedServiceBusClient client)
+        {
+            _serviceBusClient = client;
+        }
+
         public ServiceBusClient Create()
         {
-            return null!;
+            return _serviceBusClient;
         }
     }
 }

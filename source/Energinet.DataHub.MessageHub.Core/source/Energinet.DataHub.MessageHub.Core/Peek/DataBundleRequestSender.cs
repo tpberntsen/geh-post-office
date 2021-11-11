@@ -22,34 +22,24 @@ using Energinet.DataHub.MessageHub.Model.Peek;
 
 namespace Energinet.DataHub.MessageHub.Core.Peek
 {
-    public sealed class DataBundleRequestSender : IDataBundleRequestSender, IAsyncDisposable
+    public sealed class DataBundleRequestSender : IDataBundleRequestSender
     {
         private readonly IRequestBundleParser _requestBundleParser;
         private readonly IResponseBundleParser _responseBundleParser;
-        private readonly IServiceBusClientFactory _serviceBusClientFactory;
+        private readonly IMessageBusFactory _messageBusFactory;
         private readonly PeekRequestConfig _peekRequestConfig;
         private readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(30);
-        private ServiceBusClient? _serviceBusClient;
 
         public DataBundleRequestSender(
             IRequestBundleParser requestBundleParser,
             IResponseBundleParser responseBundleParser,
-            IServiceBusClientFactory serviceBusClientFactory,
+            IMessageBusFactory serviceBusClientFactory,
             PeekRequestConfig peekRequestConfig)
         {
             _requestBundleParser = requestBundleParser;
             _responseBundleParser = responseBundleParser;
-            _serviceBusClientFactory = serviceBusClientFactory;
+            _messageBusFactory = serviceBusClientFactory;
             _peekRequestConfig = peekRequestConfig;
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            if (_serviceBusClient != null)
-            {
-                await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
-                _serviceBusClient = null;
-            }
         }
 
         public async Task<DataBundleResponseDto?> SendAsync(
@@ -61,7 +51,8 @@ namespace Energinet.DataHub.MessageHub.Core.Peek
 
             var bytes = _requestBundleParser.Parse(dataBundleRequestDto);
 
-            var sessionId = Guid.NewGuid().ToString();
+            var sessionId = dataBundleRequestDto.RequestId.ToString();
+
             var replyQueue = GetReplyQueueName(domainOrigin);
             var targetQueue = GetQueueName(domainOrigin);
 
@@ -72,16 +63,15 @@ namespace Energinet.DataHub.MessageHub.Core.Peek
                 ReplyTo = replyQueue
             }.AddRequestDataBundleIntegrationEvents(dataBundleRequestDto.IdempotencyId);
 
-            _serviceBusClient ??= _serviceBusClientFactory.Create();
+            var serviceBusClient = _messageBusFactory.GetSenderClient(targetQueue);
 
-            await using var sender = _serviceBusClient.CreateSender(targetQueue);
-            await sender.SendMessageAsync(serviceBusMessage).ConfigureAwait(false);
-
-            await using var receiver = await _serviceBusClient
-                .AcceptSessionAsync(replyQueue, sessionId)
+            await serviceBusClient
+                .PublishMessageAsync<ServiceBusMessage>(serviceBusMessage)
                 .ConfigureAwait(false);
 
-            var response = await receiver.ReceiveMessageAsync(_defaultTimeout).ConfigureAwait(false);
+            await using var receiverMessageBus = await _messageBusFactory.GetSessionReceiverClientAsync(replyQueue, sessionId).ConfigureAwait(false);
+
+            var response = await receiverMessageBus.ReceiveMessageAsync<ServiceBusMessage>(_defaultTimeout).ConfigureAwait(false);
             if (response == null)
                 return null;
 

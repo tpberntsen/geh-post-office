@@ -48,11 +48,11 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Peek
             // arrange
             var requestBundleParserMock = new Mock<IRequestBundleParser>();
             var responseBundleParserMock = new Mock<IResponseBundleParser>();
-            var serviceBusClientFactoryMock = new Mock<IServiceBusClientFactory>();
-            await using var target = new DataBundleRequestSender(
+            var messageBusFactory = new Mock<IMessageBusFactory>();
+            var target = new DataBundleRequestSender(
                 requestBundleParserMock.Object,
                 responseBundleParserMock.Object,
-                serviceBusClientFactoryMock.Object,
+                messageBusFactory.Object,
                 _peekRequestConfig);
 
             // act, assert
@@ -71,7 +71,16 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Peek
             var queue = $"sbq-{domainOrigin}";
             var replyQueue = $"sbq-{domainOrigin}-reply";
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
-            var requestBundleResponse = new DataBundleResponseContract { Success = new DataBundleResponseContract.Types.FileResource { ContentUri = "http://localhost", DataAvailableNotificationIds = { new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" } } } };
+            var requestBundleResponse = new DataBundleResponseContract
+            {
+                RequestId = "B679EFB9-70E9-4BC8-8C79-EAA9918C83C8",
+                Success = new DataBundleResponseContract.Types.FileResource
+                {
+                    ContentUri = "http://localhost",
+                    DataAvailableNotificationIds = { new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" } }
+                }
+            };
+
             var bytes = requestBundleResponse.ToByteArray();
 
             var serviceBusReceivedMessage = MockedServiceBusReceivedMessage.Create(bytes);
@@ -86,21 +95,29 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Peek
                 serviceBusSenderMock.Object,
                 serviceBusSessionReceiverMock.Object);
 
-            var serviceBusClientFactoryMock = new Mock<IServiceBusClientFactory>();
-            serviceBusClientFactoryMock
-                .Setup(x => x.Create())
-                .Returns(serviceBusClient);
+            var messageBusFactory = new Mock<IMessageBusFactory>();
+            messageBusFactory
+                .Setup(x => x.GetSenderClient(queue))
+                .Returns(AzureSenderServiceBus.Wrap(serviceBusClient.CreateSender(queue)));
 
-            await using var target = new DataBundleRequestSender(
+            await using var sessionReceiver = await serviceBusClient.AcceptSessionAsync(replyQueue, It.IsAny<string>()).ConfigureAwait(false);
+            await using var azureSessionReceiver = AzureSessionReceiverServiceBus.Wrap(sessionReceiver);
+            messageBusFactory
+                .Setup(x => x.GetSessionReceiverClientAsync(replyQueue, It.IsAny<string>()))
+                .ReturnsAsync(azureSessionReceiver);
+
+            var target = new DataBundleRequestSender(
                 new RequestBundleParser(),
                 new ResponseBundleParser(),
-                serviceBusClientFactoryMock.Object,
+                messageBusFactory.Object,
                 _peekRequestConfig);
 
             // act
             var result = await target.SendAsync(
                     new DataBundleRequestDto(
+                        new Guid("B679EFB9-70E9-4BC8-8C79-EAA9918C83C8"),
                         "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
+                        "message_type",
                         new[] { Guid.NewGuid(), Guid.NewGuid() }),
                     domainOrigin)
                 .ConfigureAwait(false);
@@ -130,21 +147,29 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Peek
                 serviceBusSenderMock.Object,
                 serviceBusSessionReceiverMock.Object);
 
-            var serviceBusClientFactoryMock = new Mock<IServiceBusClientFactory>();
-            serviceBusClientFactoryMock
-                .Setup(x => x.Create())
-                .Returns(serviceBusClient);
+            var messageBusFactory = new Mock<IMessageBusFactory>();
+            messageBusFactory
+                .Setup(x => x.GetSenderClient(queue))
+                .Returns(AzureSenderServiceBus.Wrap(serviceBusClient.CreateSender(queue)));
 
-            await using var target = new DataBundleRequestSender(
+            await using var sessionReceiver = await serviceBusClient.AcceptSessionAsync(replyQueue, It.IsAny<string>()).ConfigureAwait(false);
+            await using var azureSessionReceiver = AzureSessionReceiverServiceBus.Wrap(sessionReceiver);
+            messageBusFactory
+                .Setup(x => x.GetSessionReceiverClientAsync(replyQueue, It.IsAny<string>()))
+                .ReturnsAsync(azureSessionReceiver);
+
+            var target = new DataBundleRequestSender(
                 new RequestBundleParser(),
                 new ResponseBundleParser(),
-                serviceBusClientFactoryMock.Object,
+                messageBusFactory.Object,
                 _peekRequestConfig);
 
             // act
             var result = await target.SendAsync(
                     new DataBundleRequestDto(
+                        Guid.NewGuid(),
                         "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
+                        "message_type",
                         new[] { Guid.NewGuid(), Guid.NewGuid() }),
                     domainOrigin)
                 .ConfigureAwait(false);
@@ -163,9 +188,11 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Peek
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
             var requestBundleResponse = new DataBundleResponseContract
             {
+                RequestId = "C163828E-08C0-4D97-93A3-B647B2B657FB",
                 Success = new DataBundleResponseContract.Types.FileResource
                 {
-                    ContentUri = "http://localhost", DataAvailableNotificationIds =
+                    ContentUri = "http://localhost",
+                    DataAvailableNotificationIds =
                     {
                         new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" }
                     }
@@ -186,21 +213,29 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Peek
                 serviceBusSenderMock.Object,
                 serviceBusSessionReceiverMock.Object);
 
-            var serviceBusClientFactoryMock = new Mock<IServiceBusClientFactory>();
-            serviceBusClientFactoryMock
-                .Setup(x => x.Create())
-                .Returns(serviceBusClient);
+            var messageBusFactory = new Mock<IMessageBusFactory>();
+            messageBusFactory
+                .Setup(x => x.GetSenderClient(queue))
+                .Returns(AzureSenderServiceBus.Wrap(serviceBusClient.CreateSender(queue)));
 
-            await using var target = new DataBundleRequestSender(
+            await using var sessionReceiver = await serviceBusClient.AcceptSessionAsync(replyQueue, It.IsAny<string>()).ConfigureAwait(false);
+            await using var azureSessionReceiver = AzureSessionReceiverServiceBus.Wrap(sessionReceiver);
+            messageBusFactory
+                .Setup(x => x.GetSessionReceiverClientAsync(replyQueue, It.IsAny<string>()))
+                .ReturnsAsync(azureSessionReceiver);
+
+            var target = new DataBundleRequestSender(
                 new RequestBundleParser(),
                 new ResponseBundleParser(),
-                serviceBusClientFactoryMock.Object,
+                messageBusFactory.Object,
                 _peekRequestConfig);
 
             // act
             await target.SendAsync(
                     new DataBundleRequestDto(
+                        new Guid("C163828E-08C0-4D97-93A3-B647B2B657FB"),
                         "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
+                        "message_type",
                         new[] { Guid.NewGuid(), Guid.NewGuid() }),
                     domainOrigin)
                 .ConfigureAwait(false);

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.MessageHub.Client.Factories;
 using Xunit;
 
@@ -29,7 +30,23 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Factories
             var actual = target.Create();
 
             // assert
+            Assert.IsType<ServiceBusClient>(actual);
             Assert.NotNull(actual);
+        }
+
+        [Fact]
+        public void Create_ReturnsSingleton()
+        {
+            // arrange
+            var target = new ServiceBusClientFactory("Endpoint=sb://sbn-postoffice.servicebus.windows.net/;SharedAccessKeyName=Hello;SharedAccessKey=there");
+
+            // act
+            var actualA = target.Create();
+            var actualB = target.Create();
+
+            // assert
+            Assert.NotNull(actualA);
+            Assert.Equal(actualA, actualB);
         }
     }
 }

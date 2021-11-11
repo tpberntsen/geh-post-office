@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
+using FluentAssertions;
 using Xunit;
 using Xunit.Categories;
 
@@ -438,7 +439,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         }
 
         [Fact]
-        public async Task AcknowledgeAsync_BundleOverItemCap_AcknowledgesWithourError()
+        public async Task AcknowledgeAsync_BundleOverItemCap_AcknowledgesWithoutError()
         {
             // Arrange
             await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
@@ -513,6 +514,47 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             Assert.Equal(expected.Origin, actual.Origin);
             Assert.Equal(expected.SupportsBundling, actual.SupportsBundling);
             Assert.Equal(expected.Weight, actual.Weight);
+        }
+
+        [Fact]
+        public async Task SaveAsync_InsertingBatchOfDataAvailables_Success()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            var dataAvailableNotifications = new List<DataAvailableNotification>();
+
+            var gln = new MockedGln();
+            for (int i = 0; i < 5; i++)
+            {
+                dataAvailableNotifications.Add(new DataAvailableNotification(
+                    new Uuid(Guid.NewGuid()),
+                    new MarketOperator(gln),
+                    new ContentType("fake_value"),
+                    DomainOrigin.TimeSeries,
+                    new SupportsBundling(true),
+                    new Weight(1)));
+            }
+
+            var expected = dataAvailableNotifications.OrderBy(x => x.NotificationId.AsGuid()).ToList();
+
+            // Act
+            await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
+
+            var totalWeight = new Weight(dataAvailableNotifications.Sum(item => item.Weight.Value));
+            var response = await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(
+                dataAvailableNotifications.First().Recipient,
+                dataAvailableNotifications.First().Origin,
+                dataAvailableNotifications.First().ContentType,
+                totalWeight).ConfigureAwait(false);
+
+            var result = response.OrderBy(x => x.NotificationId.AsGuid()).ToList();
+
+            // Assert
+            result.Should().BeEquivalentTo(expected);
         }
     }
 }

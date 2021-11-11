@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Diagnostics.CodeAnalysis;
+using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers.CosmosClients;
 using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
@@ -21,9 +23,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
         private readonly CosmosClient _client;
         private readonly CosmosDatabaseConfig _cosmosDatabaseConfig;
 
-        public DataAvailableNotificationRepositoryContainer(CosmosClient client, CosmosDatabaseConfig cosmosDatabaseConfig)
+        public DataAvailableNotificationRepositoryContainer([NotNull] ICosmosBulkClient clientProvider, CosmosDatabaseConfig cosmosDatabaseConfig)
         {
-            _client = client;
+            _client = clientProvider.Client;
             _cosmosDatabaseConfig = cosmosDatabaseConfig;
         }
 

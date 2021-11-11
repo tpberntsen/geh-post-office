@@ -66,6 +66,11 @@ namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
 
                 return new ServiceBusClientFactory(serviceBusConnectionString);
             });
+            container.RegisterSingleton<IMessageBusFactory>(() =>
+            {
+                var serviceBusClientFactory = container.GetInstance<IServiceBusClientFactory>();
+                return new AzureServiceBusFactory(serviceBusClientFactory);
+            });
         }
 
         private static void AddApplicationServices(this Container container)

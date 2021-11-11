@@ -24,23 +24,24 @@ using Google.Protobuf;
 
 namespace Energinet.DataHub.MessageHub.Core.Dequeue
 {
-    public sealed class DequeueNotificationSender : IDequeueNotificationSender, IAsyncDisposable
+    public sealed class DequeueNotificationSender : IDequeueNotificationSender
     {
-        private readonly IServiceBusClientFactory _serviceBusClientFactory;
-        private ServiceBusClient? _serviceBusClient;
+        private readonly IMessageBusFactory _messageBusFactory;
+        private readonly DequeueConfig _dequeueConfig;
 
-        public DequeueNotificationSender(IServiceBusClientFactory serviceBusClientFactory)
+        public DequeueNotificationSender(IMessageBusFactory messageBusFactory, DequeueConfig dequeueConfig)
         {
-            _serviceBusClientFactory = serviceBusClientFactory;
+            _messageBusFactory = messageBusFactory;
+            _dequeueConfig = dequeueConfig;
         }
 
-        public async Task SendAsync(DequeueNotificationDto dequeueNotificationDto, DomainOrigin domainOrigin)
+        public Task SendAsync(DequeueNotificationDto dequeueNotificationDto, DomainOrigin domainOrigin)
         {
             if (dequeueNotificationDto is null)
                 throw new ArgumentNullException(nameof(dequeueNotificationDto));
 
-            _serviceBusClient ??= _serviceBusClientFactory.Create();
-            await using var sender = _serviceBusClient.CreateSender($"sbq-{domainOrigin}-dequeue");
+            var queueName = GetQueueName(domainOrigin);
+            var serviceBusSender = _messageBusFactory.GetSenderClient(queueName);
 
             var contract = new DequeueContract
             {
@@ -49,15 +50,25 @@ namespace Energinet.DataHub.MessageHub.Core.Dequeue
             };
 
             var dequeueMessage = new ServiceBusMessage(new BinaryData(contract.ToByteArray())).AddDequeueIntegrationEvents();
-            await sender.SendMessageAsync(dequeueMessage).ConfigureAwait(false);
+            return serviceBusSender.PublishMessageAsync<ServiceBusMessage>(dequeueMessage);
         }
 
-        public async ValueTask DisposeAsync()
+        private string GetQueueName(DomainOrigin domainOrigin)
         {
-            if (_serviceBusClient != null)
+            switch (domainOrigin)
             {
-                await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
-                _serviceBusClient = null;
+                case DomainOrigin.Charges:
+                    return _dequeueConfig.ChargesDequeueQueue;
+                case DomainOrigin.TimeSeries:
+                    return _dequeueConfig.TimeSeriesDequeueQueue;
+                case DomainOrigin.Aggregations:
+                    return _dequeueConfig.AggregationsDequeueQueue;
+                case DomainOrigin.MarketRoles:
+                    return _dequeueConfig.MarketRolesDequeueQueue;
+                case DomainOrigin.MeteringPoints:
+                    return _dequeueConfig.MeteringPointsDequeueQueue;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(domainOrigin), domainOrigin, null);
             }
         }
     }
