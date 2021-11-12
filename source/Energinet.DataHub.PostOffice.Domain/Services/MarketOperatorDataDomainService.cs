@@ -27,17 +27,20 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         private readonly IDataAvailableNotificationRepository _dataAvailableNotificationRepository;
         private readonly IRequestBundleDomainService _requestBundleDomainService;
         private readonly IWeightCalculatorDomainService _weightCalculatorDomainService;
+        private readonly IOperationService _operationService;
 
         public MarketOperatorDataDomainService(
             IBundleRepository bundleRepository,
             IDataAvailableNotificationRepository dataAvailableRepository,
             IRequestBundleDomainService requestBundleDomainService,
-            IWeightCalculatorDomainService weightCalculatorDomainService)
+            IWeightCalculatorDomainService weightCalculatorDomainService,
+            IOperationService operationService)
         {
             _bundleRepository = bundleRepository;
             _dataAvailableNotificationRepository = dataAvailableRepository;
             _requestBundleDomainService = requestBundleDomainService;
             _weightCalculatorDomainService = weightCalculatorDomainService;
+            _operationService = operationService;
         }
 
         public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid bundleId)
@@ -85,6 +88,10 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             await _bundleRepository
                 .AcknowledgeAsync(bundle.Recipient, bundle.BundleId)
                 .ConfigureAwait(false);
+
+            await _operationService
+                .TriggerDequeueCleanUpOperationAsync(bundle.BundleId)
+                .ConfigureAwait(false);
         }
 
         private async Task<Bundle?> GetNextUnacknowledgedForDomainsAsync(MarketOperator recipient, Uuid bundleId, params DomainOrigin[] domains)
@@ -111,11 +118,17 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
             return bundleCreatedResponse switch
             {
-                BundleCreatedResponse.Success => await AskSubDomainForContentAsync(newBundle).ConfigureAwait(false),
+                BundleCreatedResponse.Success => await StartCleanUpAndAskSubDomainForContentAsync(newBundle).ConfigureAwait(false),
                 BundleCreatedResponse.AnotherBundleExists => null,
                 BundleCreatedResponse.BundleIdAlreadyInUse => throw new ValidationException(nameof(BundleCreatedResponse.BundleIdAlreadyInUse)),
                 _ => throw new InvalidOperationException($"bundleCreatedResponse was {bundleCreatedResponse}")
             };
+        }
+
+        private async Task<Bundle?> StartCleanUpAndAskSubDomainForContentAsync(Bundle bundle)
+        {
+            await _operationService.TriggerDequeueCleanUpOperationAsync(bundle.BundleId).ConfigureAwait(false);
+            return await AskSubDomainForContentAsync(bundle).ConfigureAwait(false);
         }
 
         private async Task<Bundle?> AskSubDomainForContentAsync(Bundle bundle)

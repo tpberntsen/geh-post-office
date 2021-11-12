@@ -23,9 +23,9 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
     public interface IOperationService
     {
         /// <summary>
-        /// Triggers clean up operation
+        /// Triggers DequeueCleanUp operation
         /// </summary>
         /// <param name="bundleId"></param>
-        Task TriggerCleanUpOperationAsync(Uuid bundleId);
+        Task TriggerDequeueCleanUpOperationAsync(Uuid bundleId);
     }
 }

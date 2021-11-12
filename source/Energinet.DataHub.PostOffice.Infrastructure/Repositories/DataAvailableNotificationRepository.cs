@@ -220,31 +220,28 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
-        public async Task WriteToArchiveAsync(IEnumerable<Uuid> dataAvailableNotifications)
+        public async Task WriteToArchiveAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
         {
-            var documentsToSelect = dataAvailableNotifications
-                .Select(e => new { Id = e.ToString(), PartitionKey = new PartitionKey(e.ToString()) }).ToList();
+            if (partitionKey is null)
+                throw new ArgumentNullException(nameof(partitionKey));
 
-            IReadOnlyList<(string, PartitionKey)> readInputList = new List<(string, PartitionKey)>();
-            readInputList.Append<>(documentsToSelect);
+            var documentsToRead = dataAvailableNotifications.Select(e => (e.ToString(), new PartitionKey(partitionKey))).ToList();
 
             var documentsToArchive = await _repositoryContainer
                 .Container
-                .ReadManyItemsAsync<CosmosDataAvailable>(readInputList).ConfigureAwait(false);
+                .ReadManyItemsAsync<CosmosDataAvailable>(documentsToRead).ConfigureAwait(false);
 
-            foreach (var documentToWrite in documentsToArchive)
-            {
-                await ArchiveDocumentAsync(documentToWrite);
-            }
+            var archiveWriteTasks = documentsToArchive.Select(ArchiveDocumentAsync);
+            await Task.WhenAll(archiveWriteTasks).ConfigureAwait(false);
         }
 
-        public async Task DeleteAsync(IEnumerable<Uuid> dataAvailableNotifications, MarketOperator recipient)
+        public async Task DeleteAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
         {
             var deleteTasks = dataAvailableNotifications
                 .Select(dataAvailableNotification =>
-                    _repositoryContainer.Container.DeleteItemStreamAsync(dataAvailableNotification.ToString(), new PartitionKey(recipient.ToString()))).ToList();
+                    _repositoryContainer.Container.DeleteItemStreamAsync(dataAvailableNotification.ToString(), new PartitionKey(partitionKey))).ToList();
 
-            await Task.WhenAll(deleteTasks);
+            await Task.WhenAll(deleteTasks).ConfigureAwait(false);
         }
 
         private static async IAsyncEnumerable<DataAvailableNotification> ExecuteBatchAsync(IQueryable<CosmosDataAvailable> query)
@@ -285,11 +282,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
-        private async Task ArchiveDocumentAsync(CosmosDataAvailable documentToWrite)
+        private Task ArchiveDocumentAsync(CosmosDataAvailable documentToWrite)
         {
-            var partitionKey = string.Join("_", documentToWrite.Id, documentToWrite.Recipient, documentToWrite.Origin);
-            await _repositoryContainer
-                .ArchiveContainer.UpsertItemAsync(documentToWrite, new PartitionKey(partitionKey)).ConfigureAwait(false);
+            return _repositoryContainer
+                .ArchiveContainer.UpsertItemAsync(documentToWrite, new PartitionKey(documentToWrite.PartitionKey));
         }
     }
 }

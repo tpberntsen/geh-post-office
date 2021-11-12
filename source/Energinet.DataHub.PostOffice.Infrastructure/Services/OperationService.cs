@@ -30,7 +30,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
             _messageBusFactory = messageBusFactory;
         }
 
-        public async Task TriggerCleanUpOperationAsync([NotNull] Uuid bundleId)
+        public async Task TriggerDequeueCleanUpOperationAsync([NotNull] Uuid bundleId)
         {
             var sender = _messageBusFactory.GetSenderClient("sbq-dequeue-cleanup");
             var message = new ServiceBusMessage(bundleId.ToString());
