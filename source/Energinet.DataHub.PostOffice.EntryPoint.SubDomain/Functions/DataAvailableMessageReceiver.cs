@@ -44,13 +44,18 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
 
         public Task DeadLetterAsync(IEnumerable<Message> messages)
         {
-            var tasks = messages.Select(x => _messageReceiver.DeadLetterAsync(x.SystemProperties.LockToken));
+            var tasks = messages
+                .Where(x => x.SystemProperties.LockedUntilUtc > DateTime.UtcNow)
+                .Select(x => _messageReceiver.DeadLetterAsync(x.SystemProperties.LockToken));
             return Task.WhenAll(tasks);
         }
 
         public Task CompleteAsync(IEnumerable<Message> messages)
         {
-            return _messageReceiver.CompleteAsync(messages.Select(x => x.SystemProperties.LockToken));
+            return _messageReceiver.CompleteAsync(
+                messages
+                    .Where(x => x.SystemProperties.LockedUntilUtc > DateTime.UtcNow)
+                    .Select(x => x.SystemProperties.LockToken));
         }
     }
 }

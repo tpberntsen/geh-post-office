@@ -38,6 +38,10 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain.Functions
                     "LockTokenGuid",
                     BindingFlags.NonPublic | BindingFlags.Instance)!
                 .SetValue(message.SystemProperties, lockToken, BindingFlags.NonPublic, null, null, null);
+            typeof(Message.SystemPropertiesCollection)
+                .GetProperty(
+                    nameof(Message.SystemPropertiesCollection.LockedUntilUtc))!
+                .SetValue(message.SystemProperties, DateTime.UtcNow.AddDays(1), BindingFlags.NonPublic, null, null, null);
             return message;
         }
     }
