@@ -18,10 +18,6 @@ using Microsoft.Azure.ServiceBus;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
 {
-    // TODO: Configure timer from settings.json
-    // TODO: Configure batch size from settings.json
-    // TODO: Configure batch timeout from settings.json
-
     /// <summary>
     /// Message receiver for DataAvailable
     /// </summary>

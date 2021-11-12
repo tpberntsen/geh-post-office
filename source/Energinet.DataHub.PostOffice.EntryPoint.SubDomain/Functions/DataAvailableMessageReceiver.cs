@@ -39,7 +39,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             var messages = await _messageReceiver.ReceiveAsync(_batchSize, _timeout).ConfigureAwait(false);
             return messages != null
                 ? messages.ToList()
-                : new List<Message>();
+                : Array.Empty<Message>();
         }
 
         public Task DeadLetterAsync(IEnumerable<Message> messages)
