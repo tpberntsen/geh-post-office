@@ -12,21 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Linq;
-using Microsoft.AspNetCore.WebUtilities;
+using SimpleInjector;
 
-namespace Energinet.DataHub.PostOffice.Common.Extensions
+namespace Energinet.DataHub.PostOffice.Common.Auth
 {
-    public static class UriExtensions
+    internal static class AuthRegistrations
     {
-        public static string GetQueryValue(this Uri uri, string name)
+        public static void AddAuthentication(this Container container)
         {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
-
-            var fields = QueryHelpers.ParseQuery(uri.Query);
-            return fields.TryGetValue(name, out var values) ? values.First() : string.Empty;
+            container.Register<IMarketOperatorIdentity, MarketOperatorIdentity>(Lifestyle.Scoped);
+            container.Register<JwtAuthenticationMiddleware>(Lifestyle.Scoped);
+            container.Register<QueryAuthenticationMiddleware>(Lifestyle.Scoped);
         }
     }
 }

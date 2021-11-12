@@ -15,6 +15,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Common.Auth;
 using Energinet.DataHub.PostOffice.Common.Extensions;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
@@ -24,21 +25,25 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
     public sealed class PeekFunction
     {
-        private readonly IMediator _mediator;
+        private const string BundleIdQueryName = "bundleId";
 
-        public PeekFunction(IMediator mediator)
+        private readonly IMediator _mediator;
+        private readonly IMarketOperatorIdentity _operatorIdentity;
+
+        public PeekFunction(IMediator mediator, IMarketOperatorIdentity operatorIdentity)
         {
             _mediator = mediator;
+            _operatorIdentity = operatorIdentity;
         }
 
         [Function("Peek")]
         public Task<HttpResponseData> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post")]
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get")]
             HttpRequestData request)
         {
             return request.ProcessAsync(async () =>
             {
-                var command = request.Url.ParseQuery<PeekCommand>();
+                var command = new PeekCommand(_operatorIdentity.Gln, request.Url.GetQueryValue(BundleIdQueryName));
                 var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
                 return hasContent
                     ? request.CreateResponse(stream)
