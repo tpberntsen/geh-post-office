@@ -12,10 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Application.Validation.Rules;
 using Energinet.DataHub.PostOffice.Domain.Model;
-using MediatR;
+using FluentValidation;
 
-namespace Energinet.DataHub.PostOffice.Application.Commands
+namespace Energinet.DataHub.PostOffice.Application.Validation
 {
-    public record DataAvailableCleanUpCommand(Uuid BundleId) : IRequest<OperationResponse>;
+    public sealed class DataAvailableCleanUpCommandRuleSet : AbstractRuleSet<DequeueCleanUpCommand>
+    {
+        public DataAvailableCleanUpCommandRuleSet()
+        {
+            RuleFor(command => command.BundleId.ToString())
+                .NotEmpty()
+                .SetValidator(new UuidValidationRule());
+        }
+    }
 }

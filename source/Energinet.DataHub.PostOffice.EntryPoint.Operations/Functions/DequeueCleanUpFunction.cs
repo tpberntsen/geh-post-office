@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.ServiceModel.Channels;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
@@ -24,13 +23,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
 {
-    public class CleanUpDataAvailableFunction
+    public class DequeueCleanUpFunction
     {
-        private const string FunctionName = "CleanUpDataAvailable";
+        private const string FunctionName = "DequeueCleanUp";
 
         private readonly IMediator _mediator;
 
-        public CleanUpDataAvailableFunction(IMediator mediator)
+        public DequeueCleanUpFunction(IMediator mediator)
         {
             _mediator = mediator;
         }
@@ -38,21 +37,24 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
         [Function(FunctionName)]
         public async Task RunAsync(
             [ServiceBusTrigger(
-                "%" + ServiceBusConfig.DataAvailableCleanUpQueueNameKey + "%",
-                Connection = ServiceBusConfig.DataAvailableQueueConnectionStringKey)]
-            Message message,
+                "%" + ServiceBusConfig.DequeueCleanUpQueueNameKey + "%",
+                Connection = "ServiceBusConnectionString")]
+            string message,
             FunctionContext context)
         {
             if (message is null)
                 throw new ArgumentNullException(nameof(message));
 
-            var logger = context.GetLogger<CleanUpDataAvailableFunction>();
+            var logger = context.GetLogger<DequeueCleanUpFunction>();
             logger.LogInformation($"C# ServiceBus queue trigger function processed message in {FunctionName}");
 
             try
             {
-                var command = new DataAvailableCleanUpCommand(new Uuid(message.GetBody<string>()));
-                await _mediator.Send(command).ConfigureAwait(false);
+                var command = new DequeueCleanUpCommand(new Uuid(message));
+                var operationResponse = await _mediator.Send(command).ConfigureAwait(false);
+
+                if (!operationResponse.Completed)
+                    logger.LogError("Dequeue cleanup operation dit not complete successfully");
             }
             catch (Exception exception)
             {

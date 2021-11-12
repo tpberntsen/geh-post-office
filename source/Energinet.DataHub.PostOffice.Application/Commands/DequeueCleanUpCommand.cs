@@ -12,17 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Common;
-using Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions;
-using SimpleInjector;
+using Energinet.DataHub.PostOffice.Domain.Model;
+using MediatR;
 
-namespace Energinet.DataHub.PostOffice.EntryPoint.Operations
+namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    internal sealed class Startup : StartupBase
-    {
-        protected override void Configure(Container container)
-        {
-            container.Register<DequeueCleanUpFunction>(Lifestyle.Scoped);
-        }
-    }
+    public record DequeueCleanUpCommand(Uuid BundleId) : IRequest<OperationResponse>;
 }

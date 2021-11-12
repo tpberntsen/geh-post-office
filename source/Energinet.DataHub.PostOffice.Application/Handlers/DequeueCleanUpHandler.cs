@@ -17,18 +17,17 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
-using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
-    public class CleanUpDataAvailableHandler : IRequestHandler<DataAvailableCleanUpCommand, OperationResponse>
+    public class DequeueCleanUpHandler : IRequestHandler<DequeueCleanUpCommand, OperationResponse>
     {
         private readonly IDataAvailableNotificationRepository _dataAvailableNotificationRepository;
         private readonly IBundleRepository _bundleRepository;
 
-        public CleanUpDataAvailableHandler(
+        public DequeueCleanUpHandler(
             IDataAvailableNotificationRepository dataAvailableNotificationRepository,
             IBundleRepository bundleRepository)
         {
@@ -36,7 +35,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             _bundleRepository = bundleRepository;
         }
 
-        public async Task<OperationResponse> Handle(DataAvailableCleanUpCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResponse> Handle(DequeueCleanUpCommand request, CancellationToken cancellationToken)
         {
             if (request is null)
                 throw new ArgumentNullException(nameof(request));
@@ -45,13 +44,14 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
             if (bundle != null)
             {
-                var marketOperator = new MarketOperator(new GlobalLocationNumber(bundle.Recipient.ToString()));
+                var dataAvailableNotificationInBundle = bundle.NotificationIds.Select(uuid => uuid).ToList();
+                var partitionKey = bundle.Recipient.Gln.Value + bundle.Origin + bundle.ContentType.Value;
 
                 await _dataAvailableNotificationRepository
-                    .WriteToArchiveAsync(bundle.NotificationIds.Select(n => n)).ConfigureAwait(false);
+                    .WriteToArchiveAsync(dataAvailableNotificationInBundle, partitionKey).ConfigureAwait(false);
 
                 await _dataAvailableNotificationRepository
-                    .DeleteAsync(bundle.NotificationIds.Select(n => n), marketOperator).ConfigureAwait(false);
+                    .DeleteAsync(dataAvailableNotificationInBundle, partitionKey).ConfigureAwait(false);
 
                 bundle.NotificationsArchived = true;
                 await _bundleRepository.SaveAsync(bundle).ConfigureAwait(false);
