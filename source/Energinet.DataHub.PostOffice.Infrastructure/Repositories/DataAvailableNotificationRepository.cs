@@ -15,7 +15,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using Energinet.DataHub.MessageHub.Model.Exceptions;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Common;
@@ -34,7 +36,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             _repositoryContainer = repositoryContainer;
         }
 
-        public Task SaveAsync(DataAvailableNotification dataAvailableNotification)
+        public async Task SaveAsync(DataAvailableNotification dataAvailableNotification)
         {
             if (dataAvailableNotification is null)
                 throw new ArgumentNullException(nameof(dataAvailableNotification));
@@ -51,7 +53,34 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 PartitionKey = dataAvailableNotification.Recipient.Gln.Value + dataAvailableNotification.Origin + dataAvailableNotification.ContentType.Value
             };
 
-            return _repositoryContainer.Container.CreateItemAsync(cosmosDocument);
+            try
+            {
+                await _repositoryContainer.Container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
+            }
+            catch (CosmosException e) when (e.StatusCode == HttpStatusCode.Conflict)
+            {
+                using var feedIterator = _repositoryContainer.Container.GetItemQueryIterator<CosmosDataAvailable>(
+                    new QueryDefinition("select * from dataavailable da where da.id = @id")
+                        .WithParameter("@id", cosmosDocument.Id),
+                    null,
+                    new QueryRequestOptions
+                    {
+                        PartitionKey = new PartitionKey(cosmosDocument.PartitionKey)
+                    });
+
+                while (feedIterator.HasMoreResults)
+                {
+                    foreach (var item in await feedIterator.ReadNextAsync().ConfigureAwait(false))
+                    {
+                        if (cosmosDocument with { Timestamp = item.Timestamp } == item)
+                        {
+                            return;
+                        }
+                    }
+                }
+
+                throw new MessageHubStorageException("A data available notification already exists with the given ID");
+            }
         }
 
         public async Task SaveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications)
