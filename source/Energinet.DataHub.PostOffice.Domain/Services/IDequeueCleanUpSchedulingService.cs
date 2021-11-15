@@ -20,7 +20,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
     /// <summary>
     /// Abstraction for operation services
     /// </summary>
-    public interface IOperationService
+    public interface IDequeueCleanUpSchedulingService
     {
         /// <summary>
         /// Triggers DequeueCleanUp operation

@@ -50,7 +50,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
 
             try
             {
-                var command = new DequeueCleanUpCommand(new Uuid(message));
+                var command = new DequeueCleanUpCommand(message);
                 var operationResponse = await _mediator.Send(command).ConfigureAwait(false);
 
                 if (!operationResponse.Completed)

@@ -27,20 +27,20 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         private readonly IDataAvailableNotificationRepository _dataAvailableNotificationRepository;
         private readonly IRequestBundleDomainService _requestBundleDomainService;
         private readonly IWeightCalculatorDomainService _weightCalculatorDomainService;
-        private readonly IOperationService _operationService;
+        private readonly IDequeueCleanUpSchedulingService _dequeueCleanUpSchedulingService;
 
         public MarketOperatorDataDomainService(
             IBundleRepository bundleRepository,
             IDataAvailableNotificationRepository dataAvailableRepository,
             IRequestBundleDomainService requestBundleDomainService,
             IWeightCalculatorDomainService weightCalculatorDomainService,
-            IOperationService operationService)
+            IDequeueCleanUpSchedulingService dequeueCleanUpSchedulingService)
         {
             _bundleRepository = bundleRepository;
             _dataAvailableNotificationRepository = dataAvailableRepository;
             _requestBundleDomainService = requestBundleDomainService;
             _weightCalculatorDomainService = weightCalculatorDomainService;
-            _operationService = operationService;
+            _dequeueCleanUpSchedulingService = dequeueCleanUpSchedulingService;
         }
 
         public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid bundleId)
@@ -89,7 +89,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 .AcknowledgeAsync(bundle.Recipient, bundle.BundleId)
                 .ConfigureAwait(false);
 
-            await _operationService
+            await _dequeueCleanUpSchedulingService
                 .TriggerDequeueCleanUpOperationAsync(bundle.BundleId)
                 .ConfigureAwait(false);
         }
@@ -127,7 +127,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
         private async Task<Bundle?> StartCleanUpAndAskSubDomainForContentAsync(Bundle bundle)
         {
-            await _operationService.TriggerDequeueCleanUpOperationAsync(bundle.BundleId).ConfigureAwait(false);
+            await _dequeueCleanUpSchedulingService.TriggerDequeueCleanUpOperationAsync(bundle.BundleId).ConfigureAwait(false);
             return await AskSubDomainForContentAsync(bundle).ConfigureAwait(false);
         }
 

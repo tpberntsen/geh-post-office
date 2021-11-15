@@ -62,7 +62,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
         public ContentType ContentType { get; }
 
         public IReadOnlyCollection<Uuid> NotificationIds { get; }
-        public bool NotificationsArchived { get; set; }
+        public bool NotificationsArchived { get; private set; }
 
         public bool TryGetContent([NotNullWhen(true)] out IBundleContent? bundleContent)
         {
@@ -76,6 +76,11 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
                 throw new InvalidOperationException("Content has already been set.");
 
             _bundleContent = bundleContent;
+        }
+
+        public void ArchiveNotifications()
+        {
+            NotificationsArchived = true;
         }
     }
 }

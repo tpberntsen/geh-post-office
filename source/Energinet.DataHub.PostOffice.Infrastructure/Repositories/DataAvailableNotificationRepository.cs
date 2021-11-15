@@ -225,7 +225,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             if (partitionKey is null)
                 throw new ArgumentNullException(nameof(partitionKey));
 
-            var documentsToRead = dataAvailableNotifications.Select(e => (e.ToString(), new PartitionKey(partitionKey))).ToList();
+            var documentPartitionKey = new PartitionKey(partitionKey);
+            var documentsToRead = dataAvailableNotifications.Select(e => (e.ToString(), documentPartitionKey)).ToList();
 
             var documentsToArchive = await _repositoryContainer
                 .Container
@@ -237,9 +238,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public async Task DeleteAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
         {
+            var documentPartitionKey = new PartitionKey(partitionKey);
             var deleteTasks = dataAvailableNotifications
                 .Select(dataAvailableNotification =>
-                    _repositoryContainer.Container.DeleteItemStreamAsync(dataAvailableNotification.ToString(), new PartitionKey(partitionKey))).ToList();
+                    _repositoryContainer.Container.DeleteItemStreamAsync(dataAvailableNotification.ToString(), documentPartitionKey)).ToList();
 
             await Task.WhenAll(deleteTasks).ConfigureAwait(false);
         }

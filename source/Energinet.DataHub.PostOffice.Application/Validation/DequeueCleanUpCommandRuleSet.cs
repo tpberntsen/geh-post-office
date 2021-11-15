@@ -23,7 +23,7 @@ namespace Energinet.DataHub.PostOffice.Application.Validation
     {
         public DequeueCleanUpCommandRuleSet()
         {
-            RuleFor(command => command.BundleId.ToString())
+            RuleFor(command => command.BundleId)
                 .NotEmpty()
                 .SetValidator(new UuidValidationRule());
         }

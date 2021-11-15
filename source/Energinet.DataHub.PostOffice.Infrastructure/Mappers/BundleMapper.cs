@@ -42,15 +42,17 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 
         public static Bundle MapToBundle(CosmosBundleDocument bundleDocument)
         {
-            return new(
+            var bundle = new Bundle(
                 new Uuid(bundleDocument.Id),
                 new MarketOperator(new GlobalLocationNumber(bundleDocument.Recipient)),
                 Enum.Parse<DomainOrigin>(bundleDocument.Origin),
                 new ContentType(bundleDocument.MessageType),
-                bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList())
-            {
-                NotificationsArchived = bundleDocument.NotificationsArchived
-            };
+                bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList());
+
+            if (bundle.NotificationsArchived)
+                bundle.ArchiveNotifications();
+
+            return bundle;
         }
 
         private static string MapBundleContent(Bundle bundle)

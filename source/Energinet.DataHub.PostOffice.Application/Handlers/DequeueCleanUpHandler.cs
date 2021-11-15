@@ -17,6 +17,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using MediatR;
 
@@ -37,10 +38,10 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
         public async Task<OperationResponse> Handle(DequeueCleanUpCommand request, CancellationToken cancellationToken)
         {
-            if (request is null)
+            if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            var bundle = await _bundleRepository.GetBundleAsync(request.BundleId).ConfigureAwait(false);
+            var bundle = await _bundleRepository.GetBundleAsync(new Uuid(request.BundleId)).ConfigureAwait(false);
 
             if (bundle != null)
             {
@@ -53,7 +54,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 await _dataAvailableNotificationRepository
                     .DeleteAsync(dataAvailableNotificationInBundle, partitionKey).ConfigureAwait(false);
 
-                bundle.NotificationsArchived = true;
+                bundle.ArchiveNotifications();
                 await _bundleRepository.SaveAsync(bundle).ConfigureAwait(false);
             }
 

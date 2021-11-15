@@ -14,5 +14,5 @@
 
 namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public record OperationResponse(bool Completed);
+    public sealed record OperationResponse(bool Completed);
 }
