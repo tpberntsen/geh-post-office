@@ -19,9 +19,9 @@ using FluentValidation;
 
 namespace Energinet.DataHub.PostOffice.Application.Validation
 {
-    public sealed class DataAvailableCleanUpCommandRuleSet : AbstractRuleSet<DequeueCleanUpCommand>
+    public sealed class DequeueCleanUpCommandRuleSet : AbstractRuleSet<DequeueCleanUpCommand>
     {
-        public DataAvailableCleanUpCommandRuleSet()
+        public DequeueCleanUpCommandRuleSet()
         {
             RuleFor(command => command.BundleId.ToString())
                 .NotEmpty()

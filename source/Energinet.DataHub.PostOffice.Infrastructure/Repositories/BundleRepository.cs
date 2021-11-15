@@ -53,12 +53,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             return
                 bundleDocument is null
                     ? null
-                    : new Bundle(
-                        new Uuid(bundleDocument.Id),
-                        new MarketOperator(new GlobalLocationNumber(bundleDocument.Recipient)),
-                        Enum.Parse<DomainOrigin>(bundleDocument.Origin),
-                        new ContentType(bundleDocument.MessageType),
-                        bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList());
+                    : BundleMapper.MapToBundle(bundleDocument);
         }
 
         public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Linq;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
@@ -36,6 +37,19 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 NotificationIds = source.NotificationIds.Select(id => id.ToString()).ToList(),
                 ContentPath = MapBundleContent(source),
                 NotificationsArchived = source.NotificationsArchived
+            };
+        }
+
+        public static Bundle MapToBundle(CosmosBundleDocument bundleDocument)
+        {
+            return new(
+                new Uuid(bundleDocument.Id),
+                new MarketOperator(new GlobalLocationNumber(bundleDocument.Recipient)),
+                Enum.Parse<DomainOrigin>(bundleDocument.Origin),
+                new ContentType(bundleDocument.MessageType),
+                bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList())
+            {
+                NotificationsArchived = bundleDocument.NotificationsArchived
             };
         }
 
