@@ -4,7 +4,7 @@
     "ServiceBusConnectionString":"",
     "DATAAVAILABLE_QUEUE_CONNECTION_STRING":"",
     "DATAAVAILABLE_QUEUE_NAME": "",
-    "DATAAVAILABLE_CLEANUP_QUEUE_NAME": "",
+    "DEQUEUE_CLEANUP_QUEUE_NAME": "",
     "MESSAGES_DB_NAME":"",
     "MESSAGES_DB_CONNECTION_STRING": "",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
