@@ -18,21 +18,26 @@ using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.MessageHub.Core.Factories;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
+using Energinet.DataHub.PostOffice.Infrastructure.Configs;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 {
     public class DequeueCleanUpSchedulingService : IDequeueCleanUpSchedulingService
     {
         private readonly IMessageBusFactory _messageBusFactory;
+        private readonly DequeueCleanUpConfig _dequeueCleanUpConfig;
 
-        public DequeueCleanUpSchedulingService(IMessageBusFactory messageBusFactory)
+        public DequeueCleanUpSchedulingService(
+            IMessageBusFactory messageBusFactory,
+            DequeueCleanUpConfig dequeueCleanUpConfig)
         {
             _messageBusFactory = messageBusFactory;
+            _dequeueCleanUpConfig = dequeueCleanUpConfig;
         }
 
         public Task TriggerDequeueCleanUpOperationAsync([NotNull] Uuid bundleId)
         {
-            var sender = _messageBusFactory.GetSenderClient("sbq-dequeue-cleanup");
+            var sender = _messageBusFactory.GetSenderClient(_dequeueCleanUpConfig.DequeueCleanUpQueueName);
             var message = new ServiceBusMessage(bundleId.ToString());
             return sender.PublishMessageAsync<ServiceBusMessage>(message);
         }
