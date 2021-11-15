@@ -21,20 +21,20 @@ using Energinet.DataHub.PostOffice.Domain.Services;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 {
-    public class OperationService : IOperationService
+    public class DequeueCleanUpSchedulingService : IDequeueCleanUpSchedulingService
     {
         private readonly IMessageBusFactory _messageBusFactory;
 
-        public OperationService(IMessageBusFactory messageBusFactory)
+        public DequeueCleanUpSchedulingService(IMessageBusFactory messageBusFactory)
         {
             _messageBusFactory = messageBusFactory;
         }
 
-        public async Task TriggerDequeueCleanUpOperationAsync([NotNull] Uuid bundleId)
+        public Task TriggerDequeueCleanUpOperationAsync([NotNull] Uuid bundleId)
         {
             var sender = _messageBusFactory.GetSenderClient("sbq-dequeue-cleanup");
             var message = new ServiceBusMessage(bundleId.ToString());
-            await sender.PublishMessageAsync<ServiceBusMessage>(message).ConfigureAwait(false);
+            return sender.PublishMessageAsync<ServiceBusMessage>(message);
         }
     }
 }

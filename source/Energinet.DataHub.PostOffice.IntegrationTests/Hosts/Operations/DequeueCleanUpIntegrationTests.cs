@@ -53,13 +53,13 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.Operations
             var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
             var dataAvailableRepository = new DataAvailableNotificationRepository(dataAvailableContainer);
 
-            var dataAvailableToDequeueAndArchive = CrateDataAvailableNotification(notificationIds.First(), marketOperator);
+            var dataAvailableToDequeueAndArchive = CreateDataAvailableNotification(notificationIds.First(), marketOperator);
             await dataAvailableRepository.SaveAsync(dataAvailableToDequeueAndArchive).ConfigureAwait(false);
 
             var bundle = CreateBundle(marketOperator, notificationIds);
             await bundleRepository.TryAddNextUnacknowledgedAsync(bundle).ConfigureAwait(false);
 
-            var dequeueCleanUpCommand = new DequeueCleanUpCommand(bundle.BundleId);
+            var dequeueCleanUpCommand = new DequeueCleanUpCommand(bundle.BundleId.ToString());
 
             // Act
             var response = await mediator.Send(dequeueCleanUpCommand).ConfigureAwait(false);
@@ -85,7 +85,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.Operations
                 bundleContent);
         }
 
-        private static DataAvailableNotification CrateDataAvailableNotification(
+        private static DataAvailableNotification CreateDataAvailableNotification(
             Uuid id,
             Domain.Model.MarketOperator recipient,
             DomainOrigin domain = DomainOrigin.TimeSeries)

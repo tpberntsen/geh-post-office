@@ -46,7 +46,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var contentTypeWeightMap = new Mock<IWeightCalculatorDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
@@ -96,7 +96,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -156,7 +156,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -224,7 +224,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -277,7 +277,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
@@ -319,7 +319,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
@@ -362,7 +362,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
@@ -407,7 +407,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -470,7 +470,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -522,7 +522,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var contentTypeWeightMap = new Mock<IWeightCalculatorDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
@@ -572,7 +572,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -632,7 +632,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -688,7 +688,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
@@ -729,7 +729,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
@@ -772,7 +772,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
@@ -817,7 +817,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -880,7 +880,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -932,7 +932,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var contentTypeWeightMap = new Mock<IWeightCalculatorDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
@@ -982,7 +982,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1042,7 +1042,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1099,7 +1099,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
@@ -1142,7 +1142,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
@@ -1185,7 +1185,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
@@ -1230,7 +1230,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1293,7 +1293,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1355,7 +1355,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var contentTypeWeightMap = new Mock<IWeightCalculatorDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
@@ -1410,7 +1410,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1479,7 +1479,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 .ReturnsAsync(allDataAvailableNotificationsForMessageType);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1549,7 +1549,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1616,7 +1616,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
@@ -1663,7 +1663,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
@@ -1711,7 +1711,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
@@ -1760,7 +1760,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1831,7 +1831,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1898,7 +1898,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
@@ -1928,7 +1928,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
@@ -1966,7 +1966,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
@@ -2007,7 +2007,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
-            var operationServiceMock = new Mock<IOperationService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
             var target = new MarketOperatorDataDomainService(
                 bundleRepositoryMock.Object,
                 dataAvailableNotificationRepositoryMock.Object,
