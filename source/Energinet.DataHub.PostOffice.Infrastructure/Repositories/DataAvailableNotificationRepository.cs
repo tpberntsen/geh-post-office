@@ -59,23 +59,16 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
             catch (CosmosException e) when (e.StatusCode == HttpStatusCode.Conflict)
             {
-                using var feedIterator = _repositoryContainer.Container.GetItemQueryIterator<CosmosDataAvailable>(
-                    new QueryDefinition("select * from dataavailable da where da.id = @id")
-                        .WithParameter("@id", cosmosDocument.Id),
-                    null,
-                    new QueryRequestOptions
-                    {
-                        PartitionKey = new PartitionKey(cosmosDocument.PartitionKey)
-                    });
+                var query =
+                    from da in _repositoryContainer.Container.GetItemLinqQueryable<CosmosDataAvailable>()
+                    where da.Id == cosmosDocument.Id
+                    select da;
 
-                while (feedIterator.HasMoreResults)
+                await foreach (var doc in query.AsCosmosIteratorAsync())
                 {
-                    foreach (var item in await feedIterator.ReadNextAsync().ConfigureAwait(false))
+                    if (cosmosDocument with { Timestamp = doc.Timestamp } == doc)
                     {
-                        if (cosmosDocument with { Timestamp = item.Timestamp } == item)
-                        {
-                            return;
-                        }
+                        return;
                     }
                 }
 
