@@ -22,7 +22,7 @@ namespace Energinet.DataHub.PostOffice.Common.Auth
         /// <summary>
         /// Returns true if an identity has been assigned.
         /// </summary>
-        public bool HasIdentity { get; }
+        bool HasIdentity { get; }
 
         /// <summary>
         /// The GLN of the market operator, or an exception if the identity is unassigned.
