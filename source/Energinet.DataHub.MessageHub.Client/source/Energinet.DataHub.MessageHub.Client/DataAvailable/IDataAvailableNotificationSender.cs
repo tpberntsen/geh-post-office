@@ -25,7 +25,8 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
         /// <summary>
         /// Encodes the specified DataAvailableNotification and places it onto the post office DataAvailable queue.
         /// </summary>
+        /// <param name="correlationId">The correlation id that can be used to track the data represented by the notification.</param>
         /// <param name="dataAvailableNotificationDto">The notification to send to the post office.</param>
-        Task SendAsync(DataAvailableNotificationDto dataAvailableNotificationDto);
+        Task SendAsync(string correlationId, DataAvailableNotificationDto dataAvailableNotificationDto);
     }
 }

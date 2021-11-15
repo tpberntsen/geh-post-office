@@ -34,8 +34,11 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
             _messageHubConfig = messageHubConfig;
         }
 
-        public Task SendAsync(DataAvailableNotificationDto dataAvailableNotificationDto)
+        public Task SendAsync(string correlationId, DataAvailableNotificationDto dataAvailableNotificationDto)
         {
+            if (correlationId is null)
+                throw new ArgumentNullException(nameof(correlationId));
+
             if (dataAvailableNotificationDto == null)
                 throw new ArgumentNullException(nameof(dataAvailableNotificationDto));
 
@@ -52,7 +55,7 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
             };
 
             var message = new ServiceBusMessage(new BinaryData(contract.ToByteArray()))
-                .AddDataAvailableIntegrationEvents(dataAvailableNotificationDto.Uuid.ToString());
+                .AddDataAvailableIntegrationEvents(correlationId);
 
             return sender.PublishMessageAsync<ServiceBusMessage>(message);
         }
