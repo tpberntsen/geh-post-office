@@ -30,6 +30,14 @@ resource "azurerm_cosmosdb_account" "post_office" {
   }
 
   tags                = azurerm_resource_group.this.tags
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to tags, e.g. because a management agent
+      # updates these based on some ruleset managed elsewhere.
+      tags,
+    ]
+  }
 }
 
 resource "azurerm_cosmosdb_sql_database" "db" {
