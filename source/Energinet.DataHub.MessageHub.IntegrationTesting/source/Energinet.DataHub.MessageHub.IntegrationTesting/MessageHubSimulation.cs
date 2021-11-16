@@ -18,7 +18,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.MessageHub.Core.Dequeue;
+using Energinet.DataHub.MessageHub.Core.Factories;
 using Energinet.DataHub.MessageHub.Core.Peek;
 using Energinet.DataHub.MessageHub.Model.DataAvailable;
 using Energinet.DataHub.MessageHub.Model.Model;
@@ -30,7 +32,7 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
     /// Facilitates integration testing between MessageHub and sub-domains.
     /// This class is not thread-safe.
     /// </summary>
-    public sealed class MessageHubSimulation
+    public sealed class MessageHubSimulation : IAsyncDisposable
     {
         private static readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(30);
 
@@ -38,7 +40,8 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
         private readonly IDataBundleRequestSender _dataBundleRequestSender;
         private readonly IDequeueNotificationSender? _dequeueNotificationSender;
 
-        private readonly MessageHubSimulationConfig _configuration;
+        private readonly ServiceBusReceiver _dataAvailableReceiver;
+        private readonly AzureServiceBusFactory _messageBusFactory;
         private readonly List<DataAvailableNotificationDto> _notifications = new();
 
         public MessageHubSimulation(MessageHubSimulationConfig configuration)
@@ -48,22 +51,25 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
 
             Notifications = new ReadOnlyCollection<DataAvailableNotificationDto>(_notifications);
 
-            var simulationMessageBusFactory = new SimulationMessageBusFactory(configuration);
+            var serviceBusSingleton = new ServiceBusClientFactory(configuration.ServiceBusReadWriteConnectionString);
+
+            _messageBusFactory = new AzureServiceBusFactory(serviceBusSingleton);
+            _dataAvailableReceiver = serviceBusSingleton
+                .Create()
+                .CreateReceiver(configuration.DataAvailableQueueName);
 
             _dataBundleRequestSender = new DataBundleRequestSender(
                 new RequestBundleParser(),
                 new ResponseBundleParser(),
-                simulationMessageBusFactory,
-                simulationMessageBusFactory.SimulatedPeekRequestConfig);
+                _messageBusFactory,
+                configuration.CreateSimulatedPeekRequestConfig());
 
-            if (configuration.DomainDequeueSender != null)
+            if (configuration.DomainDequeueQueueName != null)
             {
                 _dequeueNotificationSender = new DequeueNotificationSender(
-                    simulationMessageBusFactory,
-                    simulationMessageBusFactory.SimulatedDeqeueueConfig);
+                    _messageBusFactory,
+                    configuration.CreateSimulatedDequeueConfig());
             }
-
-            _configuration = configuration;
         }
 
         /// <summary>
@@ -98,8 +104,7 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
 
             while (expectedIds.Count > 0)
             {
-                var message = await _configuration
-                    .DataAvailableReceiver
+                var message = await _dataAvailableReceiver
                     .ReceiveMessageAsync(cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
 
@@ -112,8 +117,7 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
                     _notifications.Add(dataAvailableNotificationDto);
                 }
 
-                await _configuration
-                    .DataAvailableReceiver
+                await _dataAvailableReceiver
                     .CompleteMessageAsync(message, cancellationToken)
                     .ConfigureAwait(false);
             }
@@ -144,7 +148,7 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
                 _notifications.Select(x => x.Uuid));
 
             // This domain origin must be valid, but it is not used.
-            // DomainSpecificMessageBusFactory handles the queue names.
+            // All the queue names point to the same domain.
             const DomainOrigin domainOrigin = DomainOrigin.Aggregations;
 
             var peekResponse = await _dataBundleRequestSender
@@ -179,10 +183,24 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
             var dequeue = new DequeueNotificationDto(notificationGuids, new GlobalLocationNumberDto(marketOperator));
 
             // This domain origin must be valid, but it is not used.
-            // DomainSpecificMessageBusFactory handles the queue names.
+            // All the queue names point to the same domain.
             const DomainOrigin domainOrigin = DomainOrigin.Aggregations;
 
             return _dequeueNotificationSender.SendAsync(dequeue, domainOrigin);
+        }
+
+        /// <summary>
+        /// Clears the state between simulations.
+        /// </summary>
+        public void Clear()
+        {
+            _notifications.Clear();
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await _dataAvailableReceiver.DisposeAsync().ConfigureAwait(false);
+            await _messageBusFactory.DisposeAsync().ConfigureAwait(false);
         }
     }
 }

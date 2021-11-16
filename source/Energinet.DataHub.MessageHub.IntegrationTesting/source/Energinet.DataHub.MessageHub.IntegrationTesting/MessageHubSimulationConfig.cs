@@ -12,60 +12,96 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Azure.Messaging.ServiceBus;
+using Energinet.DataHub.MessageHub.Core;
 
 namespace Energinet.DataHub.MessageHub.IntegrationTesting
 {
     public class MessageHubSimulationConfig
     {
-        /// <param name="dataAvailableReceiver">A ServiceBus receiver for the 'sbq-dataavailable' queue.</param>
-        /// <param name="domainPeekRequestSender">A ServiceBus sender for the 'sbq-[domain]' queue.</param>
-        /// <param name="domainDequeueSender">An optional ServiceBus sender for the 'sbq-[domain]-dequeue' queue.</param>
-        /// <param name="domainPeekReplyReceiverFactory">A factory for a ServiceBus session-enabled receiver for the 'sbq-[domain]-reply' queue.</param>
+        /// <param name="serviceBusReadWriteConnectionString">The service bus connection string to use for the simulation. The connection string must have read and write access rights.</param>
+        /// <param name="dataAvailableQueueName">The 'sbq-dataavailable' queue name.</param>
+        /// <param name="domainQueueName">The 'sbq-[domain]' queue name.</param>
+        /// <param name="domainReplyQueueName">The 'sbq-[domain]-reply' queue name.</param>
+        /// <param name="domainDequeueQueueName">The 'sbq-[domain]-dequeue' queue name.</param>
         public MessageHubSimulationConfig(
-            ServiceBusReceiver dataAvailableReceiver,
-            ServiceBusSender domainPeekRequestSender,
-            ServiceBusSender domainDequeueSender,
-            ServiceBusSessionEnabledReceiverFactory domainPeekReplyReceiverFactory)
+            string serviceBusReadWriteConnectionString,
+            string dataAvailableQueueName,
+            string domainQueueName,
+            string domainReplyQueueName,
+            string domainDequeueQueueName)
         {
-            DataAvailableReceiver = dataAvailableReceiver;
-            DomainPeekRequestSender = domainPeekRequestSender;
-            DomainPeekReplyReceiverFactory = domainPeekReplyReceiverFactory;
-            DomainDequeueSender = domainDequeueSender;
+            ServiceBusReadWriteConnectionString = serviceBusReadWriteConnectionString;
+            DataAvailableQueueName = dataAvailableQueueName;
+            DomainQueueName = domainQueueName;
+            DomainReplyQueueName = domainReplyQueueName;
+            DomainDequeueQueueName = domainDequeueQueueName;
         }
 
-        /// <param name="dataAvailableReceiver">A ServiceBus receiver for the 'sbq-dataavailable' queue.</param>
-        /// <param name="domainPeekRequestSender">A ServiceBus sender for the 'sbq-[domain]' queue.</param>
-        /// <param name="domainPeekReplyReceiverFactory">A factory for a ServiceBus session-enabled receiver for the 'sbq-[domain]-reply' queue.</param>
+        /// <param name="serviceBusReadWriteConnectionString">The service bus connection string to use for the simulation. The connection string must have read and write access rights.</param>
+        /// <param name="dataAvailableQueueName">The 'sbq-dataavailable' queue name.</param>
+        /// <param name="domainQueueName">The 'sbq-[domain]' queue name.</param>
+        /// <param name="domainReplyQueueName">The 'sbq-[domain]-reply' queue name.</param>
         public MessageHubSimulationConfig(
-            ServiceBusReceiver dataAvailableReceiver,
-            ServiceBusSender domainPeekRequestSender,
-            ServiceBusSessionEnabledReceiverFactory domainPeekReplyReceiverFactory)
+            string serviceBusReadWriteConnectionString,
+            string dataAvailableQueueName,
+            string domainQueueName,
+            string domainReplyQueueName)
         {
-            DataAvailableReceiver = dataAvailableReceiver;
-            DomainPeekRequestSender = domainPeekRequestSender;
-            DomainPeekReplyReceiverFactory = domainPeekReplyReceiverFactory;
-            DomainDequeueSender = null;
+            ServiceBusReadWriteConnectionString = serviceBusReadWriteConnectionString;
+            DataAvailableQueueName = dataAvailableQueueName;
+            DomainQueueName = domainQueueName;
+            DomainReplyQueueName = domainReplyQueueName;
+            DomainDequeueQueueName = null;
         }
 
         /// <summary>
-        /// A ServiceBus receiver for the 'sbq-dataavailable' queue.
+        /// The service bus connection string to use for the simulation. The connection string must have read and write access rights.
         /// </summary>
-        public virtual ServiceBusReceiver DataAvailableReceiver { get; }
+        public string ServiceBusReadWriteConnectionString { get; }
 
         /// <summary>
-        /// A ServiceBus sender for the 'sbq-[domain]' queue.
+        /// The 'sbq-dataavailable' queue name.
         /// </summary>
-        public virtual ServiceBusSender DomainPeekRequestSender { get; }
+        public string DataAvailableQueueName { get; }
 
         /// <summary>
-        /// A ServiceBus session-enabled receiver for the 'sbq-[domain]-reply' queue.
+        /// The 'sbq-[domain]' queue name.
         /// </summary>
-        public virtual ServiceBusSessionEnabledReceiverFactory DomainPeekReplyReceiverFactory { get; }
+        public string DomainQueueName { get; }
 
         /// <summary>
-        /// An optional ServiceBus sender for the 'sbq-[domain]-dequeue' queue.
+        /// The 'sbq-[domain]-reply' queue name.
         /// </summary>
-        public virtual ServiceBusSender? DomainDequeueSender { get; }
+        public string DomainReplyQueueName { get; }
+
+        /// <summary>
+        /// The 'sbq-[domain]-dequeue' queue name.
+        /// </summary>
+        public string? DomainDequeueQueueName { get; }
+
+        internal PeekRequestConfig CreateSimulatedPeekRequestConfig()
+        {
+            return new PeekRequestConfig(
+                DomainQueueName,
+                DomainReplyQueueName,
+                DomainQueueName,
+                DomainReplyQueueName,
+                DomainQueueName,
+                DomainReplyQueueName,
+                DomainQueueName,
+                DomainReplyQueueName,
+                DomainQueueName,
+                DomainReplyQueueName);
+        }
+
+        internal DequeueConfig CreateSimulatedDequeueConfig()
+        {
+            return new DequeueConfig(
+                DomainDequeueQueueName!,
+                DomainDequeueQueueName!,
+                DomainDequeueQueueName!,
+                DomainDequeueQueueName!,
+                DomainDequeueQueueName!);
+        }
     }
 }
