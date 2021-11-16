@@ -12,19 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Domain.Services;
-using Energinet.DataHub.PostOffice.Infrastructure.Services;
+using Energinet.DataHub.PostOffice.Common;
+using Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions;
 using SimpleInjector;
 
-namespace Energinet.DataHub.PostOffice.Common
+namespace Energinet.DataHub.PostOffice.EntryPoint.Operations
 {
-    internal static class InfrastructureServiceRegistration
+    internal sealed class Startup : StartupBase
     {
-        public static void AddInfrastructureServices(this Container container)
+        protected override void Configure(Container container)
         {
-            container.Register<IBundleContentRequestService, BundleContentRequestService>(Lifestyle.Scoped);
-            container.Register<IMarketOperatorDataStorageService, MarketOperatorDataStorageService>(Lifestyle.Scoped);
-            container.Register<IDequeueCleanUpSchedulingService, DequeueCleanUpSchedulingService>(Lifestyle.Scoped);
+            container.Register<DequeueCleanUpFunction>(Lifestyle.Scoped);
         }
     }
 }
