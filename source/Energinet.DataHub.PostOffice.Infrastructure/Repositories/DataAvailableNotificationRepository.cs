@@ -242,6 +242,32 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
+        public async Task WriteToArchiveAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
+        {
+            if (partitionKey is null)
+                throw new ArgumentNullException(nameof(partitionKey));
+
+            var documentPartitionKey = new PartitionKey(partitionKey);
+            var documentsToRead = dataAvailableNotifications.Select(e => (e.ToString(), documentPartitionKey)).ToList();
+
+            var documentsToArchive = await _repositoryContainer
+                .Container
+                .ReadManyItemsAsync<CosmosDataAvailable>(documentsToRead).ConfigureAwait(false);
+
+            var archiveWriteTasks = documentsToArchive.Select(ArchiveDocumentAsync);
+            await Task.WhenAll(archiveWriteTasks).ConfigureAwait(false);
+        }
+
+        public Task DeleteAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
+        {
+            var documentPartitionKey = new PartitionKey(partitionKey);
+            var deleteTasks = dataAvailableNotifications
+                .Select(dataAvailableNotification =>
+                    _repositoryContainer.Container.DeleteItemStreamAsync(dataAvailableNotification.ToString(), documentPartitionKey)).ToList();
+
+            return Task.WhenAll(deleteTasks);
+        }
+
         private static async IAsyncEnumerable<DataAvailableNotification> ExecuteBatchAsync(IQueryable<CosmosDataAvailable> query)
         {
             const int batchSize = 10000;
@@ -278,6 +304,12 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     new SupportsBundling(document.SupportsBundling),
                     new Weight(document.RelativeWeight));
             }
+        }
+
+        private Task ArchiveDocumentAsync(CosmosDataAvailable documentToWrite)
+        {
+            return _repositoryContainer
+                .ArchiveContainer.UpsertItemAsync(documentToWrite, new PartitionKey(documentToWrite.PartitionKey));
         }
     }
 }

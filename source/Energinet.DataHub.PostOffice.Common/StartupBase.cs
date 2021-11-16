@@ -15,6 +15,7 @@
 using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application;
+using Energinet.DataHub.PostOffice.Common.Auth;
 using Energinet.DataHub.PostOffice.Common.MediatR;
 using Energinet.DataHub.PostOffice.Common.SimpleInjector;
 using Microsoft.Azure.Functions.Worker;
@@ -46,6 +47,9 @@ namespace Energinet.DataHub.PostOffice.Common
 
             services.AddLogging();
             services.AddSimpleInjector(Container, x => x.DisposeContainerWithServiceProvider = !true);
+
+            // Auth
+            Container.AddAuthentication();
 
             // config
             var config = services.BuildServiceProvider().GetService<IConfiguration>()!;

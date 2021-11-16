@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using Energinet.DataHub.MessageHub.Core;
+using Energinet.DataHub.PostOffice.Infrastructure.Configs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;
@@ -65,6 +66,14 @@ namespace Energinet.DataHub.PostOffice.Common
                     marketRolesDequeueQueue,
                     meteringPointsDequeueQueue,
                     aggregationsDequeueQueue);
+            });
+
+            container.RegisterSingleton(() =>
+            {
+                var configuration = container.GetService<IConfiguration>();
+                var dequeueCleanUpQueueName = configuration.GetValue("DEQUEUE_CLEANUP_QUEUE_NAME", "messagehub-dequeue-cleanup");
+
+                return new DequeueCleanUpConfig(dequeueCleanUpQueueName);
             });
         }
     }
