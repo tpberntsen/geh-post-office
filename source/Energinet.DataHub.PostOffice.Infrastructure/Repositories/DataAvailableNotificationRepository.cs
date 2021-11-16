@@ -236,14 +236,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             await Task.WhenAll(archiveWriteTasks).ConfigureAwait(false);
         }
 
-        public async Task DeleteAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
+        public Task DeleteAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
         {
             var documentPartitionKey = new PartitionKey(partitionKey);
             var deleteTasks = dataAvailableNotifications
                 .Select(dataAvailableNotification =>
                     _repositoryContainer.Container.DeleteItemStreamAsync(dataAvailableNotification.ToString(), documentPartitionKey)).ToList();
 
-            await Task.WhenAll(deleteTasks).ConfigureAwait(false);
+            return Task.WhenAll(deleteTasks);
         }
 
         private static async IAsyncEnumerable<DataAvailableNotification> ExecuteBatchAsync(IQueryable<CosmosDataAvailable> query)
