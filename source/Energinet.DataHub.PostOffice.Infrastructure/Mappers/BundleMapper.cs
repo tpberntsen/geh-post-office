@@ -49,7 +49,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 new ContentType(bundleDocument.MessageType),
                 bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList());
 
-            if (bundle.NotificationsArchived)
+            if (bundleDocument.NotificationsArchived)
                 bundle.ArchiveNotifications();
 
             return bundle;
