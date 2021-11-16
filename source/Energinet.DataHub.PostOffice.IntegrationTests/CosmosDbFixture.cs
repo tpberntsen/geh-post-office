@@ -50,6 +50,10 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
                 .CreateContainerIfNotExistsAsync("dataavailable", "/partitionKey")
                 .ConfigureAwait(true);
 
+            await testDatabase
+                .CreateContainerIfNotExistsAsync("dataavailable-archive", "/partitionKey")
+                .ConfigureAwait(true);
+
             var bundlesResponse = await testDatabase
                 .CreateContainerIfNotExistsAsync("bundles", "/recipient")
                 .ConfigureAwait(true);
