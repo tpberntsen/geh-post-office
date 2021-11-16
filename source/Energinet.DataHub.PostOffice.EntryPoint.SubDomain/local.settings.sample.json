@@ -9,6 +9,8 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "APPINSIGHTS_INSTRUMENTATIONKEY": "",
+    "DATAAVAILABLE_BATCH_SIZE": 10000,
+    "DATAAVAILABLE_TIMEOUT_IN_MS": 1000,
 
     "TIMESERIES_QUEUE_NAME": "",
     "TIMESERIES_REPLY_QUEUE_NAME": "",
