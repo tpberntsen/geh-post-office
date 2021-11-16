@@ -53,26 +53,38 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 PartitionKey = dataAvailableNotification.Recipient.Gln.Value + dataAvailableNotification.Origin + dataAvailableNotification.ContentType.Value
             };
 
+            if (await ExistingExactMatchExists(_repositoryContainer.ArchiveContainer, cosmosDocument).ConfigureAwait(false))
+            {
+                return;
+            }
+
             try
             {
                 await _repositoryContainer.Container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
             }
             catch (CosmosException e) when (e.StatusCode == HttpStatusCode.Conflict)
             {
+                _ = await ExistingExactMatchExists(_repositoryContainer.Container, cosmosDocument).ConfigureAwait(false);
+            }
+
+            static async Task<bool> ExistingExactMatchExists(Container container, CosmosDataAvailable cosmosDataAvailable)
+            {
                 var query =
-                    from da in _repositoryContainer.Container.GetItemLinqQueryable<CosmosDataAvailable>()
-                    where da.Id == cosmosDocument.Id
+                    from da in container.GetItemLinqQueryable<CosmosDataAvailable>()
+                    where da.Id == cosmosDataAvailable.Id
                     select da;
 
                 await foreach (var doc in query.AsCosmosIteratorAsync())
                 {
-                    if (cosmosDocument with { Timestamp = doc.Timestamp } == doc)
+                    if (cosmosDataAvailable with { Timestamp = doc.Timestamp } == doc)
                     {
-                        return;
+                        return true;
                     }
+
+                    throw new MessageHubStorageException("A data available notification already exists with the given ID");
                 }
 
-                throw new MessageHubStorageException("A data available notification already exists with the given ID");
+                return false;
             }
         }
 

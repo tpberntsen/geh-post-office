@@ -553,6 +553,51 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         }
 
         [Fact]
+        public async Task SaveAsync_IdenticalDataAvailableExistsInArchive_HandledIdempotent()
+        {
+            // arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            var recipient = new MarketOperator(new MockedGln());
+            var expected = new DataAvailableNotification(
+                new Uuid(Guid.NewGuid()),
+                recipient,
+                new ContentType("43B32679-A20A-48FF-929D-2EFB1CEC6D2E"),
+                DomainOrigin.Aggregations,
+                new SupportsBundling(false),
+                new Weight(1));
+
+            // act
+            await dataAvailableNotificationRepository
+                .SaveAsync(expected)
+                .ConfigureAwait(false);
+
+            var partitionKey = expected.Recipient.Gln.Value + expected.Origin + expected.ContentType.Value;
+
+            await dataAvailableNotificationRepository
+                .WriteToArchiveAsync(new[] { expected.NotificationId }, partitionKey)
+                .ConfigureAwait(false);
+
+            await dataAvailableNotificationRepository
+                .DeleteAsync(new[] { expected.NotificationId }, partitionKey)
+                .ConfigureAwait(false);
+
+            await dataAvailableNotificationRepository
+                .SaveAsync(expected)
+                .ConfigureAwait(false);
+
+            var actual = await dataAvailableNotificationRepository
+                .GetNextUnacknowledgedAsync(recipient, expected.Origin, expected.ContentType, expected.Weight)
+                .ConfigureAwait(false);
+
+            // assert
+            Assert.Empty(actual);
+        }
+
+        [Fact]
         public async Task SaveAsync_UnindeticalDataAvailableWithSameIdExists_Throws()
         {
             // arrange
@@ -581,6 +626,53 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             // act
             await dataAvailableNotificationRepository
                 .SaveAsync(da)
+                .ConfigureAwait(false);
+
+            // assert
+            await Assert.ThrowsAsync<MessageHubStorageException>(() =>
+                dataAvailableNotificationRepository
+                    .SaveAsync(da2)).ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task SaveAsync_UnindeticalDataAvailableWithSameIdExistsInArchive_Throws()
+        {
+            // arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            var recipient = new MarketOperator(new MockedGln());
+            var da = new DataAvailableNotification(
+                new Uuid(Guid.NewGuid()),
+                recipient,
+                new ContentType("BA6CF64D-060B-43B5-AB5E-9CAA94C4CFE7"),
+                DomainOrigin.Aggregations,
+                new SupportsBundling(false),
+                new Weight(1));
+
+            var da2 = new DataAvailableNotification(
+                new Uuid(da.NotificationId.AsGuid()),
+                da.Recipient,
+                da.ContentType,
+                da.Origin,
+                da.SupportsBundling,
+                new Weight(2));
+
+            // act
+            await dataAvailableNotificationRepository
+                .SaveAsync(da)
+                .ConfigureAwait(false);
+
+            var partitionKey = da.Recipient.Gln.Value + da.Origin + da.ContentType.Value;
+
+            await dataAvailableNotificationRepository
+                .WriteToArchiveAsync(new[] { da.NotificationId }, partitionKey)
+                .ConfigureAwait(false);
+
+            await dataAvailableNotificationRepository
+                .DeleteAsync(new[] { da.NotificationId }, partitionKey)
                 .ConfigureAwait(false);
 
             // assert
