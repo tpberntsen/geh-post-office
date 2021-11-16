@@ -71,7 +71,7 @@ namespace Energinet.DataHub.PostOffice.Common
             container.RegisterSingleton(() =>
             {
                 var configuration = container.GetService<IConfiguration>();
-                var dequeueCleanUpQueueName = configuration.GetValue("DEQUEUE_CLEANUP_QUEUE_NAME", "sbq-dequeue-cleanup");
+                var dequeueCleanUpQueueName = configuration.GetValue("DEQUEUE_CLEANUP_QUEUE_NAME", "messagehub-dequeue-cleanup");
 
                 return new DequeueCleanUpConfig(dequeueCleanUpQueueName);
             });
