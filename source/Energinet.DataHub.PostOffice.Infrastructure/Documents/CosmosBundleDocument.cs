@@ -29,6 +29,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
             MessageType = string.Empty;
 
             NotificationIds = new List<string>();
+            NotificationsArchived = false;
             ContentPath = string.Empty;
             Timestamp = null!;
         }
@@ -41,6 +42,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
         public string Origin { get; init; }
         public string MessageType { get; init; }
 
+        public bool NotificationsArchived { get; init; }
         public ICollection<string> NotificationIds { get; init; }
         public string ContentPath { get; init; }
 

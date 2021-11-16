@@ -12,26 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.Azure.Cosmos;
+using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Domain.Model;
 
-namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
+namespace Energinet.DataHub.PostOffice.Domain.Services
 {
     /// <summary>
-    /// Provides access to the CosmosDB container to use with DataAvailableNotificationRepository.
+    /// Abstraction for operation services
     /// </summary>
-    /// <returns>Bundle</returns>
-    public interface IDataAvailableNotificationRepositoryContainer
+    public interface IDequeueCleanUpSchedulingService
     {
         /// <summary>
-        /// The CosmosDB container to use with DataAvailableNotificationRepository.
+        /// Triggers DequeueCleanUp operation
         /// </summary>
-        /// <returns>Bundle</returns>
-        public Container Container { get; }
-
-        /// <summary>
-        /// The CosmosDB container to use with DataAvailableNotification Archive Repository.
-        /// </summary>
-        /// <returns>Bundle</returns>
-        public Container ArchiveContainer { get; }
+        /// <param name="bundleId"></param>
+        Task TriggerDequeueCleanUpOperationAsync(Uuid bundleId);
     }
 }
