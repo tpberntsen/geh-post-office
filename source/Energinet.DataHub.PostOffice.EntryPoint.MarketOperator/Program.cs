@@ -14,6 +14,7 @@
 
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Common;
+using Energinet.DataHub.PostOffice.Common.Auth;
 using Energinet.DataHub.PostOffice.Common.SimpleInjector;
 using Microsoft.Extensions.Hosting;
 using SimpleInjector;
@@ -34,6 +35,8 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
                     {
                         options.UseMiddleware<SimpleInjectorScopedRequest>();
                         options.UseMiddleware<EntryPointTelemetryScopeMiddleware>();
+                        options.UseMiddleware<JwtAuthenticationMiddleware>();
+                        options.UseMiddleware<QueryAuthenticationMiddleware>();
                     })
                     .ConfigureServices(startup.ConfigureServices)
                     .Build()
