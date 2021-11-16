@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
 using Energinet.DataHub.PostOffice.Tests.Common;
+using Energinet.DataHub.PostOffice.Tests.Common.Auth;
 using MediatR;
 using Moq;
 using Xunit;
@@ -40,12 +41,13 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Returns(_functionRoute);
 
             var mockedMediator = new Mock<IMediator>();
+            var mockedIdentity = new MockedMarketOperatorIdentity("fake_value");
 
             mockedMediator
                 .Setup(x => x.Send(It.IsAny<DequeueCommand>(), default))
                 .ReturnsAsync(new DequeueResponse(true));
 
-            var target = new DequeueFunction(mockedMediator.Object);
+            var target = new DequeueFunction(mockedMediator.Object, mockedIdentity);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -64,12 +66,13 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Returns(_functionRoute);
 
             var mockedMediator = new Mock<IMediator>();
+            var mockedIdentity = new MockedMarketOperatorIdentity("fake_value");
 
             mockedMediator
                 .Setup(x => x.Send(It.IsAny<DequeueCommand>(), default))
                 .ReturnsAsync(new DequeueResponse(false));
 
-            var target = new DequeueFunction(mockedMediator.Object);
+            var target = new DequeueFunction(mockedMediator.Object, mockedIdentity);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);

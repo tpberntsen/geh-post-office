@@ -13,20 +13,25 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
-using Microsoft.AspNetCore.WebUtilities;
+using Energinet.DataHub.PostOffice.Common.Auth;
 
-namespace Energinet.DataHub.PostOffice.Common.Extensions
+namespace Energinet.DataHub.PostOffice.Tests.Common.Auth
 {
-    public static class UriExtensions
+    public sealed class MockedMarketOperatorIdentity : IMarketOperatorIdentity
     {
-        public static string GetQueryValue(this Uri uri, string name)
+        public MockedMarketOperatorIdentity(string gln)
         {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
+            Gln = gln;
+            HasIdentity = true;
+        }
 
-            var fields = QueryHelpers.ParseQuery(uri.Query);
-            return fields.TryGetValue(name, out var values) ? values.First() : string.Empty;
+        public bool HasIdentity { get; }
+
+        public string Gln { get; }
+
+        void IMarketOperatorIdentity.AssignGln(string gln)
+        {
+            throw new InvalidOperationException("Cannot assign GLN to mocked MarketOperatorIdentity.");
         }
     }
 }
