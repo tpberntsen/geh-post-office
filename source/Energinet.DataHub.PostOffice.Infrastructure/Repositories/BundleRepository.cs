@@ -41,6 +41,21 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             _marketOperatorDataStorageService = marketOperatorDataStorageService;
         }
 
+        public async Task<Bundle?> GetBundleAsync(Uuid bundleId)
+        {
+            var asLinq = _repositoryContainer
+                .Container
+                .GetItemLinqQueryable<CosmosBundleDocument>();
+
+            var cosmosBundleDocuments = asLinq.Where(document => document.Id == bundleId.ToString());
+            var bundleDocument = await cosmosBundleDocuments.AsCosmosIteratorAsync().FirstOrDefaultAsync().ConfigureAwait(false);
+
+            return
+                bundleDocument is null
+                    ? null
+                    : BundleMapper.MapToBundle(bundleDocument);
+        }
+
         public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
         {
             if (recipient is null)

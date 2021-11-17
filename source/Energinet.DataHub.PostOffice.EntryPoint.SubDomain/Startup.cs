@@ -12,12 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions;
+using Energinet.DataHub.PostOffice.Infrastructure;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
+using Microsoft.Azure.ServiceBus.Core;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain
@@ -26,8 +31,24 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain
     {
         protected override void Configure(Container container)
         {
+            container.RegisterSingleton<IDataAvailableMessageReceiver>(() =>
+            {
+                var configuration = container.GetService<IConfiguration>();
+                var batchSize = configuration.GetValue("DATAAVAILABLE_BATCH_SIZE", 10000);
+                var timeoutInMs = configuration.GetValue("DATAAVAILABLE_TIMEOUT_IN_MS", 1000);
+
+                var serviceBusConfig = container.GetInstance<ServiceBusConfig>();
+                var messageReceiver = new MessageReceiver(
+                    serviceBusConfig.DataAvailableQueueConnectionString,
+                    serviceBusConfig.DataAvailableQueueName,
+                    prefetchCount: batchSize);
+
+                return new DataAvailableMessageReceiver(messageReceiver, batchSize, TimeSpan.FromMilliseconds(timeoutInMs));
+            });
+
             container.Register<IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand>, DataAvailableMapper>(Lifestyle.Scoped);
             container.Register<DataAvailableInbox>(Lifestyle.Scoped);
+            container.Register<DataAvailableTimerTrigger>(Lifestyle.Scoped);
         }
     }
 }

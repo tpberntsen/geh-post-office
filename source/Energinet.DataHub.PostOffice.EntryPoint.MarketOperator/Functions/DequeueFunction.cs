@@ -15,6 +15,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Common.Auth;
 using Energinet.DataHub.PostOffice.Common.Extensions;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
@@ -24,21 +25,25 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
     public sealed class DequeueFunction
     {
-        private readonly IMediator _mediator;
+        private const string BundleIdQueryName = "bundleId";
 
-        public DequeueFunction(IMediator mediator)
+        private readonly IMediator _mediator;
+        private readonly IMarketOperatorIdentity _operatorIdentity;
+
+        public DequeueFunction(IMediator mediator, IMarketOperatorIdentity operatorIdentity)
         {
             _mediator = mediator;
+            _operatorIdentity = operatorIdentity;
         }
 
         [Function("Dequeue")]
         public Task<HttpResponseData> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post")]
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete")]
             HttpRequestData request)
         {
             return request.ProcessAsync(async () =>
             {
-                var command = request.Url.ParseQuery<DequeueCommand>();
+                var command = new DequeueCommand(_operatorIdentity.Gln, request.Url.GetQueryValue(BundleIdQueryName));
                 var response = await _mediator.Send(command).ConfigureAwait(false);
                 return response.IsDequeued
                     ? request.CreateResponse(HttpStatusCode.OK)

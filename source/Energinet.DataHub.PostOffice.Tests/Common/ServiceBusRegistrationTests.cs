@@ -69,6 +69,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
             // arrange
             const string expectedQueueName = "fake_queue_name";
             const string expectedConnectionString = "fake_connection_string";
+            const string expectedDequeueCleanUpQueueName = "fake_queue_name";
 
             var queueNameSectionMock = new Mock<IConfigurationSection>();
             queueNameSectionMock.Setup(x => x.Value).Returns(expectedQueueName);
@@ -76,9 +77,13 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
             var connectionStringSectionMock = new Mock<IConfigurationSection>();
             connectionStringSectionMock.Setup(x => x.Value).Returns(expectedConnectionString);
 
+            var dequeueCleanUpQueueName = new Mock<IConfigurationSection>();
+            dequeueCleanUpQueueName.Setup(x => x.Value).Returns(expectedDequeueCleanUpQueueName);
+
             var configMock = new Mock<IConfiguration>();
             configMock.Setup(x => x.GetSection(ServiceBusConfig.DataAvailableQueueNameKey)).Returns(queueNameSectionMock.Object);
             configMock.Setup(x => x.GetSection(ServiceBusConfig.DataAvailableQueueConnectionStringKey)).Returns(connectionStringSectionMock.Object);
+            configMock.Setup(x => x.GetSection(ServiceBusConfig.DequeueCleanUpQueueNameKey)).Returns(dequeueCleanUpQueueName.Object);
 
             await using var container = new Container();
             container.Register(() => configMock.Object, Lifestyle.Singleton);
