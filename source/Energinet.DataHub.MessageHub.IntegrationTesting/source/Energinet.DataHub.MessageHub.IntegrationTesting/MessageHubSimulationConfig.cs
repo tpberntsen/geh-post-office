@@ -23,34 +23,46 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
         /// <param name="domainQueueName">The 'sbq-[domain]' queue name.</param>
         /// <param name="domainReplyQueueName">The 'sbq-[domain]-reply' queue name.</param>
         /// <param name="domainDequeueQueueName">The 'sbq-[domain]-dequeue' queue name.</param>
+        /// <param name="blobStorageConnectionString">The connection string to the Blob Storage used to store the generated bundles.</param>
+        /// <param name="blobStorageContainerName">The container name of the Blob Storage used to store the generated bundles.</param>
         public MessageHubSimulationConfig(
             string serviceBusReadWriteConnectionString,
             string dataAvailableQueueName,
             string domainQueueName,
             string domainReplyQueueName,
-            string domainDequeueQueueName)
+            string domainDequeueQueueName,
+            string blobStorageConnectionString,
+            string blobStorageContainerName)
         {
             ServiceBusReadWriteConnectionString = serviceBusReadWriteConnectionString;
             DataAvailableQueueName = dataAvailableQueueName;
             DomainQueueName = domainQueueName;
             DomainReplyQueueName = domainReplyQueueName;
             DomainDequeueQueueName = domainDequeueQueueName;
+            BlobStorageConnectionString = blobStorageConnectionString;
+            BlobStorageContainerName = blobStorageContainerName;
         }
 
         /// <param name="serviceBusReadWriteConnectionString">The service bus connection string to use for the simulation. The connection string must have read and write access rights.</param>
         /// <param name="dataAvailableQueueName">The 'sbq-dataavailable' queue name.</param>
         /// <param name="domainQueueName">The 'sbq-[domain]' queue name.</param>
         /// <param name="domainReplyQueueName">The 'sbq-[domain]-reply' queue name.</param>
+        /// <param name="blobStorageConnectionString">The connection string to the Blob Storage used to store the generated bundles.</param>
+        /// <param name="blobStorageContainerName">The container name of the Blob Storage used to store the generated bundles.</param>
         public MessageHubSimulationConfig(
             string serviceBusReadWriteConnectionString,
             string dataAvailableQueueName,
             string domainQueueName,
-            string domainReplyQueueName)
+            string domainReplyQueueName,
+            string blobStorageConnectionString,
+            string blobStorageContainerName)
         {
             ServiceBusReadWriteConnectionString = serviceBusReadWriteConnectionString;
             DataAvailableQueueName = dataAvailableQueueName;
             DomainQueueName = domainQueueName;
             DomainReplyQueueName = domainReplyQueueName;
+            BlobStorageConnectionString = blobStorageConnectionString;
+            BlobStorageContainerName = blobStorageContainerName;
             DomainDequeueQueueName = null;
         }
 
@@ -78,6 +90,16 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
         /// The 'sbq-[domain]-dequeue' queue name.
         /// </summary>
         public string? DomainDequeueQueueName { get; }
+
+        /// <summary>
+        /// The connection string to the Blob Storage used to store the generated bundles.
+        /// </summary>
+        public string BlobStorageConnectionString { get; }
+
+        /// <summary>
+        /// The container name of the Blob Storage used to store the generated bundles.
+        /// </summary>
+        public string BlobStorageContainerName { get; }
 
         internal PeekRequestConfig CreateSimulatedPeekRequestConfig()
         {

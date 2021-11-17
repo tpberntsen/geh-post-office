@@ -19,6 +19,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
+using Azure.Storage.Blobs;
 using Energinet.DataHub.MessageHub.Core.Dequeue;
 using Energinet.DataHub.MessageHub.Core.Factories;
 using Energinet.DataHub.MessageHub.Core.Peek;
@@ -40,6 +41,7 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
         private readonly IDataBundleRequestSender _dataBundleRequestSender;
         private readonly IDequeueNotificationSender? _dequeueNotificationSender;
 
+        private readonly BlobContainerClient _blobContainerClient;
         private readonly ServiceBusReceiver _dataAvailableReceiver;
         private readonly AzureServiceBusFactory _messageBusFactory;
         private readonly List<DataAvailableNotificationDto> _notifications = new();
@@ -51,9 +53,14 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
 
             Notifications = new ReadOnlyCollection<DataAvailableNotificationDto>(_notifications);
 
-            var serviceBusSingleton = new ServiceBusClientFactory(configuration.ServiceBusReadWriteConnectionString);
+            var blobStorageSingleton = new StorageServiceClientFactory(configuration.BlobStorageConnectionString);
+            _blobContainerClient = blobStorageSingleton
+                .Create()
+                .GetBlobContainerClient(configuration.BlobStorageContainerName);
 
+            var serviceBusSingleton = new ServiceBusClientFactory(configuration.ServiceBusReadWriteConnectionString);
             _messageBusFactory = new AzureServiceBusFactory(serviceBusSingleton);
+
             _dataAvailableReceiver = serviceBusSingleton
                 .Create()
                 .CreateReceiver(configuration.DataAvailableQueueName);
@@ -100,7 +107,7 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
             using var cancellationTokenSource = new CancellationTokenSource(timeout);
             var cancellationToken = cancellationTokenSource.Token;
 
-            var expectedIds = new HashSet<string>(correlationIds);
+            var expectedIds = new HashSet<string>(correlationIds, StringComparer.OrdinalIgnoreCase);
 
             while (expectedIds.Count > 0)
             {
@@ -111,10 +118,13 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
                 if (message == null)
                     throw new TimeoutException("MessageHubSimulation: The expected dataavailable messages did not arrive.");
 
-                if (expectedIds.Remove(message.CorrelationId))
+                if (message.ApplicationProperties.TryGetValue("OperationCorrelationId", out var correlationObj))
                 {
-                    var dataAvailableNotificationDto = _dataAvailableNotificationParser.Parse(message.Body.ToArray());
-                    _notifications.Add(dataAvailableNotificationDto);
+                    if (correlationObj is string correlationId && expectedIds.Remove(correlationId))
+                    {
+                        var dataAvailableNotificationDto = _dataAvailableNotificationParser.Parse(message.Body.ToArray());
+                        _notifications.Add(dataAvailableNotificationDto);
+                    }
                 }
 
                 await _dataAvailableReceiver
@@ -130,6 +140,8 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
         /// <returns>Returns information about the Peek request.</returns>
         public async Task<PeekSimulationResponseDto> PeekAsync()
         {
+            await EnsureBlobStorageAsync().ConfigureAwait(false);
+
             var requestId = Guid.NewGuid();
             var idempotencyId = Guid.NewGuid();
 
@@ -164,7 +176,7 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
         }
 
         /// <summary>
-        /// Simulates a dequeues of the previous Peek request.
+        /// Simulates a dequeue of the previous Peek request.
         /// </summary>
         public Task DequeueAsync()
         {
@@ -201,6 +213,13 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
         {
             await _dataAvailableReceiver.DisposeAsync().ConfigureAwait(false);
             await _messageBusFactory.DisposeAsync().ConfigureAwait(false);
+        }
+
+        // This is a bit weird, since we do not own ressources, nor do we check any other resources.
+        // It is done to make testing easier.
+        private Task EnsureBlobStorageAsync()
+        {
+            return _blobContainerClient.CreateIfNotExistsAsync();
         }
     }
 }
