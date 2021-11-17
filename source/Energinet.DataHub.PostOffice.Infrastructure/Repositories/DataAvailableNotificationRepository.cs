@@ -17,12 +17,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Energinet.DataHub.MessageHub.Model.Exceptions;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Common;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
+using FluentValidation;
 using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
@@ -64,7 +64,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
             catch (CosmosException e) when (e.StatusCode == HttpStatusCode.Conflict)
             {
-                _ = await ExistingExactMatchExists(_repositoryContainer.Container, cosmosDocument).ConfigureAwait(false);
+                await ExistingExactMatchExists(_repositoryContainer.Container, cosmosDocument).ConfigureAwait(false);
             }
 
             static async Task<bool> ExistingExactMatchExists(Container container, CosmosDataAvailable cosmosDataAvailable)
@@ -81,7 +81,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                         return true;
                     }
 
-                    throw new MessageHubStorageException("A data available notification already exists with the given ID");
+                    throw new ValidationException("A data available notification already exists with the given ID");
                 }
 
                 return false;
