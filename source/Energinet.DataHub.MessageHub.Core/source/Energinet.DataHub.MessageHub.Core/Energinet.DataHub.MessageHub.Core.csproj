@@ -67,7 +67,7 @@ https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energine
   <ItemGroup>
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.5.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
-    <PackageReference Include="Energinet.DataHub.MessageHub.Model" Version="1.2.0-alpha-20211118T085134" />
+    <PackageReference Include="Energinet.DataHub.MessageHub.Model" Version="1.2.0-alpha-20211118T150625" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
