@@ -12,19 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-
 namespace Energinet.DataHub.MessageHub.Model.Model
 {
     /// <summary>
     /// Signals the sub-domains that a market operator has acknowledged the specified data.
-    /// <param name="DataAvailableNotificationIds">
-    /// A collection of guids identifying which data the market operator has approved.
+    /// <param name="DataAvailableNotificationReferenceId">
+    /// A reference id used to obtain the list of dequeue DataAvailableNotification ids.
     /// </param>
     /// <param name="MarketOperator">
     /// A Global Location Number identifying a market operator.
     /// </param>
     /// </summary>
-    public sealed record DequeueNotificationDto(ICollection<Guid> DataAvailableNotificationIds, GlobalLocationNumberDto MarketOperator);
+    public sealed record DequeueNotificationDto(string DataAvailableNotificationReferenceId, GlobalLocationNumberDto MarketOperator);
 }
