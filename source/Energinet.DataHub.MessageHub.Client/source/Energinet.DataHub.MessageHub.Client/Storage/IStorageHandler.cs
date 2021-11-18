@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Model.Model;
@@ -20,17 +21,31 @@ using Energinet.DataHub.MessageHub.Model.Model;
 namespace Energinet.DataHub.MessageHub.Client.Storage
 {
     /// <summary>
-    /// Handles storing file data from the SubDomains
+    /// Provides access to shared blob storage between MessageHub and sub-domains.
     /// </summary>
     public interface IStorageHandler
     {
         /// <summary>
-        /// Stores a filestream in the PostOffice storage, and returns a path to the stored file,
-        /// that is to be used when sending a response to the PostOffice
+        /// Stores a filestream in the MessageHub storage, and returns a path to the stored file,
+        /// that is to be used when sending a response to the MessageHub.
         /// </summary>
         /// <param name="stream">A stream containing the contents that should be stored</param>
-        /// <param name="requestDto">THe domain that is sending the data</param>
+        /// <param name="requestDto">The domain that is sending the data</param>
         /// <returns>A string containing the path of the stored file</returns>
         Task<Uri> AddStreamToStorageAsync(Stream stream, DataBundleRequestDto requestDto);
+
+        /// <summary>
+        /// Gets a list of DataAvailableNotification ids for the bundle request from MessageHub.
+        /// </summary>
+        /// <param name="bundleRequest">The bundle request to get the ids from.</param>
+        /// <returns>A list of DataAvailableNotification ids.</returns>
+        Task<IReadOnlyList<Guid>> GetDataAvailableNotificationIdsAsync(DataBundleRequestDto bundleRequest);
+
+        /// <summary>
+        /// Gets a list of DataAvailableNotification ids for the dequeue notification from MessageHub.
+        /// </summary>
+        /// <param name="dequeueNotification">The dequeue notification to get the ids from.</param>
+        /// <returns>A list of DataAvailableNotification ids.</returns>
+        Task<IReadOnlyList<Guid>> GetDataAvailableNotificationIdsAsync(DequeueNotificationDto dequeueNotification);
     }
 }
