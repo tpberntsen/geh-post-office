@@ -47,7 +47,7 @@ namespace Energinet.DataHub.MessageHub.Client.Storage
 
             try
             {
-                var blobClient = CreateBlobClient(requestDto.IdempotencyId);
+                var blobClient = CreateBlobClient($"{requestDto.IdempotencyId}_data");
                 await blobClient.UploadAsync(stream, true).ConfigureAwait(false);
                 return blobClient.Uri;
             }
