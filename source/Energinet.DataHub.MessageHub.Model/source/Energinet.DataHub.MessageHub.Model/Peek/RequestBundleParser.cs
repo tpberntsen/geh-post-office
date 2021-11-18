@@ -30,6 +30,7 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
             var message = new DataBundleRequestContract
             {
                 RequestId = request.RequestId.ToString(),
+                DataAvailableNotificationReferenceId = request.DataAvailableNotificationReferenceId,
                 IdempotencyId = request.IdempotencyId,
                 MessageType = request.MessageType,
             };
