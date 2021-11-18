@@ -74,6 +74,8 @@ namespace Energinet.DataHub.MessageHub.Core.Storage
                     memoryStream.Write(guid.ToByteArray());
                 }
 
+                memoryStream.Position = 0;
+
                 var blobClient = CreateBlobClient(dataAvailableNotificationReferenceId);
                 await blobClient.UploadAsync(memoryStream, true).ConfigureAwait(false);
             }
