@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Energinet.DataHub.MessageHub.Core.Storage;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
@@ -48,7 +49,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.Operations
 
             var container = scope.GetInstance<IBundleRepositoryContainer>();
             var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var bundleRepository = new BundleRepository(container, storageService);
+            var storageHandler = scope.GetInstance<IStorageHandler>();
+            var bundleRepository = new BundleRepository(storageHandler, container, storageService);
 
             var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
             var dataAvailableRepository = new DataAvailableNotificationRepository(dataAvailableContainer);

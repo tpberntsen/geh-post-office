@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Energinet.DataHub.MessageHub.Core.Storage;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
@@ -30,13 +31,16 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
     public sealed class BundleRepository : IBundleRepository
     {
+        private readonly IStorageHandler _storageHandler;
         private readonly IBundleRepositoryContainer _repositoryContainer;
         private readonly IMarketOperatorDataStorageService _marketOperatorDataStorageService;
 
         public BundleRepository(
+            IStorageHandler storageHandler,
             IBundleRepositoryContainer repositoryContainer,
             IMarketOperatorDataStorageService marketOperatorDataStorageService)
         {
+            _storageHandler = storageHandler;
             _repositoryContainer = repositoryContainer;
             _marketOperatorDataStorageService = marketOperatorDataStorageService;
         }
@@ -88,6 +92,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
         {
             if (bundle == null)
                 throw new ArgumentNullException(nameof(bundle));
+
+            await _storageHandler
+                .AddDataAvailableNotificationIdsToStorageAsync(bundle.ProcessId.ToString(), bundle.NotificationIds.Select(x => x.AsGuid()))
+                .ConfigureAwait(false);
 
             var messageDocument = BundleMapper.MapToDocument(bundle);
             var requestOptions = new ItemRequestOptions
