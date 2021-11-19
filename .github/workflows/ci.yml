@@ -30,7 +30,7 @@ jobs:
       USE_COSMOS_DB_EMULATOR: true
       
   package_ci:
-    uses: Energinet-DataHub/.github/.github/workflows/dotnet-solution-ci.yml@2.1.0
+    uses: Energinet-DataHub/.github/.github/workflows/dotnet-solution-ci.yml@1.13.0
     with:
       SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Libraries.sln'
       DOTNET_VERSION: '5.0'
