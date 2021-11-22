@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
 using Energinet.DataHub.MessageHub.Model.Exceptions;
 using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.MessageHub.Model.Protobuf;
@@ -28,20 +27,27 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
             if (dataBundleResponseDto == null)
                 throw new ArgumentNullException(nameof(dataBundleResponseDto));
 
-            var contract = new DataBundleResponseContract { RequestId = dataBundleResponseDto.RequestId.ToString() };
-
-            if (!dataBundleResponseDto.IsErrorResponse)
+            var contract = new DataBundleResponseContract
             {
-                contract.Success = new DataBundleResponseContract.Types.FileResource { ContentUri = dataBundleResponseDto.ContentUri.AbsoluteUri };
-                return contract.ToByteArray();
-            }
-
-            var contractErrorReason = MapToFailureReason(dataBundleResponseDto.ResponseError.Reason);
-            contract.Failure = new DataBundleResponseContract.Types.RequestFailure
-            {
-                Reason = contractErrorReason,
-                FailureDescription = dataBundleResponseDto.ResponseError.FailureDescription
+                RequestId = dataBundleResponseDto.RequestId.ToString()
             };
+
+            if (dataBundleResponseDto.IsErrorResponse)
+            {
+                var contractErrorReason = MapToFailureReason(dataBundleResponseDto.ResponseError.Reason);
+                contract.Failure = new DataBundleResponseContract.Types.RequestFailure
+                {
+                    Reason = contractErrorReason,
+                    FailureDescription = dataBundleResponseDto.ResponseError.FailureDescription
+                };
+            }
+            else
+            {
+                contract.Success = new DataBundleResponseContract.Types.FileResource
+                {
+                    ContentUri = dataBundleResponseDto.ContentUri.AbsoluteUri
+                };
+            }
 
             return contract.ToByteArray();
         }
@@ -60,8 +66,7 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
                     return new DataBundleResponseDto(
                         requestId,
                         requestIdempotency,
-                        new Uri(successReply.ContentUri),
-                        successReply.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
+                        new Uri(successReply.ContentUri));
                 }
 
                 var failureReply = bundleResponse.Failure;
@@ -74,8 +79,7 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
                 return new DataBundleResponseDto(
                     requestId,
                     requestIdempotency,
-                    errorResponse,
-                    failureReply.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
+                    errorResponse);
             }
             catch (Exception ex) when (ex is InvalidProtocolBufferException or FormatException)
             {

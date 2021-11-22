@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using Energinet.DataHub.MessageHub.Model.Extensions;
 using Energinet.DataHub.MessageHub.Model.Model;
 using Xunit;
@@ -41,15 +40,14 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Model
         [Fact]
         public void CreateResponse_ReturnsResponse()
         {
-            // arrage
-            var dataAvailableNotificationIds = new List<Guid> { Guid.NewGuid() };
+            // arrange
             var requestId = Guid.Parse("BCDFAF35-B914-488E-A8FB-C41FC377097D");
             var uri = new Uri("http://localhost");
             var request = new DataBundleRequestDto(
                 requestId,
+                "C141D536-170F-48A6-92FC-EA0D79D2F7E0",
                 "D5D400AD-CC11-409A-B757-75EB9AA8B0EA",
-                "message_type",
-                dataAvailableNotificationIds);
+                "message_type");
 
             // act
             var actual = request.CreateResponse(uri);
@@ -57,20 +55,18 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Model
             // assert
             Assert.Equal(requestId, actual.RequestId);
             Assert.Equal(uri, actual.ContentUri);
-            Assert.Equal(dataAvailableNotificationIds, actual.DataAvailableNotificationIds);
         }
 
         [Fact]
         public void CreateErrorResponse_ReturnsResponse()
         {
-            // arrage
-            var dataAvailableNotificationIds = new List<Guid> { Guid.NewGuid() };
+            // arrange
             var requestId = Guid.Parse("BCDFAF35-B914-488E-A8FB-C41FC377097D");
             var request = new DataBundleRequestDto(
                 requestId,
+                "CBF03641-95C2-4386-A04E-892CDF1D793A",
                 "D5D400AD-CC11-409A-B757-75EB9AA8B0EA",
-                "message_type",
-                dataAvailableNotificationIds);
+                "message_type");
 
             var dataBundleResponseErrorDto = new DataBundleResponseErrorDto();
 
