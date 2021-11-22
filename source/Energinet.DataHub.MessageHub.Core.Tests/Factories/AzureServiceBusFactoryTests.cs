@@ -55,8 +55,14 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Factories
             var queueName = $"sbq-test";
             var replyQueue = $"sbq-test-reply";
             var serviceBusSenderMock = new Mock<ServiceBusSender>();
-            var requestBundleResponse = new DataBundleResponseContract { Success = new DataBundleResponseContract.Types.FileResource { ContentUri = "http://localhost", DataAvailableNotificationIds = { new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" } } } };
-            var bytes = requestBundleResponse.ToByteArray();
+            var bytes = new DataBundleResponseContract
+            {
+                RequestId = "93764CCB-7474-4234-908B-C84E73F571F7",
+                Success = new DataBundleResponseContract.Types.FileResource
+                {
+                    ContentUri = "http://localhost"
+                }
+            }.ToByteArray();
 
             var serviceBusReceivedMessage = MockedServiceBusReceivedMessage.Create(bytes);
             var serviceBusSessionReceiverMock = new Mock<ServiceBusSessionReceiver>();
