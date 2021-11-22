@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+
 namespace Energinet.DataHub.MessageHub.Core
 {
     public sealed record PeekRequestConfig(
@@ -24,5 +26,6 @@ namespace Energinet.DataHub.MessageHub.Core
         string MeteringPointsQueue,
         string MeteringPointsReplyQueue,
         string AggregationsQueue,
-        string AggregationsReplyQueue);
+        string AggregationsReplyQueue,
+        TimeSpan? PeekTimeout = default);
 }
