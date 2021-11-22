@@ -33,8 +33,7 @@ namespace Energinet.DataHub.MessageHub.Model.Extensions
             return new DataBundleResponseDto(
                 request.RequestId,
                 request.IdempotencyId,
-                path,
-                request.DataAvailableNotificationIds);
+                path);
         }
 
         /// <summary>
@@ -51,8 +50,7 @@ namespace Energinet.DataHub.MessageHub.Model.Extensions
             return new DataBundleResponseDto(
                 request.RequestId,
                 request.IdempotencyId,
-                errorResponse,
-                request.DataAvailableNotificationIds);
+                errorResponse);
         }
     }
 }

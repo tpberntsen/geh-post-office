@@ -18,6 +18,6 @@ syntax = "proto3";
 option csharp_namespace = "Energinet.DataHub.MessageHub.Model.Protobuf";
 
 message DequeueContract {
-    repeated string dataAvailableNotificationIds = 1; // Unique datasets to be dequeued
+    string DataAvailableNotificationReferenceId = 1; // A reference id used to obtain the list of dequeue DataAvailableNotification ids.
     string marketOperator = 2; // Global location number to identify market operator who sent the dequeue command
 }
