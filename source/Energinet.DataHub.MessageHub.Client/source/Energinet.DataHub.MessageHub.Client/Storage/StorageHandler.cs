@@ -13,16 +13,18 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Azure;
+using Azure.Storage.Blobs;
 using Energinet.DataHub.MessageHub.Client.Factories;
 using Energinet.DataHub.MessageHub.Model.Exceptions;
 using Energinet.DataHub.MessageHub.Model.Model;
 
 namespace Energinet.DataHub.MessageHub.Client.Storage
 {
-    public class StorageHandler : IStorageHandler
+    public sealed class StorageHandler : IStorageHandler
     {
         private readonly IStorageServiceClientFactory _storageServiceClientFactory;
         private readonly StorageConfig _storageConfig;
@@ -45,18 +47,63 @@ namespace Energinet.DataHub.MessageHub.Client.Storage
 
             try
             {
-                var storageClient = _storageServiceClientFactory.Create();
-                var containerClient = storageClient.GetBlobContainerClient(_storageConfig.AzureBlobStorageContainerName);
-                var blobName = requestDto.IdempotencyId;
-                var blobClient = containerClient.GetBlobClient(blobName);
+                var blobClient = CreateBlobClient($"{requestDto.IdempotencyId}_data");
                 await blobClient.UploadAsync(stream, true).ConfigureAwait(false);
-                var blobUri = blobClient.Uri;
-                return blobUri;
+                return blobClient.Uri;
             }
             catch (RequestFailedException e)
             {
                 throw new MessageHubStorageException("Error uploading file to storage", e);
             }
+        }
+
+        public Task<IReadOnlyList<Guid>> GetDataAvailableNotificationIdsAsync(DataBundleRequestDto bundleRequest)
+        {
+            return bundleRequest != null
+                ? GetDataAvailableNotificationIdsAsync(bundleRequest.DataAvailableNotificationReferenceId)
+                : throw new ArgumentNullException(nameof(bundleRequest));
+        }
+
+        public Task<IReadOnlyList<Guid>> GetDataAvailableNotificationIdsAsync(DequeueNotificationDto dequeueNotification)
+        {
+            return dequeueNotification != null
+                ? GetDataAvailableNotificationIdsAsync(dequeueNotification.DataAvailableNotificationReferenceId)
+                : throw new ArgumentNullException(nameof(dequeueNotification));
+        }
+
+        private async Task<IReadOnlyList<Guid>> GetDataAvailableNotificationIdsAsync(string referenceId)
+        {
+            try
+            {
+                var blobClient = CreateBlobClient(referenceId);
+                var guidResults = await blobClient
+                    .DownloadContentAsync()
+                    .ConfigureAwait(false);
+
+                var rawBytes = guidResults.Value.Content.ToArray();
+                var guids = new List<Guid>();
+
+                for (var i = 0; i < rawBytes.Length;)
+                {
+                    var j = i + 16;
+                    guids.Add(new Guid(rawBytes[i..j]));
+                    i = j;
+                }
+
+                return guids;
+            }
+            catch (RequestFailedException e)
+            {
+                throw new MessageHubStorageException("Error downloading file from storage", e);
+            }
+        }
+
+        private BlobClient CreateBlobClient(string blobFileName)
+        {
+            return _storageServiceClientFactory
+                .Create()
+                .GetBlobContainerClient(_storageConfig.AzureBlobStorageContainerName)
+                .GetBlobClient(blobFileName);
         }
     }
 }
