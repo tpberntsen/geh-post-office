@@ -57,7 +57,7 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Dequeue
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.SendAsync(null!, DomainOrigin.TimeSeries))
+                .ThrowsAsync<ArgumentNullException>(() => target.SendAsync("fake_value", null!, DomainOrigin.TimeSeries))
                 .ConfigureAwait(false);
         }
 
@@ -88,11 +88,11 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Dequeue
             var target = new DequeueNotificationSender(messageBusFactory, _testConfig);
 
             var dataAvailable = new DequeueNotificationDto(
-                new[] { Guid.NewGuid(), Guid.NewGuid() },
+                "fake_value",
                 new GlobalLocationNumberDto("fake_value"));
 
             // Act
-            await target.SendAsync(dataAvailable, domainOrigin).ConfigureAwait(false);
+            await target.SendAsync("fake_value", dataAvailable, domainOrigin).ConfigureAwait(false);
 
             // Assert
             serviceBusSenderMock.Verify(x => x.SendMessageAsync(It.IsAny<ServiceBusMessage>(), default), Times.Once);
@@ -121,11 +121,11 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Dequeue
             var target = new DequeueNotificationSender(messageBusFactory, _testConfig);
 
             var dataAvailable = new DequeueNotificationDto(
-                new[] { Guid.NewGuid(), Guid.NewGuid() },
+                "fake_value",
                 new GlobalLocationNumberDto("fake_value"));
 
             // Act
-            await target.SendAsync(dataAvailable, DomainOrigin.TimeSeries).ConfigureAwait(false);
+            await target.SendAsync("fake_value", dataAvailable, DomainOrigin.TimeSeries).ConfigureAwait(false);
 
             // Assert
             serviceBusSenderMock.Verify(

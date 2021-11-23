@@ -20,10 +20,10 @@ namespace Energinet.DataHub.MessageHub.Core.Extensions
 {
     internal static class ServiceBusMessageExtensions
     {
-        public static ServiceBusMessage AddDequeueIntegrationEvents(this ServiceBusMessage serviceBusMessage)
+        public static ServiceBusMessage AddDequeueIntegrationEvents(this ServiceBusMessage serviceBusMessage, string operationCorrelationId)
         {
             return serviceBusMessage.AddIntegrationsEvents(
-                Guid.NewGuid().ToString(),
+                operationCorrelationId,
                 IntegrationEventsMessageType.Dequeue,
                 Guid.NewGuid().ToString());
         }

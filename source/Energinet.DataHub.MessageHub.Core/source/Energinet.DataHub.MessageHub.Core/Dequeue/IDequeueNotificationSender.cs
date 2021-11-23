@@ -25,8 +25,9 @@ namespace Energinet.DataHub.MessageHub.Core.Dequeue
         /// <summary>
         /// Encodes the specified DequeueNotification and places it onto the domain post office DequeueNotification queue.
         /// </summary>
+        /// <param name="correlationId">The correlation id for the Peek/Dequeue operation. Must be equal to DataBundleRequestDto.IdempotencyId.</param>
         /// <param name="dequeueNotificationDto">The notification to send to the domain post office.</param>
         /// <param name="domainOrigin">The domain to send the notification to</param>
-        Task SendAsync(DequeueNotificationDto dequeueNotificationDto, DomainOrigin domainOrigin);
+        Task SendAsync(string correlationId, DequeueNotificationDto dequeueNotificationDto, DomainOrigin domainOrigin);
     }
 }

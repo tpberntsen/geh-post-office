@@ -126,5 +126,31 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Storage
                     () => target.GetStreamFromStorageAsync(testUri))
                 .ConfigureAwait(false);
         }
+
+        [Fact]
+        public async Task AddDataAvailableNotificationIdsToStorageAsync_ReferenceIsNull_ThrowsArgumentNullException()
+        {
+            // arrange
+            var mockedStorageServiceClientFactory = new Mock<IStorageServiceClientFactory>();
+            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
+
+            // act, assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() => target.AddDataAvailableNotificationIdsToStorageAsync(null!, Array.Empty<Guid>()))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task AddDataAvailableNotificationIdsToStorageAsync_ArrayIsNull_ThrowsArgumentNullException()
+        {
+            // arrange
+            var mockedStorageServiceClientFactory = new Mock<IStorageServiceClientFactory>();
+            var target = new StorageHandler(mockedStorageServiceClientFactory.Object, new StorageConfig("fake_value"));
+
+            // act, assert
+            await Assert.ThrowsAsync<ArgumentNullException>(
+                    () => target.AddDataAvailableNotificationIdsToStorageAsync("A203FE46-C5A3-4817-B4D7-538F74225C01", null!))
+                .ConfigureAwait(false);
+        }
     }
 }
