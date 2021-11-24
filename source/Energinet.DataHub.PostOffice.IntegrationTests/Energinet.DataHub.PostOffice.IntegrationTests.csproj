@@ -33,6 +33,7 @@ limitations under the License.
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Energinet.DataHub.Core.FunctionApp.TestCommon" Version="1.2.0" />
     <PackageReference Include="Energinet.DataHub.MessageHub.Client" Version="1.8.*" />
     <PackageReference Include="coverlet.collector" Version="3.1.0">
       <PrivateAssets>all</PrivateAssets>
