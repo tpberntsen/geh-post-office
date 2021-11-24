@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +26,8 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
     public class DataAvailableNotificationHandler
         : IRequestHandler<DataAvailableNotificationCommand, DataAvailableNotificationResponse>,
-            IRequestHandler<DataAvailableNotificationListCommand, DataAvailableNotificationResponse>
+            IRequestHandler<DataAvailableNotificationListCommand, DataAvailableNotificationResponse>,
+            IRequestHandler<GetDuplicatedDataAvailablesFromArchiveCommand, GetDuplicatedDataAvailablesFromArchiveResponse>
     {
         private readonly IDataAvailableNotificationRepository _dataAvailableNotificationRepository;
 
@@ -55,6 +57,37 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
             await _dataAvailableNotificationRepository.SaveAsync(mappedDataAvailable).ConfigureAwait(false);
             return new DataAvailableNotificationResponse();
+        }
+
+        public Task<GetDuplicatedDataAvailablesFromArchiveResponse> Handle(GetDuplicatedDataAvailablesFromArchiveCommand request, CancellationToken cancellationToken)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            var mapped = request.DataAvailableNotificationCommands.Select(x =>
+            {
+                var couldBeMapped = TryMapToDataAvailableNotification(x, out var mapped);
+                return (couldBeMapped, mapped);
+            });
+
+            var result = _dataAvailableNotificationRepository.GetDuplicatedMessagesFromArchiveAsync(mapped.Where(x => x.couldBeMapped).Select(x => x.mapped!));
+            return Task.FromResult(new GetDuplicatedDataAvailablesFromArchiveResponse(result));
+
+            static bool TryMapToDataAvailableNotification(DataAvailableNotificationCommand request, [NotNullWhen(true)] out DataAvailableNotification? command)
+            {
+                try
+                {
+                    command = MapToDataAvailableNotification(request);
+                }
+    #pragma warning disable CA1031
+                catch (Exception)
+    #pragma warning restore CA1031
+                {
+                    command = null;
+                }
+
+                return command != null;
+            }
         }
 
         private static DataAvailableNotification MapToDataAvailableNotification(DataAvailableNotificationCommand request)

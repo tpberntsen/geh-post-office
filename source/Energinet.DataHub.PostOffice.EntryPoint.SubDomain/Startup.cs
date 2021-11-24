@@ -34,7 +34,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain
             container.RegisterSingleton<IDataAvailableMessageReceiver>(() =>
             {
                 var configuration = container.GetService<IConfiguration>();
-                var batchSize = configuration.GetValue("DATAAVAILABLE_BATCH_SIZE", 10000);
+                var batchSize = configuration.GetValue("DATAAVAILABLE_BATCH_SIZE", 1000);
                 var timeoutInMs = configuration.GetValue("DATAAVAILABLE_TIMEOUT_IN_MS", 1000);
 
                 var serviceBusConfig = container.GetInstance<ServiceBusConfig>();

@@ -81,5 +81,11 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// <param name="dataAvailableNotifications">ids to delete</param>
         /// <param name="partitionKey"></param>
         Task DeleteAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey);
+
+        /// <summary>
+        /// Checks idempontency of documents against the archive database
+        /// </summary>
+        /// <param name="dataAvailableNotifications"></param>
+        IAsyncEnumerable<(string Uuid, bool IsIdempotent)> GetDuplicatedMessagesFromArchiveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications);
     }
 }

@@ -13,7 +13,8 @@
 // limitations under the License.
 
 using System;
-using System.Threading;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Client;
 using Energinet.DataHub.MessageHub.Client.DataAvailable;
@@ -37,34 +38,32 @@ namespace DataAvailableNotification
             var recipient = configuration["recipient"];
             var origin = configuration["origin"];
             var messageType = configuration["type"];
-            var interval = int.TryParse(configuration["interval"], out var intervalParsed) ? intervalParsed : 1;
+            var noOfMessagesToSend = int.TryParse(configuration["noOfMessagesToSend"], out var intervalParsed) ? intervalParsed : 1;
+            var workers = int.TryParse(configuration["workers"], out var workersParsed) ? workersParsed : 1;
             var domainOrigin = origin != null ? Enum.Parse<DomainOrigin>(origin, true) : DomainOrigin.TimeSeries;
 
-            var serviceBusClientFactory = new ServiceBusClientFactory(connectionString);
-            var azureServiceFactory = new AzureServiceBusFactory(serviceBusClientFactory);
-            var messageHubConfig = new MessageHubConfig(dataAvailableQueueName, domainReplyQueueName);
-
-            var dataAvailableNotificationSender = new DataAvailableNotificationSender(azureServiceFactory, messageHubConfig);
-
-            for (var i = 0; i < interval; i++)
+            var sw = Stopwatch.StartNew();
+            await Task.WhenAll(Enumerable.Range(0, workers).Select(async w =>
             {
-                var msgDto = CreateDto(domainOrigin, messageType, recipient);
+                    var serviceBusClientFactory = new ServiceBusClientFactory(connectionString);
+                    var azureServiceFactory = new AzureServiceBusFactory(serviceBusClientFactory);
+                    var messageHubConfig = new MessageHubConfig(dataAvailableQueueName, domainReplyQueueName);
 
-                Console.WriteLine($"Sending message number: {i + 1}.");
+                    var dataAvailableNotificationSender = new DataAvailableNotificationSender(azureServiceFactory, messageHubConfig);
 
-                await dataAvailableNotificationSender.SendAsync(msgDto).ConfigureAwait(false);
+                    for (var i = 0; i < noOfMessagesToSend / workers; i++)
+                    {
+                        Console.WriteLine($"[{w}]: Sending message number: {i + 1}.");
+                        await dataAvailableNotificationSender.SendAsync(CreateDto(domainOrigin, messageType, recipient)).ConfigureAwait(false);
+                    }
+            })).ConfigureAwait(false);
 
-                if (i + 1 < interval)
-                    Thread.Sleep(100);
-            }
-
-            Console.WriteLine("Message sender completed.");
+            Console.WriteLine($"Message sender completed. {noOfMessagesToSend} sent in {sw.ElapsedMilliseconds} ms. with {workers} workes");
         }
 
         private static DataAvailableNotificationDto CreateDto(DomainOrigin origin, string messageType, string recipient)
         {
-            var msgDto = DataAvailableNotificationFactory.CreateOriginDto(origin, messageType, recipient);
-            return msgDto;
+            return DataAvailableNotificationFactory.CreateOriginDto(origin, messageType, recipient);
         }
 
         private static IConfiguration BuildConfiguration(string[] args)

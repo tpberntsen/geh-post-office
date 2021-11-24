@@ -53,38 +53,19 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 PartitionKey = dataAvailableNotification.Recipient.Gln.Value + dataAvailableNotification.Origin + dataAvailableNotification.ContentType.Value
             };
 
-            if (await ExistingExactMatchExists(_repositoryContainer.ArchiveContainer, cosmosDocument).ConfigureAwait(false))
-            {
-                return;
-            }
-
             try
             {
                 await _repositoryContainer.Container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
             }
             catch (CosmosException e) when (e.StatusCode == HttpStatusCode.Conflict)
             {
-                await ExistingExactMatchExists(_repositoryContainer.Container, cosmosDocument).ConfigureAwait(false);
-            }
-
-            static async Task<bool> ExistingExactMatchExists(Container container, CosmosDataAvailable cosmosDataAvailable)
-            {
-                var query =
-                    from da in container.GetItemLinqQueryable<CosmosDataAvailable>()
-                    where da.Id == cosmosDataAvailable.Id
-                    select da;
-
-                await foreach (var doc in query.AsCosmosIteratorAsync())
+                await foreach (var x in FindAlreadyExistingDocumentsOnIdAsync(
+                    _repositoryContainer.Container,
+                    new Dictionary<string, CosmosDataAvailable> { { cosmosDocument.Id, cosmosDocument } }))
                 {
-                    if (cosmosDataAvailable with { Timestamp = doc.Timestamp } == doc)
-                    {
-                        return true;
-                    }
-
-                    throw new ValidationException("A data available notification already exists with the given ID");
+                    if (!x.IsIdempotent)
+                        throw new ValidationException("A data available notification already exists with the given ID");
                 }
-
-                return false;
             }
         }
 
@@ -278,6 +259,48 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     _repositoryContainer.Container.DeleteItemStreamAsync(dataAvailableNotification.ToString(), documentPartitionKey)).ToList();
 
             return Task.WhenAll(deleteTasks);
+        }
+
+        public IAsyncEnumerable<(string Uuid, bool IsIdempotent)> GetDuplicatedMessagesFromArchiveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications)
+        {
+            return FindAlreadyExistingDocumentsOnIdAsync(_repositoryContainer.ArchiveContainer, dataAvailableNotifications.Select(dataAvailableNotification => new CosmosDataAvailable
+            {
+                Id = dataAvailableNotification.NotificationId.ToString(),
+                Recipient = dataAvailableNotification.Recipient.Gln.Value,
+                ContentType = dataAvailableNotification.ContentType.Value,
+                Origin = dataAvailableNotification.Origin.ToString(),
+                SupportsBundling = dataAvailableNotification.SupportsBundling.Value,
+                RelativeWeight = dataAvailableNotification.Weight.Value,
+                Acknowledge = false,
+                PartitionKey = dataAvailableNotification.Recipient.Gln.Value + dataAvailableNotification.Origin + dataAvailableNotification.ContentType.Value
+            }).ToDictionary(x => x.Id));
+        }
+
+        private static async IAsyncEnumerable<(string Uuid, bool IsIdempotent)> FindAlreadyExistingDocumentsOnIdAsync(Container container, IDictionary<string, CosmosDataAvailable> cosmosDataAvailable)
+        {
+            const int batchSize = 1000;
+            var taken = 0;
+
+            var allIds = cosmosDataAvailable.Keys.ToArray();
+            string[] ids;
+
+            do
+            {
+                ids = allIds.Skip(taken).Take(batchSize).ToArray();
+                var localIds = ids;
+                var query =
+                    from da in container.GetItemLinqQueryable<CosmosDataAvailable>()
+                    where localIds.Contains(da.Id)
+                    select da;
+
+                await foreach (var doc in query.AsCosmosIteratorAsync())
+                {
+                    yield return (doc.Id, cosmosDataAvailable[doc.Id] with { Timestamp = doc.Timestamp } == doc);
+                }
+
+                taken += ids.Length;
+            }
+            while (ids.Any());
         }
 
         private static async IAsyncEnumerable<DataAvailableNotification> ExecuteBatchAsync(IQueryable<CosmosDataAvailable> query)
