@@ -19,35 +19,35 @@ limitations under the License.
     <TargetFramework>net5.0</TargetFramework>
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
-    <ProjectGuid>{E9F64300-834B-4657-850F-BEF4CED5D180}</ProjectGuid>
-    <AssemblyName>Energinet.DataHub.MessageHub.Client</AssemblyName>
-    <RootNamespace>Energinet.DataHub.MessageHub.Client</RootNamespace>
+    <ProjectGuid>{34056092-767C-485A-B0A8-9A15147EBB6D}</ProjectGuid>
+    <AssemblyName>Energinet.DataHub.MessageHub.IntegrationTesting</AssemblyName>
+    <RootNamespace>Energinet.DataHub.MessageHub.IntegrationTesting</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>Energinet.DataHub.MessageHub.Client</PackageId>
-    <PackageVersion>1.8.0$(VersionSuffix)</PackageVersion>
-    <Title>Energinet.DataHub.MessageHub.Client library</Title>
+    <PackageId>Energinet.DataHub.MessageHub.IntegrationTesting</PackageId>
+    <PackageVersion>1.0.0$(VersionSuffix)</PackageVersion>
+    <Title>Energinet.DataHub.MessageHub.IntegrationTesting library</Title>
     <Company>Energinet-DataHub</Company>
     <Authors>Energinet-DataHub</Authors>
     <RepositoryUrl>https://github.com/Energinet-DataHub/geh-post-office</RepositoryUrl>
     <PackageReleaseNotes>
-Release Notes
-https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.Client/documents/release-notes/release-notes.md
+      Release Notes
+      https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.IntegrationTesting/documents/release-notes/release-notes.md
 
-Documentation
-https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.Client/documents/documentation.md
+      Documentation
+      https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.IntegrationTesting/documents/documentation.md
     </PackageReleaseNotes>
     <PackageDescription>
-Release Notes
-https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.Client/documents/release-notes/release-notes.md
+      Release Notes
+      https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.IntegrationTesting/documents/release-notes/release-notes.md
 
-Documentation
-https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.Client/documents/documentation.md
+      Documentation
+      https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energinet.DataHub.MessageHub.IntegrationTesting/documents/documentation.md
     </PackageDescription>
-    <Description>Library containing communication API for Energinet.DataHub.MessageHub</Description>
+    <Description>Library for integration testing of Energinet.DataHub.MessageHub</Description>
     <PackageTags>geh;library</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -65,10 +65,7 @@ https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energine
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.5.0" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
-    <PackageReference Include="Energinet.DataHub.MessageHub.Model" Version="1.2.*" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Energinet.DataHub.MessageHub.Core" Version="1.2.0" />
   </ItemGroup>
 
 </Project>

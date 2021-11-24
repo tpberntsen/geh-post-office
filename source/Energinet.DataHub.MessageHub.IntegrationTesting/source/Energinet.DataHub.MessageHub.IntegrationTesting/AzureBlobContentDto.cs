@@ -14,18 +14,18 @@
 
 using System;
 
-namespace Energinet.DataHub.MessageHub.Core
+namespace Energinet.DataHub.MessageHub.IntegrationTesting
 {
-    public sealed record PeekRequestConfig(
-        string TimeSeriesQueue,
-        string TimeSeriesReplyQueue,
-        string ChargesQueue,
-        string ChargesReplyQueue,
-        string MarketRolesQueue,
-        string MarketRolesReplyQueue,
-        string MeteringPointsQueue,
-        string MeteringPointsReplyQueue,
-        string AggregationsQueue,
-        string AggregationsReplyQueue,
-        TimeSpan? PeekTimeout = default);
+    public sealed class AzureBlobContentDto
+    {
+        internal AzureBlobContentDto(Uri path)
+        {
+            Path = path;
+        }
+
+        /// <summary>
+        /// Contains the path to the bundle generated during Peek.
+        /// </summary>
+        public Uri Path { get; }
+    }
 }

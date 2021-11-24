@@ -69,9 +69,14 @@ namespace Energinet.DataHub.MessageHub.Core.Peek
                 .PublishMessageAsync<ServiceBusMessage>(serviceBusMessage)
                 .ConfigureAwait(false);
 
-            await using var receiverMessageBus = await _messageBusFactory.GetSessionReceiverClientAsync(replyQueue, sessionId).ConfigureAwait(false);
+            await using var receiverMessageBus = await _messageBusFactory
+                .GetSessionReceiverClientAsync(replyQueue, sessionId)
+                .ConfigureAwait(false);
 
-            var response = await receiverMessageBus.ReceiveMessageAsync<ServiceBusMessage>(_defaultTimeout).ConfigureAwait(false);
+            var response = await receiverMessageBus
+                .ReceiveMessageAsync<ServiceBusMessage>(_peekRequestConfig.PeekTimeout ?? _defaultTimeout)
+                .ConfigureAwait(false);
+
             if (response == null)
                 return null;
 
