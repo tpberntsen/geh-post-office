@@ -35,7 +35,7 @@ namespace Energinet.DataHub.MessageHub.Core.Dequeue
             _dequeueConfig = dequeueConfig;
         }
 
-        public Task SendAsync(DequeueNotificationDto dequeueNotificationDto, DomainOrigin domainOrigin)
+        public Task SendAsync(string correlationId, DequeueNotificationDto dequeueNotificationDto, DomainOrigin domainOrigin)
         {
             if (dequeueNotificationDto is null)
                 throw new ArgumentNullException(nameof(dequeueNotificationDto));
@@ -45,11 +45,13 @@ namespace Energinet.DataHub.MessageHub.Core.Dequeue
 
             var contract = new DequeueContract
             {
-                DataAvailableNotificationIds = { dequeueNotificationDto.DataAvailableNotificationIds.Select(x => x.ToString()) },
+                DataAvailableNotificationReferenceId = dequeueNotificationDto.DataAvailableNotificationReferenceId,
                 MarketOperator = dequeueNotificationDto.MarketOperator.Value
             };
 
-            var dequeueMessage = new ServiceBusMessage(new BinaryData(contract.ToByteArray())).AddDequeueIntegrationEvents();
+            var dequeueMessage = new ServiceBusMessage(new BinaryData(contract.ToByteArray()))
+                .AddDequeueIntegrationEvents(correlationId);
+
             return serviceBusSender.PublishMessageAsync<ServiceBusMessage>(dequeueMessage);
         }
 

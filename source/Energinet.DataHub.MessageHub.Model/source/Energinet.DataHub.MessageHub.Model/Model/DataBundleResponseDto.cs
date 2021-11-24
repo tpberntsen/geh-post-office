@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Energinet.DataHub.MessageHub.Model.Model
@@ -26,12 +25,10 @@ namespace Energinet.DataHub.MessageHub.Model.Model
         internal DataBundleResponseDto(
             Guid requestId,
             string requestIdempotencyId,
-            DataBundleResponseErrorDto responseError,
-            IEnumerable<Guid> dataAvailableNotificationIds)
+            DataBundleResponseErrorDto responseError)
         {
             RequestId = requestId;
             RequestIdempotencyId = requestIdempotencyId;
-            DataAvailableNotificationIds = dataAvailableNotificationIds;
             ResponseError = responseError;
             IsErrorResponse = true;
         }
@@ -39,12 +36,10 @@ namespace Energinet.DataHub.MessageHub.Model.Model
         internal DataBundleResponseDto(
             Guid requestId,
             string requestIdempotencyId,
-            Uri contentUri,
-            IEnumerable<Guid> dataAvailableNotificationIds)
+            Uri contentUri)
         {
             RequestId = requestId;
             RequestIdempotencyId = requestIdempotencyId;
-            DataAvailableNotificationIds = dataAvailableNotificationIds;
             ContentUri = contentUri;
             IsErrorResponse = false;
         }
@@ -67,11 +62,6 @@ namespace Energinet.DataHub.MessageHub.Model.Model
         [MemberNotNullWhen(false, nameof(ContentUri))]
         [MemberNotNullWhen(true, nameof(ResponseError))]
         public bool IsErrorResponse { get; }
-
-        /// <summary>
-        /// A collection of guids identifying which data has been requested.
-        /// </summary>
-        public IEnumerable<Guid> DataAvailableNotificationIds { get; }
 
         /// <summary>
         /// Points to a location of the bundle contents.

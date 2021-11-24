@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using Energinet.DataHub.MessageHub.Model.Dequeue;
 using Energinet.DataHub.MessageHub.Model.Exceptions;
 using Energinet.DataHub.MessageHub.Model.Model;
@@ -34,7 +33,7 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Dequeue
             var validBytes = new DequeueContract
             {
                 MarketOperator = "06FD1AB3-D650-45BC-860E-EE598A3623CA",
-                DataAvailableNotificationIds = { "1360036D-2AFB-4021-846E-2C3FF5AD8DBD" }
+                DataAvailableNotificationReferenceId = "7946F84C-FE27-43F3-B3D4-EE59CBA2F82C"
             }.ToByteArray();
 
             // act
@@ -43,21 +42,7 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Dequeue
             // assert
             Assert.NotNull(actual);
             Assert.Equal("06FD1AB3-D650-45BC-860E-EE598A3623CA", actual.MarketOperator.Value);
-        }
-
-        [Fact]
-        public void Parse_GuidInvalid_ThrowsException()
-        {
-            // arrange
-            var target = new DequeueNotificationParser();
-            var contract = new DequeueContract
-            {
-                MarketOperator = "06FD1AB3-D650-45BC-860E-EE598A3623CA",
-                DataAvailableNotificationIds = { "invalid_guid" }
-            };
-
-            // act, assert
-            Assert.Throws<MessageHubException>(() => target.Parse(contract.ToByteArray()));
+            Assert.Equal("7946F84C-FE27-43F3-B3D4-EE59CBA2F82C", actual.DataAvailableNotificationReferenceId);
         }
 
         [Fact]
@@ -77,7 +62,7 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Dequeue
             // arrange
             var target = new DequeueNotificationParser();
             var valid = new DequeueNotificationDto(
-                new[] { Guid.NewGuid(), Guid.NewGuid() },
+                "F8201E4D-8989-4B75-A2C2-1E163DA7660B",
                 new GlobalLocationNumberDto("test"));
 
             // act

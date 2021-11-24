@@ -40,3 +40,8 @@ data "azurerm_key_vault_secret" "sbq_data_available_name" {
   name         = "sbq-data-available-name"
   key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
 }
+
+data "azurerm_key_vault_secret" "sbq_messagehub_dequeue_cleanup_name" {
+  name         = "sbq-messagehub-dequeue-cleanup-name"
+  key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
+}

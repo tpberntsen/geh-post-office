@@ -11,6 +11,8 @@
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "APPINSIGHTS_INSTRUMENTATIONKEY": "",
     "BlobStorageConnectionString": "",
-    "BlobStorageContainerName": ""
+    "BlobStorageContainerName": "",
+    "LOG_DB_NAME": "",
+    "LOG_DB_CONTAINER": ""
   }
 }

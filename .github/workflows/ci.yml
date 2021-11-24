@@ -64,8 +64,16 @@ jobs:
       DOTNET_VERSION: '5.0'
       ARTIFACT_NAME: subdomain
 
+  operations_ci:
+    needs: [ci_base, dotnet_solution_ci, package_ci, terraform_validate]
+    uses: Energinet-DataHub/.github/.github/workflows/dotnet-create-function-artifact.yml@2.1.0
+    with:
+      CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.EntryPoint.Operations/Energinet.DataHub.PostOffice.EntryPoint.Operations.csproj'
+      DOTNET_VERSION: '5.0'
+      ARTIFACT_NAME: operations
+
   create_prerelease:
-    needs: [market_operator_ci, subdomain_ci]
+    needs: [market_operator_ci, subdomain_ci, operations_ci]
     uses: Energinet-DataHub/.github/.github/workflows/create-prerelease.yml@2.1.0
     with:
       CALLER_REPOSITORY_PATH: Energinet-DataHub/geh-post-office
