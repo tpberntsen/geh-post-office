@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
 using Energinet.DataHub.MessageHub.Model.Exceptions;
 using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.MessageHub.Model.Protobuf;
@@ -31,9 +30,9 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
             var message = new DataBundleRequestContract
             {
                 RequestId = request.RequestId.ToString(),
+                DataAvailableNotificationReferenceId = request.DataAvailableNotificationReferenceId,
                 IdempotencyId = request.IdempotencyId,
                 MessageType = request.MessageType,
-                DataAvailableNotificationIds = { request.DataAvailableNotificationIds.Select(x => x.ToString()) }
             };
 
             return message.ToByteArray();
@@ -46,9 +45,9 @@ namespace Energinet.DataHub.MessageHub.Model.Peek
                 var bundleResponse = DataBundleRequestContract.Parser.ParseFrom(dataBundleRequestContract);
                 return new DataBundleRequestDto(
                     Guid.Parse(bundleResponse.RequestId),
+                    bundleResponse.DataAvailableNotificationReferenceId,
                     bundleResponse.IdempotencyId,
-                    bundleResponse.MessageType,
-                    bundleResponse.DataAvailableNotificationIds.Select(Guid.Parse).ToList());
+                    bundleResponse.MessageType);
             }
             catch (Exception ex) when (ex is InvalidProtocolBufferException or FormatException)
             {

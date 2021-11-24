@@ -30,6 +30,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 
             NotificationIds = new List<string>();
             ContentPath = string.Empty;
+            NotificationsArchived = false;
             Timestamp = null!;
         }
 
@@ -43,6 +44,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 
         public ICollection<string> NotificationIds { get; init; }
         public string ContentPath { get; init; }
+        public bool NotificationsArchived { get; init; }
 
         [JsonProperty(PropertyName = "_ts")]
         public string Timestamp { get; init; }

@@ -31,17 +31,15 @@ message DataBundleResponseContract {
    * Identifies a file resource and the individual dataset included with the file
    */
   message FileResource {
-    repeated string dataAvailableNotificationIds = 1; // Requested dataset identifications
-    string contentUri = 2; // URI pointing to where the file can be retrieved
+    string contentUri = 1; // URI pointing to where the file can be retrieved
   }
 
   /**
    * A reply on a failed request
    */
   message RequestFailure {
-    repeated string dataAvailableNotificationIds = 1; // Requested dataset identifications
-    Reason reason = 2; // Failure reason
-    string failureDescription = 3; // Description of the failure
+    Reason reason = 1; // Failure reason
+    string failureDescription = 2; // Description of the failure
 
     /**
      * Failure reasons

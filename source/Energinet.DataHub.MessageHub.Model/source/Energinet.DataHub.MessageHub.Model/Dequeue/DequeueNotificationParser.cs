@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
 using Energinet.DataHub.MessageHub.Model.Exceptions;
 using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.MessageHub.Model.Protobuf;
@@ -29,7 +28,7 @@ namespace Energinet.DataHub.MessageHub.Model.Dequeue
             {
                 var dequeueContract = DequeueContract.Parser.ParseFrom(dequeueNotificationContract);
                 return new DequeueNotificationDto(
-                    dequeueContract.DataAvailableNotificationIds.Select(Guid.Parse).ToList(),
+                    dequeueContract.DataAvailableNotificationReferenceId,
                     new GlobalLocationNumberDto(dequeueContract.MarketOperator));
             }
             catch (Exception ex) when (ex is InvalidProtocolBufferException or FormatException)
@@ -45,8 +44,8 @@ namespace Energinet.DataHub.MessageHub.Model.Dequeue
 
             var message = new DequeueContract
             {
+                DataAvailableNotificationReferenceId = dequeueNotificationDto.DataAvailableNotificationReferenceId,
                 MarketOperator = dequeueNotificationDto.MarketOperator.Value,
-                DataAvailableNotificationIds = { dequeueNotificationDto.DataAvailableNotificationIds.Select(x => x.ToString()) }
             };
 
             return message.ToByteArray();

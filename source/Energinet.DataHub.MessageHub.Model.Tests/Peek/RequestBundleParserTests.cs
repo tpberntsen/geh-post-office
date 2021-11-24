@@ -33,9 +33,9 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Peek
             var validBytes = new DataBundleRequestContract
             {
                 RequestId = "07814976-6567-4E43-8C31-26630FEA3671",
+                DataAvailableNotificationReferenceId = "2139E118-96D9-4D68-9094-44C15D8CEACF",
                 IdempotencyId = "06FD1AB3-D650-45BC-860E-EE598A3623CA",
-                MessageType = "some_message_type",
-                DataAvailableNotificationIds = { "1360036D-2AFB-4021-846E-2C3FF5AD8DBD" }
+                MessageType = "some_message_type"
             }.ToByteArray();
 
             // act
@@ -44,6 +44,7 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Peek
             // assert
             Assert.NotNull(actual);
             Assert.Equal(Guid.Parse("07814976-6567-4E43-8C31-26630FEA3671"), actual.RequestId);
+            Assert.Equal("2139E118-96D9-4D68-9094-44C15D8CEACF", actual.DataAvailableNotificationReferenceId);
             Assert.Equal("06FD1AB3-D650-45BC-860E-EE598A3623CA", actual.IdempotencyId);
             Assert.Equal("some_message_type", actual.MessageType);
         }
@@ -67,9 +68,9 @@ namespace Energinet.DataHub.MessageHub.Model.Tests.Peek
             var contract = new DataBundleRequestContract
             {
                 RequestId = "invalid_guid",
+                DataAvailableNotificationReferenceId = "2139E118-96D9-4D68-9094-44C15D8CEACF",
                 IdempotencyId = "06FD1AB3-D650-45BC-860E-EE598A3623CA",
-                MessageType = "some_message_type",
-                DataAvailableNotificationIds = { "1360036D-2AFB-4021-846E-2C3FF5AD8DBD" }
+                MessageType = "some_message_type"
             };
 
             // act, assert
