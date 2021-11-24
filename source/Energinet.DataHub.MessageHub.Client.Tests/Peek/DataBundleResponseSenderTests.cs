@@ -85,9 +85,9 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
 
             var requestMock = new DataBundleRequestDto(
                 Guid.NewGuid(),
+                "F3DE0389-AC26-4461-A11B-61077BF0CA32",
                 "7E9D048D-F0D8-476D-8739-AAA83284C9C6",
-                "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
-                new[] { Guid.NewGuid(), Guid.NewGuid() });
+                "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3");
 
             var response = requestMock.CreateResponse(new Uri("https://test.dk/test"));
 
@@ -126,9 +126,9 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.Peek
 
             var requestMock = new DataBundleRequestDto(
                 Guid.NewGuid(),
+                "A9D032EB-4AAC-44F3-BE1C-8584B8533875",
                 "42D509CB-1D93-430D-A2D4-7DBB9AE56771",
-                "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
-                new[] { Guid.NewGuid(), Guid.NewGuid() });
+                "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3");
 
             var response = requestMock.CreateResponse(new Uri("https://test.dk/test"));
 

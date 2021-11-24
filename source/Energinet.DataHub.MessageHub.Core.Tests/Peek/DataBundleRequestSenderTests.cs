@@ -76,8 +76,7 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Peek
                 RequestId = "B679EFB9-70E9-4BC8-8C79-EAA9918C83C8",
                 Success = new DataBundleResponseContract.Types.FileResource
                 {
-                    ContentUri = "http://localhost",
-                    DataAvailableNotificationIds = { new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" } }
+                    ContentUri = "http://localhost"
                 }
             };
 
@@ -116,9 +115,9 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Peek
             var result = await target.SendAsync(
                     new DataBundleRequestDto(
                         new Guid("B679EFB9-70E9-4BC8-8C79-EAA9918C83C8"),
+                        "1B2B8FA9-A7B7-4DFE-B06B-5F306D7C264B",
                         "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
-                        "message_type",
-                        new[] { Guid.NewGuid(), Guid.NewGuid() }),
+                        "message_type"),
                     domainOrigin)
                 .ConfigureAwait(false);
 
@@ -168,9 +167,9 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Peek
             var result = await target.SendAsync(
                     new DataBundleRequestDto(
                         Guid.NewGuid(),
+                        "90E1431E-FAF8-44E3-BC87-B1DFFF2D1F67",
                         "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
-                        "message_type",
-                        new[] { Guid.NewGuid(), Guid.NewGuid() }),
+                        "message_type"),
                     domainOrigin)
                 .ConfigureAwait(false);
 
@@ -191,11 +190,7 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Peek
                 RequestId = "C163828E-08C0-4D97-93A3-B647B2B657FB",
                 Success = new DataBundleResponseContract.Types.FileResource
                 {
-                    ContentUri = "http://localhost",
-                    DataAvailableNotificationIds =
-                    {
-                        new[] { "A8A6EAA8-DAF3-4E82-910F-A30260CEFDC5" }
-                    }
+                    ContentUri = "http://localhost"
                 }
             };
 
@@ -234,9 +229,9 @@ namespace Energinet.DataHub.MessageHub.Core.Tests.Peek
             await target.SendAsync(
                     new DataBundleRequestDto(
                         new Guid("C163828E-08C0-4D97-93A3-B647B2B657FB"),
+                        "97D0427B-56A9-4189-8C8D-EF4A5F1B379C",
                         "80BB9BB8-CDE8-4C77-BE76-FDC886FD75A3",
-                        "message_type",
-                        new[] { Guid.NewGuid(), Guid.NewGuid() }),
+                        "message_type"),
                     domainOrigin)
                 .ConfigureAwait(false);
 

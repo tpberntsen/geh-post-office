@@ -19,7 +19,7 @@ option csharp_namespace = "Energinet.DataHub.MessageHub.Model.Protobuf";
 
 message DataBundleRequestContract {
   string RequestId = 1; // Uniquely identififies the current request.
-  string IdempotencyId = 2; // Uniquely identififies the contents of the message. Domains can use this property to ensure idempotency.
-  string MessageType = 3; // Specifies the common message type for the requested bundle.
-  repeated string DataAvailableNotificationIds = 4; // Requested dataset identifications
+  string DataAvailableNotificationReferenceId = 2; // A reference id used to obtain the list of requested DataAvailableNotification ids.
+  string IdempotencyId = 3; // Uniquely identififies the contents of the message. Domains can use this property to ensure idempotency.
+  string MessageType = 4; // Specifies the common message type for the requested bundle.
 }

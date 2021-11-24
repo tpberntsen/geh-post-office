@@ -13,13 +13,14 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Energinet.DataHub.MessageHub.Core.Storage
 {
     /// <summary>
-    /// Handles storing file data from the SubDomains
+    /// Provides access to shared blob storage between MessageHub and sub-domains.
     /// </summary>
     public interface IStorageHandler
     {
@@ -29,5 +30,14 @@ namespace Energinet.DataHub.MessageHub.Core.Storage
         /// <param name="contentPath">The uri to the content in storage</param>
         /// <returns>A Stream to the contents in storage</returns>
         Task<Stream> GetStreamFromStorageAsync(Uri contentPath);
+
+        /// <summary>
+        /// Stores the given list of DataAvailableNotification ids using the specified reference id.
+        /// </summary>
+        /// <param name="dataAvailableNotificationReferenceId">The reference id to store the ids for.</param>
+        /// <param name="dataAvailableNotificationIds">The DataAvailableNotification ids to store.</param>
+        Task AddDataAvailableNotificationIdsToStorageAsync(
+            string dataAvailableNotificationReferenceId,
+            IEnumerable<Guid> dataAvailableNotificationIds);
     }
 }
