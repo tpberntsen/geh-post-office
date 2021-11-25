@@ -78,6 +78,8 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
                 .Select(m => new { Message = m, Task = ProcessMessageAsync(m) })
                 .ToList();
 
+            await _messageReceiver.DeadLetterAsync(invalid).ConfigureAwait(false);
+
             try
             {
                 await Task.WhenAll(list.Select(x => x.Task)).ConfigureAwait(false);
@@ -86,8 +88,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             {
                 var allFaultedMessages = list
                     .Where(x => !x.Task.IsCompletedSuccessfully)
-                    .Select(x => x.Message)
-                    .Concat(invalid);
+                    .Select(x => x.Message);
 
                 await _messageReceiver.DeadLetterAsync(allFaultedMessages).ConfigureAwait(false);
             }
@@ -117,6 +118,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
         {
             var messageCommandMap = messages
                 .Select(x => new { Message = x, Command = MapMessageToCommand(x) })
+                .GroupBy(x => x.Command.Uuid).Select(x => x.First())
                 .ToDictionary(x => x.Command.Uuid, x => new { x.Message, x.Command });
 
             var response = await _mediator.Send(

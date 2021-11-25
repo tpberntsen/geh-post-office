@@ -181,6 +181,68 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain.Functions
             receiverMock.Verify(x => x.DeadLetterAsync(It.Is<IEnumerable<Message>>(y => y.Count() == 1)));
         }
 
+        [Fact]
+        public async Task RunAsync_ChecksForIdempotentCommands()
+        {
+            // arrange
+            var message = MockedMessage.Create(new byte[] { 1 }, Guid.NewGuid());
+            var dto = CreateDto(1);
+            var command = CreateCommand(1);
+            var messages = new[] { message };
+
+            var (target, receiverMock, mediatorMock, parserMock, mapperMock) = Setup(messages);
+
+            mediatorMock.Setup(x => x.Send(It.IsAny<GetDuplicatedDataAvailablesFromArchiveCommand>(), default))
+                .Returns(Task.FromResult(new GetDuplicatedDataAvailablesFromArchiveResponse(AsyncEnumerable(new[] { (command.Uuid, true) }))));
+
+            parserMock.Setup(x => x.Parse(message.Body))
+                .Returns(dto);
+
+            mapperMock.Setup(x => x.Map(dto))
+                .Returns(command);
+
+            var context = new MockedFunctionContext();
+
+            // act
+            await target.RunAsync(context).ConfigureAwait(false);
+
+            // assert
+            receiverMock.Verify(x => x.CompleteAsync(It.Is<IEnumerable<Message>>(y => y.Single() == message)));
+            receiverMock.Verify(x => x.DeadLetterAsync(It.IsAny<IEnumerable<Message>>()), Times.Never);
+            mediatorMock.Verify(x => x.Send(It.IsAny<DataAvailableNotificationCommand>(), default), Times.Never);
+        }
+
+        [Fact]
+        public async Task RunAsync_ChecksForReusedUuid()
+        {
+            // arrange
+            var message = MockedMessage.Create(new byte[] { 1 }, Guid.NewGuid());
+            var dto = CreateDto(1);
+            var command = CreateCommand(1);
+            var messages = new[] { message };
+
+            var (target, receiverMock, mediatorMock, parserMock, mapperMock) = Setup(messages);
+
+            mediatorMock.Setup(x => x.Send(It.IsAny<GetDuplicatedDataAvailablesFromArchiveCommand>(), default))
+                .Returns(Task.FromResult(new GetDuplicatedDataAvailablesFromArchiveResponse(AsyncEnumerable(new[] { (command.Uuid, false) }))));
+
+            parserMock.Setup(x => x.Parse(message.Body))
+                .Returns(dto);
+
+            mapperMock.Setup(x => x.Map(dto))
+                .Returns(command);
+
+            var context = new MockedFunctionContext();
+
+            // act
+            await target.RunAsync(context).ConfigureAwait(false);
+
+            // assert
+            receiverMock.Verify(x => x.CompleteAsync(It.Is<IEnumerable<Message>>(y => !y.Any())));
+            receiverMock.Verify(x => x.DeadLetterAsync(It.Is<IEnumerable<Message>>(y => y.Single() == message)));
+            mediatorMock.Verify(x => x.Send(It.IsAny<DataAvailableNotificationCommand>(), default), Times.Never);
+        }
+
         private static DataAvailableNotificationDto CreateDto(int weight)
         {
             return new DataAvailableNotificationDto(
@@ -210,7 +272,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain.Functions
 
             var mediatorMock = new Mock<IMediator>();
             mediatorMock.Setup(x => x.Send(It.IsAny<GetDuplicatedDataAvailablesFromArchiveCommand>(), default))
-                .Returns(Task.FromResult(new GetDuplicatedDataAvailablesFromArchiveResponse(EmptyAsyncEnumerable())));
+                .Returns(Task.FromResult(new GetDuplicatedDataAvailablesFromArchiveResponse(AsyncEnumerable(Enumerable.Empty<(string Uuid, bool IsIdempotent)>()))));
             var parserMock = new Mock<IDataAvailableNotificationParser>();
             var mapperMock = new Mock<IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand>>();
 
@@ -221,11 +283,14 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain.Functions
                 mapperMock.Object);
 
             return (target, receiverMock, mediatorMock, parserMock, mapperMock);
+        }
 
-            static async IAsyncEnumerable<(string Uuid, bool IsIdempotent)> EmptyAsyncEnumerable()
+        private static async IAsyncEnumerable<(string Uuid, bool IsIdempotent)> AsyncEnumerable(IEnumerable<(string Uuid, bool IsIdempotent)> elements)
+        {
+            await Task.CompletedTask.ConfigureAwait(false);
+            foreach (var element in elements)
             {
-                await Task.CompletedTask.ConfigureAwait(false);
-                yield break;
+                yield return element;
             }
         }
     }
