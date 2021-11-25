@@ -32,9 +32,10 @@ namespace Energinet.DataHub.PostOffice.Common
             _correlationContext = correlationContext;
         }
 
-        public async Task Invoke(FunctionContext context, [NotNull] FunctionExecutionDelegate next)
+        public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
+            if (next == null) throw new ArgumentNullException(nameof(next));
 
             var traceContext = TraceContext.Parse(context.TraceContext.TraceParent);
 
