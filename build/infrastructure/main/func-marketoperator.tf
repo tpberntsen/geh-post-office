@@ -22,6 +22,7 @@ module "func_marketoperator" {
   location                                  = azurerm_resource_group.this.location
   app_service_plan_id                       = module.plan_shared.id
   application_insights_instrumentation_key  = data.azurerm_key_vault_secret.appi_instrumentation_key.value
+  always_on                                 = true
   app_settings                              = {
     # Region: Default Values
     WEBSITE_ENABLE_SYNC_UPDATE_SITE       = true
@@ -36,6 +37,7 @@ module "func_marketoperator" {
     ServiceBusConnectionString            = data.azurerm_key_vault_secret.sb_domain_relay_transceiver_connection_string.value
     DATAAVAILABLE_QUEUE_CONNECTION_STRING = data.azurerm_key_vault_secret.sb_domain_relay_transceiver_connection_string.value
     DATAAVAILABLE_QUEUE_NAME              = data.azurerm_key_vault_secret.sbq_data_available_name.value
+    DEQUEUE_CLEANUP_QUEUE_NAME            = data.azurerm_key_vault_secret.sbq_messagehub_dequeue_cleanup_name.value
     LOG_DB_NAME                           = azurerm_cosmosdb_sql_database.log_db.name
     LOG_DB_CONTAINER                      = azurerm_cosmosdb_sql_container.collection_logs.name
   }
