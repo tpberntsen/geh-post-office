@@ -37,6 +37,7 @@ module "func_marketoperator" {
     ServiceBusConnectionString            = data.azurerm_key_vault_secret.sb_domain_relay_transceiver_connection_string.value
     DATAAVAILABLE_QUEUE_CONNECTION_STRING = data.azurerm_key_vault_secret.sb_domain_relay_transceiver_connection_string.value
     DATAAVAILABLE_QUEUE_NAME              = data.azurerm_key_vault_secret.sbq_data_available_name.value
+    DEQUEUE_CLEANUP_QUEUE_NAME            = data.azurerm_key_vault_secret.sbq_messagehub_dequeue_cleanup_name.value
     LOG_DB_NAME                           = azurerm_cosmosdb_sql_database.log_db.name
     LOG_DB_CONTAINER                      = azurerm_cosmosdb_sql_container.collection_logs.name
   }
