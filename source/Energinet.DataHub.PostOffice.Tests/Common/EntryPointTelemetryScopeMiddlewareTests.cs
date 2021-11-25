@@ -60,7 +60,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
             var functionContextMock = BuildFunctionContext(bindingData, "Test");
 
             // act, assert
-            await Assert.ThrowsAsync<NullReferenceException>(() => target.Invoke(functionContextMock, null!)).ConfigureAwait(false);
+            await Assert.ThrowsAsync<ArgumentNullException>(() => target.Invoke(functionContextMock, null!)).ConfigureAwait(false);
         }
 
         [Fact]
