@@ -15,6 +15,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Infrastructure.Correlation;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Azure.Functions.Worker;
@@ -25,24 +26,32 @@ namespace Energinet.DataHub.PostOffice.Common
     public class EntryPointTelemetryScopeMiddleware : IFunctionsWorkerMiddleware
     {
         private readonly TelemetryClient _telemetryClient;
+        private readonly ICorrelationContext _correlationContext;
 
-        public EntryPointTelemetryScopeMiddleware(TelemetryClient telemetryClient)
+        public EntryPointTelemetryScopeMiddleware(
+            TelemetryClient telemetryClient,
+            ICorrelationContext correlationContext)
         {
             _telemetryClient = telemetryClient;
+            _correlationContext = correlationContext;
         }
 
         public async Task Invoke(FunctionContext context, [NotNull] FunctionExecutionDelegate next)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            if (!string.IsNullOrWhiteSpace(_telemetryClient.TelemetryConfiguration.InstrumentationKey)
-                && context.BindingContext.BindingData.TryGetValue("bundleId", out var bundleIdParam)
-                && context.BindingContext.BindingData.TryGetValue("marketOperator", out var marketOperatorParam))
+            if (!string.IsNullOrWhiteSpace(_telemetryClient.TelemetryConfiguration.InstrumentationKey))
             {
-                var processId = string.Join("_", bundleIdParam, marketOperatorParam);
-
-                var operation = _telemetryClient.StartOperation<DependencyTelemetry>(context.FunctionDefinition.Name, processId);
+                var operation = _telemetryClient.StartOperation<DependencyTelemetry>(context.FunctionDefinition.Name, _correlationContext.Id, _correlationContext.ParentId);
                 operation.Telemetry.Type = "Function";
+
+                if (context.BindingContext.BindingData.TryGetValue("bundleId", out var bundleIdParam)
+                    && context.BindingContext.BindingData.TryGetValue("marketOperator", out var marketOperatorParam))
+                {
+                    var processId = string.Join("_", bundleIdParam, marketOperatorParam);
+                    operation.Telemetry.Properties.Add("ProcessId", processId);
+                }
+
                 try
                 {
                     operation.Telemetry.Success = true;
