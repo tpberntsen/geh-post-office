@@ -208,7 +208,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain.Functions
 
             // assert
             receiverMock.Verify(x => x.CompleteAsync(It.Is<IEnumerable<Message>>(y => y.Single() == message)));
-            receiverMock.Verify(x => x.DeadLetterAsync(It.IsAny<IEnumerable<Message>>()), Times.Never);
+            receiverMock.Verify(x => x.DeadLetterAsync(It.Is<IEnumerable<Message>>(y => !y.Any())));
             mediatorMock.Verify(x => x.Send(It.IsAny<DataAvailableNotificationCommand>(), default), Times.Never);
         }
 
