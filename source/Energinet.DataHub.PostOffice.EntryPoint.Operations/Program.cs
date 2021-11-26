@@ -33,6 +33,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations
                     .ConfigureFunctionsWorkerDefaults(options =>
                     {
                         options.UseMiddleware<SimpleInjectorScopedRequest>();
+                        options.UseMiddleware<CorrelationIdMiddleware>();
                         options.UseMiddleware<EntryPointTelemetryScopeMiddleware>();
                     })
                     .ConfigureServices(startup.ConfigureServices)
