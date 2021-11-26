@@ -18,6 +18,7 @@ using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Common.Auth;
 using Energinet.DataHub.PostOffice.Common.MediatR;
 using Energinet.DataHub.PostOffice.Common.SimpleInjector;
+using Energinet.DataHub.PostOffice.Infrastructure.Correlation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -70,6 +71,10 @@ namespace Energinet.DataHub.PostOffice.Common
             Container.AddDomainServices();
             Container.AddApplicationServices();
             Container.AddInfrastructureServices();
+
+            Container.Register<ICorrelationContext, CorrelationContext>(Lifestyle.Scoped);
+            Container.Register<CorrelationIdMiddleware>(Lifestyle.Scoped);
+            Container.Register<EntryPointTelemetryScopeMiddleware>(Lifestyle.Scoped);
 
             // Add MediatR
             Container.BuildMediator(new[] { typeof(ApplicationAssemblyReference).Assembly });
