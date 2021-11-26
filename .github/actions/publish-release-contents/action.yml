@@ -38,3 +38,9 @@ runs:
       with:
         name: subdomain
         path: ${{ inputs.RELEASE_FOLDER_PATH }}/functions/subdomain
+
+    - name: Publish Operations to release folder
+      uses: actions/download-artifact@v2
+      with:
+        name: operations
+        path: ${{ inputs.RELEASE_FOLDER_PATH }}/functions/operations

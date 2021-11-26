@@ -17,14 +17,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Common;
-using Energinet.DataHub.PostOffice.Common.SimpleInjector;
+using Energinet.DataHub.PostOffice.Infrastructure.Correlation;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using SimpleInjector;
 using Xunit;
 using Xunit.Categories;
 
@@ -37,8 +35,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
         public async Task Invoke_ContextIsNull_Throws()
         {
             // arrange
+            var correlationContext = new Mock<ICorrelationContext>();
             TelemetryClient mockTelemetryClient = InitializeMockTelemetryChannel();
-            var target = new EntryPointTelemetryScopeMiddleware(mockTelemetryClient);
+            var target = new EntryPointTelemetryScopeMiddleware(mockTelemetryClient, correlationContext.Object);
 
             // act, assert
             await Assert.ThrowsAsync<ArgumentNullException>(() => target.Invoke(null!, _ => Task.CompletedTask)).ConfigureAwait(false);
@@ -48,8 +47,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
         public async Task Invoke_NextIsNull_Throws()
         {
             // arrange
+            var correlationContext = new Mock<ICorrelationContext>();
             TelemetryClient mockTelemetryClient = InitializeMockTelemetryChannel();
-            var target = new EntryPointTelemetryScopeMiddleware(mockTelemetryClient);
+            var target = new EntryPointTelemetryScopeMiddleware(mockTelemetryClient, correlationContext.Object);
 
             var bindingData = new Dictionary<string, object?>()
             {
@@ -60,7 +60,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
             var functionContextMock = BuildFunctionContext(bindingData, "Test");
 
             // act, assert
-            await Assert.ThrowsAsync<NullReferenceException>(() => target.Invoke(functionContextMock, null!)).ConfigureAwait(false);
+            await Assert.ThrowsAsync<ArgumentNullException>(() => target.Invoke(functionContextMock, null!)).ConfigureAwait(false);
         }
 
         [Fact]
@@ -68,8 +68,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
         {
             // arrange
             var nextCalled = false;
+            var correlationContext = new Mock<ICorrelationContext>();
             TelemetryClient mockTelemetryClient = InitializeMockTelemetryChannel();
-            var target = new EntryPointTelemetryScopeMiddleware(mockTelemetryClient);
+            var target = new EntryPointTelemetryScopeMiddleware(mockTelemetryClient, correlationContext.Object);
 
             var bindingData = new Dictionary<string, object?>()
             {
@@ -91,8 +92,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
         {
             // arrange
             var nextCalled = false;
+            var correlationContext = new Mock<ICorrelationContext>();
             TelemetryClient mockTelemetryClient = InitializeMockTelemetryChannel();
-            var target = new EntryPointTelemetryScopeMiddleware(mockTelemetryClient);
+            var target = new EntryPointTelemetryScopeMiddleware(mockTelemetryClient, correlationContext.Object);
 
             var functionContextMock = BuildFunctionContext(new Dictionary<string, object?>(), "Test");
 
