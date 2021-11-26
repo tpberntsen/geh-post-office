@@ -118,8 +118,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
         {
             var messageCommandMap = messages
                 .Select(x => new { Message = x, Command = MapMessageToCommand(x) })
-                .GroupBy(x => x.Command.Uuid).Select(x => x.First())
-                .ToDictionary(x => x.Command.Uuid, x => new { x.Message, x.Command });
+                .ToDictionary(x => x.Command, x => new { x.Message, x.Command });
 
             var response = await _mediator.Send(
                 new GetDuplicatedDataAvailablesFromArchiveCommand(
@@ -129,9 +128,9 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             var invalid = new List<Message>();
             var idempotent = new List<Message>();
 
-            await foreach (var (uuid, isIdempotent) in response.Duplicates)
+            foreach (var (command, isIdempotent) in response.Duplicates)
             {
-                var message = messageCommandMap[uuid].Message;
+                var message = messageCommandMap[command].Message;
                 if (isIdempotent)
                     idempotent.Add(message);
                 else

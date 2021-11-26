@@ -16,7 +16,7 @@ using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public record DataAvailableNotificationCommand : IRequest<DataAvailableNotificationResponse>
+    public sealed class DataAvailableNotificationCommand : IRequest<DataAvailableNotificationResponse>
     {
         public DataAvailableNotificationCommand(
             string uuid,

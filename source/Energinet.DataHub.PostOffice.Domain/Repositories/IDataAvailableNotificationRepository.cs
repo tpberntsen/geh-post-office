@@ -86,6 +86,6 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// Checks idempontency of documents against the archive database
         /// </summary>
         /// <param name="dataAvailableNotifications"></param>
-        IAsyncEnumerable<(string Uuid, bool IsIdempotent)> GetDuplicatedMessagesFromArchiveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications);
+        IAsyncEnumerable<(DataAvailableNotification Command, bool IsIdempotent)> ValidateAgainstArchiveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications);
     }
 }

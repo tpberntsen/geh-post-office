@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
@@ -59,7 +60,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             return new DataAvailableNotificationResponse();
         }
 
-        public Task<GetDuplicatedDataAvailablesFromArchiveResponse> Handle(GetDuplicatedDataAvailablesFromArchiveCommand request, CancellationToken cancellationToken)
+        public async Task<GetDuplicatedDataAvailablesFromArchiveResponse> Handle(GetDuplicatedDataAvailablesFromArchiveCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
@@ -67,11 +68,17 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             var mapped = request.DataAvailableNotificationCommands.Select(x =>
             {
                 var couldBeMapped = TryMapToDataAvailableNotification(x, out var mapped);
-                return (couldBeMapped, mapped);
-            });
+                return (couldBeMapped, mapped, x);
+            }).Where(x => x.couldBeMapped).ToDictionary(x => x.mapped!, x => x.x);
 
-            var result = _dataAvailableNotificationRepository.GetDuplicatedMessagesFromArchiveAsync(mapped.Where(x => x.couldBeMapped).Select(x => x.mapped!));
-            return Task.FromResult(new GetDuplicatedDataAvailablesFromArchiveResponse(result));
+            var result = _dataAvailableNotificationRepository.ValidateAgainstArchiveAsync(mapped.Select(x => x.Key));
+            var mappedResult = new List<(DataAvailableNotificationCommand Command, bool IsIdempotent)>();
+            await foreach (var entry in result)
+            {
+                mappedResult.Add((mapped[entry.Command], entry.IsIdempotent));
+            }
+
+            return new GetDuplicatedDataAvailablesFromArchiveResponse(mappedResult);
 
             static bool TryMapToDataAvailableNotification(DataAvailableNotificationCommand request, [NotNullWhen(true)] out DataAvailableNotification? command)
             {

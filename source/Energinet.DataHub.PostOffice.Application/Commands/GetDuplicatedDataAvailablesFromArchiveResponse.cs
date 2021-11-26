@@ -18,11 +18,11 @@ namespace Energinet.DataHub.PostOffice.Application.Commands
 {
     public sealed record GetDuplicatedDataAvailablesFromArchiveResponse
     {
-        public GetDuplicatedDataAvailablesFromArchiveResponse(IAsyncEnumerable<(string Uuid, bool IsIdempotent)> duplicates)
+        public GetDuplicatedDataAvailablesFromArchiveResponse(IEnumerable<(DataAvailableNotificationCommand Command, bool IsIdempotent)> duplicates)
         {
             Duplicates = duplicates;
         }
 
-        public IAsyncEnumerable<(string Uuid, bool IsIdempotent)> Duplicates { get; }
+        public IEnumerable<(DataAvailableNotificationCommand Command, bool IsIdempotent)> Duplicates { get; }
     }
 }

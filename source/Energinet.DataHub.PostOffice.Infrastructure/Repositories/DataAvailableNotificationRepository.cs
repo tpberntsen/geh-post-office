@@ -61,7 +61,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             {
                 await foreach (var x in FindAlreadyExistingDocumentsOnIdAsync(
                     _repositoryContainer.Container,
-                    new Dictionary<string, CosmosDataAvailable> { { cosmosDocument.Id, cosmosDocument } }))
+                    new Dictionary<string, (DataAvailableNotification, CosmosDataAvailable)> { { cosmosDocument.Id + cosmosDocument.PartitionKey, (dataAvailableNotification, cosmosDocument) } }))
                 {
                     if (!x.IsIdempotent)
                         throw new ValidationException("A data available notification already exists with the given ID");
@@ -261,27 +261,33 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             return Task.WhenAll(deleteTasks);
         }
 
-        public IAsyncEnumerable<(string Uuid, bool IsIdempotent)> GetDuplicatedMessagesFromArchiveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications)
+        public IAsyncEnumerable<(DataAvailableNotification Command, bool IsIdempotent)> ValidateAgainstArchiveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications)
         {
-            return FindAlreadyExistingDocumentsOnIdAsync(_repositoryContainer.ArchiveContainer, dataAvailableNotifications.Select(dataAvailableNotification => new CosmosDataAvailable
-            {
-                Id = dataAvailableNotification.NotificationId.ToString(),
-                Recipient = dataAvailableNotification.Recipient.Gln.Value,
-                ContentType = dataAvailableNotification.ContentType.Value,
-                Origin = dataAvailableNotification.Origin.ToString(),
-                SupportsBundling = dataAvailableNotification.SupportsBundling.Value,
-                RelativeWeight = dataAvailableNotification.Weight.Value,
-                Acknowledge = false,
-                PartitionKey = dataAvailableNotification.Recipient.Gln.Value + dataAvailableNotification.Origin + dataAvailableNotification.ContentType.Value
-            }).ToDictionary(x => x.Id));
+            return FindAlreadyExistingDocumentsOnIdAsync(_repositoryContainer.ArchiveContainer, dataAvailableNotifications.Select(notification =>
+                (notification,
+                    doc: new CosmosDataAvailable
+                    {
+                        Id = notification.NotificationId.ToString(),
+                        Recipient = notification.Recipient.Gln.Value,
+                        ContentType = notification.ContentType.Value,
+                        Origin = notification.Origin.ToString(),
+                        SupportsBundling = notification.SupportsBundling.Value,
+                        RelativeWeight = notification.Weight.Value,
+                        Acknowledge = false,
+                        PartitionKey = notification.Recipient.Gln.Value + notification.Origin + notification.ContentType.Value
+                    }))
+                .GroupBy(x => x.doc.Id + x.doc.PartitionKey).Select(x => x.First())
+                .ToDictionary(x => x.doc.Id + x.doc.PartitionKey, x => (x.notification, x.doc)));
         }
 
-        private static async IAsyncEnumerable<(string Uuid, bool IsIdempotent)> FindAlreadyExistingDocumentsOnIdAsync(Container container, IDictionary<string, CosmosDataAvailable> cosmosDataAvailable)
+        private static async IAsyncEnumerable<(DataAvailableNotification Command, bool IsIdempotent)> FindAlreadyExistingDocumentsOnIdAsync(
+            Container container,
+            IDictionary<string, (DataAvailableNotification Notification, CosmosDataAvailable Document)> cosmosDataAvailable)
         {
             const int batchSize = 1000;
             var taken = 0;
 
-            var allIds = cosmosDataAvailable.Keys.ToArray();
+            var allIds = cosmosDataAvailable.Values.Select(x => x.Document.Id).ToArray();
             string[] ids;
 
             do
@@ -295,7 +301,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
                 await foreach (var doc in query.AsCosmosIteratorAsync())
                 {
-                    yield return (doc.Id, cosmosDataAvailable[doc.Id] with { Timestamp = doc.Timestamp } == doc);
+                    var key = doc.Id + doc.PartitionKey;
+                    if (cosmosDataAvailable.ContainsKey(key))
+                        yield return (cosmosDataAvailable[key].Notification, cosmosDataAvailable[key].Document with { Timestamp = doc.Timestamp } == doc);
                 }
 
                 taken += ids.Length;

@@ -193,7 +193,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain.Functions
             var (target, receiverMock, mediatorMock, parserMock, mapperMock) = Setup(messages);
 
             mediatorMock.Setup(x => x.Send(It.IsAny<GetDuplicatedDataAvailablesFromArchiveCommand>(), default))
-                .Returns(Task.FromResult(new GetDuplicatedDataAvailablesFromArchiveResponse(AsyncEnumerable(new[] { (command.Uuid, true) }))));
+                .Returns(Task.FromResult(new GetDuplicatedDataAvailablesFromArchiveResponse(new[] { (command, true) })));
 
             parserMock.Setup(x => x.Parse(message.Body))
                 .Returns(dto);
@@ -224,7 +224,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain.Functions
             var (target, receiverMock, mediatorMock, parserMock, mapperMock) = Setup(messages);
 
             mediatorMock.Setup(x => x.Send(It.IsAny<GetDuplicatedDataAvailablesFromArchiveCommand>(), default))
-                .Returns(Task.FromResult(new GetDuplicatedDataAvailablesFromArchiveResponse(AsyncEnumerable(new[] { (command.Uuid, false) }))));
+                .Returns(Task.FromResult(new GetDuplicatedDataAvailablesFromArchiveResponse(new[] { (command, false) })));
 
             parserMock.Setup(x => x.Parse(message.Body))
                 .Returns(dto);
@@ -272,7 +272,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain.Functions
 
             var mediatorMock = new Mock<IMediator>();
             mediatorMock.Setup(x => x.Send(It.IsAny<GetDuplicatedDataAvailablesFromArchiveCommand>(), default))
-                .Returns(Task.FromResult(new GetDuplicatedDataAvailablesFromArchiveResponse(AsyncEnumerable(Enumerable.Empty<(string Uuid, bool IsIdempotent)>()))));
+                .Returns(Task.FromResult(new GetDuplicatedDataAvailablesFromArchiveResponse(Enumerable.Empty<(DataAvailableNotificationCommand Command, bool IsIdempotent)>())));
             var parserMock = new Mock<IDataAvailableNotificationParser>();
             var mapperMock = new Mock<IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand>>();
 
@@ -283,15 +283,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain.Functions
                 mapperMock.Object);
 
             return (target, receiverMock, mediatorMock, parserMock, mapperMock);
-        }
-
-        private static async IAsyncEnumerable<(string Uuid, bool IsIdempotent)> AsyncEnumerable(IEnumerable<(string Uuid, bool IsIdempotent)> elements)
-        {
-            await Task.CompletedTask.ConfigureAwait(false);
-            foreach (var element in elements)
-            {
-                yield return element;
-            }
         }
     }
 }
