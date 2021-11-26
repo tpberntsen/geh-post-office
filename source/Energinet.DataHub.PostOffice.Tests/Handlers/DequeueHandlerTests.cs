@@ -75,6 +75,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
 
             var dequeueNotificationSenderMock = new Mock<IDequeueNotificationSender>();
             dequeueNotificationSenderMock.Setup(x => x.SendAsync(
+                bundle.ProcessId.ToString(),
                 It.IsAny<DequeueNotificationDto>(),
                 It.IsAny<MessageHub.Model.Model.DomainOrigin>())).Returns(Task.CompletedTask);
 
@@ -91,6 +92,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             Assert.True(response.IsDequeued);
             dequeueNotificationSenderMock.Verify(
                 x => x.SendAsync(
+                    bundle.ProcessId.ToString(),
                     It.IsAny<DequeueNotificationDto>(),
                     It.IsAny<MessageHub.Model.Model.DomainOrigin>()),
                 Times.Once);

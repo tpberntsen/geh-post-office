@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
@@ -157,10 +156,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             Assert.True(response.HasContent);
 
             var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
-            Assert.Single(bundleContents.DataAvailableNotificationIds);
-            Assert.Contains(expectedGuid, bundleContents.DataAvailableNotificationIds);
-            Assert.DoesNotContain(unexpectedGuidA, bundleContents.DataAvailableNotificationIds);
-            Assert.DoesNotContain(unexpectedGuidB, bundleContents.DataAvailableNotificationIds);
+            var dataAvailableNotificationIds = await bundleContents.GetDataAvailableIdsAsync(scope).ConfigureAwait(false);
+
+            Assert.Single(dataAvailableNotificationIds);
+            Assert.Contains(expectedGuid, dataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidA, dataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidB, dataAvailableNotificationIds);
         }
 
         [Fact]
@@ -190,10 +191,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             Assert.True(response.HasContent);
 
             var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
-            Assert.Equal(3, bundleContents.DataAvailableNotificationIds.Count());
-            Assert.Contains(expectedGuidA, bundleContents.DataAvailableNotificationIds);
-            Assert.Contains(expectedGuidB, bundleContents.DataAvailableNotificationIds);
-            Assert.Contains(expectedGuidC, bundleContents.DataAvailableNotificationIds);
+            var dataAvailableNotificationIds = await bundleContents.GetDataAvailableIdsAsync(scope).ConfigureAwait(false);
+
+            Assert.Equal(3, dataAvailableNotificationIds.Count);
+            Assert.Contains(expectedGuidA, dataAvailableNotificationIds);
+            Assert.Contains(expectedGuidB, dataAvailableNotificationIds);
+            Assert.Contains(expectedGuidC, dataAvailableNotificationIds);
         }
 
         [Fact]
@@ -327,10 +330,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             Assert.True(response.HasContent);
 
             var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
-            Assert.Single(bundleContents.DataAvailableNotificationIds);
-            Assert.Contains(expectedGuid, bundleContents.DataAvailableNotificationIds);
-            Assert.DoesNotContain(unexpectedGuidA, bundleContents.DataAvailableNotificationIds);
-            Assert.DoesNotContain(unexpectedGuidB, bundleContents.DataAvailableNotificationIds);
+            var dataAvailableNotificationIds = await bundleContents.GetDataAvailableIdsAsync(scope).ConfigureAwait(false);
+
+            Assert.Single(dataAvailableNotificationIds);
+            Assert.Contains(expectedGuid, dataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidA, dataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidB, dataAvailableNotificationIds);
         }
 
         [Fact]
@@ -360,10 +365,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             Assert.True(response.HasContent);
 
             var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
-            Assert.Equal(3, bundleContents.DataAvailableNotificationIds.Count());
-            Assert.Contains(expectedGuidA, bundleContents.DataAvailableNotificationIds);
-            Assert.Contains(expectedGuidB, bundleContents.DataAvailableNotificationIds);
-            Assert.Contains(expectedGuidC, bundleContents.DataAvailableNotificationIds);
+            var dataAvailableNotificationIds = await bundleContents.GetDataAvailableIdsAsync(scope).ConfigureAwait(false);
+
+            Assert.Equal(3, dataAvailableNotificationIds.Count);
+            Assert.Contains(expectedGuidA, dataAvailableNotificationIds);
+            Assert.Contains(expectedGuidB, dataAvailableNotificationIds);
+            Assert.Contains(expectedGuidC, dataAvailableNotificationIds);
         }
 
         [Fact]
@@ -495,10 +502,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             Assert.True(response.HasContent);
 
             var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
-            Assert.Single(bundleContents.DataAvailableNotificationIds);
-            Assert.Contains(expectedGuid, bundleContents.DataAvailableNotificationIds);
-            Assert.DoesNotContain(unexpectedGuidA, bundleContents.DataAvailableNotificationIds);
-            Assert.DoesNotContain(unexpectedGuidB, bundleContents.DataAvailableNotificationIds);
+            var dataAvailableNotificationIds = await bundleContents.GetDataAvailableIdsAsync(scope).ConfigureAwait(false);
+
+            Assert.Single(dataAvailableNotificationIds);
+            Assert.Contains(expectedGuid, dataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidA, dataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidB, dataAvailableNotificationIds);
         }
 
         [Fact]
@@ -528,10 +537,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             Assert.True(response.HasContent);
 
             var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
-            Assert.Equal(3, bundleContents.DataAvailableNotificationIds.Count());
-            Assert.Contains(expectedGuidA, bundleContents.DataAvailableNotificationIds);
-            Assert.Contains(expectedGuidB, bundleContents.DataAvailableNotificationIds);
-            Assert.Contains(expectedGuidC, bundleContents.DataAvailableNotificationIds);
+            var dataAvailableNotificationIds = await bundleContents.GetDataAvailableIdsAsync(scope).ConfigureAwait(false);
+
+            Assert.Equal(3, dataAvailableNotificationIds.Count);
+            Assert.Contains(expectedGuidA, dataAvailableNotificationIds);
+            Assert.Contains(expectedGuidB, dataAvailableNotificationIds);
+            Assert.Contains(expectedGuidC, dataAvailableNotificationIds);
         }
 
         [Fact]
@@ -708,9 +719,11 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             Assert.True(response.HasContent);
 
             var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
-            Assert.Contains(expectedGuid, bundleContents.DataAvailableNotificationIds);
-            Assert.DoesNotContain(unexpectedGuidA, bundleContents.DataAvailableNotificationIds);
-            Assert.DoesNotContain(unexpectedGuidB, bundleContents.DataAvailableNotificationIds);
+            var dataAvailableNotificationIds = await bundleContents.GetDataAvailableIdsAsync(scope).ConfigureAwait(false);
+
+            Assert.Contains(expectedGuid, dataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidA, dataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidB, dataAvailableNotificationIds);
         }
 
         [Theory]
@@ -745,10 +758,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             Assert.True(response.HasContent);
 
             var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
-            Assert.Single(bundleContents.DataAvailableNotificationIds);
-            Assert.Contains(expectedGuid, bundleContents.DataAvailableNotificationIds);
-            Assert.DoesNotContain(unexpectedGuidA, bundleContents.DataAvailableNotificationIds);
-            Assert.DoesNotContain(unexpectedGuidB, bundleContents.DataAvailableNotificationIds);
+            var dataAvailableNotificationIds = await bundleContents.GetDataAvailableIdsAsync(scope).ConfigureAwait(false);
+
+            Assert.Single(dataAvailableNotificationIds);
+            Assert.Contains(expectedGuid, dataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidA, dataAvailableNotificationIds);
+            Assert.DoesNotContain(unexpectedGuidB, dataAvailableNotificationIds);
         }
 
         [Fact]
@@ -778,10 +793,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             Assert.True(response.HasContent);
 
             var bundleContents = await response.Data.ReadAsDataBundleRequestAsync().ConfigureAwait(false);
-            Assert.Equal(3, bundleContents.DataAvailableNotificationIds.Count());
-            Assert.Contains(expectedGuidA, bundleContents.DataAvailableNotificationIds);
-            Assert.Contains(expectedGuidB, bundleContents.DataAvailableNotificationIds);
-            Assert.Contains(expectedGuidC, bundleContents.DataAvailableNotificationIds);
+            var dataAvailableNotificationIds = await bundleContents.GetDataAvailableIdsAsync(scope).ConfigureAwait(false);
+
+            Assert.Equal(3, dataAvailableNotificationIds.Count);
+            Assert.Contains(expectedGuidA, dataAvailableNotificationIds);
+            Assert.Contains(expectedGuidB, dataAvailableNotificationIds);
+            Assert.Contains(expectedGuidC, dataAvailableNotificationIds);
         }
 
         private static async Task AddTimeSeriesNotificationAsync(string recipientGln)
