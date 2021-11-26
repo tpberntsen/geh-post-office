@@ -19,7 +19,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Azure.Storage.Blobs;
 using Energinet.DataHub.MessageHub.Core.Dequeue;
 using Energinet.DataHub.MessageHub.Core.Factories;
 using Energinet.DataHub.MessageHub.Core.Peek;
@@ -35,15 +34,15 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
     /// </summary>
     public sealed class MessageHubSimulation : IAsyncDisposable
     {
-        private static readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(30);
+        private readonly TimeSpan _waitTimeout;
 
         private readonly IDataAvailableNotificationParser _dataAvailableNotificationParser = new DataAvailableNotificationParser();
         private readonly IDataBundleRequestSender _dataBundleRequestSender;
         private readonly IDequeueNotificationSender? _dequeueNotificationSender;
 
-        private readonly BlobContainerClient _blobContainerClient;
         private readonly ServiceBusReceiver _dataAvailableReceiver;
         private readonly AzureServiceBusFactory _messageBusFactory;
+        private readonly StorageHandlerSimulation _storageHandlerSimulation;
         private readonly List<DataAvailableNotificationDto> _notifications = new();
 
         public MessageHubSimulation(MessageHubSimulationConfig configuration)
@@ -52,11 +51,6 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
                 throw new ArgumentNullException(nameof(configuration));
 
             Notifications = new ReadOnlyCollection<DataAvailableNotificationDto>(_notifications);
-
-            var blobStorageSingleton = new StorageServiceClientFactory(configuration.BlobStorageConnectionString);
-            _blobContainerClient = blobStorageSingleton
-                .Create()
-                .GetBlobContainerClient(configuration.BlobStorageContainerName);
 
             var serviceBusSingleton = new ServiceBusClientFactory(configuration.ServiceBusReadWriteConnectionString);
             _messageBusFactory = new AzureServiceBusFactory(serviceBusSingleton);
@@ -77,6 +71,9 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
                     _messageBusFactory,
                     configuration.CreateSimulatedDequeueConfig());
             }
+
+            _waitTimeout = configuration.WaitTimeout;
+            _storageHandlerSimulation = new StorageHandlerSimulation(configuration);
         }
 
         /// <summary>
@@ -87,24 +84,12 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
         /// <summary>
         /// Waits for the specified correlation ids to arrive on the dataavailable queue
         /// and adds their notifications to the current simulation.
-        /// Default timeout is 30 seconds, afterwards throws a TimeoutException or TaskCanceledException.
-        /// </summary>
-        /// <param name="correlationIds">The list of correlation ids to wait for.</param>
-        public Task WaitForNotificationsInDataAvailableQueueAsync(params string[] correlationIds)
-        {
-            return WaitForNotificationsInDataAvailableQueueAsync(_defaultTimeout, correlationIds);
-        }
-
-        /// <summary>
-        /// Waits for the specified correlation ids to arrive on the dataavailable queue
-        /// and adds their notifications to the current simulation.
         /// Can throw a TimeoutException or TaskCanceledException.
         /// </summary>
-        /// <param name="timeout">The .</param>
         /// <param name="correlationIds">The list of correlation ids to wait for.</param>
-        public async Task WaitForNotificationsInDataAvailableQueueAsync(TimeSpan timeout, params string[] correlationIds)
+        public async Task WaitForNotificationsInDataAvailableQueueAsync(params string[] correlationIds)
         {
-            using var cancellationTokenSource = new CancellationTokenSource(timeout);
+            using var cancellationTokenSource = new CancellationTokenSource(_waitTimeout);
             var cancellationToken = cancellationTokenSource.Token;
 
             var expectedIds = new HashSet<string>(correlationIds, StringComparer.OrdinalIgnoreCase);
@@ -140,8 +125,6 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
         /// <returns>Returns information about the Peek request.</returns>
         public async Task<PeekSimulationResponseDto> PeekAsync()
         {
-            await EnsureBlobStorageAsync().ConfigureAwait(false);
-
             var requestId = Guid.NewGuid();
             var idempotencyId = Guid.NewGuid();
 
@@ -153,11 +136,19 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
                 .Distinct()
                 .Single();
 
+            var guids = _notifications.Select(x => x.Uuid);
+            var referenceId = idempotencyId.ToString();
+
+            await _storageHandlerSimulation
+                .StorageHandler
+                .AddDataAvailableNotificationIdsToStorageAsync(referenceId, guids)
+                .ConfigureAwait(false);
+
             var request = new DataBundleRequestDto(
                 requestId,
+                referenceId,
                 idempotencyId.ToString(),
-                messageType,
-                _notifications.Select(x => x.Uuid));
+                messageType);
 
             // This domain origin must be valid, but it is not used.
             // All the queue names point to the same domain.
@@ -183,22 +174,18 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
             if (_dequeueNotificationSender == null)
                 throw new InvalidOperationException("MessageHubSimulation: Simulation was not configured for Dequeue.");
 
-            var notificationGuids = _notifications
-                .Select(x => x.Uuid)
-                .ToList();
-
             var marketOperator = _notifications
                 .Select(x => x.Recipient.Value)
                 .Distinct()
                 .Single();
 
-            var dequeue = new DequeueNotificationDto(notificationGuids, new GlobalLocationNumberDto(marketOperator));
+            var dequeue = new DequeueNotificationDto(Guid.Empty.ToString(), new GlobalLocationNumberDto(marketOperator));
 
             // This domain origin must be valid, but it is not used.
             // All the queue names point to the same domain.
             const DomainOrigin domainOrigin = DomainOrigin.Aggregations;
 
-            return _dequeueNotificationSender.SendAsync(dequeue, domainOrigin);
+            return _dequeueNotificationSender.SendAsync(Guid.Empty.ToString(), dequeue, domainOrigin);
         }
 
         /// <summary>
@@ -213,13 +200,6 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
         {
             await _dataAvailableReceiver.DisposeAsync().ConfigureAwait(false);
             await _messageBusFactory.DisposeAsync().ConfigureAwait(false);
-        }
-
-        // This is a bit weird, since we do not own ressources, nor do we check any other resources.
-        // It is done to make testing easier.
-        private Task EnsureBlobStorageAsync()
-        {
-            return _blobContainerClient.CreateIfNotExistsAsync();
         }
     }
 }

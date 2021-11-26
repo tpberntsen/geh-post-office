@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.IO;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Model.Model;
@@ -20,15 +19,12 @@ using Energinet.DataHub.MessageHub.Model.Peek;
 
 namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
 {
-    public static class StreamTestExtensions
+    internal static class StreamTestExtensions
     {
         private static readonly RequestBundleParser _requestBundleParser = new();
 
         public static async Task<DataBundleRequestDto> ReadAsDataBundleRequestAsync(this Stream stream)
         {
-            if (stream == null)
-                throw new ArgumentNullException(nameof(stream));
-
             await using var contents = new MemoryStream();
             await stream.CopyToAsync(contents).ConfigureAwait(false);
             return _requestBundleParser.Parse(contents.ToArray());

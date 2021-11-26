@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Core.Dequeue;
@@ -60,11 +59,11 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 return new DequeueResponse(false);
 
             var dequeueNotification = new DequeueNotificationDto(
-                bundle!.NotificationIds.Select(x => x.AsGuid()).ToList(),
+                bundle!.ProcessId.ToString(),
                 new GlobalLocationNumberDto(request.MarketOperator));
 
             await _dequeueNotificationSender
-                .SendAsync(dequeueNotification, (DomainOrigin)bundle.Origin)
+                .SendAsync(bundle.ProcessId.ToString(), dequeueNotification, (DomainOrigin)bundle.Origin)
                 .ConfigureAwait(false);
 
             await _log

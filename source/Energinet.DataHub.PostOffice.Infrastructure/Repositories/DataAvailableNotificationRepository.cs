@@ -142,11 +142,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             {
                 if (allUnacknowledged.Count == 0 || (currentWeight + item.Weight <= maxWeight && item.SupportsBundling.Value))
                 {
-                    // TODO: Bundles are limited to 800 guids * 296 bytes ~ 231,25 KB until
-                    // issue with ServiceBus message size is resolved.
-                    if (allUnacknowledged.Count == 800)
-                        break;
-
                     currentWeight += item.Weight;
                     allUnacknowledged.Add(item);
                 }

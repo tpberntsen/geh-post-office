@@ -94,8 +94,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
                     RequestId = Guid.NewGuid().ToString(),
                     Success = new DataBundleResponseContract.Types.FileResource
                     {
-                        ContentUri = pathWithMessage,
-                        DataAvailableNotificationIds = { Guid.NewGuid().ToString(), Guid.NewGuid().ToString() }
+                        ContentUri = pathWithMessage
                     }
                 };
 
