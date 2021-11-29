@@ -21,12 +21,12 @@ limitations under the License.
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Energinet.DataHub.MessageHub.Client" Version="1.5.0" />
+    <PackageReference Include="Energinet.DataHub.MessageHub.Client" Version="1.8.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0-rc.1.21451.13" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="6.0.0-rc.1.21451.13" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.0-rc.1.21451.13" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0-rc.1.21451.13" />
-    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.3.0" />
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <Protobuf Include="**/*.proto" />
   </ItemGroup>
