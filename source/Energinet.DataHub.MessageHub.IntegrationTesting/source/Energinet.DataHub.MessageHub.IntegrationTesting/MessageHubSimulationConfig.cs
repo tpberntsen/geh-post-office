@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using Energinet.DataHub.MessageHub.Core;
 
 namespace Energinet.DataHub.MessageHub.IntegrationTesting
@@ -101,6 +102,18 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
         /// </summary>
         public string BlobStorageContainerName { get; }
 
+        /// <summary>
+        /// Specifies the timeout to use with WaitForNotificationsInDataAvailableQueueAsync.
+        /// Default is 15 seconds.
+        /// </summary>
+        public TimeSpan WaitTimeout { get; set; } = TimeSpan.FromSeconds(15);
+
+        /// <summary>
+        /// Specifies the timeout to use with PeekAsync.
+        /// Default is 15 seconds.
+        /// </summary>
+        public TimeSpan PeekTimeout { get; set; } = TimeSpan.FromSeconds(15);
+
         internal PeekRequestConfig CreateSimulatedPeekRequestConfig()
         {
             return new PeekRequestConfig(
@@ -113,7 +126,8 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
                 DomainQueueName,
                 DomainReplyQueueName,
                 DomainQueueName,
-                DomainReplyQueueName);
+                DomainReplyQueueName,
+                PeekTimeout);
         }
 
         internal DequeueConfig CreateSimulatedDequeueConfig()

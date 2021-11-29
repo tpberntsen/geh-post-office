@@ -75,8 +75,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
             var response = new DataBundleResponseDto(
                 Guid.NewGuid(),
                 string.Empty,
-                contentUri,
-                Array.Empty<Guid>());
+                contentUri);
 
             dataBundleRequestSenderMock
                 .Setup(x => x.SendAsync(It.IsAny<DataBundleRequestDto>(), MessageHub.Model.Model.DomainOrigin.TimeSeries))
