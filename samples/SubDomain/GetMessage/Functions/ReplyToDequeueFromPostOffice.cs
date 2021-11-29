@@ -13,6 +13,8 @@
 // limitations under the License.
 
 using System;
+using System.Threading.Tasks;
+using Energinet.DataHub.MessageHub.Client.Storage;
 using Energinet.DataHub.MessageHub.Model.Dequeue;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -22,18 +24,22 @@ namespace GetMessage.Functions
     public class ReplyToDequeueFromPostOffice
     {
         private readonly IDequeueNotificationParser _dequeueNotificationParser;
+        private readonly IStorageHandler _storageHandler;
 
-        public ReplyToDequeueFromPostOffice(IDequeueNotificationParser dequeueNotificationParser)
+        public ReplyToDequeueFromPostOffice(
+            IDequeueNotificationParser dequeueNotificationParser,
+            IStorageHandler storageHandler)
         {
             _dequeueNotificationParser = dequeueNotificationParser;
+            _storageHandler = storageHandler;
         }
 
         [Function("ReplyToDequeueFromPostOffice")]
-        public void Run(
+        public async Task Run(
             [ServiceBusTrigger(
             "%QueueListenerNameForDequeue%",
             Connection = "ServiceBusConnectionString")]
-            byte[] dequeueNotification,
+            byte[] message,
             FunctionContext context)
         {
             var logger = context.GetLogger("ReplyToRequestFromPostOffice");
@@ -41,8 +47,12 @@ namespace GetMessage.Functions
 
             try
             {
-                var (dataAvailableNotificationIds, recipient) = _dequeueNotificationParser.Parse(dequeueNotification);
-                logger.LogInformation($"Dequeue received for {recipient} with notification Ids: {string.Join(",", dataAvailableNotificationIds)}");
+                var dequeueNotification = _dequeueNotificationParser.Parse(message);
+                var dataAvailableNotificationIds = await _storageHandler
+                    .GetDataAvailableNotificationIdsAsync(dequeueNotification)
+                    .ConfigureAwait(false);
+
+                logger.LogInformation($"Dequeue received for {dequeueNotification.MarketOperator.Value} with notification ids: {string.Join(",", dataAvailableNotificationIds)}");
             }
             catch (Exception e)
             {

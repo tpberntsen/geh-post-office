@@ -24,7 +24,6 @@ using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.MessageHub.Model.Peek;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace GetMessage.Functions
 {
@@ -46,10 +45,7 @@ namespace GetMessage.Functions
 
         [Function("ReplyToRequestFromPostOffice")]
         public async Task RunAsync(
-            [ServiceBusTrigger(
-            "%QueueListenerName%",
-            Connection = "ServiceBusConnectionString",
-            IsSessionsEnabled = true)]
+            [ServiceBusTrigger("%QueueListenerName%", Connection = "ServiceBusConnectionString", IsSessionsEnabled = true)]
             byte[] message,
             FunctionContext context)
         {
@@ -62,20 +58,8 @@ namespace GetMessage.Functions
             try
             {
                 var bundleRequestDto = _requestBundleParser.Parse(message);
-
-                var session = context.BindingContext.BindingData["MessageSession"] as string;
-
-                var sessionData = JsonConvert.DeserializeObject<Dictionary<string, object>>(session ?? string.Empty);
-
-                var sessionId = sessionData?["SessionId"] as string;
-
                 var requestDataBundleResponseDto = await CreateResponseAsync(bundleRequestDto).ConfigureAwait(false);
-
-                await _responseSender.SendAsync(
-                        requestDataBundleResponseDto,
-                        bundleRequestDto,
-                        sessionId ?? string.Empty)
-                    .ConfigureAwait(false);
+                await _responseSender.SendAsync(requestDataBundleResponseDto).ConfigureAwait(false);
             }
             catch (MessageHubStorageException e)
             {
@@ -88,39 +72,48 @@ namespace GetMessage.Functions
             DataBundleRequestDto requestDto,
             DataBundleResponseErrorReason failedReason)
         {
-            var responseDto = new DataBundleResponseDto(
-                new DataBundleResponseErrorDto
-                {
-                    Reason = failedReason,
-                    FailureDescription = failedReason.ToString()
-                },
-                requestDto.DataAvailableNotificationIds);
-
-            return responseDto;
+            return requestDto.CreateErrorResponse(new DataBundleResponseErrorDto
+            {
+                Reason = failedReason,
+                FailureDescription = failedReason.ToString()
+            });
         }
 
         private async Task<DataBundleResponseDto> CreateResponseAsync(DataBundleRequestDto requestDto)
         {
-            if (requestDto.DataAvailableNotificationIds.Contains(new Guid("0ae6c542-385f-4d89-bfba-d6c451915a1b")))
+            var dataAvailableNotificationGuids = await _storageHandler
+                .GetDataAvailableNotificationIdsAsync(requestDto)
+                .ConfigureAwait(false);
+
+            if (dataAvailableNotificationGuids.Contains(new Guid("0ae6c542-385f-4d89-bfba-d6c451915a1b")))
                 return CreateFailedResponse(requestDto, DataBundleResponseErrorReason.DatasetNotFound);
-            if (requestDto.DataAvailableNotificationIds.Contains(new Guid("3cfce64e-aa1d-4003-924d-69c8739e73a6")))
+            if (dataAvailableNotificationGuids.Contains(new Guid("3cfce64e-aa1d-4003-924d-69c8739e73a6")))
                 return CreateFailedResponse(requestDto, DataBundleResponseErrorReason.DatasetNotAvailable);
-            if (requestDto.DataAvailableNotificationIds.Contains(new Guid("befdcf5a-f58d-493b-9a17-e5231609c8f6")))
+            if (dataAvailableNotificationGuids.Contains(new Guid("befdcf5a-f58d-493b-9a17-e5231609c8f6")))
                 return CreateFailedResponse(requestDto, DataBundleResponseErrorReason.InternalError);
 
-            return await CreateSuccessResponseAsync(requestDto).ConfigureAwait(false);
+            return await CreateSuccessResponseAsync(requestDto, dataAvailableNotificationGuids).ConfigureAwait(false);
         }
 
-        private async Task<DataBundleResponseDto> CreateSuccessResponseAsync(DataBundleRequestDto requestDto)
+        private async Task<DataBundleResponseDto> CreateSuccessResponseAsync(
+            DataBundleRequestDto requestDto,
+            IEnumerable<Guid> dataAvailableNotificationGuids)
         {
-            var resourceUrl = await SaveDataToBlobStorageAsync(requestDto).ConfigureAwait(false);
+            var resourceUrl = await SaveDataToBlobStorageAsync(requestDto, dataAvailableNotificationGuids).ConfigureAwait(false);
             return requestDto.CreateResponse(new Uri(resourceUrl.AbsoluteUri));
         }
 
-        private async Task<Uri> SaveDataToBlobStorageAsync(DataBundleRequestDto requestDto)
+        private async Task<Uri> SaveDataToBlobStorageAsync(
+            DataBundleRequestDto requestDto,
+            IEnumerable<Guid> dataAvailableNotificationGuids)
         {
-            var testString =
-                $"<data><uuid>{requestDto.IdempotencyId}<uuid><dataAvailableNotifications>{string.Join(",", requestDto.DataAvailableNotificationIds)}</dataAvailableNotifications></data>";
+            var testString = @$"
+<data>
+    <uuid>{requestDto.IdempotencyId}</uuid>
+    <dataAvailableNotifications>{string.Join(",", dataAvailableNotificationGuids)}
+    </dataAvailableNotifications>
+</data>";
+
             var testData = new BinaryData(testString);
             return await _storageHandler.AddStreamToStorageAsync(testData.ToStream(), requestDto).ConfigureAwait(false);
         }
