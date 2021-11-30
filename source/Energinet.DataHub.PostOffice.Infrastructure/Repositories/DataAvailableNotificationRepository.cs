@@ -242,6 +242,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 .Container
                 .ReadManyItemsAsync<CosmosDataAvailable>(documentsToRead).ConfigureAwait(false);
 
+            if (documentsToArchive.StatusCode != HttpStatusCode.OK)
+            {
+                throw new CosmosException("ReadManyItemsAsync failed", documentsToArchive.StatusCode, -1, documentsToArchive.ActivityId, documentsToArchive.RequestCharge);
+            }
+
             var archiveWriteTasks = documentsToArchive.Select(ArchiveDocumentAsync);
             await Task.WhenAll(archiveWriteTasks).ConfigureAwait(false);
         }
