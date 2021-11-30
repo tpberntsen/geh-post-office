@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Core.Peek;
 using Energinet.DataHub.MessageHub.Model.Model;
@@ -45,8 +44,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
             var request = new DataBundleRequestDto(
                 Guid.NewGuid(),
                 bundle.ProcessId.ToString(),
-                bundle.ContentType.Value,
-                bundle.NotificationIds.Select(x => x.AsGuid()));
+                bundle.ProcessId.ToString(),
+                bundle.ContentType.Value);
 
             var response = await _dataBundleRequestSender.SendAsync(request, (DomainOrigin)bundle.Origin).ConfigureAwait(false);
             if (response == null || response.IsErrorResponse)

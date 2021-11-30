@@ -12,15 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Threading.Tasks;
+using Energinet.DataHub.Core.FunctionApp.TestCommon.Azurite;
 using Xunit;
 
 namespace Energinet.DataHub.PostOffice.IntegrationTests
 {
-    [CollectionDefinition("IntegrationTest")]
-    public sealed class CosmosDbFixtureConfiguration : ICollectionFixture<CosmosDbFixture>
+    internal sealed class AzuriteFixture : IAsyncLifetime
     {
-        // This class has no code, and is never created. Its purpose is simply
-        // to be the place to apply [CollectionDefinition] and all the
-        // ICollectionFixture<> interfaces.
+        private readonly AzuriteManager _azuriteManager = new();
+
+        public Task InitializeAsync()
+        {
+            _azuriteManager.StartAzurite();
+            return Task.CompletedTask;
+        }
+
+        public Task DisposeAsync()
+        {
+            _azuriteManager.Dispose();
+            return Task.CompletedTask;
+        }
     }
 }
