@@ -68,11 +68,15 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             return exception is MessageHubException or ValidationException or System.ComponentModel.DataAnnotations.ValidationException;
         }
 
-        private async Task ProcessMessagesAsync(IReadOnlyCollection<Message> messages)
+        private async Task ProcessMessagesAsync(IReadOnlyCollection<Message> unfilteredMessages)
         {
-            var (idempotent, invalid) = await CheckArchiveForDuplicatesAsync(messages).ConfigureAwait(false);
+            var uniqueMessages = unfilteredMessages.ToHashSet(new MessageComparer());
+            var duplicatedMessages = unfilteredMessages.Except(uniqueMessages).ToList();
 
-            var list = messages
+            var (idempotent, invalid) = await CheckArchiveForDuplicatesAsync(uniqueMessages).ConfigureAwait(false);
+
+            var list = uniqueMessages
+                .Except(duplicatedMessages)
                 .Except(idempotent)
                 .Except(invalid)
                 .Select(m => new { Message = m, Task = ProcessMessageAsync(m) })
@@ -96,6 +100,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             var allCompletedMessages = list
                 .Where(x => x.Task.IsCompletedSuccessfully)
                 .Select(x => x.Message)
+                .Concat(duplicatedMessages)
                 .Concat(idempotent);
 
             await _messageReceiver.CompleteAsync(allCompletedMessages).ConfigureAwait(false);
@@ -145,6 +150,29 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             var dataAvailableNotification = _dataAvailableNotificationParser.Parse(message.Body);
             var dataAvailableCommand = _dataAvailableNotificationMapper.Map(dataAvailableNotification);
             return dataAvailableCommand;
+        }
+
+        private sealed class MessageComparer : IEqualityComparer<Message>
+        {
+            public bool Equals(Message? left, Message? right)
+            {
+                if (left == null && right == null)
+                {
+                    return true;
+                }
+
+                if (left == null || right == null)
+                {
+                    return false;
+                }
+
+                return right.Body.Length == left.Body.Length && !right.Body.Where((t, i) => t != left.Body[i]).Any();
+            }
+
+            public int GetHashCode(Message obj)
+            {
+                return 7302013 ^ obj.Body.Length.GetHashCode();
+            }
         }
     }
 }
