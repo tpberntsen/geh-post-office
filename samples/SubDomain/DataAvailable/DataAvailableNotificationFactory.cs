@@ -19,12 +19,6 @@ namespace DataAvailableNotification
 {
     public static class DataAvailableNotificationFactory
     {
-        public static DataAvailableNotificationDto CreateTimeSeriesDto(string messageType, string recipient)
-        {
-            var dto = CreateDto(DomainOrigin.TimeSeries, messageType, recipient);
-            return dto;
-        }
-
         public static DataAvailableNotificationDto CreateOriginDto(DomainOrigin origin, string messageType, string recipient)
         {
             var dto = CreateDto(origin, messageType, recipient);

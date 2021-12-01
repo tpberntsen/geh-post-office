@@ -44,6 +44,7 @@ namespace GetMessage
 
                     var serviceBusConnectionString = Environment.GetEnvironmentVariable("ServiceBusConnectionString");
                     var blobStorageConnectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
+                    var blobStorageContainerName = Environment.GetEnvironmentVariable("BlobStorageContainerName");
                     var replyQueueName = Environment.GetEnvironmentVariable("ReplyQueueName");
 
                     // Add custom services
@@ -51,12 +52,13 @@ namespace GetMessage
                     services.AddSingleton(_ => new BlobServiceClient(blobStorageConnectionString));
                     services.AddSingleton<IStorageHandler, StorageHandler>();
 
-                    services.AddScoped(_ => new StorageConfig("postoffice-blobstorage"));
-                    services.AddScoped(_ => new MessageHubConfig("sbq-dataavailable", replyQueueName!));
+                    services.AddScoped(_ => new StorageConfig(blobStorageContainerName!));
+                    services.AddScoped(_ => new MessageHubConfig("dataavailable", replyQueueName!));
 
                     services.AddScoped<IRequestBundleParser>(_ => new RequestBundleParser());
                     services.AddScoped<IResponseBundleParser>(_ => new ResponseBundleParser());
                     services.AddScoped<IDataBundleResponseSender, DataBundleResponseSender>();
+                    services.AddSingleton<IMessageBusFactory, AzureServiceBusFactory>();
                     services.AddSingleton<IServiceBusClientFactory>(_ => new ServiceBusClientFactory(serviceBusConnectionString!));
                     services.AddSingleton<IStorageServiceClientFactory>(_ => new StorageServiceClientFactory(blobStorageConnectionString!));
 
