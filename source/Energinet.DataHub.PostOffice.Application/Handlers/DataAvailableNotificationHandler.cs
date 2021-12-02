@@ -65,35 +65,32 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            var mapped = request.DataAvailableNotificationCommands.Select(x =>
-            {
-                var couldBeMapped = TryMapToDataAvailableNotification(x, out var mapped);
-                return (couldBeMapped, mapped, x);
-            }).Where(x => x.couldBeMapped).ToDictionary(x => x.mapped!, x => x.x);
+            var mapped = request.DataAvailableNotificationCommands
+                .Select(x => (mapped: TryMapToDataAvailableNotification(x), x))
+                .Where(x => x.mapped != null)
+                .ToDictionary(x => x.mapped!, x => x.x);
 
             var result = _dataAvailableNotificationRepository.ValidateAgainstArchiveAsync(mapped.Select(x => x.Key));
             var mappedResult = new List<(DataAvailableNotificationCommand Command, bool IsIdempotent)>();
-            await foreach (var entry in result)
+            await foreach (var (notification, isIdempotent) in result)
             {
-                mappedResult.Add((mapped[entry.Command], entry.IsIdempotent));
+                mappedResult.Add((mapped[notification], IsIdempotent: isIdempotent));
             }
 
             return new GetDuplicatedDataAvailablesFromArchiveResponse(mappedResult);
 
-            static bool TryMapToDataAvailableNotification(DataAvailableNotificationCommand request, [NotNullWhen(true)] out DataAvailableNotification? command)
+            static DataAvailableNotification? TryMapToDataAvailableNotification(DataAvailableNotificationCommand request)
             {
                 try
                 {
-                    command = MapToDataAvailableNotification(request);
+                    return MapToDataAvailableNotification(request);
                 }
     #pragma warning disable CA1031
                 catch (Exception)
     #pragma warning restore CA1031
                 {
-                    command = null;
+                    return null;
                 }
-
-                return command != null;
             }
         }
 
