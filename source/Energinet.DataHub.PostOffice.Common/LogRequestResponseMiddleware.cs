@@ -41,19 +41,22 @@ namespace Energinet.DataHub.PostOffice.Common
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (next == null) throw new ArgumentNullException(nameof(next));
 
-            var sw1 = new Stopwatch();
-            sw1.Start();
+            var requestStopwatch = new Stopwatch();
+            requestStopwatch.Start();
             // Log request to blob
             await using var request = BuildRequest(context);
             await _logResourceService.LogRequestAsync(request, new Dictionary<string, string>()).ConfigureAwait(false);
 
-            sw1.Stop();
-            Console.WriteLine("MAGIC: " + sw1.Elapsed.Milliseconds);
+            Console.WriteLine("TIME-LOG-REQUEST: " + requestStopwatch.Elapsed.Milliseconds);
 
             await next(context).ConfigureAwait(false);
 
+            var responseStopwatch = new Stopwatch();
+            responseStopwatch.Start();
             var (stream, metaData) = BuildResponse(context);
             await _logResourceService.LogResponseAsync(stream, metaData).ConfigureAwait(false);
+
+            Console.WriteLine("TIME-LOG-RESPONSE: " + responseStopwatch.Elapsed.Milliseconds);
         }
 
         private static (Stream Stream, Dictionary<string, string> MetaData) BuildResponse(FunctionContext context)
