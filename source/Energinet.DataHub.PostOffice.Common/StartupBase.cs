@@ -75,6 +75,7 @@ namespace Energinet.DataHub.PostOffice.Common
             Container.Register<ICorrelationContext, CorrelationContext>(Lifestyle.Scoped);
             Container.Register<CorrelationIdMiddleware>(Lifestyle.Scoped);
             Container.Register<EntryPointTelemetryScopeMiddleware>(Lifestyle.Scoped);
+            Container.Register<LogRequestResponseMiddleware>(Lifestyle.Scoped);
 
             Container.Register<ILogCallback, LogCallback>(Lifestyle.Scoped);
 

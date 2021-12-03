@@ -38,6 +38,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
                         options.UseMiddleware<EntryPointTelemetryScopeMiddleware>();
                         options.UseMiddleware<JwtAuthenticationMiddleware>();
                         options.UseMiddleware<QueryAuthenticationMiddleware>();
+                        options.UseMiddleware<LogRequestResponseMiddleware>();
                     })
                     .ConfigureServices(startup.ConfigureServices)
                     .Build()
