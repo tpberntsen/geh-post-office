@@ -14,9 +14,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Model.Exceptions;
@@ -41,50 +41,45 @@ namespace Energinet.DataHub.PostOffice.Common
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (next == null) throw new ArgumentNullException(nameof(next));
 
+            var sw1 = new Stopwatch();
+            sw1.Start();
             // Log request to blob
-            var request = BuildRequest(context);
-            await _logResourceService.LogRequestAsync(request).ConfigureAwait(false);
+            await using var request = BuildRequest(context);
+            await _logResourceService.LogRequestAsync(request, new Dictionary<string, string>()).ConfigureAwait(false);
+
+            sw1.Stop();
+            Console.WriteLine("MAGIC: " + sw1.Elapsed.Milliseconds);
 
             await next(context).ConfigureAwait(false);
 
-            var response = await BuildResponseAsync(context).ConfigureAwait(false);
-            await _logResourceService.LogResponseAsync(response).ConfigureAwait(false);
+            var (stream, metaData) = BuildResponse(context);
+            await _logResourceService.LogResponseAsync(stream, metaData).ConfigureAwait(false);
         }
 
-        private static async Task<string> BuildResponseAsync(FunctionContext context)
+        private static (Stream Stream, Dictionary<string, string> MetaData) BuildResponse(FunctionContext context)
         {
             // Log response to blob
-            var feature = context.Features.FirstOrDefault(f => f.Key.Name == "IFunctionBindingsFeature").Value;
-            if (feature == null)
+            var functionBindingsFeature = context.Features.SingleOrDefault(f => f.Key.Name == "IFunctionBindingsFeature").Value;
+            if (functionBindingsFeature == null)
             {
                 throw new MessageHubException("Cannot get function bindings feature");
             }
 
-            var keyValuePair = context.Features.SingleOrDefault(f => f.Key.Name == "IFunctionBindingsFeature");
-            var functionBindingsFeature = keyValuePair.Value;
             var type = functionBindingsFeature.GetType();
             var result = type.GetProperties().Single(p => p.Name == "InvocationResult");
 
-            var response = string.Empty;
             if (result.GetValue(functionBindingsFeature) is HttpResponseData responseData)
             {
-                using var reader = new StreamReader(responseData.Body);
-                string body = await reader.ReadToEndAsync().ConfigureAwait(false);
-                var responseObj = new
-                {
-                    Body = body,
-                    responseData.StatusCode,
-                };
-                response = System.Text.Json.JsonSerializer.Serialize(new { Response = responseObj });
+                return new(responseData.Body, new Dictionary<string, string>() { { "StatusCode", responseData.StatusCode.ToString() } });
             }
 
-            return response;
+            return new(Stream.Null, new Dictionary<string, string>());
         }
 
-        private static string BuildRequest(FunctionContext context)
+        private static Stream BuildRequest(FunctionContext context)
         {
             var requestBody = new { Request = context.BindingContext.BindingData };
-            return System.Text.Json.JsonSerializer.Serialize(requestBody);
+            return new MemoryStream(Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(requestBody)));
         }
     }
 }

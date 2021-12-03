@@ -13,10 +13,9 @@
 // limitations under the License.
 
 using System;
-using System.Diagnostics;
-using System.Threading;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
-using Azure.Storage.Blobs.Models;
 using Energinet.DataHub.MessageHub.Core.Factories;
 using Energinet.DataHub.PostOffice.Infrastructure.Correlation;
 
@@ -35,23 +34,24 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
             _correlationContext = correlationContext;
         }
 
-        public Task LogRequestAsync(string requestData)
+        public Task LogRequestAsync(Stream body, Dictionary<string, string> metaData)
         {
-            var name = $"{_correlationContext.Id}-request";
-            return CreateLogAsync(name, requestData);
+            var name = $"{DateTime.UtcNow.ToShortDateString()}-request-{_correlationContext.Id}";
+            return CreateLogAsync(name, body, metaData);
         }
 
-        public Task LogResponseAsync(string responseData)
+        public Task LogResponseAsync(Stream body, Dictionary<string, string> metaData)
         {
-            var name = $"{_correlationContext.Id}-response";
-            return CreateLogAsync(name, responseData);
+            var name = $"{DateTime.UtcNow.ToShortDateString()}-response-{_correlationContext.Id}";
+            return CreateLogAsync(name, body, metaData);
         }
 
-        private Task CreateLogAsync(string name, string data)
+        private Task CreateLogAsync(string name, Stream body, Dictionary<string, string> metaData)
         {
             var storage = _storageServiceClientFactory.Create();
             var client = storage.GetBlobContainerClient("postoffice-reply");
-            return client.UploadBlobAsync(name, BinaryData.FromString(data));
+            var blobClient = client.GetBlobClient(name);
+            return blobClient.UploadAsync(body, null,  metaData);
         }
     }
 }
