@@ -81,11 +81,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 from bundle in domainFiltered
                 where
                     bundle.Recipient == recipient.Gln.Value &&
-                    !bundle.Dequeued
+                    (!bundle.Dequeued || !bundle.NotificationsArchived)
                 orderby bundle.Timestamp
                 select bundle;
 
-            return GetNextUnacknowledgedAsync(recipient, query);
+            return GetNextUnacknowledgedAsync(query);
         }
 
         public async Task<BundleCreatedResponse> TryAddNextUnacknowledgedAsync(Bundle bundle)
@@ -167,7 +167,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             return ex.StatusCode == HttpStatusCode.Conflict;
         }
 
-        private async Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, IQueryable<CosmosBundleDocument> query)
+        private async Task<Bundle?> GetNextUnacknowledgedAsync(IQueryable<CosmosBundleDocument> query)
         {
             var bundleDocument = await query.AsCosmosIteratorAsync().FirstOrDefaultAsync().ConfigureAwait(false);
             if (bundleDocument == null)
@@ -180,13 +180,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 bundleContent = new AzureBlobBundleContent(_marketOperatorDataStorageService, new Uri(bundleDocument.ContentPath));
             }
 
-            return new Bundle(
-                new Uuid(bundleDocument.Id),
-                recipient,
-                Enum.Parse<DomainOrigin>(bundleDocument.Origin),
-                new ContentType(bundleDocument.MessageType),
-                bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList(),
-                bundleContent);
+            return BundleMapper.MapToBundle(bundleDocument, bundleContent);
         }
     }
 }
