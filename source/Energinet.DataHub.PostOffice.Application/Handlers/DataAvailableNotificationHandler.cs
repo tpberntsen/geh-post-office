@@ -13,6 +13,8 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +27,8 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
     public class DataAvailableNotificationHandler
         : IRequestHandler<DataAvailableNotificationCommand, DataAvailableNotificationResponse>,
-            IRequestHandler<DataAvailableNotificationListCommand, DataAvailableNotificationResponse>
+            IRequestHandler<DataAvailableNotificationListCommand, DataAvailableNotificationResponse>,
+            IRequestHandler<GetDuplicatedDataAvailablesFromArchiveCommand, GetDuplicatedDataAvailablesFromArchiveResponse>
     {
         private readonly IDataAvailableNotificationRepository _dataAvailableNotificationRepository;
 
@@ -55,6 +58,40 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
             await _dataAvailableNotificationRepository.SaveAsync(mappedDataAvailable).ConfigureAwait(false);
             return new DataAvailableNotificationResponse();
+        }
+
+        public async Task<GetDuplicatedDataAvailablesFromArchiveResponse> Handle(GetDuplicatedDataAvailablesFromArchiveCommand request, CancellationToken cancellationToken)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            var mapped = request.DataAvailableNotificationCommands
+                .Select(x => (mapped: TryMapToDataAvailableNotification(x), x))
+                .Where(x => x.mapped != null)
+                .ToDictionary(x => x.mapped!, x => x.x);
+
+            var result = _dataAvailableNotificationRepository.ValidateAgainstArchiveAsync(mapped.Select(x => x.Key));
+            var mappedResult = new List<(DataAvailableNotificationCommand Command, bool IsIdempotent)>();
+            await foreach (var (notification, isIdempotent) in result)
+            {
+                mappedResult.Add((mapped[notification], IsIdempotent: isIdempotent));
+            }
+
+            return new GetDuplicatedDataAvailablesFromArchiveResponse(mappedResult);
+
+            static DataAvailableNotification? TryMapToDataAvailableNotification(DataAvailableNotificationCommand request)
+            {
+                try
+                {
+                    return MapToDataAvailableNotification(request);
+                }
+    #pragma warning disable CA1031
+                catch (Exception)
+    #pragma warning restore CA1031
+                {
+                    return null;
+                }
+            }
         }
 
         private static DataAvailableNotification MapToDataAvailableNotification(DataAvailableNotificationCommand request)

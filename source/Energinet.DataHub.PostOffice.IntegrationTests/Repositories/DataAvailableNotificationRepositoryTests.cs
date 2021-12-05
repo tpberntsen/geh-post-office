@@ -20,6 +20,7 @@ using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
 using FluentAssertions;
+using FluentValidation;
 using Xunit;
 using Xunit.Categories;
 
@@ -514,6 +515,78 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             Assert.Equal(expected.Origin, actual.Origin);
             Assert.Equal(expected.SupportsBundling, actual.SupportsBundling);
             Assert.Equal(expected.Weight, actual.Weight);
+        }
+
+        [Fact]
+        public async Task SaveAsync_IdenticalDataAvailableExists_HandledIdempotent()
+        {
+            // arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            var recipient = new MarketOperator(new MockedGln());
+            var expected = new DataAvailableNotification(
+                new Uuid(Guid.NewGuid()),
+                recipient,
+                new ContentType("43B32679-A20A-48FF-929D-2EFB1CEC6D2E"),
+                DomainOrigin.Aggregations,
+                new SupportsBundling(false),
+                new Weight(1));
+
+            // act
+            await dataAvailableNotificationRepository
+                .SaveAsync(expected)
+                .ConfigureAwait(false);
+
+            await dataAvailableNotificationRepository
+                .SaveAsync(expected)
+                .ConfigureAwait(false);
+
+            var actual = await dataAvailableNotificationRepository
+                .GetNextUnacknowledgedAsync(recipient, expected.Origin, expected.ContentType, expected.Weight)
+                .ConfigureAwait(false);
+
+            // assert
+            Assert.Single(actual);
+        }
+
+        [Fact]
+        public async Task SaveAsync_UnindeticalDataAvailableWithSameIdExists_Throws()
+        {
+            // arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            var recipient = new MarketOperator(new MockedGln());
+            var da = new DataAvailableNotification(
+                new Uuid(Guid.NewGuid()),
+                recipient,
+                new ContentType("BA6CF64D-060B-43B5-AB5E-9CAA94C4CFE7"),
+                DomainOrigin.Aggregations,
+                new SupportsBundling(false),
+                new Weight(1));
+
+            var da2 = new DataAvailableNotification(
+                new Uuid(da.NotificationId.AsGuid()),
+                da.Recipient,
+                da.ContentType,
+                da.Origin,
+                da.SupportsBundling,
+                new Weight(2));
+
+            // act
+            await dataAvailableNotificationRepository
+                .SaveAsync(da)
+                .ConfigureAwait(false);
+
+            // assert
+            await Assert.ThrowsAsync<ValidationException>(() =>
+                dataAvailableNotificationRepository
+                    .SaveAsync(da2)).ConfigureAwait(false);
         }
 
         [Fact]

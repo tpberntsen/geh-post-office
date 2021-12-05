@@ -60,7 +60,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             logger.LogInformation("Received a DataAvailableNotification batch of size {0}.", messages.Count);
 
             if (messages.Count > 0)
-                await ProcessMessagesAsync(messages).ConfigureAwait(false);
+                await ProcessMessagesAsync(messages.ToHashSet()).ConfigureAwait(false);
         }
 
         private static bool ExceptionFilter(Exception exception)
@@ -68,11 +68,21 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             return exception is MessageHubException or ValidationException or System.ComponentModel.DataAnnotations.ValidationException;
         }
 
-        private async Task ProcessMessagesAsync(IEnumerable<Message> messages)
+        private async Task ProcessMessagesAsync(IReadOnlyCollection<Message> unfilteredMessages)
         {
-            var list = messages
+            var uniqueMessages = unfilteredMessages.ToHashSet(new MessageComparer());
+            var duplicatedMessages = unfilteredMessages.Except(uniqueMessages).ToList();
+
+            var (idempotent, invalid) = await CheckArchiveForDuplicatesAsync(uniqueMessages).ConfigureAwait(false);
+
+            var list = uniqueMessages
+                .Except(duplicatedMessages)
+                .Except(idempotent)
+                .Except(invalid)
                 .Select(m => new { Message = m, Task = ProcessMessageAsync(m) })
                 .ToList();
+
+            await _messageReceiver.DeadLetterAsync(invalid).ConfigureAwait(false);
 
             try
             {
@@ -89,7 +99,9 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
 
             var allCompletedMessages = list
                 .Where(x => x.Task.IsCompletedSuccessfully)
-                .Select(x => x.Message);
+                .Select(x => x.Message)
+                .Concat(duplicatedMessages)
+                .Concat(idempotent);
 
             await _messageReceiver.CompleteAsync(allCompletedMessages).ConfigureAwait(false);
         }
@@ -98,13 +110,68 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
         {
             try
             {
-                var dataAvailableNotification = _dataAvailableNotificationParser.Parse(message.Body);
-                var dataAvailableCommand = _dataAvailableNotificationMapper.Map(dataAvailableNotification);
+                var dataAvailableCommand = MapMessageToCommand(message);
                 return _mediator.Send(dataAvailableCommand);
             }
             catch (Exception ex) when (ExceptionFilter(ex))
             {
                 return Task.FromException(ex);
+            }
+        }
+
+        private async Task<(ICollection<Message> Idempotent, ICollection<Message> Invalid)> CheckArchiveForDuplicatesAsync(IEnumerable<Message> messages)
+        {
+            var messageCommandMap = messages
+                .Select(x => new { Message = x, Command = MapMessageToCommand(x) })
+                .ToDictionary(x => x.Command, x => new { x.Message, x.Command });
+
+            var response = await _mediator.Send(
+                new GetDuplicatedDataAvailablesFromArchiveCommand(
+                    messageCommandMap.Values.Select(x => x.Command)))
+                .ConfigureAwait(false);
+
+            var invalid = new List<Message>();
+            var idempotent = new List<Message>();
+
+            foreach (var (command, isIdempotent) in response.Duplicates)
+            {
+                var message = messageCommandMap[command].Message;
+                if (isIdempotent)
+                    idempotent.Add(message);
+                else
+                    invalid.Add(message);
+            }
+
+            return (idempotent, invalid);
+        }
+
+        private DataAvailableNotificationCommand MapMessageToCommand(Message message)
+        {
+            var dataAvailableNotification = _dataAvailableNotificationParser.Parse(message.Body);
+            var dataAvailableCommand = _dataAvailableNotificationMapper.Map(dataAvailableNotification);
+            return dataAvailableCommand;
+        }
+
+        private sealed class MessageComparer : IEqualityComparer<Message>
+        {
+            public bool Equals(Message? left, Message? right)
+            {
+                if (left == null && right == null)
+                {
+                    return true;
+                }
+
+                if (left == null || right == null)
+                {
+                    return false;
+                }
+
+                return right.Body.Length == left.Body.Length && !right.Body.Where((t, i) => t != left.Body[i]).Any();
+            }
+
+            public int GetHashCode(Message obj)
+            {
+                return 7302013 ^ obj.Body.Length.GetHashCode();
             }
         }
     }

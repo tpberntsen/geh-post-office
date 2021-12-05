@@ -12,19 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Application.Commands;
-using Energinet.DataHub.PostOffice.Application.Validation.Rules;
-using FluentValidation;
+using System.Collections.Generic;
 
-namespace Energinet.DataHub.PostOffice.Application.Validation
+namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public sealed class DequeueCleanUpCommandRuleSet : AbstractRuleSet<DequeueCleanUpCommand>
+    public sealed record GetDuplicatedDataAvailablesFromArchiveResponse
     {
-        public DequeueCleanUpCommandRuleSet()
+        public GetDuplicatedDataAvailablesFromArchiveResponse(IEnumerable<(DataAvailableNotificationCommand Command, bool IsIdempotent)> duplicates)
         {
-            RuleFor(command => command.BundleId)
-                .NotEmpty()
-                .SetValidator(new UuidValidationRule());
+            Duplicates = duplicates;
         }
+
+        public IEnumerable<(DataAvailableNotificationCommand Command, bool IsIdempotent)> Duplicates { get; }
     }
 }

@@ -2,8 +2,14 @@
   "IsEncrypted": false,
   "Values": {
     "ServiceBusConnectionString": "",
-    "DataAvailableQueueName": "",
+    "MESSAGES_DB_CONNECTION_STRING": "",
+    "MESSAGES_DB_NAME": "post-office",
+    "LOG_DB_NAME": "Log",
+    "DATAAVAILABLE_QUEUE_NAME": "dataavailable",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "AzureWebJobsServiceBus": ""
-  }
+    "AzureWebJobsServiceBus": "",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+  },
+  "noOfMessagesToSend": 128,
+  "workers": 8
 }

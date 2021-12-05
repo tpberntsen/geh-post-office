@@ -52,10 +52,17 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
 
         public Task CompleteAsync(IEnumerable<Message> messages)
         {
-            return _messageReceiver.CompleteAsync(
-                messages
-                    .Where(x => x.SystemProperties.LockedUntilUtc > DateTime.UtcNow)
-                    .Select(x => x.SystemProperties.LockToken));
+            var lockTokens = messages
+                .Where(x => x.SystemProperties.LockedUntilUtc > DateTime.UtcNow).ToList();
+
+            if (lockTokens.Any())
+            {
+                return _messageReceiver.CompleteAsync(
+                    lockTokens
+                        .Select(x => x.SystemProperties.LockToken));
+            }
+
+            return Task.CompletedTask;
         }
     }
 }
