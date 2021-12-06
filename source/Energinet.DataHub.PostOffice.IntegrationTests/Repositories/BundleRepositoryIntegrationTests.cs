@@ -163,6 +163,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var setupBundle = CreateBundle(recipient);
+            setupBundle.ArchiveNotifications();
 
             var beforeAdd = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
             await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
@@ -209,6 +210,9 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 bundleA.Origin,
                 new ContentType("fake_value"),
                 bundleA.NotificationIds);
+
+            bundleA.ArchiveNotifications();
+            bundleB.ArchiveNotifications();
 
             await target.TryAddNextUnacknowledgedAsync(bundleA).ConfigureAwait(false);
             await target.TryAddNextUnacknowledgedAsync(bundleB).ConfigureAwait(false);
