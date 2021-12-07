@@ -39,14 +39,13 @@ The main system handles core business logic and communication with market actors
 Inside MessageHub five boxes are drawed. From left, the boxes have the following responsibilities:
 
 - **Sub domain entry point** acts as interface between Libraries and MessageHub and processes all data-available notifications.
-
 - **Domain** contains business logic to represent MessageHub.
-
 - **Application** handles all incoming API calls to MessageHub and coordinates tasks based on the request.
 - **Infrastructure** accessess data.
 - **Market actor entry point** acts as interface between market actors and MessageHub.
 
 Libraries contains the following with responsibilities:
+
 - **Model** contains business logic to represent Client and Core.
 - **Client** implements logic to communicate with MessageHub and store market actor-specific data. This package is for other domains to use.
 - **Core** implements logic to communicate with other domains and retrieve data for market actors. This package can be used by MessageHub.
@@ -64,8 +63,6 @@ Two component diagrams have been made to avoid making the diagram too detailed -
 Flow of communication between MessageHub and domains is always through four Azure Service Bus queues as seen below.
 
 ![QueuesDiagram](https://user-images.githubusercontent.com/17023767/141968153-7baa3b44-d9da-4d59-b24e-8c26ebd8dd59.png)
-
-
 
 ------------------------------------------------------------ OLD DOCUMENTS -----------------------------------------------------------------
 
