@@ -36,6 +36,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Energinet.DataHub.PostOffic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Energinet.DataHub.PostOffice.EntryPoint.Operations", "Energinet.DataHub.PostOffice.EntryPoint.Operations\Energinet.DataHub.PostOffice.EntryPoint.Operations.csproj", "{FB929CC4-3167-42E0-97CF-93B33007EFEC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging", "Logging\Logging.csproj", "{E25E718A-1D99-4856-89BE-4C6A800456FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,6 +84,10 @@ Global
 		{FB929CC4-3167-42E0-97CF-93B33007EFEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB929CC4-3167-42E0-97CF-93B33007EFEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB929CC4-3167-42E0-97CF-93B33007EFEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E25E718A-1D99-4856-89BE-4C6A800456FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E25E718A-1D99-4856-89BE-4C6A800456FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E25E718A-1D99-4856-89BE-4C6A800456FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E25E718A-1D99-4856-89BE-4C6A800456FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{68412EBF-701D-467D-8716-74269E171F41} = {05DE980B-A2A7-4235-AE53-3167E94699DD}
