@@ -30,23 +30,23 @@ MessageHub architecture is built on [Domain Driven Design (DDD)](https://martinf
 **Container diagram**  
 The first level of C4 is the System Context diagram which was presented in [Intro](#intro). The diagram is used to get an overview of the system from a non-technical viewpoint.
 
-Next is the container diagram showed below. The first thing to notice is that MessageHub is actually divided into two parts - the main system, MessageHub, and a subsystem, Libraries. 
+Next is the container diagram showed below. The first thing to notice is that MessageHub is actually divided into two parts - the main system, MessageHub, and a subsystem, Libraries.
 
 The main system handles core business logic and communication with market actors (through API management). Libraries handles primarily communication between MessageHub and other domains. Two databases also appear, one for storing data available-notifications and one for market actor-specific data.
 
 ![Container diagram](https://user-images.githubusercontent.com/17023767/141787188-5aea1090-ca82-4e44-bf38-e80c29c01903.png)
 
 Inside MessageHub five boxes are drawed. From left, the boxes have the following responsibilities:
-* **Sub domain entry point** acts as interface between Libraries and MessageHub and processes all data-available notifications.
-* **Domain** contains business logic to represent MessageHub.
-* **Application** handles all incoming API calls to MessageHub and coordinates tasks based on the request.
-* **Infrastructure** accessess data.
-* **Market actor entry point** acts as interface between market actors and MessageHub.
+- **Sub domain entry point** acts as interface between Libraries and MessageHub and processes all data-available notifications.
+- **Domain** contains business logic to represent MessageHub.
+- **Application** handles all incoming API calls to MessageHub and coordinates tasks based on the request.
+- **Infrastructure** accessess data.
+- **Market actor entry point** acts as interface between market actors and MessageHub.
 
 Libraries contains the following with responsibilities:
-* **Model** contains business logic to represent Client and Core.
-* **Client** implements logic to communicate with MessageHub and store market actor-specific data. This package is for other domains to use.
-* **Core** implements logic to communicate with other domains and retrieve data for market actors. This package can be used by MessageHub.
+- **Model** contains business logic to represent Client and Core.
+- **Client** implements logic to communicate with MessageHub and store market actor-specific data. This package is for other domains to use.
+- **Core** implements logic to communicate with other domains and retrieve data for market actors. This package can be used by MessageHub.
 
 **Why does Libraries exist?**  
 Providing nuget packages instead of implementing the logic in the domains help to make the system platform independent. MessageHub and the rest of Green Energy Hub depend heavily on [Azure](https://azure.microsoft.com/) which might not be the best suited solution looking forward.
