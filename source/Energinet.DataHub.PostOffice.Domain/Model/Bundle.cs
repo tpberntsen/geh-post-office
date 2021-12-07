@@ -57,12 +57,15 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
         public Uuid BundleId { get; }
         public ProcessId ProcessId { get; }
 
+        public bool Dequeued { get; private set; }
+        public bool NotificationsArchived { get; private set; }
+        public bool WaitingForDequeueCleanup => Dequeued && !NotificationsArchived;
+
         public MarketOperator Recipient { get; }
         public DomainOrigin Origin { get; }
         public ContentType ContentType { get; }
 
         public IReadOnlyCollection<Uuid> NotificationIds { get; }
-        public bool NotificationsArchived { get; private set; }
 
         public bool TryGetContent([NotNullWhen(true)] out IBundleContent? bundleContent)
         {
@@ -81,6 +84,11 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
         public void ArchiveNotifications()
         {
             NotificationsArchived = true;
+        }
+
+        public void Dequeue()
+        {
+            Dequeued = true;
         }
     }
 }

@@ -28,26 +28,31 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
             {
                 Id = source.BundleId.ToString(),
                 ProcessId = source.ProcessId.ToString(),
-                Dequeued = false,
+
+                Dequeued = source.Dequeued,
+                NotificationsArchived = source.NotificationsArchived,
 
                 Recipient = source.Recipient.Gln.Value,
                 Origin = source.Origin.ToString(),
                 MessageType = source.ContentType.Value,
 
                 NotificationIds = source.NotificationIds.Select(id => id.ToString()).ToList(),
-                ContentPath = MapBundleContent(source),
-                NotificationsArchived = source.NotificationsArchived
+                ContentPath = MapBundleContent(source)
             };
         }
 
-        public static Bundle MapToBundle(CosmosBundleDocument bundleDocument)
+        public static Bundle MapToBundle(CosmosBundleDocument bundleDocument, IBundleContent? bundleContent = null)
         {
             var bundle = new Bundle(
                 new Uuid(bundleDocument.Id),
                 new MarketOperator(new GlobalLocationNumber(bundleDocument.Recipient)),
                 Enum.Parse<DomainOrigin>(bundleDocument.Origin),
                 new ContentType(bundleDocument.MessageType),
-                bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList());
+                bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList(),
+                bundleContent);
+
+            if (bundleDocument.Dequeued)
+                bundle.Dequeue();
 
             if (bundleDocument.NotificationsArchived)
                 bundle.ArchiveNotifications();

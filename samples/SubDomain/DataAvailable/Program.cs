@@ -34,14 +34,14 @@ namespace DataAvailableNotification
             var dataAvailableQueueName = configurationSection["DATAAVAILABLE_QUEUE_NAME"];
             var domainReplyQueueName = configurationSection["DOMAIN_REPLY_QUEUE_NAME"];
 
-            var recipient = configuration["recipient"];
-            var origin = configuration["origin"];
-            var messageType = configuration["type"];
-            var interval = int.TryParse(configuration["interval"], out var intervalParsed) ? intervalParsed : 1;
+            var recipient = configurationSection["recipient"];
+            var origin = configurationSection["origin"];
+            var messageType = configurationSection["type"];
+            var interval = int.TryParse(configurationSection["interval"], out var intervalParsed) ? intervalParsed : 1;
             var domainOrigin = origin != null ? Enum.Parse<DomainOrigin>(origin, true) : DomainOrigin.TimeSeries;
 
             var serviceBusClientFactory = new ServiceBusClientFactory(connectionString);
-            var azureServiceFactory = new AzureServiceBusFactory(serviceBusClientFactory);
+            await using var azureServiceFactory = new AzureServiceBusFactory(serviceBusClientFactory);
             var messageHubConfig = new MessageHubConfig(dataAvailableQueueName, domainReplyQueueName);
 
             var dataAvailableNotificationSender = new DataAvailableNotificationSender(azureServiceFactory, messageHubConfig);
@@ -49,10 +49,11 @@ namespace DataAvailableNotification
             for (var i = 0; i < interval; i++)
             {
                 var msgDto = CreateDto(domainOrigin, messageType, recipient);
+                var correlationId = Guid.NewGuid().ToString();
 
                 Console.WriteLine($"Sending message number: {i + 1}.");
 
-                await dataAvailableNotificationSender.SendAsync(msgDto).ConfigureAwait(false);
+                await dataAvailableNotificationSender.SendAsync(correlationId, msgDto).ConfigureAwait(false);
 
                 if (i + 1 < interval)
                     Thread.Sleep(100);

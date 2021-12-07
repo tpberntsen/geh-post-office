@@ -15,6 +15,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Energinet.DataHub.MessageHub.Core.Storage;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Model;
@@ -41,7 +42,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var container = scope.GetInstance<IBundleRepositoryContainer>();
             var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
+            var storageHandler = scope.GetInstance<IStorageHandler>();
+            var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
 
@@ -61,7 +63,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var container = scope.GetInstance<IBundleRepositoryContainer>();
             var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
+            var storageHandler = scope.GetInstance<IStorageHandler>();
+            var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var setupBundle = new Bundle(
@@ -89,7 +92,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var container = scope.GetInstance<IBundleRepositoryContainer>();
             var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
+            var storageHandler = scope.GetInstance<IStorageHandler>();
+            var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var setupBundle = new Bundle(
@@ -122,7 +126,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var container = scope.GetInstance<IBundleRepositoryContainer>();
             var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
+            var storageHandler = scope.GetInstance<IStorageHandler>();
+            var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var setupBundle = CreateBundle(
@@ -153,10 +158,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var container = scope.GetInstance<IBundleRepositoryContainer>();
             var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
+            var storageHandler = scope.GetInstance<IStorageHandler>();
+            var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var setupBundle = CreateBundle(recipient);
+            setupBundle.ArchiveNotifications();
 
             var beforeAdd = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
             await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
@@ -180,7 +187,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var container = scope.GetInstance<IBundleRepositoryContainer>();
             var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
+            var storageHandler = scope.GetInstance<IStorageHandler>();
+            var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipientA = new MarketOperator(new MockedGln());
             var recipientB = new MarketOperator(new MockedGln());
@@ -202,6 +210,9 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 bundleA.Origin,
                 new ContentType("fake_value"),
                 bundleA.NotificationIds);
+
+            bundleA.ArchiveNotifications();
+            bundleB.ArchiveNotifications();
 
             await target.TryAddNextUnacknowledgedAsync(bundleA).ConfigureAwait(false);
             await target.TryAddNextUnacknowledgedAsync(bundleB).ConfigureAwait(false);
@@ -227,7 +238,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var container = scope.GetInstance<IBundleRepositoryContainer>();
             var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
+            var storageHandler = scope.GetInstance<IStorageHandler>();
+            var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var setupBundle = CreateBundle(recipient);
@@ -249,7 +261,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var container = scope.GetInstance<IBundleRepositoryContainer>();
             var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
+            var storageHandler = scope.GetInstance<IStorageHandler>();
+            var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var setupBundle = CreateBundle(recipient);
@@ -273,7 +286,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var container = scope.GetInstance<IBundleRepositoryContainer>();
             var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
+            var storageHandler = scope.GetInstance<IStorageHandler>();
+            var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipientGln = new GlobalLocationNumber(Guid.NewGuid().ToString());
             var bundleId = new Uuid(Guid.NewGuid());
@@ -313,7 +327,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var container = scope.GetInstance<IBundleRepositoryContainer>();
             var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
+            var storageHandler = scope.GetInstance<IStorageHandler>();
+            var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var setupBundle = CreateBundle(recipient, domainOrigin: initial);
@@ -344,7 +359,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var container = scope.GetInstance<IBundleRepositoryContainer>();
             var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
+            var storageHandler = scope.GetInstance<IStorageHandler>();
+            var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var setupBundle = CreateBundle(recipient, domainOrigin: initial);
@@ -368,7 +384,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var container = scope.GetInstance<IBundleRepositoryContainer>();
             var storageService = scope.GetInstance<IMarketOperatorDataStorageService>();
-            var target = new BundleRepository(container, storageService);
+            var storageHandler = scope.GetInstance<IStorageHandler>();
+            var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipient = new MarketOperator(new MockedGln());
             var bundleContent = new AzureBlobBundleContent(storageService, _contentPathUri);

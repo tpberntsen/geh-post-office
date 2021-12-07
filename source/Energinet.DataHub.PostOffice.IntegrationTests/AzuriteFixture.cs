@@ -12,6 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
+using Energinet.DataHub.Core.FunctionApp.TestCommon.Azurite;
+using Xunit;
 
-[assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1518:Use line endings correctly at end of file", Justification = "Pending")]
+namespace Energinet.DataHub.PostOffice.IntegrationTests
+{
+    internal sealed class AzuriteFixture : IAsyncLifetime
+    {
+        private readonly AzuriteManager _azuriteManager = new();
+
+        public Task InitializeAsync()
+        {
+            _azuriteManager.StartAzurite();
+            return Task.CompletedTask;
+        }
+
+        public Task DisposeAsync()
+        {
+            _azuriteManager.Dispose();
+            return Task.CompletedTask;
+        }
+    }
+}

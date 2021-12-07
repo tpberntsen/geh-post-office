@@ -71,7 +71,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         public async Task<(bool CanAcknowledge, Bundle? Bundle)> CanAcknowledgeAsync(MarketOperator recipient, Uuid bundleId)
         {
             var bundle = await _bundleRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
-            return bundle != null && bundle.BundleId == bundleId
+            return bundle != null && bundle.BundleId == bundleId && !bundle.WaitingForDequeueCleanup
                 ? (true, bundle)
                 : (false, null);
         }
@@ -99,6 +99,9 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             var existingBundle = await _bundleRepository.GetNextUnacknowledgedAsync(recipient, domains).ConfigureAwait(false);
             if (existingBundle != null)
             {
+                if (existingBundle.WaitingForDequeueCleanup)
+                    return null;
+
                 if (existingBundle.BundleId != bundleId)
                     throw new ValidationException($"The provided bundleId does not match current scoped bundleId: {existingBundle.BundleId}");
 
@@ -118,17 +121,11 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
             return bundleCreatedResponse switch
             {
-                BundleCreatedResponse.Success => await StartCleanUpAndAskSubDomainForContentAsync(newBundle).ConfigureAwait(false),
+                BundleCreatedResponse.Success => await AskSubDomainForContentAsync(newBundle).ConfigureAwait(false),
                 BundleCreatedResponse.AnotherBundleExists => null,
                 BundleCreatedResponse.BundleIdAlreadyInUse => throw new ValidationException(nameof(BundleCreatedResponse.BundleIdAlreadyInUse)),
                 _ => throw new InvalidOperationException($"bundleCreatedResponse was {bundleCreatedResponse}")
             };
-        }
-
-        private async Task<Bundle?> StartCleanUpAndAskSubDomainForContentAsync(Bundle bundle)
-        {
-            await _dequeueCleanUpSchedulingService.TriggerDequeueCleanUpOperationAsync(bundle.BundleId).ConfigureAwait(false);
-            return await AskSubDomainForContentAsync(bundle).ConfigureAwait(false);
         }
 
         private async Task<Bundle?> AskSubDomainForContentAsync(Bundle bundle)

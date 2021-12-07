@@ -12,6 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Diagnostics.CodeAnalysis;
+using System;
 
-[assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1518:Use line endings correctly at end of file", Justification = "Pending")]
+namespace Energinet.DataHub.PostOffice.Infrastructure.Correlation
+{
+    /// <summary>
+    /// Temporary code to test performance of solution.
+    /// </summary>
+    public interface ILogCallback
+    {
+        /// <summary>
+        /// n/a
+        /// </summary>
+        /// <param name="callback"></param>
+        void SetCallback(Action<string> callback);
+
+        /// <summary>
+        /// n/a
+        /// </summary>
+        /// <param name="message"></param>
+        void Log(string message);
+    }
+}

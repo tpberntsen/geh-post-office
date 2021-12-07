@@ -12,15 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Xunit;
+using System;
 
-namespace Energinet.DataHub.PostOffice.IntegrationTests
+namespace Energinet.DataHub.PostOffice.Infrastructure.Correlation
 {
-    [CollectionDefinition("IntegrationTest")]
-    public sealed class CosmosDbFixtureConfiguration : ICollectionFixture<CosmosDbFixture>
+    public class LogCallback : ILogCallback
     {
-        // This class has no code, and is never created. Its purpose is simply
-        // to be the place to apply [CollectionDefinition] and all the
-        // ICollectionFixture<> interfaces.
+        private Action<string>? _callback;
+
+        /// <summary>
+        /// n/a
+        /// </summary>
+        /// <param name="callback"></param>
+        public void SetCallback(Action<string> callback)
+        {
+            _callback = callback;
+        }
+
+        /// <summary>
+        /// n/a
+        /// </summary>
+        /// <param name="message"></param>
+        public void Log(string message)
+        {
+            _callback?.Invoke(message);
+        }
     }
 }

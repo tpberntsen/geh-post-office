@@ -76,6 +76,8 @@ namespace Energinet.DataHub.PostOffice.Common
             Container.Register<CorrelationIdMiddleware>(Lifestyle.Scoped);
             Container.Register<EntryPointTelemetryScopeMiddleware>(Lifestyle.Scoped);
 
+            Container.Register<ILogCallback, LogCallback>(Lifestyle.Scoped);
+
             // Add MediatR
             Container.BuildMediator(new[] { typeof(ApplicationAssemblyReference).Assembly });
 

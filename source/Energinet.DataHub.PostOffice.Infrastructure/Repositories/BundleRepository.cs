@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Energinet.DataHub.MessageHub.Core.Storage;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
@@ -30,13 +31,16 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
     public sealed class BundleRepository : IBundleRepository
     {
+        private readonly IStorageHandler _storageHandler;
         private readonly IBundleRepositoryContainer _repositoryContainer;
         private readonly IMarketOperatorDataStorageService _marketOperatorDataStorageService;
 
         public BundleRepository(
+            IStorageHandler storageHandler,
             IBundleRepositoryContainer repositoryContainer,
             IMarketOperatorDataStorageService marketOperatorDataStorageService)
         {
+            _storageHandler = storageHandler;
             _repositoryContainer = repositoryContainer;
             _marketOperatorDataStorageService = marketOperatorDataStorageService;
         }
@@ -77,17 +81,21 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 from bundle in domainFiltered
                 where
                     bundle.Recipient == recipient.Gln.Value &&
-                    !bundle.Dequeued
+                    (!bundle.Dequeued || !bundle.NotificationsArchived)
                 orderby bundle.Timestamp
                 select bundle;
 
-            return GetNextUnacknowledgedAsync(recipient, query);
+            return GetNextUnacknowledgedAsync(query);
         }
 
         public async Task<BundleCreatedResponse> TryAddNextUnacknowledgedAsync(Bundle bundle)
         {
             if (bundle == null)
                 throw new ArgumentNullException(nameof(bundle));
+
+            await _storageHandler
+                .AddDataAvailableNotificationIdsToStorageAsync(bundle.ProcessId.ToString(), bundle.NotificationIds.Select(x => x.AsGuid()))
+                .ConfigureAwait(false);
 
             var messageDocument = BundleMapper.MapToDocument(bundle);
             var requestOptions = new ItemRequestOptions
@@ -159,7 +167,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             return ex.StatusCode == HttpStatusCode.Conflict;
         }
 
-        private async Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, IQueryable<CosmosBundleDocument> query)
+        private async Task<Bundle?> GetNextUnacknowledgedAsync(IQueryable<CosmosBundleDocument> query)
         {
             var bundleDocument = await query.AsCosmosIteratorAsync().FirstOrDefaultAsync().ConfigureAwait(false);
             if (bundleDocument == null)
@@ -172,13 +180,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 bundleContent = new AzureBlobBundleContent(_marketOperatorDataStorageService, new Uri(bundleDocument.ContentPath));
             }
 
-            return new Bundle(
-                new Uuid(bundleDocument.Id),
-                recipient,
-                Enum.Parse<DomainOrigin>(bundleDocument.Origin),
-                new ContentType(bundleDocument.MessageType),
-                bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList(),
-                bundleContent);
+            return BundleMapper.MapToBundle(bundleDocument, bundleContent);
         }
     }
 }

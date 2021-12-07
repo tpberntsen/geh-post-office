@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
@@ -42,18 +41,18 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 throw new ArgumentNullException(nameof(request));
 
             var bundle = await _bundleRepository.GetBundleAsync(new Uuid(request.BundleId)).ConfigureAwait(false);
-
-            if (bundle != null)
+            if (bundle is { NotificationsArchived: false })
             {
-                var dataAvailableNotificationInBundle = bundle.NotificationIds.Select(uuid => uuid).ToList();
                 var partitionKey = bundle.Recipient.Gln.Value + bundle.Origin + bundle.ContentType.Value;
 
                 await _dataAvailableNotificationRepository
-                    .WriteToArchiveAsync(dataAvailableNotificationInBundle, partitionKey).ConfigureAwait(false);
+                    .WriteToArchiveAsync(bundle.NotificationIds, partitionKey).ConfigureAwait(false);
 
                 await _dataAvailableNotificationRepository
-                    .DeleteAsync(dataAvailableNotificationInBundle, partitionKey).ConfigureAwait(false);
+                    .DeleteAsync(bundle.NotificationIds, partitionKey).ConfigureAwait(false);
 
+                // TODO: We must use Patch here and not overwrite document, as then we can overwrite Dequeue state.
+                // For now, I am disabling cleanup before dequeue.
                 bundle.ArchiveNotifications();
                 await _bundleRepository.SaveAsync(bundle).ConfigureAwait(false);
             }
