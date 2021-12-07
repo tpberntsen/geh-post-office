@@ -41,7 +41,7 @@ Inside MessageHub five boxes are drawed. From left, the boxes have the following
 - **Sub domain entry point** acts as interface between Libraries and MessageHub and processes all data-available notifications.
 - **Domain** contains business logic to represent MessageHub.
 - **Application** handles all incoming API calls to MessageHub and coordinates tasks based on the request.
-- **Infrastructure** accessess data.
+- **Infrastructure** accesses data.
 - **Market actor entry point** acts as interface between market actors and MessageHub.
 
 Libraries contains the following with responsibilities:
