@@ -37,8 +37,11 @@ The main system handles core business logic and communication with market actors
 ![Container diagram](https://user-images.githubusercontent.com/17023767/141787188-5aea1090-ca82-4e44-bf38-e80c29c01903.png)
 
 Inside MessageHub five boxes are drawed. From left, the boxes have the following responsibilities:
+
 - **Sub domain entry point** acts as interface between Libraries and MessageHub and processes all data-available notifications.
+
 - **Domain** contains business logic to represent MessageHub.
+
 - **Application** handles all incoming API calls to MessageHub and coordinates tasks based on the request.
 - **Infrastructure** accessess data.
 - **Market actor entry point** acts as interface between market actors and MessageHub.
