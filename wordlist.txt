@@ -117,3 +117,10 @@ greenenergyhub
 protobuf
 ArgumentNullException
 IntegrationTesting
+SystemContext
+drawio
+QueuesDiagram
+GEH
+codebase
+DDD
+drawed
