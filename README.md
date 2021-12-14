@@ -64,7 +64,6 @@ Flow of communication between MessageHub and domains is always through four Azur
 
 ![QueuesDiagram](https://user-images.githubusercontent.com/17023767/141968153-7baa3b44-d9da-4d59-b24e-8c26ebd8dd59.png)
 
-
 ## Delivering documents to the post office
 
 ToDo
