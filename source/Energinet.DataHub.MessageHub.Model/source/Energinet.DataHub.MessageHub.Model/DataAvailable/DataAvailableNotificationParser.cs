@@ -45,7 +45,7 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
             }
         }
 
-        public bool TryParse(Message message, string messageId, out DataAvailableDto dataAvailableDto)
+        public DataAvailableDto TryParse(Message message, string messageId)
         {
             if (message is null)
                 throw new ArgumentNullException(nameof(message));
@@ -54,13 +54,10 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
 
             if (!ValuesAreValid(data, messageId))
             {
-                SetToBadValues(out dataAvailableDto);
-                return false;
+                return SetToBadValues();
             }
 
-            SetDtoToCorrectValues(out dataAvailableDto, messageId, data);
-
-            return true;
+            return SetDtoToCorrectValues(messageId, data);
         }
 
         private static bool ValuesAreValid(DataAvailableNotificationContract contract, string messageId)
@@ -77,9 +74,9 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
             return !values.All(string.IsNullOrEmpty);
         }
 
-        private static void SetToBadValues(out DataAvailableDto dataAvailableDto)
+        private static DataAvailableDto SetToBadValues()
         {
-            dataAvailableDto = new DataAvailableDto(
+            return new DataAvailableDto(
                 Guid.Empty,
                 new GlobalLocationNumberDto(string.Empty),
                 new MessageTypeDto(string.Empty),
@@ -90,12 +87,12 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
                 false);
         }
 
-        private static void SetDtoToCorrectValues(out DataAvailableDto dataAvailableDto, string messageId, DataAvailableNotificationContract? data)
+        private static DataAvailableDto SetDtoToCorrectValues(string messageId, DataAvailableNotificationContract? data)
         {
             if (data is null)
                 throw new ArgumentNullException(nameof(data));
 
-            dataAvailableDto = new DataAvailableDto(
+            return new DataAvailableDto(
                 Guid.Parse(data.UUID),
                 new GlobalLocationNumberDto(data.Recipient),
                 new MessageTypeDto(data.MessageType),

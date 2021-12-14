@@ -35,12 +35,11 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
         DataAvailableNotificationDto Parse(byte[] dataAvailableContract);
 
         /// <summary>
-        /// Tries to parse <paramref name="message"/> to <paramref name="dataAvailableDto"/>.
+        /// Tries to parse <paramref name="message"/> to <see cref="DataAvailableDto"/>.
         /// </summary>
         /// <param name="message">A list of Azure Service Bus messages.</param>
         /// <param name="messageId">An id uniquely identifying the message.</param>
-        /// <param name="dataAvailableDto">The parsed list of data available objects.</param>
         /// <returns>A boolean indicating if the parse succeeded.</returns>
-        bool TryParse(Message message, string messageId, out DataAvailableDto dataAvailableDto);
+        DataAvailableDto TryParse(Message message, string messageId);
     }
 }
