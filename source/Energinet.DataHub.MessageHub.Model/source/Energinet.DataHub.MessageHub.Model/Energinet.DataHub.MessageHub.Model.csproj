@@ -28,7 +28,7 @@ limitations under the License.
 
   <PropertyGroup>
     <PackageId>Energinet.DataHub.MessageHub.Model</PackageId>
-    <PackageVersion>1.2.0$(VersionSuffix)</PackageVersion>
+    <PackageVersion>1.7.0$(VersionSuffix)</PackageVersion>
     <Title>Energinet.DataHub.MessageHub.Model library</Title>
     <Company>Energinet-DataHub</Company>
     <Authors>Energinet-DataHub</Authors>
@@ -70,6 +70,7 @@ https://github.com/Energinet-DataHub/geh-post-office/blob/master/source/Energine
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="5.2.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 

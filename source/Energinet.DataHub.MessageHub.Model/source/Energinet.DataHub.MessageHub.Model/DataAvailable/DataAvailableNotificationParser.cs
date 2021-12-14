@@ -13,10 +13,13 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Energinet.DataHub.MessageHub.Model.Exceptions;
 using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.MessageHub.Model.Protobuf;
 using Google.Protobuf;
+using Microsoft.Azure.ServiceBus;
 
 namespace Energinet.DataHub.MessageHub.Model.DataAvailable
 {
@@ -40,6 +43,64 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
             {
                 throw new MessageHubException("Error parsing byte array for DataAvailableNotification", ex);
             }
+        }
+
+        public DataAvailableDto TryParse(Message message, string messageId)
+        {
+            if (message is null)
+                throw new ArgumentNullException(nameof(message));
+
+            var data = DataAvailableNotificationContract.Parser.ParseFrom(message.Body);
+
+            if (!ValuesAreValid(data, messageId))
+            {
+                return SetToBadValues();
+            }
+
+            return SetDtoToCorrectValues(messageId, data);
+        }
+
+        private static bool ValuesAreValid(DataAvailableNotificationContract contract, string messageId)
+        {
+            var values = new List<string>
+            {
+                contract.UUID,
+                contract.Recipient,
+                contract.MessageType,
+                contract.Origin,
+                messageId
+            };
+
+            return !values.All(string.IsNullOrEmpty);
+        }
+
+        private static DataAvailableDto SetToBadValues()
+        {
+            return new DataAvailableDto(
+                Guid.Empty,
+                new GlobalLocationNumberDto(string.Empty),
+                new MessageTypeDto(string.Empty),
+                DomainOrigin.Unknown,
+                false,
+                0,
+                string.Empty,
+                false);
+        }
+
+        private static DataAvailableDto SetDtoToCorrectValues(string messageId, DataAvailableNotificationContract? data)
+        {
+            if (data is null)
+                throw new ArgumentNullException(nameof(data));
+
+            return new DataAvailableDto(
+                Guid.Parse(data.UUID),
+                new GlobalLocationNumberDto(data.Recipient),
+                new MessageTypeDto(data.MessageType),
+                Enum.Parse<DomainOrigin>(data.Origin),
+                data.SupportsBundling,
+                data.RelativeWeight,
+                messageId,
+                true);
         }
     }
 }

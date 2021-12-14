@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Collections.Generic;
 using Energinet.DataHub.MessageHub.Model.Exceptions;
 using Energinet.DataHub.MessageHub.Model.Model;
+using Microsoft.Azure.ServiceBus;
 
 namespace Energinet.DataHub.MessageHub.Model.DataAvailable
 {
@@ -31,5 +33,13 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
         /// Throws an exception if byte array cannot be parsed.
         /// </exception>
         DataAvailableNotificationDto Parse(byte[] dataAvailableContract);
+
+        /// <summary>
+        /// Tries to parse <paramref name="message"/> to <see cref="DataAvailableDto"/>.
+        /// </summary>
+        /// <param name="message">A list of Azure Service Bus messages.</param>
+        /// <param name="messageId">An id uniquely identifying the message.</param>
+        /// <returns>A boolean indicating if the parse succeeded.</returns>
+        DataAvailableDto TryParse(Message message, string messageId);
     }
 }
