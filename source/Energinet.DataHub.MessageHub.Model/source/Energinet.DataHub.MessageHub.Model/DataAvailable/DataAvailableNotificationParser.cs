@@ -13,10 +13,13 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Energinet.DataHub.MessageHub.Model.Exceptions;
 using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.MessageHub.Model.Protobuf;
 using Google.Protobuf;
+using Microsoft.Azure.ServiceBus;
 
 namespace Energinet.DataHub.MessageHub.Model.DataAvailable
 {
@@ -40,6 +43,66 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
             {
                 throw new MessageHubException("Error parsing byte array for DataAvailableNotification", ex);
             }
+        }
+
+        public bool TryParse(Message message, long messageId, out DataAvailableDto dataAvailableDto)
+        {
+            if (message is null)
+                throw new ArgumentNullException(nameof(message));
+
+            var data = DataAvailableNotificationContract.Parser.ParseFrom(message.Body);
+
+            if (!MessagePropertiesAreValid(data))
+            {
+                SetToBadValues(out dataAvailableDto);
+                return false;
+            }
+
+            SetDtoToCorrectValues(out dataAvailableDto, messageId, data);
+
+            return true;
+        }
+
+        private static bool MessagePropertiesAreValid(DataAvailableNotificationContract contract)
+        {
+            var values = new List<string>
+            {
+                contract.UUID,
+                contract.Recipient,
+                contract.MessageType,
+                contract.Origin
+            };
+
+            return !values.All(string.IsNullOrEmpty);
+        }
+
+        private static void SetToBadValues(out DataAvailableDto dataAvailableDto)
+        {
+            dataAvailableDto = new DataAvailableDto(
+                Guid.Empty,
+                new GlobalLocationNumberDto(string.Empty),
+                new MessageTypeDto(string.Empty),
+                DomainOrigin.Unknown,
+                false,
+                0,
+                long.MinValue,
+                false);
+        }
+
+        private static void SetDtoToCorrectValues(out DataAvailableDto dataAvailableDto, long messageId, DataAvailableNotificationContract? data)
+        {
+            if (data is null)
+                throw new ArgumentNullException(nameof(data));
+
+            dataAvailableDto = new DataAvailableDto(
+                Guid.Parse(data.UUID),
+                new GlobalLocationNumberDto(data.Recipient),
+                new MessageTypeDto(data.MessageType),
+                Enum.Parse<DomainOrigin>(data.Origin),
+                data.SupportsBundling,
+                data.RelativeWeight,
+                messageId,
+                true);
         }
     }
 }
