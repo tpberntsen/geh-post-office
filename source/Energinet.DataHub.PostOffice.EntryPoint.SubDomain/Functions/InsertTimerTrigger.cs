@@ -57,12 +57,11 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             var messages = await _messageReceiver.ReceiveAsync().ConfigureAwait(false);
             logger.LogInformation("Received a DataAvailableNotification batch of size {0}.", messages.Count);
 
-            var notifications = messages.Select(x => _dataAvailableNotificationParser.TryParse(x, x.MessageId, out var dataAvailables));
-
-            var notificationsPrRecipient = notifications
-                .Select(x => x.CouldParse)
-                .GroupBy(x => x.Recipient);
-
+            // var notifications = messages.Select(x => _dataAvailableNotificationParser.TryParse(x, x.MessageId, out var dataAvailables));
+            //
+            // var notificationsPrRecipient = notifications
+            //     .Select(x => x.CouldParse)
+            //     .GroupBy(x => x.Recipient);
             if (messages.Count > 0)
                 await ProcessMessagesAsync(messages).ConfigureAwait(false);
         }
