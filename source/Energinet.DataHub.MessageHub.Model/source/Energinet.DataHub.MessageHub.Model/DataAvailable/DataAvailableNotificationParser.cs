@@ -45,14 +45,14 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
             }
         }
 
-        public bool TryParse(Message message, long messageId, out DataAvailableDto dataAvailableDto)
+        public bool TryParse(Message message, string messageId, out DataAvailableDto dataAvailableDto)
         {
             if (message is null)
                 throw new ArgumentNullException(nameof(message));
 
             var data = DataAvailableNotificationContract.Parser.ParseFrom(message.Body);
 
-            if (!MessagePropertiesAreValid(data))
+            if (!ValuesAreValid(data, messageId))
             {
                 SetToBadValues(out dataAvailableDto);
                 return false;
@@ -63,14 +63,15 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
             return true;
         }
 
-        private static bool MessagePropertiesAreValid(DataAvailableNotificationContract contract)
+        private static bool ValuesAreValid(DataAvailableNotificationContract contract, string messageId)
         {
             var values = new List<string>
             {
                 contract.UUID,
                 contract.Recipient,
                 contract.MessageType,
-                contract.Origin
+                contract.Origin,
+                messageId
             };
 
             return !values.All(string.IsNullOrEmpty);
@@ -85,11 +86,11 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
                 DomainOrigin.Unknown,
                 false,
                 0,
-                long.MinValue,
+                string.Empty,
                 false);
         }
 
-        private static void SetDtoToCorrectValues(out DataAvailableDto dataAvailableDto, long messageId, DataAvailableNotificationContract? data)
+        private static void SetDtoToCorrectValues(out DataAvailableDto dataAvailableDto, string messageId, DataAvailableNotificationContract? data)
         {
             if (data is null)
                 throw new ArgumentNullException(nameof(data));

@@ -23,6 +23,6 @@ namespace Energinet.DataHub.MessageHub.Model.Model
         DomainOrigin Origin,
         bool SupportsBundling,
         int RelativeWeight,
-        long SequenceNumber,
+        string SequenceNumber,
         bool CouldParse);
 }

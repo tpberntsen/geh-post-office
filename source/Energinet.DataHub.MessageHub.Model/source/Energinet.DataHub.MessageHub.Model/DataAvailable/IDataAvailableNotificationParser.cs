@@ -41,6 +41,6 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
         /// <param name="messageId">An id uniquely identifying the message.</param>
         /// <param name="dataAvailableDto">The parsed list of data available objects.</param>
         /// <returns>A boolean indicating if the parse succeeded.</returns>
-        bool TryParse(Message message, long messageId, out DataAvailableDto dataAvailableDto);
+        bool TryParse(Message message, string messageId, out DataAvailableDto dataAvailableDto);
     }
 }
