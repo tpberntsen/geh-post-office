@@ -13,6 +13,8 @@
 // limitations under the License.
 
 using System;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.MessageHub.Client.Extensions;
@@ -54,10 +56,24 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
                 RelativeWeight = dataAvailableNotificationDto.RelativeWeight
             };
 
-            var message = new ServiceBusMessage(new BinaryData(contract.ToByteArray()))
+            var messageId = GenerateIdempontentMessageId(dataAvailableNotificationDto);
+
+            var message = new ServiceBusMessage(new BinaryData(contract.ToByteArray())) { MessageId = messageId }
                 .AddDataAvailableIntegrationEvents(correlationId);
 
             return sender.PublishMessageAsync<ServiceBusMessage>(message);
+        }
+
+        private static string GenerateIdempontentMessageId(DataAvailableNotificationDto contract)
+        {
+            using var ms = new MemoryStream();
+            ms.Write(contract.Uuid.ToByteArray());
+            ms.Write(Encoding.UTF8.GetBytes(contract.MessageType.Value));
+            ms.Write(BitConverter.GetBytes((int)contract.Origin));
+            ms.Write(Encoding.UTF8.GetBytes(contract.Recipient.Value));
+            ms.Write(BitConverter.GetBytes(contract.SupportsBundling));
+            ms.Write(BitConverter.GetBytes(contract.RelativeWeight));
+            return Convert.ToBase64String(ms.ToArray());
         }
     }
 }
