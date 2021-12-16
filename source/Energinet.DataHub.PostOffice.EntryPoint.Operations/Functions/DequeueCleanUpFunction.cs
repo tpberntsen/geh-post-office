@@ -65,7 +65,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Error in {FunctionName}", FunctionName);
+                logger.LogError(exception, "Error in {FunctionName}, message: {message}", FunctionName, message);
                 throw;
             }
         }
