@@ -14,7 +14,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -39,10 +41,26 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             _logCallback = logCallback;
         }
 
-        public Task SaveAsync(DataAvailableNotification dataAvailableNotification)
+        public async Task SaveAsync(DataAvailableNotification dataAvailableNotification)
         {
             if (dataAvailableNotification is null)
                 throw new ArgumentNullException(nameof(dataAvailableNotification));
+
+            var strId = dataAvailableNotification.NotificationId.ToString();
+
+            var uniqueId = new CosmosUniqueId
+            {
+                Id = strId,
+                PartitionKey = (dataAvailableNotification.NotificationId.AsGuid().GetHashCode() % 10).ToString(CultureInfo.InvariantCulture)
+            };
+            try
+            {
+                await _repositoryContainer.Container.CreateItemAsync(uniqueId).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                throw new ValidationException("ID already in use");
+            }
 
             var cosmosDocument = new CosmosDataAvailable
             {
@@ -56,7 +74,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 PartitionKey = dataAvailableNotification.Recipient.Gln.Value + dataAvailableNotification.Origin + dataAvailableNotification.ContentType.Value
             };
 
-            return _repositoryContainer.Container.CreateItemAsync(cosmosDocument);
+            await _repositoryContainer.Container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
         }
 
         public async Task SaveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications)
