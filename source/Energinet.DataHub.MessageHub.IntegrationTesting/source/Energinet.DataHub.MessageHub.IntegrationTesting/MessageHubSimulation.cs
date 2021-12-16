@@ -162,30 +162,39 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
                 throw new TimeoutException("MessageHubSimulation: Waiting for Peek reply timed out.");
 
             return peekResponse.IsErrorResponse
-                ? new PeekSimulationResponseDto(false, null)
-                : new PeekSimulationResponseDto(true, new AzureBlobContentDto(peekResponse.ContentUri));
+                ? new PeekSimulationResponseDto()
+                : new PeekSimulationResponseDto(requestId, referenceId, new AzureBlobContentDto(peekResponse.ContentUri));
         }
 
         /// <summary>
         /// Simulates a dequeue of the previous Peek request.
         /// </summary>
-        public Task DequeueAsync()
+        /// <param name="simulatedPeek">The response of a simulated Peek to dequeue.</param>
+        public Task DequeueAsync(PeekSimulationResponseDto simulatedPeek)
         {
+            if (simulatedPeek == null)
+                throw new ArgumentNullException(nameof(simulatedPeek));
+
             if (_dequeueNotificationSender == null)
                 throw new InvalidOperationException("MessageHubSimulation: Simulation was not configured for Dequeue.");
+
+            if (simulatedPeek is not { IsSuccess: true })
+                throw new InvalidOperationException("MessageHubSimulation: Cannot dequeue, as the simulated Peek failed.");
 
             var marketOperator = _notifications
                 .Select(x => x.Recipient.Value)
                 .Distinct()
                 .Single();
 
-            var dequeue = new DequeueNotificationDto(Guid.Empty.ToString(), new GlobalLocationNumberDto(marketOperator));
+            var dequeue = new DequeueNotificationDto(
+                simulatedPeek.DataAvailableNotificationReferenceId,
+                new GlobalLocationNumberDto(marketOperator));
 
             // This domain origin must be valid, but it is not used.
             // All the queue names point to the same domain.
             const DomainOrigin domainOrigin = DomainOrigin.Aggregations;
 
-            return _dequeueNotificationSender.SendAsync(Guid.Empty.ToString(), dequeue, domainOrigin);
+            return _dequeueNotificationSender.SendAsync(simulatedPeek.CorrelationId.Value.ToString(), dequeue, domainOrigin);
         }
 
         /// <summary>
