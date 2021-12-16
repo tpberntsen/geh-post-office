@@ -39,7 +39,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 
         public Task TriggerDequeueCleanUpOperationAsync([NotNull] Bundle bundle)
         {
-            var jsonSerializedDequeueCommand = JsonSerializer.Serialize(new DequeueCleanUpCommand(bundle.Recipient.Gln.Value, bundle.BundleId.ToString()));
+            var jsonSerializedDequeueCommand = JsonSerializer.Serialize(new DequeueCleanUpCommand(bundle.BundleId.ToString(), bundle.Recipient.Gln.Value));
             var sender = _messageBusFactory.GetSenderClient(_dequeueCleanUpConfig.DequeueCleanUpQueueName);
             var message = new ServiceBusMessage(jsonSerializedDequeueCommand);
             return sender.PublishMessageAsync<ServiceBusMessage>(message);
