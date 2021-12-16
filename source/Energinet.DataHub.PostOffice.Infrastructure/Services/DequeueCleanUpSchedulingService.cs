@@ -13,9 +13,11 @@
 // limitations under the License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.MessageHub.Core.Factories;
+using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Configs;
@@ -35,10 +37,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
             _dequeueCleanUpConfig = dequeueCleanUpConfig;
         }
 
-        public Task TriggerDequeueCleanUpOperationAsync([NotNull] Uuid bundleId)
+        public Task TriggerDequeueCleanUpOperationAsync([NotNull] Bundle bundle)
         {
+            var jsonSerializedDequeueCommand = JsonSerializer.Serialize(new DequeueCleanUpCommand(bundle.Recipient.Gln.Value, bundle.BundleId.ToString()));
             var sender = _messageBusFactory.GetSenderClient(_dequeueCleanUpConfig.DequeueCleanUpQueueName);
-            var message = new ServiceBusMessage(bundleId.ToString());
+            var message = new ServiceBusMessage(jsonSerializedDequeueCommand);
             return sender.PublishMessageAsync<ServiceBusMessage>(message);
         }
     }
