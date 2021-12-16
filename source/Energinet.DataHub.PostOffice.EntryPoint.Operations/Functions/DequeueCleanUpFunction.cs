@@ -69,17 +69,5 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
                 throw;
             }
         }
-
-        public T FromByteArray<T>(byte[] data)
-        {
-            if (data == null)
-                return default(T);
-            BinaryFormatter bf = new BinaryFormatter();
-            using (MemoryStream ms = new MemoryStream(data))
-            {
-                object obj = bf.Deserialize(ms);
-                return (T)obj;
-            }
-        }
     }
 }
