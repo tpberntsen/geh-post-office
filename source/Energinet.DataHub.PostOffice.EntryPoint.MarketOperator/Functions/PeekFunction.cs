@@ -17,11 +17,9 @@ using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Common.Auth;
 using Energinet.DataHub.PostOffice.Common.Extensions;
-using Energinet.DataHub.PostOffice.Infrastructure.Correlation;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
@@ -31,13 +29,11 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 
         private readonly IMediator _mediator;
         private readonly IMarketOperatorIdentity _operatorIdentity;
-        private readonly ILogCallback _logCallback;
 
-        public PeekFunction(IMediator mediator, IMarketOperatorIdentity operatorIdentity, ILogCallback logCallback)
+        public PeekFunction(IMediator mediator, IMarketOperatorIdentity operatorIdentity)
         {
             _mediator = mediator;
             _operatorIdentity = operatorIdentity;
-            _logCallback = logCallback;
         }
 
         [Function("Peek")]
@@ -45,9 +41,6 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "get")]
             HttpRequestData request)
         {
-            var logger = request.FunctionContext.GetLogger("PeekFunctionPerfTest");
-            _logCallback.SetCallback(x => logger.LogWarning(x));
-
             return request.ProcessAsync(async () =>
             {
                 var command = new PeekCommand(_operatorIdentity.Gln, request.Url.GetQueryValue(BundleIdQueryName));
