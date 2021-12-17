@@ -13,8 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
@@ -53,7 +51,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
             try
             {
                 var command = JsonSerializer.Deserialize<DequeueCleanUpCommand>(message);
-                var operationResponse = await _mediator.Send(command).ConfigureAwait(false);
+                var operationResponse = await _mediator.Send(command!).ConfigureAwait(false);
 
                 if (!operationResponse.Completed)
                     logger.LogError("Dequeue cleanup operation dit not complete successfully");
