@@ -20,6 +20,7 @@ using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Services;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using Xunit.Categories;
@@ -36,7 +37,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
             // Arrange
             var marketOperatorDataStorageServiceMock = new Mock<IMarketOperatorDataStorageService>();
             var dataBundleRequestSenderMock = new Mock<IDataBundleRequestSender>();
-            var target = new BundleContentRequestService(marketOperatorDataStorageServiceMock.Object, dataBundleRequestSenderMock.Object);
+            var target = new BundleContentRequestService(new Mock<ILogger>().Object, marketOperatorDataStorageServiceMock.Object, dataBundleRequestSenderMock.Object);
 
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
@@ -62,7 +63,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
             // Arrange
             var marketOperatorDataStorageServiceMock = new Mock<IMarketOperatorDataStorageService>();
             var dataBundleRequestSenderMock = new Mock<IDataBundleRequestSender>();
-            var target = new BundleContentRequestService(marketOperatorDataStorageServiceMock.Object, dataBundleRequestSenderMock.Object);
+            var target = new BundleContentRequestService(new Mock<ILogger>().Object, marketOperatorDataStorageServiceMock.Object, dataBundleRequestSenderMock.Object);
 
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),

@@ -19,19 +19,23 @@ using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Model;
+using Microsoft.Extensions.Logging;
 using DomainOrigin = Energinet.DataHub.MessageHub.Model.Model.DomainOrigin;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 {
     public sealed class BundleContentRequestService : IBundleContentRequestService
     {
+        private readonly ILogger _logger;
         private readonly IMarketOperatorDataStorageService _marketOperatorDataStorageService;
         private readonly IDataBundleRequestSender _dataBundleRequestSender;
 
         public BundleContentRequestService(
+            ILogger logger,
             IMarketOperatorDataStorageService marketOperatorDataStorageService,
             IDataBundleRequestSender dataBundleRequestSender)
         {
+            _logger = logger;
             _marketOperatorDataStorageService = marketOperatorDataStorageService;
             _dataBundleRequestSender = dataBundleRequestSender;
         }
@@ -48,8 +52,17 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
                 bundle.ContentType.Value);
 
             var response = await _dataBundleRequestSender.SendAsync(request, (DomainOrigin)bundle.Origin).ConfigureAwait(false);
-            if (response == null || response.IsErrorResponse)
+            if (response == null)
                 return null;
+
+            if (response.IsErrorResponse)
+            {
+                _logger.LogError(
+                    "[{0}] Domain returned an error:\n{1}",
+                    response.ResponseError.Reason,
+                    response.ResponseError.FailureDescription);
+                return null;
+            }
 
             return new AzureBlobBundleContent(_marketOperatorDataStorageService, response.ContentUri);
         }
