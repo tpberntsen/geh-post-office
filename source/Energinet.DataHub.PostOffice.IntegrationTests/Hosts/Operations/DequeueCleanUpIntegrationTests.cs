@@ -61,14 +61,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.Operations
             var bundle = CreateBundle(marketOperator, notificationIds);
             await bundleRepository.TryAddNextUnacknowledgedAsync(bundle).ConfigureAwait(false);
 
-            var dequeueCleanUpCommand = new DequeueCleanUpCommand(bundle.BundleId.ToString());
+            var dequeueCleanUpCommand = new DequeueCleanUpCommand(bundle.BundleId.ToString(), bundle.Recipient.Gln.Value);
 
             // Act
             var response = await mediator.Send(dequeueCleanUpCommand).ConfigureAwait(false);
 
             // Assert
             Assert.True(response.Completed);
-            var bundleDequeued = await bundleRepository.GetBundleAsync(bundle.BundleId).ConfigureAwait(false);
+            var bundleDequeued = await bundleRepository.GetBundleAsync(bundle.BundleId, bundle.Recipient).ConfigureAwait(false);
             Assert.True(bundleDequeued is { NotificationsArchived: true });
         }
 

@@ -26,8 +26,9 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// Get bundle by bundle id
         /// </summary>
         /// <param name="bundleId"></param>
+        /// <param name="marketOperator"></param>
         /// <returns>Complete bundle</returns>
-        Task<Bundle?> GetBundleAsync(Uuid bundleId);
+        Task<Bundle?> GetBundleAsync(Uuid bundleId, MarketOperator marketOperator);
 
         /// <summary>
         /// Gets the next bundle for the given recipient and domains that has yet to be acknowledged.

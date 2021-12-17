@@ -13,9 +13,11 @@
 // limitations under the License.
 
 using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
-using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Infrastructure;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
@@ -50,7 +52,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
 
             try
             {
-                var command = new DequeueCleanUpCommand(message);
+                var command = JsonSerializer.Deserialize<DequeueCleanUpCommand>(message);
                 var operationResponse = await _mediator.Send(command).ConfigureAwait(false);
 
                 if (!operationResponse.Completed)
@@ -58,7 +60,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Error in {FunctionName}", FunctionName);
+                logger.LogError(exception, "Error in {FunctionName}, message: {message}", FunctionName, message);
                 throw;
             }
         }
