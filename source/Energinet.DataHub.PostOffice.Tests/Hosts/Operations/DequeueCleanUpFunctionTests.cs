@@ -29,30 +29,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.Operations
     public class DequeueCleanUpFunctionTests
     {
         [Fact]
-        public async Task Run_ValidInput_CallsMediator()
-        {
-            // Arrange
-            var mockedMediator = new Mock<IMediator>();
-            var mockedFunctionContext = new MockedFunctionContext();
-
-            mockedMediator
-                .Setup(x => x.Send(It.IsAny<DequeueCleanUpCommand>(), default))
-                .ReturnsAsync(new OperationResponse(true));
-
-            var target = new DequeueCleanUpFunction(mockedMediator.Object);
-
-            var fakeMessageBundleId = Guid.NewGuid().ToString();
-
-            // Act
-            await target.RunAsync(fakeMessageBundleId, mockedFunctionContext).ConfigureAwait(false);
-
-            // Assert
-            mockedMediator
-                .Verify(mediator => mediator
-                    .Send(It.IsAny<DequeueCleanUpCommand>(), default));
-        }
-
-        [Fact]
         public async Task Run_InValidInput_MessageIsNull()
         {
             // Arrange
@@ -70,28 +46,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.Operations
 
             // Assert
             await Assert.ThrowsAsync<ArgumentNullException>(async () => await task).ConfigureAwait(false);
-        }
-
-        [Fact]
-        public async Task Run_InValidInput_MediatorReturnsException()
-        {
-            // Arrange
-            var mockedMediator = new Mock<IMediator>();
-            var mockedFunctionContext = new MockedFunctionContext();
-
-            mockedMediator
-                .Setup(x => x.Send(It.IsAny<DequeueCleanUpCommand>(), default))
-                .Throws(new ValidationException("Test message"));
-
-            var target = new DequeueCleanUpFunction(mockedMediator.Object);
-
-            var fakeMessageBundleId = Guid.NewGuid().ToString();
-
-            // Act
-            var task = target.RunAsync(fakeMessageBundleId, mockedFunctionContext).ConfigureAwait(false);
-
-            // Assert
-            await Assert.ThrowsAsync<ValidationException>(async () => await task).ConfigureAwait(false);
         }
     }
 }
