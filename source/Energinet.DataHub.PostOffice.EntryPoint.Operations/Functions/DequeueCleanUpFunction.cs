@@ -17,7 +17,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Infrastructure;
-using Energinet.DataHub.PostOffice.Infrastructure.Correlation;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -29,12 +28,10 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
         private const string FunctionName = "DequeueCleanUp";
 
         private readonly IMediator _mediator;
-        private readonly ILogCallback _logCallback;
 
-        public DequeueCleanUpFunction(IMediator mediator, ILogCallback logCallback)
+        public DequeueCleanUpFunction(IMediator mediator)
         {
             _mediator = mediator;
-            _logCallback = logCallback;
         }
 
         [Function(FunctionName)]
@@ -50,8 +47,6 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
 
             var logger = context.GetLogger<DequeueCleanUpFunction>();
             logger.LogInformation($"C# ServiceBus queue trigger function processed message in {FunctionName}");
-
-            _logCallback.SetCallback(x => logger.LogWarning(x));
 
             try
             {
