@@ -47,7 +47,11 @@ namespace Energinet.DataHub.PostOffice.Common
             SwitchToSimpleInjector(services);
 
             services.AddLogging();
-            services.AddSimpleInjector(Container, x => x.DisposeContainerWithServiceProvider = !true);
+            services.AddSimpleInjector(Container, x =>
+            {
+                x.DisposeContainerWithServiceProvider = !true;
+                x.AddLogging();
+            });
 
             // Auth
             Container.AddAuthentication();

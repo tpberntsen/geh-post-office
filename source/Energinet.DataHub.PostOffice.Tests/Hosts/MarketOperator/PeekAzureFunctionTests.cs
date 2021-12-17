@@ -22,6 +22,7 @@ using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
 using Energinet.DataHub.PostOffice.Tests.Common;
 using Energinet.DataHub.PostOffice.Tests.Common.Auth;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using Xunit.Categories;
@@ -51,7 +52,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekCommand>(), default))
                 .ReturnsAsync(new PeekResponse(true, new MemoryStream(Encoding.ASCII.GetBytes(expectedData))));
 
-            var target = new PeekFunction(mockedMediator.Object, mockedIdentity);
+            var target = new PeekFunction(new Mock<ILogger>().Object, mockedMediator.Object, mockedIdentity);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -79,7 +80,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekCommand>(), default))
                 .ReturnsAsync(new PeekResponse(false, Stream.Null));
 
-            var target = new PeekFunction(mockedMediator.Object, mockedIdentity);
+            var target = new PeekFunction(new Mock<ILogger>().Object, mockedMediator.Object, mockedIdentity);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
