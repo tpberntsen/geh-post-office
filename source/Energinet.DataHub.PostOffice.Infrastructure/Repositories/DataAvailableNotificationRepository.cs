@@ -17,8 +17,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
@@ -46,20 +48,35 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             if (dataAvailableNotification is null)
                 throw new ArgumentNullException(nameof(dataAvailableNotification));
 
-            var strId = dataAvailableNotification.NotificationId.ToString();
-
             var uniqueId = new CosmosUniqueId
             {
-                Id = strId,
-                PartitionKey = (dataAvailableNotification.NotificationId.AsGuid().GetHashCode() % 10).ToString(CultureInfo.InvariantCulture)
+                Id = dataAvailableNotification.NotificationId.ToString(),
+                PartitionKey = (dataAvailableNotification.NotificationId.AsGuid().GetHashCode() % 10).ToString(CultureInfo.InvariantCulture),
+                Content = Base64Content(dataAvailableNotification)
             };
+
             try
             {
                 await _repositoryContainer.Container.CreateItemAsync(uniqueId).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (CosmosException e) when (e.StatusCode == HttpStatusCode.Conflict)
             {
-                throw new ValidationException("ID already in use");
+                var query =
+                    from uniqueIdQuery in _repositoryContainer.Container.GetItemLinqQueryable<CosmosUniqueId>()
+                    where
+                        uniqueIdQuery.Id == uniqueId.Id &&
+                        uniqueIdQuery.PartitionKey == uniqueId.PartitionKey
+                    select uniqueIdQuery;
+
+                await foreach (var existingUniqueId in query.AsCosmosIteratorAsync<CosmosUniqueId>())
+                {
+                    if (existingUniqueId.Content == uniqueId.Content)
+                    {
+                        return;
+                    }
+
+                    throw new ValidationException("ID already in use", e);
+                }
             }
 
             var cosmosDocument = new CosmosDataAvailable
@@ -75,6 +92,17 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             };
 
             await _repositoryContainer.Container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
+
+            static string Base64Content(DataAvailableNotification dataAvailableNotification)
+            {
+                using var ms = new MemoryStream();
+                ms.Write(Encoding.UTF8.GetBytes(dataAvailableNotification.ContentType.Value));
+                ms.Write(BitConverter.GetBytes((int)dataAvailableNotification.Origin));
+                ms.Write(Encoding.UTF8.GetBytes(dataAvailableNotification.Recipient.Gln.Value));
+                ms.Write(BitConverter.GetBytes(dataAvailableNotification.SupportsBundling.Value));
+                ms.Write(BitConverter.GetBytes(dataAvailableNotification.Weight.Value));
+                return Convert.ToBase64String(ms.ToArray());
+            }
         }
 
         public async Task SaveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications)

@@ -18,5 +18,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
     {
         public string Id { get; init; } = default!;
         public string PartitionKey { get; init; } = default!;
+        public string Content { get; init; } = default!;
     }
 }
