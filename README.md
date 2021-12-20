@@ -64,36 +64,17 @@ Flow of communication between MessageHub and domains is always through four Azur
 
 ![QueuesDiagram](https://user-images.githubusercontent.com/17023767/141968153-7baa3b44-d9da-4d59-b24e-8c26ebd8dd59.png)
 
------------------------------------------------------------- OLD DOCUMENTS -----------------------------------------------------------------
-
-![design](ARCHITECTURE.png)
-
-## Context Streams
-
-![Context streams](./images/PostOfficeContextStreams.JPG "Post Office context streams")
-
-## Domain Road Map
-
-No work planned in current program increment.
-
 ## Delivering documents to the post office
 
-To deliver a document to the MessageHub from a domain, the domain will have to insert a document into the corresponding topic of the `sbn-inbound-postoffice` service bus.
-
-The service bus contains 3 Topics.
-
-- aggregations
-- marketdata
-- timeseries
-
-All documents inserted into each of the topics will then be processed and placed in a collection of documents corresponding to the topic.
-This means that when a domain places a document in the `timeseries` topic, this document will only be peekable using the `timeseries` type on the outbound end of the MessageHub.
+ToDo
 
 ### Format
 
-All documents inserted into the topics will have to comply with the protobuf contract.
+All documents inserted into the queues will have to comply with the protobuf contract.
 
 If a document is inserted into the queue that does not comply with this contract, **IT WILL NOT** be handled.
+
+More ToDo?
 
 ## Peek and dequeue documents from the post office
 
@@ -103,76 +84,40 @@ TODO: This will have to be updated once we know more about how authentication is
 
 ### GET:/Peek
 
-It is possible in the MessageHub to peek a given number of documents.
-
-Once a peek has been made, the system will check if a bundle of documents already exists, if that is the case then those will be returned.
-
-If no bundle exists, the system will select the number of documents requested, generate a new bundle id and return the documents.
-
-This means if a repetetive number of peek's is made, the same bundle of documents will always be returned.
-It is necessary to dequeue a bundle, before being able to get a new bundle of messages.
-
-```https
-GET https://{{YOUR_DOMAIN_URL}}/api/Peek
-```
+ToDo
 
 #### Peek URI Parameters
 
-| Name | Required |  Type | Description |
-| --- | --- | --- | --- |
-| `recipient` | True | string | The id of the recipient to peek documents on |
-| `group` | True | string | The group of documents to peek, current groups is `marketdata`, `timeseries` and `aggregations` |
-| `pageSize` | False | integer | The number of documents to peek, defaults to 1. |
+ToDo
 
 #### Peek Responses
 
-| Name | Type | Description |
-| --- | --- | --- |
-| 200 OK | [Peeked documents](#peeked-documents) | OK |
-| 204 No Content | [NoContentResult](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.nocontentresult?view=aspnetcore-5.0) | If no documents is available for peeking. |
-| 400 Bad Request | [BadRequestErrorMessageResult](https://docs.microsoft.com/en-us/dotnet/api/system.web.http.badrequesterrormessageresult?view=aspnetcore-2.2) | If `recipient` is missing, the following error will be outputted: _'Query parameter is missing 'recipient'_. |
-| 400 Bad Request | [BadRequestErrorMessageResult](https://docs.microsoft.com/en-us/dotnet/api/system.web.http.badrequesterrormessageresult?view=aspnetcore-2.2) | If `type` is missing, the following error will be outputted: _'Query parameter is missing 'type'_. |
-| 500 Server error | [ArgumentNullException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentnullexception?view=net-5.0) ||
+ToDo
 
-### POST:/Dequeue
+### GET:/Dequeue
 
-This method is used to dequeue a bundle of documents.
-
-```https
-POST https://{{YOUR_DOMAIN_URL}}/api/Dequeue
-```
+ToDo
 
 #### Dequeue Request body
 
-| Name | Required |  Type | Description |
-| --- | --- | --- | --- |
-| `bundle` | True | string | The id of the bundle to dequeue |
-| `recipient` | True | string | The id of the recipient to dequeue documents on |
+ToDo
 
 #### Dequeue Responses
 
-| Name | Type | Description |
-| --- | --- | --- |
-| 200 OK | [OkResult](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.okresult?view=aspnetcore-5.0) | OK |
-| 400 Bad Request | [BadRequestErrorMessageResult](https://docs.microsoft.com/en-us/dotnet/api/system.web.http.badrequesterrormessageresult?view=aspnetcore-2.2) | If `bundle` is missing, the following error will be outputted: _Request body is missing 'bundle'_. |
-| 400 Bad Request | [BadRequestErrorMessageResult](https://docs.microsoft.com/en-us/dotnet/api/system.web.http.badrequesterrormessageresult?view=aspnetcore-2.2) | If `recipient` is missing, the following error will be outputted: _Request body is missing 'recipient'_. |
-| 404 Not Found | [NotFoundResult](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.notfoundresult?view=aspnetcore-5.0) |
-| 500 Server error | [ArgumentNullException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentnullexception?view=net-5.0) ||
+ToDo
 
 ## Types
 
 ### Peeked documents
+
+ToDo
 
 An array of documents.
 
 ```json
 [
    {
-      "Recipient": "string",
-      "Type": "string",
-      "EffectuationDate": "Date",
-      "Content": "Dynamic",
-      "Bundle": "string"
+      "Recipient": "string"
    }
 ]
 ```
