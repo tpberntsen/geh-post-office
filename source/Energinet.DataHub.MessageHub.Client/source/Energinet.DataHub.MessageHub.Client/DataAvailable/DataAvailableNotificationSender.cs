@@ -54,7 +54,9 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
                 RelativeWeight = dataAvailableNotificationDto.RelativeWeight
             };
 
-            var message = new ServiceBusMessage(new BinaryData(contract.ToByteArray()))
+            var messageId = Guid.NewGuid().ToString();
+
+            var message = new ServiceBusMessage(new BinaryData(contract.ToByteArray())) { MessageId = messageId }
                 .AddDataAvailableIntegrationEvents(correlationId);
 
             return sender.PublishMessageAsync<ServiceBusMessage>(message);

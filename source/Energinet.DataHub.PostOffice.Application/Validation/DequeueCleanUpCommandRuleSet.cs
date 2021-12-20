@@ -23,6 +23,10 @@ namespace Energinet.DataHub.PostOffice.Application.Validation
     {
         public DequeueCleanUpCommandRuleSet()
         {
+            RuleFor(command => command.MarketOperator)
+                .NotEmpty()
+                .SetValidator(new GlobalLocationNumberValidationRule());
+
             RuleFor(command => command.BundleId)
                 .NotEmpty()
                 .SetValidator(new UuidValidationRule());

@@ -40,7 +40,10 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            var bundle = await _bundleRepository.GetBundleAsync(new Uuid(request.BundleId)).ConfigureAwait(false);
+            var bundleUuid = new Uuid(request.BundleId);
+            var marketOperator = new MarketOperator(new GlobalLocationNumber(request.MarketOperator));
+
+            var bundle = await _bundleRepository.GetBundleAsync(bundleUuid, marketOperator).ConfigureAwait(false);
             if (bundle is { NotificationsArchived: false })
             {
                 var partitionKey = bundle.Recipient.Gln.Value + bundle.Origin + bundle.ContentType.Value;
