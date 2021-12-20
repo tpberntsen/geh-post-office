@@ -390,55 +390,6 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         }
 
         [Fact]
-        public async Task AcknowledgeAsync_AcrossPartitionKeys_OneRecipientCannotAffectAnother()
-        {
-            // Arrange
-            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
-            var scope = host.BeginScope();
-
-            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
-
-            var recipientA = new MarketOperator(new MockedGln());
-            var recipientB = new MarketOperator(new MockedGln());
-            var commonGuid = new Uuid(Guid.NewGuid());
-
-            // Two identical notifications for two different recipients.
-            // The uuid is only unique pr. partition and can be reused.
-            var notificationA = new DataAvailableNotification(
-                commonGuid,
-                recipientA,
-                new ContentType("target"),
-                DomainOrigin.Aggregations,
-                new SupportsBundling(false),
-                new Weight(1));
-
-            // Everything should match to detect change of partition key.
-            var notificationB = new DataAvailableNotification(
-                commonGuid,
-                recipientB,
-                notificationA.ContentType,
-                notificationA.Origin,
-                notificationA.SupportsBundling,
-                notificationA.Weight);
-
-            await dataAvailableNotificationRepository.SaveAsync(notificationA).ConfigureAwait(false);
-            await dataAvailableNotificationRepository.SaveAsync(notificationB).ConfigureAwait(false);
-
-            // Assert: Read notifications back.
-            Assert.NotNull(await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipientA).ConfigureAwait(false));
-            Assert.NotNull(await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipientB).ConfigureAwait(false));
-
-            // Act
-            await dataAvailableNotificationRepository
-                .AcknowledgeAsync(recipientA, new[] { commonGuid })
-                .ConfigureAwait(false);
-
-            // Assert: Only one notification should be acknowledged.
-            Assert.Null(await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipientA).ConfigureAwait(false));
-            Assert.NotNull(await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipientB).ConfigureAwait(false));
-        }
-
-        [Fact]
         public async Task AcknowledgeAsync_BundleOverItemCap_AcknowledgesWithoutError()
         {
             // Arrange

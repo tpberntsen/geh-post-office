@@ -45,13 +45,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             _marketOperatorDataStorageService = marketOperatorDataStorageService;
         }
 
-        public async Task<Bundle?> GetBundleAsync(Uuid bundleId)
+        public async Task<Bundle?> GetBundleAsync(Uuid bundleId, MarketOperator marketOperator)
         {
             var asLinq = _repositoryContainer
                 .Container
                 .GetItemLinqQueryable<CosmosBundleDocument>();
 
-            var cosmosBundleDocuments = asLinq.Where(document => document.Id == bundleId.ToString());
+            var cosmosBundleDocuments = asLinq.Where(document => document.Id == bundleId.ToString() && document.Recipient == marketOperator.Gln.Value);
             var bundleDocument = await cosmosBundleDocuments.AsCosmosIteratorAsync().FirstOrDefaultAsync().ConfigureAwait(false);
 
             return

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 using System;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Client;
 using Energinet.DataHub.MessageHub.Client.DataAvailable;
@@ -38,6 +38,7 @@ namespace DataAvailableNotification
             var origin = configurationSection["origin"];
             var messageType = configurationSection["type"];
             var interval = int.TryParse(configurationSection["interval"], out var intervalParsed) ? intervalParsed : 1;
+            var workers = int.TryParse(configurationSection["workers"], out var workersParsed) ? workersParsed : 1;
             var domainOrigin = origin != null ? Enum.Parse<DomainOrigin>(origin, true) : DomainOrigin.TimeSeries;
 
             var serviceBusClientFactory = new ServiceBusClientFactory(connectionString);
@@ -46,18 +47,15 @@ namespace DataAvailableNotification
 
             var dataAvailableNotificationSender = new DataAvailableNotificationSender(azureServiceFactory, messageHubConfig);
 
-            for (var i = 0; i < interval; i++)
-            {
-                var msgDto = CreateDto(domainOrigin, messageType, recipient);
-                var correlationId = Guid.NewGuid().ToString();
+            await Task.WhenAll(
+                Enumerable.Range(0, workers).Select(_ =>
+                    Task.WhenAll(Enumerable.Range(0, interval / workers).Select(_ =>
+                    {
+                        var msgDto = CreateDto(domainOrigin, messageType, recipient);
+                        var correlationId = Guid.NewGuid().ToString();
 
-                Console.WriteLine($"Sending message number: {i + 1}.");
-
-                await dataAvailableNotificationSender.SendAsync(correlationId, msgDto).ConfigureAwait(false);
-
-                if (i + 1 < interval)
-                    Thread.Sleep(100);
-            }
+                        return dataAvailableNotificationSender.SendAsync(correlationId, msgDto);
+                    })))).ConfigureAwait(false);
 
             Console.WriteLine("Message sender completed.");
         }

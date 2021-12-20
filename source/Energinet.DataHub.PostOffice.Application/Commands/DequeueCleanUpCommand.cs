@@ -17,5 +17,5 @@ using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public sealed record DequeueCleanUpCommand(string BundleId) : IRequest<OperationResponse>;
+    public sealed record DequeueCleanUpCommand(string BundleId, string MarketOperator) : IRequest<OperationResponse>;
 }
