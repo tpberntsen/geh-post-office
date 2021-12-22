@@ -89,6 +89,18 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
         /// <param name="correlationIds">The list of correlation ids to wait for.</param>
         public async Task WaitForNotificationsInDataAvailableQueueAsync(params string[] correlationIds)
         {
+            await WaitForNotificationsInDataAvailableQueueWithAssertionAsync(correlationIds).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Waits for the specified correlation ids to arrive on the dataavailable queue
+        /// and adds their notifications to the current simulation.
+        /// Can throw a TimeoutException or TaskCanceledException.
+        /// </summary>
+        /// <param name="correlationIds">The list of correlation ids to wait for.</param>
+        /// <param name="action">Action for dto, to allow assertions</param>
+        public async Task WaitForNotificationsInDataAvailableQueueWithAssertionAsync(string[] correlationIds, Action<DataAvailableNotificationDto>? action = null)
+        {
             using var cancellationTokenSource = new CancellationTokenSource(_waitTimeout);
             var cancellationToken = cancellationTokenSource.Token;
 
@@ -108,6 +120,7 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
                     if (correlationObj is string correlationId && expectedIds.Remove(correlationId))
                     {
                         var dataAvailableNotificationDto = _dataAvailableNotificationParser.Parse(message.Body.ToArray());
+                        action?.Invoke(dataAvailableNotificationDto);
                         _notifications.Add(dataAvailableNotificationDto);
                     }
                 }
