@@ -172,7 +172,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
         public async Task AsHttpResponseData_ContentTypeIsJson_ReturnsResponseSerializedAsJson()
         {
             // arrange
-            const string expectedXml = "{\"error\":{\"code\":\"VALIDATION_EXCEPTION\",\"message\":\"BundleIdAlreadyInUse\",\"target\":null,\"details\":null}}";
+            const string expectedXml = "{\"error\":{\"code\":\"VALIDATION_EXCEPTION\",\"message\":\"BundleIdAlreadyInUse\"}}";
             var request = new MockedHttpRequestData(new MockedFunctionContext());
             request.HttpRequestDataMock.Setup(x => x.Headers).Returns(new Microsoft.Azure.Functions.Worker.Http.HttpHeadersCollection(
                 new[] { new KeyValuePair<string, IEnumerable<string>>(HeaderNames.ContentType, new[] { MediaTypeNames.Application.Json }) }));
