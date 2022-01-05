@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Net;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Common.Auth;
@@ -20,7 +21,6 @@ using Energinet.DataHub.PostOffice.Common.Extensions;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
@@ -28,16 +28,13 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
     {
         private const string BundleIdQueryName = "bundleId";
 
-        private readonly ILogger _logger;
         private readonly IMediator _mediator;
         private readonly IMarketOperatorIdentity _operatorIdentity;
 
         public PeekFunction(
-            ILogger logger,
             IMediator mediator,
             IMarketOperatorIdentity operatorIdentity)
         {
-            _logger = logger;
             _mediator = mediator;
             _operatorIdentity = operatorIdentity;
         }
@@ -47,16 +44,12 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "get")]
             HttpRequestData request)
         {
-            _logger.LogInformation("Information Log in Azure.");
-            _logger.LogWarning("Warning Log in Azure.");
-            _logger.LogError("Error Log in Azure.");
-
             return request.ProcessAsync(async () =>
             {
                 var command = new PeekCommand(_operatorIdentity.Gln, request.Url.GetQueryValue(BundleIdQueryName));
                 var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
                 return hasContent
-                    ? request.CreateResponse(stream)
+                    ? request.CreateResponse(stream, MediaTypeNames.Application.Xml)
                     : request.CreateResponse(HttpStatusCode.NoContent);
             });
         }

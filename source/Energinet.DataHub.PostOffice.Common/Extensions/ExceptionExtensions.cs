@@ -13,14 +13,19 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mime;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using System.Xml;
 using Energinet.DataHub.PostOffice.Common.Model;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using DataAnnotationException = System.ComponentModel.DataAnnotations.ValidationException;
 using FluentValidationException = FluentValidation.ValidationException;
 
@@ -37,25 +42,91 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
                 logger.LogError(source, "An error occurred while processing request");
         }
 
-        public static HttpResponseData AsHttpResponseData(this Exception source, HttpRequestData request)
+        public static async Task<HttpResponseData> AsHttpResponseDataAsync(this Exception source, HttpRequestData request)
         {
-            static HttpResponseData CreateHttpResponseData(HttpRequestData request, HttpStatusCode httpStatusCode, IEnumerable<ErrorDescriptor> errors)
+            static async Task<HttpResponseData> CreateHttpResponseData(HttpRequestData request, HttpStatusCode httpStatusCode, ErrorDescriptor error)
             {
-                var bytes = JsonSerializer.SerializeToUtf8Bytes(
-                    new FunctionError(errors.ToArray()),
-                    new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-                var stream = new MemoryStream(bytes);
-                return request.CreateResponse(stream, httpStatusCode);
+                static async Task<MemoryStream> XmlSerializeAsync(ErrorDescriptor error)
+                {
+                    var stream = new MemoryStream();
+                    await using var writer = XmlWriter.Create(
+                        stream,
+                        new XmlWriterSettings
+                        {
+                            Async = true,
+                            Encoding = new UTF8Encoding(false)
+                        });
+                    await new ErrorResponse(error).WriteXmlContentsAsync(writer).ConfigureAwait(false);
+                    return stream;
+                }
+
+                static MemoryStream JsonSerialize(ErrorDescriptor error)
+                {
+                    var bytes = JsonSerializer.SerializeToUtf8Bytes(
+                        new ErrorResponse(error),
+                        new JsonSerializerOptions
+                        {
+                            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                        });
+                    return new MemoryStream(bytes);
+                }
+
+                var returnXml =
+                    request.Headers != null &&
+                    request.Headers.TryGetValues(HeaderNames.ContentType, out var values) &&
+                    values.Contains(MediaTypeNames.Application.Xml, StringComparer.OrdinalIgnoreCase);
+
+                var stream = returnXml
+                    ? await XmlSerializeAsync(error).ConfigureAwait(false)
+                    : JsonSerialize(error);
+
+                return request.CreateResponse(
+                    stream,
+                    returnXml ? MediaTypeNames.Application.Xml : MediaTypeNames.Application.Json,
+                    httpStatusCode);
             }
 
             if (source == null)
+            {
                 throw new ArgumentNullException(nameof(source));
+            }
+
+            if (request is null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
 
             return source switch
             {
-                FluentValidationException ve => CreateHttpResponseData(request, HttpStatusCode.BadRequest, ve.Errors.Select(x => new ErrorDescriptor(x.ErrorCode, x.ErrorMessage, x.PropertyName))),
-                DataAnnotationException ve => CreateHttpResponseData(request, HttpStatusCode.BadRequest, new[] { new ErrorDescriptor("VALIDATION_EXCEPTION", ve.Message, null) }),
-                _ => CreateHttpResponseData(request, HttpStatusCode.InternalServerError, new[] { new ErrorDescriptor("INTERNAL_ERROR", "An error occured while processing the request", null) })
+                FluentValidationException ve =>
+                    await CreateHttpResponseData(
+                        request,
+                        HttpStatusCode.BadRequest,
+                        new ErrorDescriptor(
+                            "VALIDATION_EXCEPTION",
+                            "See details",
+                            details: ve.Errors.Select(x =>
+                                new ErrorDescriptor(
+                                    x.ErrorCode,
+                                    x.ErrorMessage,
+                                    x.PropertyName)))).ConfigureAwait(false),
+
+                DataAnnotationException ve =>
+                    await CreateHttpResponseData(
+                        request,
+                        HttpStatusCode.BadRequest,
+                        new ErrorDescriptor(
+                            "VALIDATION_EXCEPTION",
+                            ve.Message)).ConfigureAwait(false),
+
+                _ =>
+                    await CreateHttpResponseData(
+                        request,
+                        HttpStatusCode.InternalServerError,
+                        new ErrorDescriptor(
+                            "INTERNAL_ERROR",
+                            "An error occured while processing the request")).ConfigureAwait(false)
             };
         }
     }

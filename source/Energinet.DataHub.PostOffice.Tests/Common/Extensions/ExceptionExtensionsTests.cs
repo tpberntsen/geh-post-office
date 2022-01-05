@@ -13,16 +13,21 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mime;
+using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Common.Extensions;
 using Energinet.DataHub.PostOffice.Common.Model;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using Xunit;
 using Xunit.Categories;
 
@@ -67,8 +72,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
         }
 
         [Fact]
-        public void AsHttpResponseData_ExceptionIsValidationException_ReturnsResponseWithAllErrorsAndStatusBadRequest()
+        public async Task AsHttpResponseData_ExceptionIsValidationException_ReturnsResponseWithAllErrorsAndStatusBadRequest()
         {
+            // arrange
             var request = new MockedHttpRequestData(new MockedFunctionContext());
             var errors = new[]
             {
@@ -78,64 +84,107 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
             var exception = new ValidationException(errors);
 
             // act
-            var actual = exception.AsHttpResponseData(request.HttpRequestData);
-            var actualFunctionError = JsonSerializer.Deserialize<FunctionError>(
+            var actual = await exception.AsHttpResponseDataAsync(request.HttpRequestData).ConfigureAwait(false);
+            var actualFunctionError = JsonSerializer.Deserialize<ErrorResponse>(
                 ((MemoryStream)actual.Body).ToArray(),
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })!;
 
             // assert
+            var detailErrors = actualFunctionError.Error.Details!.ToArray();
             Assert.Equal(HttpStatusCode.BadRequest, actual.StatusCode);
-            Assert.Equal(2, actualFunctionError.Errors.Length);
-            for (var i = 0; i < actualFunctionError.Errors.Length; i++)
+            Assert.Equal(2, detailErrors.Length);
+            for (var i = 0; i < detailErrors.Length; i++)
             {
                 var expectedError = errors[i];
-                var (actualCode, actualMessage, actualTarget) = actualFunctionError.Errors[i];
-                Assert.Equal(expectedError.ErrorCode, actualCode);
-                Assert.Equal(expectedError.ErrorMessage, actualMessage);
-                Assert.Equal(expectedError.PropertyName, actualTarget);
+                var detail = detailErrors[i];
+                Assert.Equal(expectedError.ErrorCode, detail.Code);
+                Assert.Equal(expectedError.ErrorMessage, detail.Message);
+                Assert.Equal(expectedError.PropertyName, detail.Target);
             }
         }
 
         [Fact]
-        public void AsHttpResponseData_ExceptionIsAnUnexpectedException_ReturnsResponseWithGenericErrorAndStatusInternalServerError()
+        public async Task AsHttpResponseData_ExceptionIsAnUnexpectedException_ReturnsResponseWithGenericErrorAndStatusInternalServerError()
         {
+            // arrange
             var request = new MockedHttpRequestData(new MockedFunctionContext());
             const string internalErrorMessage = "Something is not right";
             var exception = new ArgumentNullException(internalErrorMessage);
 
             // act
-            var actual = exception.AsHttpResponseData(request.HttpRequestData);
-            var actualFunctionError = JsonSerializer.Deserialize<FunctionError>(
+            var actual = await exception.AsHttpResponseDataAsync(request.HttpRequestData).ConfigureAwait(false);
+            var actualFunctionError = JsonSerializer.Deserialize<ErrorResponse>(
                 ((MemoryStream)actual.Body).ToArray(),
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })!;
-            var (actualCode, actualMessage, actualTarget) = actualFunctionError.Errors.Single();
+            var error = actualFunctionError.Error;
 
             // assert
             Assert.Equal(HttpStatusCode.InternalServerError, actual.StatusCode);
-            Assert.Equal("INTERNAL_ERROR", actualCode);
-            Assert.Equal("An error occured while processing the request", actualMessage);
-            Assert.Null(actualTarget);
+            Assert.Equal("INTERNAL_ERROR", error.Code);
+            Assert.Equal("An error occured while processing the request", error.Message);
+            Assert.Null(error.Target);
+            Assert.Null(error.Details);
         }
 
         [Fact]
-        public void AsHttpResponseData_ExceptionIsDataAnnotationException_ReturnsResponseWithGenericErrorAndStatusValidationError()
+        public async Task AsHttpResponseData_ExceptionIsDataAnnotationException_ReturnsResponseWithGenericErrorAndStatusValidationError()
         {
+            // arrange
             var request = new MockedHttpRequestData(new MockedFunctionContext());
             const string validationErrorMessage = nameof(BundleCreatedResponse.BundleIdAlreadyInUse);
             var exception = new System.ComponentModel.DataAnnotations.ValidationException(validationErrorMessage);
 
             // act
-            var actual = exception.AsHttpResponseData(request.HttpRequestData);
-            var actualFunctionError = JsonSerializer.Deserialize<FunctionError>(
+            var actual = await exception.AsHttpResponseDataAsync(request.HttpRequestData).ConfigureAwait(false);
+            var actualFunctionError = JsonSerializer.Deserialize<ErrorResponse>(
                 ((MemoryStream)actual.Body).ToArray(),
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })!;
-            var (actualCode, actualMessage, actualTarget) = actualFunctionError.Errors.Single();
+            var error = actualFunctionError.Error;
 
             // assert
             Assert.Equal(HttpStatusCode.BadRequest, actual.StatusCode);
-            Assert.Equal("VALIDATION_EXCEPTION", actualCode);
-            Assert.Equal(nameof(BundleCreatedResponse.BundleIdAlreadyInUse), actualMessage);
-            Assert.Null(actualTarget);
+            Assert.Equal("VALIDATION_EXCEPTION", error.Code);
+            Assert.Equal(nameof(BundleCreatedResponse.BundleIdAlreadyInUse), error.Message);
+            Assert.Null(error.Target);
+            Assert.Null(error.Details);
+        }
+
+        [Fact]
+        public async Task AsHttpResponseData_ContentTypeIsXml_ReturnsResponseSerializedAsXml()
+        {
+            // arrange
+            const string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><Error><Code>VALIDATION_EXCEPTION</Code><Message>BundleIdAlreadyInUse</Message></Error>";
+            var request = new MockedHttpRequestData(new MockedFunctionContext());
+            request.HttpRequestDataMock.Setup(x => x.Headers).Returns(new Microsoft.Azure.Functions.Worker.Http.HttpHeadersCollection(
+                new[] { new KeyValuePair<string, IEnumerable<string>>(HeaderNames.ContentType, new[] { MediaTypeNames.Application.Xml }) }));
+            const string validationErrorMessage = nameof(BundleCreatedResponse.BundleIdAlreadyInUse);
+            var exception = new System.ComponentModel.DataAnnotations.ValidationException(validationErrorMessage);
+
+            // act
+            var actual = await exception.AsHttpResponseDataAsync(request.HttpRequestData).ConfigureAwait(false);
+            var content = Encoding.UTF8.GetString(((MemoryStream)actual.Body).ToArray());
+
+            // assert
+            Assert.Equal(expectedXml, content);
+        }
+
+        [Fact]
+        public async Task AsHttpResponseData_ContentTypeIsJson_ReturnsResponseSerializedAsJson()
+        {
+            // arrange
+            const string expectedXml = "{\"error\":{\"code\":\"VALIDATION_EXCEPTION\",\"message\":\"BundleIdAlreadyInUse\",\"target\":null,\"details\":null}}";
+            var request = new MockedHttpRequestData(new MockedFunctionContext());
+            request.HttpRequestDataMock.Setup(x => x.Headers).Returns(new Microsoft.Azure.Functions.Worker.Http.HttpHeadersCollection(
+                new[] { new KeyValuePair<string, IEnumerable<string>>(HeaderNames.ContentType, new[] { MediaTypeNames.Application.Json }) }));
+            const string validationErrorMessage = nameof(BundleCreatedResponse.BundleIdAlreadyInUse);
+            var exception = new System.ComponentModel.DataAnnotations.ValidationException(validationErrorMessage);
+
+            // act
+            var actual = await exception.AsHttpResponseDataAsync(request.HttpRequestData).ConfigureAwait(false);
+            var content = Encoding.UTF8.GetString(((MemoryStream)actual.Body).ToArray());
+
+            // assert
+            Assert.Equal(expectedXml, content);
         }
 
         private sealed class FakeLogger : ILogger
