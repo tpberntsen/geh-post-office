@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
@@ -23,24 +22,16 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
 {
     internal sealed class CosmosDbFixture : IAsyncLifetime
     {
-        private const string AzureCosmosDatabaseName = "post-office";
-        private const string AzureCosmosLogDatabaseName = "Log";
-        private const string AzureCosmosEmulatorConnectionString = "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
-
         public async Task InitializeAsync()
         {
-            Environment.SetEnvironmentVariable("MESSAGES_DB_NAME", AzureCosmosDatabaseName);
-            Environment.SetEnvironmentVariable("MESSAGES_DB_CONNECTION_STRING", AzureCosmosEmulatorConnectionString);
-            Environment.SetEnvironmentVariable("LOG_DB_NAME", AzureCosmosLogDatabaseName);
-
-            using var cosmosClient = new CosmosClient(AzureCosmosEmulatorConnectionString);
+            using var cosmosClient = new CosmosClient(LocalSettings.ConnectionString);
 
             var databaseResponse = await cosmosClient
-                .CreateDatabaseIfNotExistsAsync(AzureCosmosDatabaseName)
+                .CreateDatabaseIfNotExistsAsync(LocalSettings.DatabaseName)
                 .ConfigureAwait(true);
 
             var logDatabaseResponse = await cosmosClient
-                .CreateDatabaseIfNotExistsAsync(AzureCosmosLogDatabaseName)
+                .CreateDatabaseIfNotExistsAsync(LocalSettings.LogDatabaseName)
                 .ConfigureAwait(true);
 
             var testDatabase = databaseResponse.Database;
