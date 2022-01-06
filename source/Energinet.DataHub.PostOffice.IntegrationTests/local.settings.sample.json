@@ -1,0 +1,6 @@
+{
+  "connectionString": "<string> CosmosDB connection string. Defaults to Azure CosmosDB Emulator connection string",
+  "databaseName": "<string> Defaults to 'post-office'",
+  "logDatabaseName": "<string> Defaults to 'Log'",
+  "disableAzurite": "<true|false> Disables the inbuilt AzuriteFixture. Needed if you want to run integration tests on Linux or MacOS. Defaults to false"
+}
