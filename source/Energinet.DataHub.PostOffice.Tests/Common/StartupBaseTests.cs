@@ -15,6 +15,7 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
+using Energinet.DataHub.Core.Logging.RequestResponseMiddleware;
 using Energinet.DataHub.MessageHub.Core;
 using Energinet.DataHub.MessageHub.Core.Factories;
 using Energinet.DataHub.PostOffice.Common;
@@ -92,6 +93,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
                 container.RegisterSingleton(() => new CosmosDatabaseConfig("fake_value", "fake_value"));
                 container.RegisterSingleton<IServiceBusClientFactory>(() => new MockedServiceBusClientFactory(new MockedServiceBusClient()));
                 container.RegisterSingleton<IStorageServiceClientFactory>(() => new MockedStorageServiceClientFactory());
+                container.RegisterSingleton<IRequestResponseLogging>(() => new RequestResponseLoggingBlobStorage("fake_value", "fake_value"));
             }
         }
     }
