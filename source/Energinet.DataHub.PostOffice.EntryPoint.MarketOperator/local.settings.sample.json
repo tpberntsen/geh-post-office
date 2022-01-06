@@ -16,6 +16,8 @@
     "DATAAVAILABLE_QUEUE_NAME": "",
     "DATAAVAILABLE_QUEUE_CONNECTION_STRING": "",
     "DEQUEUE_CLEANUP_QUEUE_NAME": "",
+    "RequestResponseLogConnectionString": "",
+    "RequestResponseLogContainerName": "",
 
     "TIMESERIES_QUEUE_NAME": "",
     "TIMESERIES_REPLY_QUEUE_NAME": "",
