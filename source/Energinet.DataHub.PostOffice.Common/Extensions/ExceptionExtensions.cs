@@ -88,14 +88,10 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
             }
 
             if (source == null)
-            {
                 throw new ArgumentNullException(nameof(source));
-            }
 
-            if (request is null)
-            {
+            if (request == null)
                 throw new ArgumentNullException(nameof(request));
-            }
 
             return source switch
             {
