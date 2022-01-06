@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Net;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Common.Auth;
@@ -46,7 +47,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
                 var command = new PeekTimeSeriesCommand(_operatorIdentity.Gln, request.Url.GetQueryValue(BundleIdQueryName));
                 var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
                 return hasContent
-                    ? request.CreateResponse(stream)
+                    ? request.CreateResponse(stream, MediaTypeNames.Application.Xml)
                     : request.CreateResponse(HttpStatusCode.NoContent);
             });
         }
