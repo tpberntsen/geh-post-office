@@ -15,6 +15,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Common.Extensions;
@@ -42,7 +43,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
                 .Returns(response.Object);
 
             // act
-            request.HttpRequestData.CreateResponse(stream);
+            request.HttpRequestData.CreateResponse(stream, MediaTypeNames.Application.Xml);
 
             // assert
             // ReSharper disable once AccessToDisposedClosure
@@ -57,7 +58,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
             var request = (HttpRequestData)null!;
 
             // act, assert
-            Assert.Throws<ArgumentNullException>(() => request.CreateResponse(new MemoryStream()));
+            Assert.Throws<ArgumentNullException>(() => request.CreateResponse(new MemoryStream(), MediaTypeNames.Application.Xml));
         }
 
         [Fact]
@@ -69,7 +70,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
 
             // act
             var actual = await request.ProcessAsync(() => Task.FromResult(request.CreateResponse(
-                new MemoryStream(Encoding.UTF8.GetBytes(responseData))))).ConfigureAwait(false);
+                new MemoryStream(Encoding.UTF8.GetBytes(responseData)), MediaTypeNames.Application.Xml))).ConfigureAwait(false);
             var actualResponseMessage = Encoding.UTF8.GetString(((MemoryStream)actual.Body).ToArray());
 
             // assert
