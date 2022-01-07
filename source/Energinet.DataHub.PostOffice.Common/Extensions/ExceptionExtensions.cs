@@ -23,6 +23,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
 using Energinet.DataHub.PostOffice.Common.Model;
+using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
@@ -35,8 +36,7 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
     {
         public static void Log(this Exception source, ILogger logger)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            Guard.ThrowIfNull(source);
 
             if (source is not FluentValidationException)
                 logger.LogError(source, "An error occurred while processing request");
@@ -87,11 +87,8 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
                     httpStatusCode);
             }
 
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
+            Guard.ThrowIfNull(source);
+            Guard.ThrowIfNull(request);
 
             return source switch
             {

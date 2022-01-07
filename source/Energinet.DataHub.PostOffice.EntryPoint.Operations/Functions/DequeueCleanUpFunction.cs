@@ -17,6 +17,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Infrastructure;
+using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -42,8 +43,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
             string message,
             FunctionContext context)
         {
-            if (message is null)
-                throw new ArgumentNullException(nameof(message));
+            Guard.ThrowIfNull(message);
 
             var logger = context.GetLogger<DequeueCleanUpFunction>();
             logger.LogInformation($"C# ServiceBus queue trigger function processed message in {FunctionName}");

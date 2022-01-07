@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model.Logging;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
+using Energinet.DataHub.PostOffice.Utilities;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
@@ -32,8 +32,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public Task SavePeekLogOccurrenceAsync(PeekLog log)
         {
-            if (log is null)
-                throw new ArgumentNullException(nameof(log));
+            Guard.ThrowIfNull(log);
 
             var instanceToLog = new CosmosLog(
                 log.Id.ToString(),
@@ -48,8 +47,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public Task SaveDequeueLogOccurrenceAsync(DequeueLog log)
         {
-            if (log is null)
-                throw new ArgumentNullException(nameof(log));
+            Guard.ThrowIfNull(log);
 
             var instanceToLog = new CosmosLog(
                 log.Id.ToString(),

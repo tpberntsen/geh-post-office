@@ -19,6 +19,7 @@ using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Model;
+using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Extensions.Logging;
 using DomainOrigin = Energinet.DataHub.MessageHub.Model.Model.DomainOrigin;
 
@@ -42,8 +43,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 
         public async Task<IBundleContent?> WaitForBundleContentFromSubDomainAsync(Bundle bundle)
         {
-            if (bundle == null)
-                throw new ArgumentNullException(nameof(bundle));
+            Guard.ThrowIfNull(bundle);
 
             var request = new DataBundleRequestDto(
                 Guid.NewGuid(),

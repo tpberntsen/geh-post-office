@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using SimpleInjector;
@@ -32,11 +32,8 @@ namespace Energinet.DataHub.PostOffice.Common.SimpleInjector
 
         public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
-
-            if (next == null)
-                throw new ArgumentNullException(nameof(next));
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNull(next);
 
             var scope = AsyncScopedLifestyle.BeginScope(_container);
 

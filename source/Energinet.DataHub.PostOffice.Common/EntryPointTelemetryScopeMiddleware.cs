@@ -13,9 +13,9 @@
 // limitations under the License.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Infrastructure.Correlation;
+using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Azure.Functions.Worker;
@@ -38,8 +38,8 @@ namespace Energinet.DataHub.PostOffice.Common
 
         public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-            if (next == null) throw new ArgumentNullException(nameof(next));
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNull(next);
 
             if (!string.IsNullOrWhiteSpace(_telemetryClient.TelemetryConfiguration.InstrumentationKey))
             {

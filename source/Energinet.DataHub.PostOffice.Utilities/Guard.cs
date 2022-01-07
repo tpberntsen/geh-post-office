@@ -20,7 +20,7 @@ namespace Energinet.DataHub.PostOffice.Utilities
     {
         public static void ThrowIfNull(object element, [CallerArgumentExpression("element")] string? name = default)
         {
-            if (element == null)
+            if (element is null)
             {
                 throw new System.ArgumentNullException(name);
             }

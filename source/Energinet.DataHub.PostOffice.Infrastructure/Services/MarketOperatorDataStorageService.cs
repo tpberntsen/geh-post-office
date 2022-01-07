@@ -17,6 +17,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Core.Storage;
 using Energinet.DataHub.PostOffice.Domain.Services;
+using Energinet.DataHub.PostOffice.Utilities;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 {
@@ -31,8 +32,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 
         public Task<Stream> GetMarketOperatorDataAsync(Uri contentPath)
         {
-            if (contentPath is null)
-                throw new ArgumentNullException(nameof(contentPath));
+            Guard.ThrowIfNull(contentPath);
 
             return _storageHandler.GetStreamFromStorageAsync(contentPath);
         }

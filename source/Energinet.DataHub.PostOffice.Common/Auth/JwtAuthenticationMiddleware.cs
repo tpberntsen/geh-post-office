@@ -16,6 +16,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 
@@ -33,11 +34,8 @@ namespace Energinet.DataHub.PostOffice.Common.Auth
 
         public Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
-
-            if (next == null)
-                throw new ArgumentNullException(nameof(next));
+            Guard.ThrowIfNull(context);
+            Guard.ThrowIfNull(next);
 
             if (!_identity.HasIdentity)
             {
