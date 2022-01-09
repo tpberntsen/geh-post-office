@@ -32,20 +32,11 @@ namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
             string storageServiceConnectionString,
             StorageConfig storageConfig)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
-
-            if (string.IsNullOrWhiteSpace(serviceBusConnectionString))
-                throw new ArgumentNullException(nameof(serviceBusConnectionString));
-
-            if (messageHubConfig == null)
-                throw new ArgumentNullException(nameof(messageHubConfig));
-
-            if (string.IsNullOrWhiteSpace(storageServiceConnectionString))
-                throw new ArgumentNullException(nameof(storageServiceConnectionString));
-
-            if (storageConfig == null)
-                throw new ArgumentNullException(nameof(storageConfig));
+            Guard.ThrowIfNull(container);
+            Guard.ThrowIfNull(serviceBusConnectionString);
+            Guard.ThrowIfNull(messageHubConfig);
+            Guard.ThrowIfNull(storageServiceConnectionString);
+            Guard.ThrowIfNull(storageConfig);
 
             container.RegisterSingleton(() => messageHubConfig);
             container.RegisterSingleton(() => storageConfig);

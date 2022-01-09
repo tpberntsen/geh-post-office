@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.MessageHub.Core.Extensions;
@@ -37,8 +36,7 @@ namespace Energinet.DataHub.MessageHub.Core.Dequeue
 
         public Task SendAsync(string correlationId, DequeueNotificationDto dequeueNotificationDto, DomainOrigin domainOrigin)
         {
-            if (dequeueNotificationDto is null)
-                throw new ArgumentNullException(nameof(dequeueNotificationDto));
+            Guard.ThrowIfNull(dequeueNotificationDto);
 
             var queueName = GetQueueName(domainOrigin);
             var serviceBusSender = _messageBusFactory.GetSenderClient(queueName);

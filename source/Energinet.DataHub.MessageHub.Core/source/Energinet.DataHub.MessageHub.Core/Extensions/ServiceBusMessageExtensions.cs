@@ -42,8 +42,7 @@ namespace Energinet.DataHub.MessageHub.Core.Extensions
             IntegrationEventsMessageType messageType,
             string eventIdentification)
         {
-            if (serviceBusMessage is null)
-                throw new ArgumentNullException(nameof(serviceBusMessage));
+            Guard.ThrowIfNull(serviceBusMessage);
 
             serviceBusMessage.ApplicationProperties.Add("OperationTimestamp", DateTimeOffset.UtcNow);
             serviceBusMessage.ApplicationProperties.Add("OperationCorrelationId", operationCorrelationId);
