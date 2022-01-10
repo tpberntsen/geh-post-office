@@ -45,7 +45,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
         public async Task<DequeueResponse> Handle(DequeueCommand request, CancellationToken cancellationToken)
         {
-            Guard.ThrowIfNull(request);
+            Guard.ThrowIfNull(request, nameof(request));
 
             var recipient = new MarketOperator(new GlobalLocationNumber(request.MarketOperator));
             var bundleId = new Uuid(request.BundleId);

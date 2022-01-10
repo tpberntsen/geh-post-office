@@ -35,7 +35,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
         public async Task<DataAvailableNotificationResponse> Handle(DataAvailableNotificationCommand request, CancellationToken cancellationToken)
         {
-            Guard.ThrowIfNull(request);
+            Guard.ThrowIfNull(request, nameof(request));
 
             var dataAvailableNotification = MapToDataAvailableNotification(request);
             await _dataAvailableNotificationRepository.SaveAsync(dataAvailableNotification).ConfigureAwait(false);

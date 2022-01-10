@@ -32,11 +32,11 @@ namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
             string storageServiceConnectionString,
             StorageConfig storageConfig)
         {
-            Guard.ThrowIfNull(container);
-            Guard.ThrowIfNull(serviceBusConnectionString);
-            Guard.ThrowIfNull(messageHubConfig);
-            Guard.ThrowIfNull(storageServiceConnectionString);
-            Guard.ThrowIfNull(storageConfig);
+            Guard.ThrowIfNull(container, nameof(container));
+            Guard.ThrowIfNull(serviceBusConnectionString, nameof(serviceBusConnectionString));
+            Guard.ThrowIfNull(messageHubConfig, nameof(messageHubConfig));
+            Guard.ThrowIfNull(storageServiceConnectionString, nameof(storageServiceConnectionString));
+            Guard.ThrowIfNull(storageConfig, nameof(storageConfig));
 
             container.RegisterSingleton(() => messageHubConfig);
             container.RegisterSingleton(() => storageConfig);

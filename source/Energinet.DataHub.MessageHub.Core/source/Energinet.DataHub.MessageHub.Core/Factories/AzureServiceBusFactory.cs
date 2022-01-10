@@ -26,7 +26,7 @@ namespace Energinet.DataHub.MessageHub.Core.Factories
 
         public AzureServiceBusFactory(IServiceBusClientFactory serviceBusClientFactory)
         {
-            Guard.ThrowIfNull(serviceBusClientFactory);
+            Guard.ThrowIfNull(serviceBusClientFactory, nameof(serviceBusClientFactory));
 
             _client = serviceBusClientFactory.Create();
         }

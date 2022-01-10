@@ -30,7 +30,7 @@ namespace Energinet.DataHub.PostOffice.Common.SimpleInjector
 
         public object CreateInstance(Type instanceType, FunctionContext context)
         {
-            Guard.ThrowIfNull(instanceType);
+            Guard.ThrowIfNull(instanceType, nameof(instanceType));
 
             return _container.GetInstance(instanceType);
         }

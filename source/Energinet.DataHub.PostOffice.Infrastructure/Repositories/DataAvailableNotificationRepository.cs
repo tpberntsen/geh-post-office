@@ -42,7 +42,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public async Task SaveAsync(DataAvailableNotification dataAvailableNotification)
         {
-            Guard.ThrowIfNull(dataAvailableNotification);
+            Guard.ThrowIfNull(dataAvailableNotification, nameof(dataAvailableNotification));
 
             var uniqueId = new CosmosUniqueId
             {
@@ -103,7 +103,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public Task<DataAvailableNotification?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
         {
-            Guard.ThrowIfNull(recipient);
+            Guard.ThrowIfNull(recipient, nameof(recipient));
 
             var asLinq = _repositoryContainer
                 .Container
@@ -134,8 +134,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             ContentType contentType,
             Weight maxWeight)
         {
-            Guard.ThrowIfNull(recipient);
-            Guard.ThrowIfNull(contentType);
+            Guard.ThrowIfNull(recipient, nameof(recipient));
+            Guard.ThrowIfNull(contentType, nameof(contentType));
 
             var asLinq = _repositoryContainer
                 .Container
@@ -172,8 +172,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public async Task AcknowledgeAsync(MarketOperator recipient, IEnumerable<Uuid> dataAvailableNotificationUuids)
         {
-            Guard.ThrowIfNull(recipient);
-            Guard.ThrowIfNull(dataAvailableNotificationUuids);
+            Guard.ThrowIfNull(recipient, nameof(recipient));
+            Guard.ThrowIfNull(dataAvailableNotificationUuids, nameof(dataAvailableNotificationUuids));
 
             var stringIds = dataAvailableNotificationUuids
                 .Select(x => x.ToString());
@@ -230,7 +230,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public async Task WriteToArchiveAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
         {
-            Guard.ThrowIfNull(partitionKey);
+            Guard.ThrowIfNull(partitionKey, nameof(partitionKey));
 
             var documentPartitionKey = new PartitionKey(partitionKey);
             var documentsToRead = dataAvailableNotifications.Select(e => (e.ToString(), documentPartitionKey)).ToList();

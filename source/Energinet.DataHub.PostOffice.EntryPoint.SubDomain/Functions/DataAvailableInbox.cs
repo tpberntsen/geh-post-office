@@ -52,7 +52,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             byte[] message,
             FunctionContext context)
         {
-            Guard.ThrowIfNull(message);
+            Guard.ThrowIfNull(message, nameof(message));
 
             var logger = context.GetLogger<DataAvailableInbox>();
             logger.LogInformation($"C# ServiceBus topic trigger function processed message in {FunctionName}");

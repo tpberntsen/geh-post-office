@@ -37,7 +37,7 @@ namespace Energinet.DataHub.MessageHub.Core.Storage
 
         public async Task<Stream> GetStreamFromStorageAsync(Uri contentPath)
         {
-            Guard.ThrowIfNull(contentPath);
+            Guard.ThrowIfNull(contentPath, nameof(contentPath));
 
             try
             {
@@ -58,8 +58,8 @@ namespace Energinet.DataHub.MessageHub.Core.Storage
             string dataAvailableNotificationReferenceId,
             IEnumerable<Guid> dataAvailableNotificationIds)
         {
-            Guard.ThrowIfNull(dataAvailableNotificationReferenceId);
-            Guard.ThrowIfNull(dataAvailableNotificationIds);
+            Guard.ThrowIfNull(dataAvailableNotificationReferenceId, nameof(dataAvailableNotificationReferenceId));
+            Guard.ThrowIfNull(dataAvailableNotificationIds, nameof(dataAvailableNotificationIds));
 
             try
             {

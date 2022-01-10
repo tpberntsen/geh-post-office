@@ -43,7 +43,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
             string message,
             FunctionContext context)
         {
-            Guard.ThrowIfNull(message);
+            Guard.ThrowIfNull(message, nameof(message));
 
             var logger = context.GetLogger<DequeueCleanUpFunction>();
             logger.LogInformation($"C# ServiceBus queue trigger function processed message in {FunctionName}");

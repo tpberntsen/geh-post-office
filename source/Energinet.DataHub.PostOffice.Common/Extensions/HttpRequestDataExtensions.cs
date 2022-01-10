@@ -29,7 +29,7 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
     {
         public static HttpResponseData CreateResponse(this HttpRequestData source, Stream stream, string contentType, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
-            Guard.ThrowIfNull(source);
+            Guard.ThrowIfNull(source, nameof(source));
 
             var response = source.CreateResponse(statusCode);
             response.Body = stream;
@@ -40,8 +40,8 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
 
         public static async Task<HttpResponseData> ProcessAsync(this HttpRequestData request, Func<Task<HttpResponseData>> worker, [CallerFilePath] string? callerFilePath = null)
         {
-            Guard.ThrowIfNull(request);
-            Guard.ThrowIfNull(worker);
+            Guard.ThrowIfNull(request, nameof(request));
+            Guard.ThrowIfNull(worker, nameof(worker));
 
             var callerClass = Path.GetFileNameWithoutExtension(callerFilePath)!;
             var logger = request.FunctionContext.GetLogger(callerClass);

@@ -79,7 +79,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
         public async Task AcknowledgeAsync(Bundle bundle)
         {
-            Guard.ThrowIfNull(bundle);
+            Guard.ThrowIfNull(bundle, nameof(bundle));
 
             await _dataAvailableNotificationRepository
                 .AcknowledgeAsync(bundle.Recipient, bundle.NotificationIds)

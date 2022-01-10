@@ -29,7 +29,7 @@ namespace Energinet.DataHub.PostOffice.Common.Model
 
         public async Task WriteXmlContentsAsync(XmlWriter writer)
         {
-            Guard.ThrowIfNull(writer);
+            Guard.ThrowIfNull(writer, nameof(writer));
 
             await Error.WriteXmlContentsAsync(writer).ConfigureAwait(false);
         }

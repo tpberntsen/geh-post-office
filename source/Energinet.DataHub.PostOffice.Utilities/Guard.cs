@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Runtime.CompilerServices;
-
 namespace Energinet.DataHub.PostOffice.Utilities
 {
     public static class Guard
     {
-        public static void ThrowIfNull(object element, [CallerArgumentExpression("element")] string? name = default)
+        public static void ThrowIfNull(object element, string name)
         {
             if (element is null)
             {

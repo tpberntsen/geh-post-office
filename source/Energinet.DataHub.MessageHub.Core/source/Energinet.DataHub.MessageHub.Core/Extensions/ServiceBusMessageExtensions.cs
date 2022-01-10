@@ -42,7 +42,7 @@ namespace Energinet.DataHub.MessageHub.Core.Extensions
             IntegrationEventsMessageType messageType,
             string eventIdentification)
         {
-            Guard.ThrowIfNull(serviceBusMessage);
+            Guard.ThrowIfNull(serviceBusMessage, nameof(serviceBusMessage));
 
             serviceBusMessage.ApplicationProperties.Add("OperationTimestamp", DateTimeOffset.UtcNow);
             serviceBusMessage.ApplicationProperties.Add("OperationCorrelationId", operationCorrelationId);

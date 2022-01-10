@@ -32,7 +32,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public Task SavePeekLogOccurrenceAsync(PeekLog log)
         {
-            Guard.ThrowIfNull(log);
+            Guard.ThrowIfNull(log, nameof(log));
 
             var instanceToLog = new CosmosLog(
                 log.Id.ToString(),
@@ -47,7 +47,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public Task SaveDequeueLogOccurrenceAsync(DequeueLog log)
         {
-            Guard.ThrowIfNull(log);
+            Guard.ThrowIfNull(log, nameof(log));
 
             var instanceToLog = new CosmosLog(
                 log.Id.ToString(),

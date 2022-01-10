@@ -32,7 +32,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 
         public Task<Stream> GetMarketOperatorDataAsync(Uri contentPath)
         {
-            Guard.ThrowIfNull(contentPath);
+            Guard.ThrowIfNull(contentPath, nameof(contentPath));
 
             return _storageHandler.GetStreamFromStorageAsync(contentPath);
         }

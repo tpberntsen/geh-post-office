@@ -33,8 +33,8 @@ namespace Energinet.DataHub.PostOffice.Common
 
         public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
         {
-            Guard.ThrowIfNull(context);
-            Guard.ThrowIfNull(next);
+            Guard.ThrowIfNull(context, nameof(context));
+            Guard.ThrowIfNull(next, nameof(next));
 
             var traceContext = TraceContext.Parse(context.TraceContext.TraceParent);
 

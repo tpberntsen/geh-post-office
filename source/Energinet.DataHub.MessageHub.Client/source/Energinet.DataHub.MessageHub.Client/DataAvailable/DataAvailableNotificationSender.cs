@@ -36,8 +36,8 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
 
         public Task SendAsync(string correlationId, DataAvailableNotificationDto dataAvailableNotificationDto)
         {
-            Guard.ThrowIfNull(correlationId);
-            Guard.ThrowIfNull(dataAvailableNotificationDto);
+            Guard.ThrowIfNull(correlationId, nameof(correlationId));
+            Guard.ThrowIfNull(dataAvailableNotificationDto, nameof(dataAvailableNotificationDto));
 
             var sender = _messageBusFactory.GetSenderClient(_messageHubConfig.DataAvailableQueue);
 

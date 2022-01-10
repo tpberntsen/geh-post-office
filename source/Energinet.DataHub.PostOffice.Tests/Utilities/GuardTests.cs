@@ -32,7 +32,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Utilities
 
         private static void TestMethod(string str)
         {
-            Guard.ThrowIfNull(str);
+            Guard.ThrowIfNull(str, nameof(str));
         }
     }
 }

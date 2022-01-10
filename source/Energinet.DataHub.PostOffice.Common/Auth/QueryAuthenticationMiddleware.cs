@@ -30,8 +30,8 @@ namespace Energinet.DataHub.PostOffice.Common.Auth
 
         public Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
         {
-            Guard.ThrowIfNull(context);
-            Guard.ThrowIfNull(next);
+            Guard.ThrowIfNull(context, nameof(context));
+            Guard.ThrowIfNull(next, nameof(next));
 
             if (!_identity.HasIdentity)
             {

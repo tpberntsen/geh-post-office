@@ -32,8 +32,8 @@ namespace Energinet.DataHub.PostOffice.Common.SimpleInjector
 
         public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
         {
-            Guard.ThrowIfNull(context);
-            Guard.ThrowIfNull(next);
+            Guard.ThrowIfNull(context, nameof(context));
+            Guard.ThrowIfNull(next, nameof(next));
 
             var scope = AsyncScopedLifestyle.BeginScope(_container);
 

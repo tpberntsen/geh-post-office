@@ -36,7 +36,7 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
     {
         public static void Log(this Exception source, ILogger logger)
         {
-            Guard.ThrowIfNull(source);
+            Guard.ThrowIfNull(source, nameof(source));
 
             if (source is not FluentValidationException)
                 logger.LogError(source, "An error occurred while processing request");
@@ -87,8 +87,8 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
                     httpStatusCode);
             }
 
-            Guard.ThrowIfNull(source);
-            Guard.ThrowIfNull(request);
+            Guard.ThrowIfNull(source, nameof(source));
+            Guard.ThrowIfNull(request, nameof(request));
 
             return source switch
             {

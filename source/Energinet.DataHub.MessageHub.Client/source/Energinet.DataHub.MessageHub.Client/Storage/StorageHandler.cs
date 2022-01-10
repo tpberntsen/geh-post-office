@@ -37,7 +37,7 @@ namespace Energinet.DataHub.MessageHub.Client.Storage
 
         public async Task<Uri> AddStreamToStorageAsync(Stream stream, DataBundleRequestDto requestDto)
         {
-            Guard.ThrowIfNull(requestDto);
+            Guard.ThrowIfNull(requestDto, nameof(requestDto));
 
             if (stream is not { Length: > 0 })
             {

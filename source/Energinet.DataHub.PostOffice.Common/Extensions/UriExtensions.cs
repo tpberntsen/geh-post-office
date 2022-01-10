@@ -23,7 +23,7 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
     {
         public static string GetQueryValue(this Uri uri, string name)
         {
-            Guard.ThrowIfNull(uri);
+            Guard.ThrowIfNull(uri, nameof(uri));
 
             var fields = QueryHelpers.ParseQuery(uri.Query);
             return fields.TryGetValue(name, out var values) ? values.First() : string.Empty;

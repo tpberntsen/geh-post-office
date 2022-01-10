@@ -29,7 +29,7 @@ namespace Energinet.DataHub.PostOffice.Common.SimpleInjector
 
         public object GetService(Type serviceType)
         {
-            Guard.ThrowIfNull(serviceType);
+            Guard.ThrowIfNull(serviceType, nameof(serviceType));
 
             return _container.GetInstance(serviceType);
         }

@@ -80,7 +80,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             Func<MarketOperator, Uuid, Task<Bundle?>> requestHandler,
             Func<ProcessId, IBundleContent, PeekLog> logProvider)
         {
-            Guard.ThrowIfNull(request);
+            Guard.ThrowIfNull(request, nameof(request));
 
             var marketOperator = new MarketOperator(new GlobalLocationNumber(request.MarketOperator));
             var uuid = new Uuid(request.BundleId);

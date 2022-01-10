@@ -37,7 +37,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
         public async Task<OperationResponse> Handle(DequeueCleanUpCommand request, CancellationToken cancellationToken)
         {
-            Guard.ThrowIfNull(request);
+            Guard.ThrowIfNull(request, nameof(request));
 
             var bundleUuid = new Uuid(request.BundleId);
             var marketOperator = new MarketOperator(new GlobalLocationNumber(request.MarketOperator));

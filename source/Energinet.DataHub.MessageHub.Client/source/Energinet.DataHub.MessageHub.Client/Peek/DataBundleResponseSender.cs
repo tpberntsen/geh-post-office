@@ -39,7 +39,7 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
 
         public Task SendAsync(DataBundleResponseDto dataBundleResponseDto)
         {
-            Guard.ThrowIfNull(dataBundleResponseDto);
+            Guard.ThrowIfNull(dataBundleResponseDto, nameof(dataBundleResponseDto));
 
             var sessionId = dataBundleResponseDto.RequestId.ToString();
 

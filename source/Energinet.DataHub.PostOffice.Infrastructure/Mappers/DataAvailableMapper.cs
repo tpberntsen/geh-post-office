@@ -23,7 +23,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
     {
         public DataAvailableNotificationCommand Map(DataAvailableNotificationDto obj)
         {
-            Guard.ThrowIfNull(obj);
+            Guard.ThrowIfNull(obj, nameof(obj));
 
             var dataAvailableCommand = new DataAvailableNotificationCommand(
                 obj.Uuid.ToString(),

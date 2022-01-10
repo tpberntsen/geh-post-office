@@ -36,7 +36,7 @@ namespace Energinet.DataHub.MessageHub.Core.Dequeue
 
         public Task SendAsync(string correlationId, DequeueNotificationDto dequeueNotificationDto, DomainOrigin domainOrigin)
         {
-            Guard.ThrowIfNull(dequeueNotificationDto);
+            Guard.ThrowIfNull(dequeueNotificationDto, nameof(dequeueNotificationDto));
 
             var queueName = GetQueueName(domainOrigin);
             var serviceBusSender = _messageBusFactory.GetSenderClient(queueName);
