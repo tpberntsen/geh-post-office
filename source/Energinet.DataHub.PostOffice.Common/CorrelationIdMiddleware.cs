@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Infrastructure.Correlation;
+using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using TraceContext = Energinet.DataHub.PostOffice.Infrastructure.Correlation.TraceContext;
@@ -34,8 +33,8 @@ namespace Energinet.DataHub.PostOffice.Common
 
         public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-            if (next == null) throw new ArgumentNullException(nameof(next));
+            Guard.ThrowIfNull(context, nameof(context));
+            Guard.ThrowIfNull(next, nameof(next));
 
             var traceContext = TraceContext.Parse(context.TraceContext.TraceParent);
 

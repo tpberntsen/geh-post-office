@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Energinet.DataHub.MessageHub.Client.Extensions;
@@ -40,8 +39,7 @@ namespace Energinet.DataHub.MessageHub.Client.Peek
 
         public Task SendAsync(DataBundleResponseDto dataBundleResponseDto)
         {
-            if (dataBundleResponseDto is null)
-                throw new ArgumentNullException(nameof(dataBundleResponseDto));
+            Guard.ThrowIfNull(dataBundleResponseDto, nameof(dataBundleResponseDto));
 
             var sessionId = dataBundleResponseDto.RequestId.ToString();
 

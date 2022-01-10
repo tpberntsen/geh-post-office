@@ -12,27 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using Energinet.DataHub.PostOffice.Utilities;
-using Microsoft.Azure.Functions.Worker;
-using SimpleInjector;
-
-namespace Energinet.DataHub.PostOffice.Common.SimpleInjector
+namespace Energinet.DataHub.PostOffice.Utilities
 {
-    public class SimpleInjectorActivator : IFunctionActivator
+    public static class Guard
     {
-        private readonly Container _container;
-
-        public SimpleInjectorActivator(Container container)
+        public static void ThrowIfNull(object element, string name)
         {
-            _container = container;
-        }
-
-        public object CreateInstance(Type instanceType, FunctionContext context)
-        {
-            Guard.ThrowIfNull(instanceType, nameof(instanceType));
-
-            return _container.GetInstance(instanceType);
+            if (element is null)
+            {
+                throw new System.ArgumentNullException(name);
+            }
         }
     }
 }
