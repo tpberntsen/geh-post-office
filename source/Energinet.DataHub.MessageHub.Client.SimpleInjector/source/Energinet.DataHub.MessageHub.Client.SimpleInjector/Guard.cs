@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+
 namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
 {
     internal static class Guard
@@ -20,7 +22,15 @@ namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
         {
             if (element is null)
             {
-                throw new System.ArgumentNullException(name);
+                throw new ArgumentNullException(name);
+            }
+        }
+
+        internal static void ThrowIfNullOrWhiteSpace(string? element, string name)
+        {
+            if (string.IsNullOrWhiteSpace(element))
+            {
+                throw new ArgumentNullException(name);
             }
         }
     }
