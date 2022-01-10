@@ -12,9 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+using System.Threading.Tasks;
+using System.Xml;
+
 namespace Energinet.DataHub.PostOffice.Common.Model
 {
-#pragma warning disable CA1819
-    public record FunctionError(ErrorDescriptor[] Errors);
-#pragma warning restore CA1819
+    public sealed record ErrorResponse
+    {
+        public ErrorResponse(ErrorDescriptor error)
+        {
+            Error = error;
+        }
+
+        public ErrorDescriptor Error { get; }
+
+        public async Task WriteXmlContentsAsync(XmlWriter writer)
+        {
+            if (writer is null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            await Error.WriteXmlContentsAsync(writer).ConfigureAwait(false);
+        }
+    }
 }

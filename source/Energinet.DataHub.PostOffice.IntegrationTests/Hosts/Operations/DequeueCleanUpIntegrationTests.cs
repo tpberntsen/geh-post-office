@@ -20,7 +20,6 @@ using Energinet.DataHub.MessageHub.Core.Storage;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
-using Energinet.DataHub.PostOffice.Infrastructure.Correlation;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
@@ -54,7 +53,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.Operations
             var bundleRepository = new BundleRepository(storageHandler, container, storageService);
 
             var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
-            var dataAvailableRepository = new DataAvailableNotificationRepository(dataAvailableContainer, new LogCallback());
+            var dataAvailableRepository = new DataAvailableNotificationRepository(dataAvailableContainer);
 
             var dataAvailableToDequeueAndArchive = CreateDataAvailableNotification(notificationIds.First(), marketOperator);
             await dataAvailableRepository.SaveAsync(dataAvailableToDequeueAndArchive).ConfigureAwait(false);
@@ -62,14 +61,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.Operations
             var bundle = CreateBundle(marketOperator, notificationIds);
             await bundleRepository.TryAddNextUnacknowledgedAsync(bundle).ConfigureAwait(false);
 
-            var dequeueCleanUpCommand = new DequeueCleanUpCommand(bundle.BundleId.ToString());
+            var dequeueCleanUpCommand = new DequeueCleanUpCommand(bundle.BundleId.ToString(), bundle.Recipient.Gln.Value);
 
             // Act
             var response = await mediator.Send(dequeueCleanUpCommand).ConfigureAwait(false);
 
             // Assert
             Assert.True(response.Completed);
-            var bundleDequeued = await bundleRepository.GetBundleAsync(bundle.BundleId).ConfigureAwait(false);
+            var bundleDequeued = await bundleRepository.GetBundleAsync(bundle.BundleId, bundle.Recipient).ConfigureAwait(false);
             Assert.True(bundleDequeued is { NotificationsArchived: true });
         }
 

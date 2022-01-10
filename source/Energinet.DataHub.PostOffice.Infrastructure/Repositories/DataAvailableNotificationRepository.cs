@@ -14,14 +14,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Common;
-using Energinet.DataHub.PostOffice.Infrastructure.Correlation;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Microsoft.Azure.Cosmos;
@@ -31,18 +33,47 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
     public class DataAvailableNotificationRepository : IDataAvailableNotificationRepository
     {
         private readonly IDataAvailableNotificationRepositoryContainer _repositoryContainer;
-        private readonly ILogCallback _logCallback;
 
-        public DataAvailableNotificationRepository(IDataAvailableNotificationRepositoryContainer repositoryContainer, ILogCallback logCallback)
+        public DataAvailableNotificationRepository(IDataAvailableNotificationRepositoryContainer repositoryContainer)
         {
             _repositoryContainer = repositoryContainer;
-            _logCallback = logCallback;
         }
 
-        public Task SaveAsync(DataAvailableNotification dataAvailableNotification)
+        public async Task SaveAsync(DataAvailableNotification dataAvailableNotification)
         {
             if (dataAvailableNotification is null)
                 throw new ArgumentNullException(nameof(dataAvailableNotification));
+
+            var uniqueId = new CosmosUniqueId
+            {
+                Id = dataAvailableNotification.NotificationId.ToString(),
+                PartitionKey = (dataAvailableNotification.NotificationId.AsGuid().GetHashCode() % 10).ToString(CultureInfo.InvariantCulture),
+                Content = Base64Content(dataAvailableNotification)
+            };
+
+            try
+            {
+                await _repositoryContainer.Container.CreateItemAsync(uniqueId).ConfigureAwait(false);
+            }
+            catch (CosmosException e) when (e.StatusCode == HttpStatusCode.Conflict)
+            {
+                var query =
+                    from uniqueIdQuery in _repositoryContainer.Container.GetItemLinqQueryable<CosmosUniqueId>()
+                    where
+                        uniqueIdQuery.Id == uniqueId.Id &&
+                        uniqueIdQuery.PartitionKey == uniqueId.PartitionKey
+                    select uniqueIdQuery;
+
+                await foreach (var existingUniqueId in query.AsCosmosIteratorAsync<CosmosUniqueId>())
+                {
+                    if (existingUniqueId.Content == uniqueId.Content)
+                    {
+                        return;
+                    }
+
+                    throw new ValidationException("ID already in use", e);
+                }
+            }
 
             var cosmosDocument = new CosmosDataAvailable
             {
@@ -56,42 +87,24 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 PartitionKey = dataAvailableNotification.Recipient.Gln.Value + dataAvailableNotification.Origin + dataAvailableNotification.ContentType.Value
             };
 
-            return _repositoryContainer.Container.CreateItemAsync(cosmosDocument);
-        }
+            await _repositoryContainer.Container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
 
-        public async Task SaveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications)
-        {
-            if (dataAvailableNotifications is null)
-                throw new ArgumentNullException(nameof(dataAvailableNotifications));
-
-            var concurrentTasks = new List<Task>();
-
-            foreach (var dataAvailableNotification in dataAvailableNotifications)
+            static string Base64Content(DataAvailableNotification dataAvailableNotification)
             {
-                var item = new CosmosDataAvailable
-                {
-                    Id = dataAvailableNotification.NotificationId.ToString(),
-                    Recipient = dataAvailableNotification.Recipient.Gln.Value,
-                    ContentType = dataAvailableNotification.ContentType.Value,
-                    Origin = dataAvailableNotification.Origin.ToString(),
-                    SupportsBundling = dataAvailableNotification.SupportsBundling.Value,
-                    RelativeWeight = dataAvailableNotification.Weight.Value,
-                    Acknowledge = false,
-                    PartitionKey = dataAvailableNotification.Recipient.Gln.Value + dataAvailableNotification.Origin + dataAvailableNotification.ContentType.Value
-                };
-
-                concurrentTasks.Add(_repositoryContainer.Container.CreateItemAsync(item));
+                using var ms = new MemoryStream();
+                ms.Write(Encoding.UTF8.GetBytes(dataAvailableNotification.ContentType.Value));
+                ms.Write(BitConverter.GetBytes((int)dataAvailableNotification.Origin));
+                ms.Write(Encoding.UTF8.GetBytes(dataAvailableNotification.Recipient.Gln.Value));
+                ms.Write(BitConverter.GetBytes(dataAvailableNotification.SupportsBundling.Value));
+                ms.Write(BitConverter.GetBytes(dataAvailableNotification.Weight.Value));
+                return Convert.ToBase64String(ms.ToArray());
             }
-
-            await Task.WhenAll(concurrentTasks).ConfigureAwait(false);
         }
 
-        public async Task<DataAvailableNotification?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
+        public Task<DataAvailableNotification?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
         {
             if (recipient is null)
                 throw new ArgumentNullException(nameof(recipient));
-
-            var sw = Stopwatch.StartNew();
 
             var asLinq = _repositoryContainer
                 .Container
@@ -113,13 +126,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 orderby dataAvailable.Timestamp
                 select dataAvailable;
 
-            var firstOrDefaultAsync = await ExecuteQueryAsync(query)
-                .FirstOrDefaultAsync()
-                .ConfigureAwait(false);
-
-            _logCallback.Log($"GetNextUnacknowledgedAsync (Single): {sw.ElapsedMilliseconds} ms.\n");
-
-            return firstOrDefaultAsync;
+            return ExecuteQueryAsync(query).FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<DataAvailableNotification>> GetNextUnacknowledgedAsync(
@@ -133,8 +140,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             if (contentType is null)
                 throw new ArgumentNullException(nameof(contentType));
-
-            var sw = Stopwatch.StartNew();
 
             var asLinq = _repositoryContainer
                 .Container
@@ -165,8 +170,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     break;
                 }
             }
-
-            _logCallback.Log($"GetNextUnacknowledgedAsync (List): {sw.ElapsedMilliseconds} ms.\n");
 
             return allUnacknowledged;
         }
@@ -240,25 +243,17 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var documentPartitionKey = new PartitionKey(partitionKey);
             var documentsToRead = dataAvailableNotifications.Select(e => (e.ToString(), documentPartitionKey)).ToList();
 
-            var sw1 = Stopwatch.StartNew();
-
             var documentsToArchive = await _repositoryContainer
                 .Container
                 .ReadManyItemsAsync<CosmosDataAvailable>(documentsToRead).ConfigureAwait(false);
-
-            _logCallback.Log($"WriteToArchiveAsync (ReadMany): {sw1.ElapsedMilliseconds} ms.\n");
 
             if (documentsToArchive.StatusCode != HttpStatusCode.OK)
             {
                 throw new CosmosException("ReadManyItemsAsync failed", documentsToArchive.StatusCode, -1, documentsToArchive.ActivityId, documentsToArchive.RequestCharge);
             }
 
-            var sw2 = Stopwatch.StartNew();
-
             var archiveWriteTasks = documentsToArchive.Select(ArchiveDocumentAsync);
             await Task.WhenAll(archiveWriteTasks).ConfigureAwait(false);
-
-            _logCallback.Log($"WriteToArchiveAsync (Write): {sw2.ElapsedMilliseconds} ms.\n");
         }
 
         public Task DeleteAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)

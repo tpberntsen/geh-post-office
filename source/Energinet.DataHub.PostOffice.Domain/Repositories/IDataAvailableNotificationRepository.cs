@@ -30,12 +30,6 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         Task SaveAsync(DataAvailableNotification dataAvailableNotification);
 
         /// <summary>
-        /// Saves the given notification as unacknowledged.
-        /// </summary>
-        /// <param name="dataAvailableNotifications">The notifications to save.</param>
-        Task SaveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications);
-
-        /// <summary>
         /// Gets the next unacknowledged notification for the given market operator and domains.
         /// Returns null if there are no unacknowledged notifications.
         /// </summary>

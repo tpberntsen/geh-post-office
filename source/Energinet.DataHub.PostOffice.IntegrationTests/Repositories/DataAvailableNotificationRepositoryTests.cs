@@ -390,55 +390,6 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         }
 
         [Fact]
-        public async Task AcknowledgeAsync_AcrossPartitionKeys_OneRecipientCannotAffectAnother()
-        {
-            // Arrange
-            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
-            var scope = host.BeginScope();
-
-            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
-
-            var recipientA = new MarketOperator(new MockedGln());
-            var recipientB = new MarketOperator(new MockedGln());
-            var commonGuid = new Uuid(Guid.NewGuid());
-
-            // Two identical notifications for two different recipients.
-            // The uuid is only unique pr. partition and can be reused.
-            var notificationA = new DataAvailableNotification(
-                commonGuid,
-                recipientA,
-                new ContentType("target"),
-                DomainOrigin.Aggregations,
-                new SupportsBundling(false),
-                new Weight(1));
-
-            // Everything should match to detect change of partition key.
-            var notificationB = new DataAvailableNotification(
-                commonGuid,
-                recipientB,
-                notificationA.ContentType,
-                notificationA.Origin,
-                notificationA.SupportsBundling,
-                notificationA.Weight);
-
-            await dataAvailableNotificationRepository.SaveAsync(notificationA).ConfigureAwait(false);
-            await dataAvailableNotificationRepository.SaveAsync(notificationB).ConfigureAwait(false);
-
-            // Assert: Read notifications back.
-            Assert.NotNull(await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipientA).ConfigureAwait(false));
-            Assert.NotNull(await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipientB).ConfigureAwait(false));
-
-            // Act
-            await dataAvailableNotificationRepository
-                .AcknowledgeAsync(recipientA, new[] { commonGuid })
-                .ConfigureAwait(false);
-
-            // Assert: Only one notification should be acknowledged.
-            Assert.Null(await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipientA).ConfigureAwait(false));
-            Assert.NotNull(await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipientB).ConfigureAwait(false));
-        }
-
-        [Fact]
         public async Task AcknowledgeAsync_BundleOverItemCap_AcknowledgesWithoutError()
         {
             // Arrange
@@ -514,47 +465,6 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             Assert.Equal(expected.Origin, actual.Origin);
             Assert.Equal(expected.SupportsBundling, actual.SupportsBundling);
             Assert.Equal(expected.Weight, actual.Weight);
-        }
-
-        [Fact]
-        public async Task SaveAsync_InsertingBatchOfDataAvailables_Success()
-        {
-            // Arrange
-            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
-            var scope = host.BeginScope();
-
-            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
-
-            var dataAvailableNotifications = new List<DataAvailableNotification>();
-
-            var gln = new MockedGln();
-            for (int i = 0; i < 5; i++)
-            {
-                dataAvailableNotifications.Add(new DataAvailableNotification(
-                    new Uuid(Guid.NewGuid()),
-                    new MarketOperator(gln),
-                    new ContentType("fake_value"),
-                    DomainOrigin.TimeSeries,
-                    new SupportsBundling(true),
-                    new Weight(1)));
-            }
-
-            var expected = dataAvailableNotifications.OrderBy(x => x.NotificationId.AsGuid()).ToList();
-
-            // Act
-            await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
-
-            var totalWeight = new Weight(dataAvailableNotifications.Sum(item => item.Weight.Value));
-            var response = await dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(
-                dataAvailableNotifications.First().Recipient,
-                dataAvailableNotifications.First().Origin,
-                dataAvailableNotifications.First().ContentType,
-                totalWeight).ConfigureAwait(false);
-
-            var result = response.OrderBy(x => x.NotificationId.AsGuid()).ToList();
-
-            // Assert
-            result.Should().BeEquivalentTo(expected);
         }
     }
 }

@@ -40,6 +40,8 @@ module "func_marketoperator" {
     DEQUEUE_CLEANUP_QUEUE_NAME            = data.azurerm_key_vault_secret.sbq_messagehub_dequeue_cleanup_name.value
     LOG_DB_NAME                           = azurerm_cosmosdb_sql_database.log_db.name
     LOG_DB_CONTAINER                      = azurerm_cosmosdb_sql_container.collection_logs.name
+    RequestResponseLogConnectionString    = data.azurerm_key_vault_secret.st_market_operator_logs_primary_connection_string.value
+    RequestResponseLogContainerName       = data.azurerm_key_vault_secret.st_market_operator_logs_container_name.value
   }
   
   tags                                      = azurerm_resource_group.this.tags

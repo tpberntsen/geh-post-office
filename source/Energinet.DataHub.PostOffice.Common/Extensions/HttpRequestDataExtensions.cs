@@ -20,17 +20,20 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 
 namespace Energinet.DataHub.PostOffice.Common.Extensions
 {
     public static class HttpRequestDataExtensions
     {
-        public static HttpResponseData CreateResponse(this HttpRequestData source, Stream stream, HttpStatusCode statusCode = HttpStatusCode.OK)
+        public static HttpResponseData CreateResponse(this HttpRequestData source, Stream stream, string contentType, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
             var response = source.CreateResponse(statusCode);
             response.Body = stream;
+            response.Headers = new HttpHeadersCollection { { HeaderNames.ContentType, new[] { contentType } } };
 
             return response;
         }
@@ -56,7 +59,7 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
 #pragma warning restore CA1031
             {
                 e.Log(logger);
-                return e.AsHttpResponseData(request);
+                return await e.AsHttpResponseDataAsync(request).ConfigureAwait(false);
             }
         }
     }

@@ -90,7 +90,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 .ConfigureAwait(false);
 
             await _dequeueCleanUpSchedulingService
-                .TriggerDequeueCleanUpOperationAsync(bundle.BundleId)
+                .TriggerDequeueCleanUpOperationAsync(bundle)
                 .ConfigureAwait(false);
         }
 

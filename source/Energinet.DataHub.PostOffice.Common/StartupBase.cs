@@ -14,6 +14,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Energinet.DataHub.Core.Logging.RequestResponseMiddleware;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Common.Auth;
 using Energinet.DataHub.PostOffice.Common.MediatR;
@@ -47,7 +48,11 @@ namespace Energinet.DataHub.PostOffice.Common
             SwitchToSimpleInjector(services);
 
             services.AddLogging();
-            services.AddSimpleInjector(Container, x => x.DisposeContainerWithServiceProvider = !true);
+            services.AddSimpleInjector(Container, x =>
+            {
+                x.DisposeContainerWithServiceProvider = !true;
+                x.AddLogging();
+            });
 
             // Auth
             Container.AddAuthentication();
@@ -76,7 +81,9 @@ namespace Energinet.DataHub.PostOffice.Common
             Container.Register<CorrelationIdMiddleware>(Lifestyle.Scoped);
             Container.Register<EntryPointTelemetryScopeMiddleware>(Lifestyle.Scoped);
 
-            Container.Register<ILogCallback, LogCallback>(Lifestyle.Scoped);
+            // Add middleware logging
+            Container.AddRequestResponseLoggingStorage();
+            Container.Register<RequestResponseLoggingMiddleware>(Lifestyle.Scoped);
 
             // Add MediatR
             Container.BuildMediator(new[] { typeof(ApplicationAssemblyReference).Assembly });
