@@ -12,18 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-using MediatR;
+using System;
 
-namespace Energinet.DataHub.PostOffice.Application.Commands
+namespace Energinet.DataHub.MessageHub.Client.SimpleInjector
 {
-    public class DataAvailableNotificationListCommand : IRequest<DataAvailableNotificationResponse>
+    internal static class Guard
     {
-        public DataAvailableNotificationListCommand(IEnumerable<DataAvailableNotificationCommand> dataAvailableNotifications)
+        internal static void ThrowIfNull(object element, string name)
         {
-            DataAvailableNotifications = dataAvailableNotifications;
+            if (element is null)
+            {
+                throw new ArgumentNullException(name);
+            }
         }
 
-        public IEnumerable<DataAvailableNotificationCommand> DataAvailableNotifications { get; }
+        internal static void ThrowIfNullOrWhiteSpace(string? element, string name)
+        {
+            if (string.IsNullOrWhiteSpace(element))
+            {
+                throw new ArgumentNullException(name);
+            }
+        }
     }
 }

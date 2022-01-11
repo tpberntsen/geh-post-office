@@ -14,6 +14,7 @@
 
 using System;
 using System.Linq;
+using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace Energinet.DataHub.PostOffice.Common.Extensions
@@ -22,8 +23,7 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
     {
         public static string GetQueryValue(this Uri uri, string name)
         {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
+            Guard.ThrowIfNull(uri, nameof(uri));
 
             var fields = QueryHelpers.ParseQuery(uri.Query);
             return fields.TryGetValue(name, out var values) ? values.First() : string.Empty;

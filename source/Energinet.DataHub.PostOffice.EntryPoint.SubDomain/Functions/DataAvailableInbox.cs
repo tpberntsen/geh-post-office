@@ -19,6 +19,7 @@ using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Infrastructure;
+using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -51,8 +52,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             byte[] message,
             FunctionContext context)
         {
-            if (message is null)
-                throw new ArgumentNullException(nameof(message));
+            Guard.ThrowIfNull(message, nameof(message));
 
             var logger = context.GetLogger<DataAvailableInbox>();
             logger.LogInformation($"C# ServiceBus topic trigger function processed message in {FunctionName}");

@@ -13,19 +13,18 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
+using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
     public class DataAvailableNotificationHandler
-        : IRequestHandler<DataAvailableNotificationCommand, DataAvailableNotificationResponse>,
-            IRequestHandler<DataAvailableNotificationListCommand, DataAvailableNotificationResponse>
+        : IRequestHandler<DataAvailableNotificationCommand, DataAvailableNotificationResponse>
     {
         private readonly IDataAvailableNotificationRepository _dataAvailableNotificationRepository;
 
@@ -36,24 +35,10 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
         public async Task<DataAvailableNotificationResponse> Handle(DataAvailableNotificationCommand request, CancellationToken cancellationToken)
         {
-            if (request is null)
-                throw new ArgumentNullException(nameof(request));
+            Guard.ThrowIfNull(request, nameof(request));
 
             var dataAvailableNotification = MapToDataAvailableNotification(request);
             await _dataAvailableNotificationRepository.SaveAsync(dataAvailableNotification).ConfigureAwait(false);
-            return new DataAvailableNotificationResponse();
-        }
-
-        public async Task<DataAvailableNotificationResponse> Handle(DataAvailableNotificationListCommand request, CancellationToken cancellationToken)
-        {
-            if (request is null)
-                throw new ArgumentNullException(nameof(request));
-
-            var mappedDataAvailable = request
-                .DataAvailableNotifications
-                .Select(MapToDataAvailableNotification);
-
-            await _dataAvailableNotificationRepository.SaveAsync(mappedDataAvailable).ConfigureAwait(false);
             return new DataAvailableNotificationResponse();
         }
 

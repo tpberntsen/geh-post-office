@@ -21,6 +21,7 @@ using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Model.Logging;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
+using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
@@ -79,8 +80,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             Func<MarketOperator, Uuid, Task<Bundle?>> requestHandler,
             Func<ProcessId, IBundleContent, PeekLog> logProvider)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
+            Guard.ThrowIfNull(request, nameof(request));
 
             var marketOperator = new MarketOperator(new GlobalLocationNumber(request.MarketOperator));
             var uuid = new Uuid(request.BundleId);

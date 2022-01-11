@@ -12,9 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Energinet.DataHub.PostOffice.Common.Model
+using System;
+using Energinet.DataHub.PostOffice.Utilities;
+using Xunit;
+using Xunit.Categories;
+
+namespace Energinet.DataHub.PostOffice.Tests.Utilities
 {
-#pragma warning disable CA1819
-    public record FunctionError(ErrorDescriptor[] Errors);
-#pragma warning restore CA1819
+    [UnitTest]
+    public class GuardTests
+    {
+        [Fact]
+        public void ThrowIfNull_UsesCorrectParameterName()
+        {
+            var exception = Assert.Throws<ArgumentNullException>(() => TestMethod(null!));
+
+            Assert.Equal("str", exception.ParamName);
+        }
+
+        private static void TestMethod(string str)
+        {
+            Guard.ThrowIfNull(str, nameof(str));
+        }
+    }
 }

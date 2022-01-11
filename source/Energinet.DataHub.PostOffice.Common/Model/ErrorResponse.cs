@@ -12,15 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.Azure.WebJobs;
+using System.Threading.Tasks;
+using System.Xml;
+using Energinet.DataHub.PostOffice.Utilities;
 
-namespace Energinet.DataHub.PostOffice.ServiceContracts
+namespace Energinet.DataHub.PostOffice.Common.Model
 {
-    public static class ProtoContractServiceFactory
+    public sealed record ErrorResponse
     {
-        public static ProtoContractService Create(ExecutionContext context)
+        public ErrorResponse(ErrorDescriptor error)
         {
-            return new ProtoContractService(context);
+            Error = error;
+        }
+
+        public ErrorDescriptor Error { get; }
+
+        public async Task WriteXmlContentsAsync(XmlWriter writer)
+        {
+            Guard.ThrowIfNull(writer, nameof(writer));
+
+            await Error.WriteXmlContentsAsync(writer).ConfigureAwait(false);
         }
     }
 }
