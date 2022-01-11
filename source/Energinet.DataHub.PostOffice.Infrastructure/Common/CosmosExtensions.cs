@@ -67,7 +67,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Common
         }
 
         // This method exists, because we have to put ConfigureAwait(false) on IAsyncEnumerable.
-        // TODO: UTs
         public static async Task<T?> SingleOrDefaultAsync<T>(this IAsyncEnumerable<T> enumerable)
         {
             await using var enumerator = enumerable.ConfigureAwait(false).GetAsyncEnumerator();
