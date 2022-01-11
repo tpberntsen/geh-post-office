@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Threading.Tasks;
 using System.Xml;
+using Energinet.DataHub.PostOffice.Utilities;
 
 namespace Energinet.DataHub.PostOffice.Common.Model
 {
@@ -29,10 +29,7 @@ namespace Energinet.DataHub.PostOffice.Common.Model
 
         public async Task WriteXmlContentsAsync(XmlWriter writer)
         {
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            Guard.ThrowIfNull(writer, nameof(writer));
 
             await Error.WriteXmlContentsAsync(writer).ConfigureAwait(false);
         }

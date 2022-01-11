@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Core.Dequeue;
@@ -22,6 +21,7 @@ using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Model.Logging;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
+using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
 using DomainOrigin = Energinet.DataHub.MessageHub.Model.Model.DomainOrigin;
 
@@ -45,8 +45,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
         public async Task<DequeueResponse> Handle(DequeueCommand request, CancellationToken cancellationToken)
         {
-            if (request is null)
-                throw new ArgumentNullException(nameof(request));
+            Guard.ThrowIfNull(request, nameof(request));
 
             var recipient = new MarketOperator(new GlobalLocationNumber(request.MarketOperator));
             var bundleId = new Uuid(request.BundleId);

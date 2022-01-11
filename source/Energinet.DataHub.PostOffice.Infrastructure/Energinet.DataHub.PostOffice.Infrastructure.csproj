@@ -26,6 +26,7 @@ limitations under the License.
     <ItemGroup>
       <ProjectReference Include="..\Energinet.DataHub.PostOffice.Application\Energinet.DataHub.PostOffice.Application.csproj" />
       <ProjectReference Include="..\Energinet.DataHub.PostOffice.Domain\Energinet.DataHub.PostOffice.Domain.csproj" />
+      <ProjectReference Include="..\Energinet.DataHub.PostOffice.Utilities\Energinet.DataHub.PostOffice.Utilities.csproj" />
     </ItemGroup>
 
     <ItemGroup>

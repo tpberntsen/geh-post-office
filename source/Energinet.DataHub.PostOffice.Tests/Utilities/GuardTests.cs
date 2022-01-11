@@ -14,25 +14,25 @@
 
 using System;
 using Energinet.DataHub.PostOffice.Utilities;
-using Microsoft.Azure.Functions.Worker;
-using SimpleInjector;
+using Xunit;
+using Xunit.Categories;
 
-namespace Energinet.DataHub.PostOffice.Common.SimpleInjector
+namespace Energinet.DataHub.PostOffice.Tests.Utilities
 {
-    public class SimpleInjectorActivator : IFunctionActivator
+    [UnitTest]
+    public class GuardTests
     {
-        private readonly Container _container;
-
-        public SimpleInjectorActivator(Container container)
+        [Fact]
+        public void ThrowIfNull_UsesCorrectParameterName()
         {
-            _container = container;
+            var exception = Assert.Throws<ArgumentNullException>(() => TestMethod(null!));
+
+            Assert.Equal("str", exception.ParamName);
         }
 
-        public object CreateInstance(Type instanceType, FunctionContext context)
+        private static void TestMethod(string str)
         {
-            Guard.ThrowIfNull(instanceType, nameof(instanceType));
-
-            return _container.GetInstance(instanceType);
+            Guard.ThrowIfNull(str, nameof(str));
         }
     }
 }

@@ -26,6 +26,7 @@ using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Common;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
+using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
@@ -41,8 +42,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public async Task SaveAsync(DataAvailableNotification dataAvailableNotification)
         {
-            if (dataAvailableNotification is null)
-                throw new ArgumentNullException(nameof(dataAvailableNotification));
+            Guard.ThrowIfNull(dataAvailableNotification, nameof(dataAvailableNotification));
 
             var uniqueId = new CosmosUniqueId
             {
@@ -103,8 +103,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public Task<DataAvailableNotification?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
         {
-            if (recipient is null)
-                throw new ArgumentNullException(nameof(recipient));
+            Guard.ThrowIfNull(recipient, nameof(recipient));
 
             var asLinq = _repositoryContainer
                 .Container
@@ -135,11 +134,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             ContentType contentType,
             Weight maxWeight)
         {
-            if (recipient is null)
-                throw new ArgumentNullException(nameof(recipient));
-
-            if (contentType is null)
-                throw new ArgumentNullException(nameof(contentType));
+            Guard.ThrowIfNull(recipient, nameof(recipient));
+            Guard.ThrowIfNull(contentType, nameof(contentType));
 
             var asLinq = _repositoryContainer
                 .Container
@@ -176,11 +172,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public async Task AcknowledgeAsync(MarketOperator recipient, IEnumerable<Uuid> dataAvailableNotificationUuids)
         {
-            if (recipient is null)
-                throw new ArgumentNullException(nameof(recipient));
-
-            if (dataAvailableNotificationUuids is null)
-                throw new ArgumentNullException(nameof(dataAvailableNotificationUuids));
+            Guard.ThrowIfNull(recipient, nameof(recipient));
+            Guard.ThrowIfNull(dataAvailableNotificationUuids, nameof(dataAvailableNotificationUuids));
 
             var stringIds = dataAvailableNotificationUuids
                 .Select(x => x.ToString());
@@ -237,8 +230,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public async Task WriteToArchiveAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
         {
-            if (partitionKey is null)
-                throw new ArgumentNullException(nameof(partitionKey));
+            Guard.ThrowIfNull(partitionKey, nameof(partitionKey));
 
             var documentPartitionKey = new PartitionKey(partitionKey);
             var documentsToRead = dataAvailableNotifications.Select(e => (e.ToString(), documentPartitionKey)).ToList();
