@@ -18,8 +18,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
+using Energinet.DataHub.PostOffice.Infrastructure.Documents;
+using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
 using FluentAssertions;
+using Microsoft.Azure.Cosmos;
 using Xunit;
 using Xunit.Categories;
 
@@ -428,6 +431,303 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             // Assert
             Assert.Null(acknowledged);
+        }
+
+        [Fact]
+        public async Task AcknowledgeAsync_AcknowledgedData_UpdatesSubPartitionLookup()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+
+            var recipient = new MockedGln().ToString();
+            var origin = DomainOrigin.MeteringPoints.ToString();
+            var contentType = "mp_content_type";
+
+            var initialCosmosSubPartitionLookup = new CosmosSubPartitionLookup
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient, origin, contentType),
+                InitialSequenceNumber = 1,
+                CurrentCursor = 3
+            };
+
+            var createdSubPartitionLookup = await dataAvailableContainer
+                .Container
+                .CreateItemAsync(initialCosmosSubPartitionLookup)
+                .ConfigureAwait(false);
+
+            var initialCosmosContentTypeLookup = new CosmosContentTypeLookup
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient, origin),
+                ContentType = contentType,
+                NextSequenceNumber = 3
+            };
+
+            await dataAvailableContainer
+                .Container
+                .CreateItemAsync(initialCosmosContentTypeLookup)
+                .ConfigureAwait(false);
+
+            var cosmosSubPartitionPeekChanges = new CosmosSubPartitionPeekChanges
+            {
+                ContentTypeLookupId = Guid.NewGuid().ToString(),
+                ContentTypeLookupSequenceNumber = initialCosmosContentTypeLookup.NextSequenceNumber,
+                SubPartitionLookupId = initialCosmosSubPartitionLookup.Id,
+                SubPartitionInitialSequenceNumber = initialCosmosSubPartitionLookup.InitialSequenceNumber,
+                SubPartitionNextCursorPosition = 5,
+                SubPartitionNextSequenceNumber = 12,
+                SubPartitionLookupExpectedETag = createdSubPartitionLookup.ETag
+            };
+
+            var bundleId = Guid.NewGuid().ToString();
+            var bundleDocument = new CosmosBundleDocument2
+            {
+                Id = bundleId,
+                ProcessId = string.Join('_', bundleId, recipient),
+                Recipient = recipient,
+                Origin = origin,
+                MessageType = contentType,
+                Dequeued = false,
+                ContentPath = "/nowhere",
+                AffectedSubPartitions = { cosmosSubPartitionPeekChanges }
+            };
+
+            var bundleContainer = scope.GetInstance<IBundleRepositoryContainer>();
+            await bundleContainer
+                .Container
+                .UpsertItemAsync(bundleDocument)
+                .ConfigureAwait(false);
+
+            var bundle = new Bundle(
+                new Uuid(bundleId),
+                new MarketOperator(new GlobalLocationNumber(recipient)),
+                DomainOrigin.MeteringPoints,
+                new ContentType(contentType),
+                Array.Empty<Uuid>());
+
+            var target = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            // Act
+            await target
+                .AcknowledgeAsync(bundle)
+                .ConfigureAwait(false);
+
+            // Assert
+            var updatedCosmosSubPartitionLookup = await dataAvailableContainer
+                .Container
+                .ReadItemAsync<CosmosSubPartitionLookup>(
+                    initialCosmosSubPartitionLookup.Id,
+                    new PartitionKey(initialCosmosSubPartitionLookup.PartitionKey))
+                .ConfigureAwait(false);
+
+            var updatedCosmosContentTypeLookup = await dataAvailableContainer
+                .Container
+                .ReadItemAsync<CosmosContentTypeLookup>(
+                    cosmosSubPartitionPeekChanges.ContentTypeLookupId,
+                    new PartitionKey(initialCosmosContentTypeLookup.PartitionKey))
+                .ConfigureAwait(false);
+
+            Assert.Equal(
+                cosmosSubPartitionPeekChanges.SubPartitionNextCursorPosition,
+                updatedCosmosSubPartitionLookup.Resource.CurrentCursor);
+
+            Assert.Equal(
+                cosmosSubPartitionPeekChanges.SubPartitionNextSequenceNumber,
+                updatedCosmosContentTypeLookup.Resource.NextSequenceNumber);
+        }
+
+        [Fact]
+        public async Task AcknowledgeAsync_AcknowledgedDataTwice_NoExceptionWhenUpdatingCursor()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+
+            var recipient = new MockedGln().ToString();
+            var origin = DomainOrigin.MeteringPoints.ToString();
+            var contentType = "mp_content_type";
+
+            var initialCosmosSubPartitionLookup = new CosmosSubPartitionLookup
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient, origin, contentType),
+                InitialSequenceNumber = 1,
+                CurrentCursor = 3
+            };
+
+            await dataAvailableContainer
+                .Container
+                .CreateItemAsync(initialCosmosSubPartitionLookup)
+                .ConfigureAwait(false);
+
+            var initialCosmosContentTypeLookup = new CosmosContentTypeLookup
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient, origin),
+                ContentType = contentType,
+                NextSequenceNumber = 3
+            };
+
+            await dataAvailableContainer
+                .Container
+                .CreateItemAsync(initialCosmosContentTypeLookup)
+                .ConfigureAwait(false);
+
+            var cosmosSubPartitionPeekChanges = new CosmosSubPartitionPeekChanges
+            {
+                ContentTypeLookupId = Guid.NewGuid().ToString(),
+                ContentTypeLookupSequenceNumber = initialCosmosContentTypeLookup.NextSequenceNumber,
+                SubPartitionLookupId = initialCosmosSubPartitionLookup.Id,
+                SubPartitionInitialSequenceNumber = initialCosmosSubPartitionLookup.InitialSequenceNumber,
+                SubPartitionNextCursorPosition = 5,
+                SubPartitionNextSequenceNumber = 12,
+                SubPartitionLookupExpectedETag = "no_match"
+            };
+
+            var bundleId = Guid.NewGuid().ToString();
+            var bundleDocument = new CosmosBundleDocument2
+            {
+                Id = bundleId,
+                ProcessId = string.Join('_', bundleId, recipient),
+                Recipient = recipient,
+                Origin = origin,
+                MessageType = contentType,
+                Dequeued = false,
+                ContentPath = "/nowhere",
+                AffectedSubPartitions = { cosmosSubPartitionPeekChanges }
+            };
+
+            var bundleContainer = scope.GetInstance<IBundleRepositoryContainer>();
+            await bundleContainer
+                .Container
+                .UpsertItemAsync(bundleDocument)
+                .ConfigureAwait(false);
+
+            var bundle = new Bundle(
+                new Uuid(bundleId),
+                new MarketOperator(new GlobalLocationNumber(recipient)),
+                DomainOrigin.MeteringPoints,
+                new ContentType(contentType),
+                Array.Empty<Uuid>());
+
+            var target = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            // Act
+            await target
+                .AcknowledgeAsync(bundle)
+                .ConfigureAwait(false);
+
+            // Assert
+            var updatedCosmosSubPartitionLookup = await dataAvailableContainer
+                .Container
+                .ReadItemAsync<CosmosSubPartitionLookup>(
+                    initialCosmosSubPartitionLookup.Id,
+                    new PartitionKey(initialCosmosSubPartitionLookup.PartitionKey))
+                .ConfigureAwait(false);
+
+            var updatedCosmosContentTypeLookup = await dataAvailableContainer
+                .Container
+                .ReadItemAsync<CosmosContentTypeLookup>(
+                    cosmosSubPartitionPeekChanges.ContentTypeLookupId,
+                    new PartitionKey(initialCosmosContentTypeLookup.PartitionKey))
+                .ConfigureAwait(false);
+
+            Assert.Equal(
+                initialCosmosSubPartitionLookup.CurrentCursor,
+                updatedCosmosSubPartitionLookup.Resource.CurrentCursor);
+
+            Assert.Equal(
+                cosmosSubPartitionPeekChanges.SubPartitionNextSequenceNumber,
+                updatedCosmosContentTypeLookup.Resource.NextSequenceNumber);
+        }
+
+        [Fact]
+        public async Task AcknowledgeAsync_AcknowledgedDataTwice_NoContentTypeLookupToDelete()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+
+            var recipient = new MockedGln().ToString();
+            var origin = DomainOrigin.MeteringPoints.ToString();
+            var contentType = "mp_content_type";
+
+            var initialCosmosSubPartitionLookup = new CosmosSubPartitionLookup
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient, origin, contentType),
+                InitialSequenceNumber = 1,
+                CurrentCursor = 3
+            };
+
+            var createdSubPartitionLookup = await dataAvailableContainer
+                .Container
+                .CreateItemAsync(initialCosmosSubPartitionLookup)
+                .ConfigureAwait(false);
+
+            var cosmosSubPartitionPeekChanges = new CosmosSubPartitionPeekChanges
+            {
+                ContentTypeLookupId = Guid.NewGuid().ToString(),
+                ContentTypeLookupSequenceNumber = 13,
+                SubPartitionLookupId = initialCosmosSubPartitionLookup.Id,
+                SubPartitionInitialSequenceNumber = initialCosmosSubPartitionLookup.InitialSequenceNumber,
+                SubPartitionNextCursorPosition = 5,
+                SubPartitionNextSequenceNumber = 12,
+                SubPartitionLookupExpectedETag = createdSubPartitionLookup.ETag
+            };
+
+            var bundleId = Guid.NewGuid().ToString();
+            var bundleDocument = new CosmosBundleDocument2
+            {
+                Id = bundleId,
+                ProcessId = string.Join('_', bundleId, recipient),
+                Recipient = recipient,
+                Origin = origin,
+                MessageType = contentType,
+                Dequeued = false,
+                ContentPath = "/nowhere",
+                AffectedSubPartitions = { cosmosSubPartitionPeekChanges }
+            };
+
+            var bundleContainer = scope.GetInstance<IBundleRepositoryContainer>();
+            await bundleContainer
+                .Container
+                .UpsertItemAsync(bundleDocument)
+                .ConfigureAwait(false);
+
+            var bundle = new Bundle(
+                new Uuid(bundleId),
+                new MarketOperator(new GlobalLocationNumber(recipient)),
+                DomainOrigin.MeteringPoints,
+                new ContentType(contentType),
+                Array.Empty<Uuid>());
+
+            var target = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            // Act
+            await target
+                .AcknowledgeAsync(bundle)
+                .ConfigureAwait(false);
+
+            // Assert
+            var updatedCosmosSubPartitionLookup = await dataAvailableContainer
+                .Container
+                .ReadItemAsync<CosmosSubPartitionLookup>(
+                    initialCosmosSubPartitionLookup.Id,
+                    new PartitionKey(initialCosmosSubPartitionLookup.PartitionKey))
+                .ConfigureAwait(false);
+
+            Assert.Equal(
+                cosmosSubPartitionPeekChanges.SubPartitionNextCursorPosition,
+                updatedCosmosSubPartitionLookup.Resource.CurrentCursor);
         }
 
         [Fact]

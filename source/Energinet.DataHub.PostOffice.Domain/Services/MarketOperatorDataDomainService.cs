@@ -94,6 +94,20 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 .ConfigureAwait(false);
         }
 
+        public async Task Acknowledge2Async(Bundle bundle)
+        {
+            if (bundle == null)
+                throw new ArgumentNullException(nameof(bundle));
+
+            await _dataAvailableNotificationRepository
+                .AcknowledgeAsync(bundle)
+                .ConfigureAwait(false);
+
+            await _bundleRepository
+                .AcknowledgeAsync(bundle.Recipient, bundle.BundleId)
+                .ConfigureAwait(false);
+        }
+
         private async Task<Bundle?> GetNextUnacknowledgedForDomainsAsync(MarketOperator recipient, Uuid bundleId, params DomainOrigin[] domains)
         {
             var existingBundle = await _bundleRepository.GetNextUnacknowledgedAsync(recipient, domains).ConfigureAwait(false);

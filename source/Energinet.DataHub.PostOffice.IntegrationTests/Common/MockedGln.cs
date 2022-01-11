@@ -41,6 +41,11 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
             return mock._gln;
         }
 
+        public override string ToString()
+        {
+            return _gln;
+        }
+
         private static IEnumerable<int> GetRandomDigits()
         {
             for (var i = 0; i < 12; i++)

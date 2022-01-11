@@ -25,6 +25,8 @@ using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Common;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
+using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
+using Energinet.DataHub.PostOffice.Infrastructure.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Microsoft.Azure.Cosmos;
 
@@ -32,10 +34,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
     public class DataAvailableNotificationRepository : IDataAvailableNotificationRepository
     {
+        private readonly IBundleRepositoryContainer _bundleRepositoryContainer;
         private readonly IDataAvailableNotificationRepositoryContainer _repositoryContainer;
 
-        public DataAvailableNotificationRepository(IDataAvailableNotificationRepositoryContainer repositoryContainer)
+        public DataAvailableNotificationRepository(
+            IBundleRepositoryContainer bundleRepositoryContainer,
+            IDataAvailableNotificationRepositoryContainer repositoryContainer)
         {
+            _bundleRepositoryContainer = bundleRepositoryContainer;
             _repositoryContainer = repositoryContainer;
         }
 
@@ -262,6 +268,42 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
+        public async Task AcknowledgeAsync(Bundle bundle)
+        {
+            if (bundle == null)
+                throw new ArgumentNullException(nameof(bundle));
+
+            var asLinq = _bundleRepositoryContainer
+                .Container
+                .GetItemLinqQueryable<CosmosBundleDocument2>();
+
+            var recipient = bundle.Recipient.Gln.Value;
+            var bundleId = bundle.BundleId.ToString();
+
+            var query =
+                from cosmosBundle in asLinq
+                where cosmosBundle.Recipient == recipient &&
+                      cosmosBundle.Id == bundleId
+                select cosmosBundle;
+
+            var fetchedBundle = await query
+                .AsCosmosIteratorAsync()
+                .SingleAsync()
+                .ConfigureAwait(false);
+
+            var partitionChanges = fetchedBundle
+                .AffectedSubPartitions
+                .Select(x => SubPartitionPeekChangesMapper.Map(fetchedBundle, x));
+
+            var updates = partitionChanges
+                .Select(affectedPartition => Task.WhenAll(
+                    UpdateSubPartitionLookupAsync(affectedPartition),
+                    UpdateContentTypeLookupAsync(affectedPartition),
+                    DeleteUsedContentTypeLookupAsync(affectedPartition)));
+
+            await Task.WhenAll(updates).ConfigureAwait(false);
+        }
+
         public async Task WriteToArchiveAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
         {
             if (partitionKey is null)
@@ -328,6 +370,78 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     Enum.Parse<DomainOrigin>(document.Origin, true),
                     new SupportsBundling(document.SupportsBundling),
                     new Weight(document.RelativeWeight));
+            }
+        }
+
+        private async Task UpdateSubPartitionLookupAsync(SubPartitionPeekChanges partition)
+        {
+            var options = new ItemRequestOptions
+            {
+                IfMatchEtag = partition.SubPartitionLookupExpectedETag
+            };
+
+            var updatedSubPartitionLookup = partition.GetNextSubPartitionLookup();
+
+            try
+            {
+                await _repositoryContainer
+                     .Container
+                     .ReplaceItemAsync(updatedSubPartitionLookup, updatedSubPartitionLookup.Id, requestOptions: options)
+                     .ConfigureAwait(false);
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.PreconditionFailed)
+            {
+                // When two Acknowledge are executing, they must not overwrite each others values.
+                // The failed ReplaceItemAsync is discarded.
+            }
+        }
+
+        private Task UpdateContentTypeLookupAsync(SubPartitionPeekChanges partition)
+        {
+            var updatedContentTypeLookup = partition.GetNextContentTypeLookup();
+            if (updatedContentTypeLookup == null)
+                return Task.CompletedTask;
+
+            return _repositoryContainer
+                .Container
+                .UpsertItemAsync(updatedContentTypeLookup);
+        }
+
+        private async Task DeleteUsedContentTypeLookupAsync(SubPartitionPeekChanges partition)
+        {
+            var asLinq = _repositoryContainer
+                .Container
+                .GetItemLinqQueryable<CosmosContentTypeLookup>();
+
+            var query =
+                from contentTypeLookup in asLinq
+                where contentTypeLookup.PartitionKey == partition.ContentTypeLookupPartitionKey &&
+                      contentTypeLookup.ContentType == partition.ContentType &&
+                      contentTypeLookup.NextSequenceNumber == partition.ContentTypeLookupSequenceNumber
+                select new { contentTypeLookup.Id, contentTypeLookup.PartitionKey };
+
+            var usedLookup = await query
+                .AsCosmosIteratorAsync()
+                .SingleOrDefaultAsync()
+                .ConfigureAwait(false);
+
+            // The lookup will always be present initially.
+            // The null-check handles case of two concurrent Acknowledge.
+            if (usedLookup != null)
+            {
+                try
+                {
+                    await _repositoryContainer
+                         .Container
+                         .DeleteItemAsync<CosmosContentTypeLookup>(
+                             usedLookup.Id,
+                             new PartitionKey(usedLookup.PartitionKey))
+                         .ConfigureAwait(false);
+                }
+                catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // Concurrent Acknowledge already removed the file.
+                }
             }
         }
 
