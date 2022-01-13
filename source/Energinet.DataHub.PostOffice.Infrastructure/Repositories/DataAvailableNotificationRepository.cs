@@ -236,8 +236,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public async Task AcknowledgeAsync(Bundle bundle)
         {
-            if (bundle == null)
-                throw new ArgumentNullException(nameof(bundle));
+            Guard.ThrowIfNull(bundle, nameof(bundle));
 
             var asLinq = _bundleRepositoryContainer
                 .Container

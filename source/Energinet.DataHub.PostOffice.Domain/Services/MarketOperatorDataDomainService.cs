@@ -96,8 +96,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
         public async Task Acknowledge2Async(Bundle bundle)
         {
-            if (bundle == null)
-                throw new ArgumentNullException(nameof(bundle));
+            Guard.ThrowIfNull(bundle, nameof(bundle));
 
             await _dataAvailableNotificationRepository
                 .AcknowledgeAsync(bundle)
