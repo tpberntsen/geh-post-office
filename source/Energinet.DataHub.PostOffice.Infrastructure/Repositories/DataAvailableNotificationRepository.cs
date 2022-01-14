@@ -25,8 +25,6 @@ using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Common;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
-using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
-using Energinet.DataHub.PostOffice.Infrastructure.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Azure.Cosmos;
@@ -256,17 +254,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 .SingleAsync()
                 .ConfigureAwait(false);
 
-            var partitionChanges = fetchedBundle
-                .AffectedSubPartitions
-                .Select(x => SubPartitionPeekChangesMapper.Map(fetchedBundle, x));
+            var updateTasks = fetchedBundle
+                .AffectedDrawers
+                .Select(changes => Task.WhenAll(
+                    UpdateDrawerAsync(changes),
+                    UpdateCatalogAsync(changes),
+                    DeleteOldCatalogEntriesAsync(fetchedBundle, changes)));
 
-            var updates = partitionChanges
-                .Select(affectedPartition => Task.WhenAll(
-                    UpdateSubPartitionLookupAsync(affectedPartition),
-                    UpdateContentTypeLookupAsync(affectedPartition),
-                    DeleteUsedContentTypeLookupAsync(affectedPartition)));
-
-            await Task.WhenAll(updates).ConfigureAwait(false);
+            await Task.WhenAll(updateTasks).ConfigureAwait(false);
         }
 
         public async Task WriteToArchiveAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
@@ -337,20 +332,20 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
-        private async Task UpdateSubPartitionLookupAsync(SubPartitionPeekChanges partition)
+        private async Task UpdateDrawerAsync(CosmosCabinetDrawerChanges changes)
         {
             var options = new ItemRequestOptions
             {
-                IfMatchEtag = partition.SubPartitionLookupExpectedETag
+                IfMatchEtag = changes.UpdatedDrawer.ETag
             };
 
-            var updatedSubPartitionLookup = partition.GetNextSubPartitionLookup();
+            var updatedDrawer = changes.UpdatedDrawer;
 
             try
             {
                 await _repositoryContainer
                      .Container
-                     .ReplaceItemAsync(updatedSubPartitionLookup, updatedSubPartitionLookup.Id, requestOptions: options)
+                     .ReplaceItemAsync(updatedDrawer, updatedDrawer.Id, requestOptions: options)
                      .ConfigureAwait(false);
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.PreconditionFailed)
@@ -360,46 +355,48 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
-        private Task UpdateContentTypeLookupAsync(SubPartitionPeekChanges partition)
+        private async Task UpdateCatalogAsync(CosmosCabinetDrawerChanges changes)
         {
-            var updatedContentTypeLookup = partition.GetNextContentTypeLookup();
-            if (updatedContentTypeLookup == null)
-                return Task.CompletedTask;
+            var updatedCatalogEntry = changes.UpdatedCatalogEntry;
+            if (updatedCatalogEntry == null)
+                return;
 
-            return _repositoryContainer
+            await _repositoryContainer
                 .Container
-                .UpsertItemAsync(updatedContentTypeLookup);
+                .UpsertItemAsync(updatedCatalogEntry)
+                .ConfigureAwait(false);
         }
 
-        private async Task DeleteUsedContentTypeLookupAsync(SubPartitionPeekChanges partition)
+        private async Task DeleteOldCatalogEntriesAsync(CosmosBundleDocument2 bundle, CosmosCabinetDrawerChanges changes)
         {
             var asLinq = _repositoryContainer
                 .Container
-                .GetItemLinqQueryable<CosmosContentTypeLookup>();
+                .GetItemLinqQueryable<CosmosCatalogEntry>();
+
+            var partitionKey = string.Join('_', bundle.Recipient, bundle.Origin);
+            var contentType = bundle.MessageType;
 
             var query =
-                from contentTypeLookup in asLinq
-                where contentTypeLookup.PartitionKey == partition.ContentTypeLookupPartitionKey &&
-                      contentTypeLookup.ContentType == partition.ContentType &&
-                      contentTypeLookup.NextSequenceNumber == partition.ContentTypeLookupSequenceNumber
-                select new { contentTypeLookup.Id, contentTypeLookup.PartitionKey };
+                from catalogEntry in asLinq
+                where catalogEntry.PartitionKey == partitionKey &&
+                      catalogEntry.ContentType == contentType &&
+                      catalogEntry.NextSequenceNumber == changes.InitialCatalogEntrySequenceNumber
+                select new { catalogEntry.Id, catalogEntry.PartitionKey };
 
-            var usedLookup = await query
+            var entry = await query
                 .AsCosmosIteratorAsync()
                 .SingleOrDefaultAsync()
                 .ConfigureAwait(false);
 
-            // The lookup will always be present initially.
+            // The entry will always be present initially.
             // The null-check handles case of two concurrent Acknowledge.
-            if (usedLookup != null)
+            if (entry != null)
             {
                 try
                 {
                     await _repositoryContainer
                          .Container
-                         .DeleteItemAsync<CosmosContentTypeLookup>(
-                             usedLookup.Id,
-                             new PartitionKey(usedLookup.PartitionKey))
+                         .DeleteItemAsync<CosmosCatalogEntry>(entry.Id, new PartitionKey(entry.PartitionKey))
                          .ConfigureAwait(false);
                 }
                 catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)

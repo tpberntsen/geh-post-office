@@ -16,23 +16,23 @@ using Newtonsoft.Json;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 {
-    internal sealed record CosmosSubPartitionLookup
+    internal sealed record CosmosCabinetDrawer
     {
-        public CosmosSubPartitionLookup()
+        public CosmosCabinetDrawer()
         {
             Id = null!;
             PartitionKey = null!;
-            InitialSequenceNumber = -1;
-            CurrentCursor = 0;
+            Position = 0;
+            OrderBy = -1;
             ETag = null!;
         }
 
-        public string Id { get; init; } // The partition key (a random guid) of the sub-partition.
-        public string PartitionKey { get; init; } // Used to find all sub-partitions; format is <recipient>_<origin>_<contentType>.
-        public long InitialSequenceNumber { get; init; } // The sequence number of the first item in sub-partition. Used to order by.
-        public int CurrentCursor { get; init; } // A 0-zero index pointing to the next item in sub-partition.
+        public string Id { get; init; }
+        public string PartitionKey { get; init; }
+        public int Position { get; init; }
+        public long OrderBy { get; init; }
 
         [JsonProperty(PropertyName = "_etag")]
-        public string ETag { get; init; } // Prevents conflicting overwrites during Dequeue.
+        public string ETag { get; init; }
     }
 }

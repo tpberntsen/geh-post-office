@@ -14,19 +14,17 @@
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 {
-    internal sealed record CosmosContentTypeLookup
+    internal sealed record CosmosCabinetDrawerChanges
     {
-        public CosmosContentTypeLookup()
+        public CosmosCabinetDrawerChanges()
         {
-            Id = null!;
-            ContentType = null!;
-            PartitionKey = null!;
-            NextSequenceNumber = 0;
+            UpdatedDrawer = null!;
+            UpdatedCatalogEntry = null;
+            InitialCatalogEntrySequenceNumber = -1;
         }
 
-        public string Id { get; init; } // Required, but never used for lookup.
-        public string ContentType { get; init; } // Contains the referenced message type.
-        public string PartitionKey { get; init; } // Used to find all potential message types; format is <recipient>_<origin>.
-        public long NextSequenceNumber { get; init; } // Contains the next sequence of the referenced message type.
+        public CosmosCabinetDrawer UpdatedDrawer { get; set; }
+        public CosmosCatalogEntry? UpdatedCatalogEntry { get; set; }
+        public long InitialCatalogEntrySequenceNumber { get; init; }
     }
 }

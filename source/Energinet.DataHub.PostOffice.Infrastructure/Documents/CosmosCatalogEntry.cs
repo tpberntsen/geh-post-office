@@ -14,21 +14,19 @@
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 {
-    internal sealed record CosmosSubPartitionPeekChanges
+    internal sealed record CosmosCatalogEntry
     {
-        public CosmosSubPartitionPeekChanges()
+        public CosmosCatalogEntry()
         {
-            ContentTypeLookupId = null!;
-            SubPartitionLookupId = null!;
-            SubPartitionLookupExpectedETag = null!;
+            Id = null!;
+            PartitionKey = null!;
+            ContentType = null!;
+            NextSequenceNumber = 0;
         }
 
-        public string ContentTypeLookupId { get; init; }
-        public string SubPartitionLookupId { get; init; }
-        public long SubPartitionInitialSequenceNumber { get; init; }
-        public long SubPartitionNextSequenceNumber { get; init; }
-        public int SubPartitionNextCursorPosition { get; init; }
-        public string SubPartitionLookupExpectedETag { get; init; }
-        public long ContentTypeLookupSequenceNumber { get; init; }
+        public string Id { get; init; }
+        public string PartitionKey { get; init; }
+        public string ContentType { get; init; }
+        public long NextSequenceNumber { get; init; }
     }
 }

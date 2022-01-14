@@ -21,7 +21,6 @@ using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
-using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Xunit;
 using Xunit.Categories;
@@ -434,7 +433,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
         }
 
         [Fact]
-        public async Task AcknowledgeAsync_AcknowledgedData_UpdatesSubPartitionLookup()
+        public async Task AcknowledgeAsync_AcknowledgedData_UpdatesCabinetDrawer()
         {
             // Arrange
             await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
@@ -446,20 +445,20 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var origin = DomainOrigin.MeteringPoints.ToString();
             var contentType = "mp_content_type";
 
-            var initialCosmosSubPartitionLookup = new CosmosSubPartitionLookup
+            var initialCabinetDrawer = new CosmosCabinetDrawer
             {
                 Id = Guid.NewGuid().ToString(),
                 PartitionKey = string.Join('_', recipient, origin, contentType),
-                InitialSequenceNumber = 1,
-                CurrentCursor = 3
+                OrderBy = 1,
+                Position = 3
             };
 
-            var createdSubPartitionLookup = await dataAvailableContainer
+            var createdCabinetDrawer = await dataAvailableContainer
                 .Container
-                .CreateItemAsync(initialCosmosSubPartitionLookup)
+                .CreateItemAsync(initialCabinetDrawer)
                 .ConfigureAwait(false);
 
-            var initialCosmosContentTypeLookup = new CosmosContentTypeLookup
+            var initialCatalogEntry = new CosmosCatalogEntry
             {
                 Id = Guid.NewGuid().ToString(),
                 PartitionKey = string.Join('_', recipient, origin),
@@ -469,18 +468,23 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             await dataAvailableContainer
                 .Container
-                .CreateItemAsync(initialCosmosContentTypeLookup)
+                .CreateItemAsync(initialCatalogEntry)
                 .ConfigureAwait(false);
 
-            var cosmosSubPartitionPeekChanges = new CosmosSubPartitionPeekChanges
+            var cabinetDrawerChanges = new CosmosCabinetDrawerChanges
             {
-                ContentTypeLookupId = Guid.NewGuid().ToString(),
-                ContentTypeLookupSequenceNumber = initialCosmosContentTypeLookup.NextSequenceNumber,
-                SubPartitionLookupId = initialCosmosSubPartitionLookup.Id,
-                SubPartitionInitialSequenceNumber = initialCosmosSubPartitionLookup.InitialSequenceNumber,
-                SubPartitionNextCursorPosition = 5,
-                SubPartitionNextSequenceNumber = 12,
-                SubPartitionLookupExpectedETag = createdSubPartitionLookup.ETag
+                UpdatedDrawer = createdCabinetDrawer.Resource with
+                {
+                    Position = 5
+                },
+
+                UpdatedCatalogEntry = initialCatalogEntry with
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    NextSequenceNumber = 12
+                },
+
+                InitialCatalogEntrySequenceNumber = 3
             };
 
             var bundleId = Guid.NewGuid().ToString();
@@ -493,7 +497,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 MessageType = contentType,
                 Dequeued = false,
                 ContentPath = "/nowhere",
-                AffectedSubPartitions = { cosmosSubPartitionPeekChanges }
+                AffectedDrawers = { cabinetDrawerChanges }
             };
 
             var bundleContainer = scope.GetInstance<IBundleRepositoryContainer>();
@@ -517,31 +521,31 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 .ConfigureAwait(false);
 
             // Assert
-            var updatedCosmosSubPartitionLookup = await dataAvailableContainer
+            var updatedCabinetDrawer = await dataAvailableContainer
                 .Container
-                .ReadItemAsync<CosmosSubPartitionLookup>(
-                    initialCosmosSubPartitionLookup.Id,
-                    new PartitionKey(initialCosmosSubPartitionLookup.PartitionKey))
+                .ReadItemAsync<CosmosCabinetDrawer>(
+                    initialCabinetDrawer.Id,
+                    new PartitionKey(initialCabinetDrawer.PartitionKey))
                 .ConfigureAwait(false);
 
-            var updatedCosmosContentTypeLookup = await dataAvailableContainer
+            var updatedCatalogEntry = await dataAvailableContainer
                 .Container
-                .ReadItemAsync<CosmosContentTypeLookup>(
-                    cosmosSubPartitionPeekChanges.ContentTypeLookupId,
-                    new PartitionKey(initialCosmosContentTypeLookup.PartitionKey))
+                .ReadItemAsync<CosmosCatalogEntry>(
+                    cabinetDrawerChanges.UpdatedCatalogEntry.Id,
+                    new PartitionKey(initialCatalogEntry.PartitionKey))
                 .ConfigureAwait(false);
 
             Assert.Equal(
-                cosmosSubPartitionPeekChanges.SubPartitionNextCursorPosition,
-                updatedCosmosSubPartitionLookup.Resource.CurrentCursor);
+                cabinetDrawerChanges.UpdatedDrawer.Position,
+                updatedCabinetDrawer.Resource.Position);
 
             Assert.Equal(
-                cosmosSubPartitionPeekChanges.SubPartitionNextSequenceNumber,
-                updatedCosmosContentTypeLookup.Resource.NextSequenceNumber);
+                cabinetDrawerChanges.UpdatedCatalogEntry.NextSequenceNumber,
+                updatedCatalogEntry.Resource.NextSequenceNumber);
         }
 
         [Fact]
-        public async Task AcknowledgeAsync_AcknowledgedDataTwice_NoExceptionWhenUpdatingCursor()
+        public async Task AcknowledgeAsync_AcknowledgedDataTwice_NoExceptionWhenUpdatingPosition()
         {
             // Arrange
             await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
@@ -553,20 +557,20 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var origin = DomainOrigin.MeteringPoints.ToString();
             var contentType = "mp_content_type";
 
-            var initialCosmosSubPartitionLookup = new CosmosSubPartitionLookup
+            var initialCabinetDrawer = new CosmosCabinetDrawer
             {
                 Id = Guid.NewGuid().ToString(),
                 PartitionKey = string.Join('_', recipient, origin, contentType),
-                InitialSequenceNumber = 1,
-                CurrentCursor = 3
+                OrderBy = 1,
+                Position = 3
             };
 
             await dataAvailableContainer
                 .Container
-                .CreateItemAsync(initialCosmosSubPartitionLookup)
+                .CreateItemAsync(initialCabinetDrawer)
                 .ConfigureAwait(false);
 
-            var initialCosmosContentTypeLookup = new CosmosContentTypeLookup
+            var initialCatalogEntry = new CosmosCatalogEntry
             {
                 Id = Guid.NewGuid().ToString(),
                 PartitionKey = string.Join('_', recipient, origin),
@@ -576,18 +580,24 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             await dataAvailableContainer
                 .Container
-                .CreateItemAsync(initialCosmosContentTypeLookup)
+                .CreateItemAsync(initialCatalogEntry)
                 .ConfigureAwait(false);
 
-            var cosmosSubPartitionPeekChanges = new CosmosSubPartitionPeekChanges
+            var cabinetDrawerChanges = new CosmosCabinetDrawerChanges
             {
-                ContentTypeLookupId = Guid.NewGuid().ToString(),
-                ContentTypeLookupSequenceNumber = initialCosmosContentTypeLookup.NextSequenceNumber,
-                SubPartitionLookupId = initialCosmosSubPartitionLookup.Id,
-                SubPartitionInitialSequenceNumber = initialCosmosSubPartitionLookup.InitialSequenceNumber,
-                SubPartitionNextCursorPosition = 5,
-                SubPartitionNextSequenceNumber = 12,
-                SubPartitionLookupExpectedETag = "no_match"
+                UpdatedDrawer = initialCabinetDrawer with
+                {
+                    Position = 5,
+                    ETag = "no_match"
+                },
+
+                UpdatedCatalogEntry = initialCatalogEntry with
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    NextSequenceNumber = 12
+                },
+
+                InitialCatalogEntrySequenceNumber = 3
             };
 
             var bundleId = Guid.NewGuid().ToString();
@@ -600,7 +610,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 MessageType = contentType,
                 Dequeued = false,
                 ContentPath = "/nowhere",
-                AffectedSubPartitions = { cosmosSubPartitionPeekChanges }
+                AffectedDrawers = { cabinetDrawerChanges }
             };
 
             var bundleContainer = scope.GetInstance<IBundleRepositoryContainer>();
@@ -624,31 +634,31 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 .ConfigureAwait(false);
 
             // Assert
-            var updatedCosmosSubPartitionLookup = await dataAvailableContainer
+            var updatedCabinetDrawer = await dataAvailableContainer
                 .Container
-                .ReadItemAsync<CosmosSubPartitionLookup>(
-                    initialCosmosSubPartitionLookup.Id,
-                    new PartitionKey(initialCosmosSubPartitionLookup.PartitionKey))
+                .ReadItemAsync<CosmosCabinetDrawer>(
+                    initialCabinetDrawer.Id,
+                    new PartitionKey(initialCabinetDrawer.PartitionKey))
                 .ConfigureAwait(false);
 
-            var updatedCosmosContentTypeLookup = await dataAvailableContainer
+            var updatedCatalogEntry = await dataAvailableContainer
                 .Container
-                .ReadItemAsync<CosmosContentTypeLookup>(
-                    cosmosSubPartitionPeekChanges.ContentTypeLookupId,
-                    new PartitionKey(initialCosmosContentTypeLookup.PartitionKey))
+                .ReadItemAsync<CosmosCatalogEntry>(
+                    cabinetDrawerChanges.UpdatedCatalogEntry.Id,
+                    new PartitionKey(initialCatalogEntry.PartitionKey))
                 .ConfigureAwait(false);
 
             Assert.Equal(
-                initialCosmosSubPartitionLookup.CurrentCursor,
-                updatedCosmosSubPartitionLookup.Resource.CurrentCursor);
+                initialCabinetDrawer.Position,
+                updatedCabinetDrawer.Resource.Position);
 
             Assert.Equal(
-                cosmosSubPartitionPeekChanges.SubPartitionNextSequenceNumber,
-                updatedCosmosContentTypeLookup.Resource.NextSequenceNumber);
+                cabinetDrawerChanges.UpdatedCatalogEntry.NextSequenceNumber,
+                updatedCatalogEntry.Resource.NextSequenceNumber);
         }
 
         [Fact]
-        public async Task AcknowledgeAsync_AcknowledgedDataTwice_NoContentTypeLookupToDelete()
+        public async Task AcknowledgeAsync_AcknowledgedDataTwice_NoCatalogEntryToDelete()
         {
             // Arrange
             await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
@@ -660,28 +670,28 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var origin = DomainOrigin.MeteringPoints.ToString();
             var contentType = "mp_content_type";
 
-            var initialCosmosSubPartitionLookup = new CosmosSubPartitionLookup
+            var initialCabinetDrawer = new CosmosCabinetDrawer
             {
                 Id = Guid.NewGuid().ToString(),
                 PartitionKey = string.Join('_', recipient, origin, contentType),
-                InitialSequenceNumber = 1,
-                CurrentCursor = 3
+                OrderBy = 1,
+                Position = 3
             };
 
-            var createdSubPartitionLookup = await dataAvailableContainer
+            var createdCabinetDrawer = await dataAvailableContainer
                 .Container
-                .CreateItemAsync(initialCosmosSubPartitionLookup)
+                .CreateItemAsync(initialCabinetDrawer)
                 .ConfigureAwait(false);
 
-            var cosmosSubPartitionPeekChanges = new CosmosSubPartitionPeekChanges
+            var cosmosCabinetDrawerChanges = new CosmosCabinetDrawerChanges
             {
-                ContentTypeLookupId = Guid.NewGuid().ToString(),
-                ContentTypeLookupSequenceNumber = 13,
-                SubPartitionLookupId = initialCosmosSubPartitionLookup.Id,
-                SubPartitionInitialSequenceNumber = initialCosmosSubPartitionLookup.InitialSequenceNumber,
-                SubPartitionNextCursorPosition = 5,
-                SubPartitionNextSequenceNumber = 12,
-                SubPartitionLookupExpectedETag = createdSubPartitionLookup.ETag
+                UpdatedDrawer = createdCabinetDrawer.Resource with
+                {
+                    Position = 5
+                },
+
+                UpdatedCatalogEntry = null,
+                InitialCatalogEntrySequenceNumber = 12
             };
 
             var bundleId = Guid.NewGuid().ToString();
@@ -694,7 +704,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 MessageType = contentType,
                 Dequeued = false,
                 ContentPath = "/nowhere",
-                AffectedSubPartitions = { cosmosSubPartitionPeekChanges }
+                AffectedDrawers = { cosmosCabinetDrawerChanges }
             };
 
             var bundleContainer = scope.GetInstance<IBundleRepositoryContainer>();
@@ -718,16 +728,16 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 .ConfigureAwait(false);
 
             // Assert
-            var updatedCosmosSubPartitionLookup = await dataAvailableContainer
+            var updatedCabinetDrawer = await dataAvailableContainer
                 .Container
-                .ReadItemAsync<CosmosSubPartitionLookup>(
-                    initialCosmosSubPartitionLookup.Id,
-                    new PartitionKey(initialCosmosSubPartitionLookup.PartitionKey))
+                .ReadItemAsync<CosmosCabinetDrawer>(
+                    initialCabinetDrawer.Id,
+                    new PartitionKey(initialCabinetDrawer.PartitionKey))
                 .ConfigureAwait(false);
 
             Assert.Equal(
-                cosmosSubPartitionPeekChanges.SubPartitionNextCursorPosition,
-                updatedCosmosSubPartitionLookup.Resource.CurrentCursor);
+                cosmosCabinetDrawerChanges.UpdatedDrawer.Position,
+                updatedCabinetDrawer.Resource.Position);
         }
 
         [Fact]

@@ -29,7 +29,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 
             Dequeued = false;
             NotificationIds = new List<string>();
-            AffectedSubPartitions = new List<CosmosSubPartitionPeekChanges>();
+            AffectedDrawers = new List<CosmosCabinetDrawerChanges>();
             ContentPath = null!;
             Timestamp = null!;
         }
@@ -44,7 +44,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 
         public ICollection<string> NotificationIds { get; init; }
 
-        public ICollection<CosmosSubPartitionPeekChanges> AffectedSubPartitions { get; init; }
+        public ICollection<CosmosCabinetDrawerChanges> AffectedDrawers { get; init; }
 
         public string ContentPath { get; init; }
 
