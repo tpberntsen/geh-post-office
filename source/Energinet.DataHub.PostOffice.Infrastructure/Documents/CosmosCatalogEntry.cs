@@ -12,37 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Newtonsoft.Json;
-
 namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 {
-    internal sealed record CosmosDataAvailable
+    internal sealed record CosmosCatalogEntry
     {
-        public CosmosDataAvailable()
+        public CosmosCatalogEntry()
         {
             Id = null!;
-            ContentType = null!;
-            Origin = null!;
-            Recipient = null!;
-            Timestamp = null!;
             PartitionKey = null!;
+            ContentType = null!;
+            NextSequenceNumber = 0;
         }
 
         public string Id { get; init; }
-        public string Recipient { get; init; }
-        public string Origin { get; init; }
-        public string ContentType { get; init; }
-
         public string PartitionKey { get; init; }
-        public long SequenceNumber { get; init; }
-
-        public bool SupportsBundling { get; init; }
-        public int RelativeWeight { get; init; }
-
-        // TODO: Can be removed later.
-        public bool Acknowledge { get; init; }
-
-        [JsonProperty(PropertyName = "_ts")]
-        public string Timestamp { get; init; }
+        public string ContentType { get; init; }
+        public long NextSequenceNumber { get; init; }
     }
 }

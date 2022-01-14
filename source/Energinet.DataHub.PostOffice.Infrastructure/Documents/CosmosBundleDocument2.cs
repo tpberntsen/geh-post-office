@@ -12,35 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 {
-    internal sealed record CosmosDataAvailable
+    internal sealed record CosmosBundleDocument2
     {
-        public CosmosDataAvailable()
+        public CosmosBundleDocument2()
         {
             Id = null!;
-            ContentType = null!;
-            Origin = null!;
+            ProcessId = null!;
             Recipient = null!;
+            Origin = null!;
+            MessageType = null!;
+
+            Dequeued = false;
+            NotificationIds = new List<string>();
+            AffectedDrawers = new List<CosmosCabinetDrawerChanges>();
+            ContentPath = null!;
             Timestamp = null!;
-            PartitionKey = null!;
         }
 
         public string Id { get; init; }
+        public string ProcessId { get; init; }
         public string Recipient { get; init; }
         public string Origin { get; init; }
-        public string ContentType { get; init; }
+        public string MessageType { get; init; }
 
-        public string PartitionKey { get; init; }
-        public long SequenceNumber { get; init; }
+        public bool Dequeued { get; init; }
 
-        public bool SupportsBundling { get; init; }
-        public int RelativeWeight { get; init; }
+        public ICollection<string> NotificationIds { get; init; }
 
-        // TODO: Can be removed later.
-        public bool Acknowledge { get; init; }
+        public ICollection<CosmosCabinetDrawerChanges> AffectedDrawers { get; init; }
+
+        public string ContentPath { get; init; }
 
         [JsonProperty(PropertyName = "_ts")]
         public string Timestamp { get; init; }

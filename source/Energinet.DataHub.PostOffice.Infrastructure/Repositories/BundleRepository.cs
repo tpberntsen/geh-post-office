@@ -119,6 +119,40 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
+        public async Task<BundleCreatedResponse> TryAddNextUnacknowledgedAsync(Bundle bundle, ICabinetReader cabinetReader)
+        {
+            Guard.ThrowIfNull(bundle, nameof(bundle));
+            Guard.ThrowIfNull(cabinetReader, nameof(cabinetReader));
+
+            await _storageHandler
+                .AddDataAvailableNotificationIdsToStorageAsync(bundle.ProcessId.ToString(), bundle.NotificationIds.Select(x => x.AsGuid()))
+                .ConfigureAwait(false);
+
+            var reader = (AsyncCabinetReader)cabinetReader;
+
+            var messageDocument = BundleMapper.Map(bundle, reader.GetChanges());
+            var requestOptions = new ItemRequestOptions
+            {
+                PostTriggers = new[] { "EnsureSingleUnacknowledgedBundle" }
+            };
+
+            try
+            {
+                await _repositoryContainer.Container
+                    .CreateItemAsync(messageDocument, requestOptions: requestOptions)
+                    .ConfigureAwait(false);
+                return BundleCreatedResponse.Success;
+            }
+            catch (CosmosException ex) when (IsConcurrencyError(ex))
+            {
+                return BundleCreatedResponse.AnotherBundleExists;
+            }
+            catch (CosmosException ex) when (IsBundleIdDuplicateError(ex))
+            {
+                return BundleCreatedResponse.BundleIdAlreadyInUse;
+            }
+        }
+
         public async Task AcknowledgeAsync(MarketOperator recipient, Uuid bundleId)
         {
             Guard.ThrowIfNull(recipient, nameof(recipient));

@@ -16,33 +16,23 @@ using Newtonsoft.Json;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 {
-    internal sealed record CosmosDataAvailable
+    internal sealed record CosmosCabinetDrawer
     {
-        public CosmosDataAvailable()
+        public CosmosCabinetDrawer()
         {
             Id = null!;
-            ContentType = null!;
-            Origin = null!;
-            Recipient = null!;
-            Timestamp = null!;
             PartitionKey = null!;
+            Position = 0;
+            OrderBy = -1;
+            ETag = null!;
         }
 
         public string Id { get; init; }
-        public string Recipient { get; init; }
-        public string Origin { get; init; }
-        public string ContentType { get; init; }
-
         public string PartitionKey { get; init; }
-        public long SequenceNumber { get; init; }
+        public int Position { get; init; }
+        public long OrderBy { get; init; }
 
-        public bool SupportsBundling { get; init; }
-        public int RelativeWeight { get; init; }
-
-        // TODO: Can be removed later.
-        public bool Acknowledge { get; init; }
-
-        [JsonProperty(PropertyName = "_ts")]
-        public string Timestamp { get; init; }
+        [JsonProperty(PropertyName = "_etag")]
+        public string ETag { get; init; }
     }
 }
