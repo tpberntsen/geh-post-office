@@ -64,7 +64,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
 
         /// <summary>
         /// Acknowledges the specified bundle and its notifications.
-        /// These acknowledged notifications will no longer be returned from GetNextUnacknowledgedAsync.
+        /// These acknowledged notifications will no longer be returned from <see cref="IDataAvailableNotificationRepository.GetNextUnacknowledgedAsync(MarketOperator, DomainOrigin[])" />.
         /// </summary>
         /// <param name="bundle">The bundle to acknowledge.</param>
         Task AcknowledgeAsync(Bundle bundle);
