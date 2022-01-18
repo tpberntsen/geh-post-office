@@ -12,19 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
-namespace Energinet.DataHub.PostOffice.Domain.Repositories
-{
-    /// <summary>
-    /// TODO: Will be implemented in another PR.
-    /// </summary>
-    public interface ISequenceNumberRepository
-    {
-        /// <summary>
-        /// TODO: Will be implemented in another PR.
-        /// </summary>
-        /// <returns>TODO: Another PR.</returns>
-        public Task<long> GetMaximumSequenceNumberAsync() => Task.FromResult(long.MaxValue);
-    }
-}
+[assembly: InternalsVisibleTo("Energinet.DataHub.PostOffice.IntegrationTests")]

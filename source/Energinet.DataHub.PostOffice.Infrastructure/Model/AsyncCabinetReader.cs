@@ -22,7 +22,6 @@ using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Model
 {
-    // TODO: UTs
     internal sealed class AsyncCabinetReader : ICabinetReader
     {
         private readonly IReadOnlyList<CosmosCabinetDrawer> _drawers;

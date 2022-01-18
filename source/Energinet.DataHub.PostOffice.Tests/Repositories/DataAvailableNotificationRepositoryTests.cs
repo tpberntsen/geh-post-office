@@ -28,6 +28,47 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
     public sealed class DataAvailableNotificationRepositoryTests
     {
         [Fact]
+        public async Task ReadCatalogForNextUnacknowledgedAsync_NullRecipient_ThrowsException()
+        {
+            // Arrange
+            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
+            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() =>
+                    target.ReadCatalogForNextUnacknowledgedAsync(null!, Array.Empty<DomainOrigin>()))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task ReadCatalogForNextUnacknowledgedAsync_NullDomains_ThrowsException()
+        {
+            // Arrange
+            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
+            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() =>
+                    target.ReadCatalogForNextUnacknowledgedAsync(new MarketOperator(null!), null!))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task GetCabinetReaderAsync_NullKey_ThrowsException()
+        {
+            // Arrange
+            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
+            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() => target.GetCabinetReaderAsync(null!))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
         public async Task GetNextUnacknowledgedAsync_NullRecipient_ThrowsException()
         {
             // Arrange

@@ -35,6 +35,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
     public sealed class DataAvailableNotificationRepository : IDataAvailableNotificationRepository
     {
         private const int MaximumCabinetDrawerItemCount = 10000;
+        private const int MaximumCabinetDrawersInRequest = 6;
 
         private readonly IDataAvailableNotificationRepositoryContainer _repositoryContainer;
         private readonly ISequenceNumberRepository _sequenceNumberRepository;
@@ -391,14 +392,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 .GetItemLinqQueryable<CosmosCabinetDrawer>();
 
             var query =
-                from subPartitionLookup in asLinq
+                from cabinetDrawer in asLinq
                 where
-                    subPartitionLookup.PartitionKey == partitionKey &&
-                    subPartitionLookup.Position < MaximumCabinetDrawerItemCount
-                orderby subPartitionLookup.OrderBy
-                select subPartitionLookup;
+                    cabinetDrawer.PartitionKey == partitionKey &&
+                    cabinetDrawer.Position < MaximumCabinetDrawerItemCount
+                orderby cabinetDrawer.OrderBy
+                select cabinetDrawer;
 
-            return query.Take(6).AsCosmosIteratorAsync();
+            return query.Take(MaximumCabinetDrawersInRequest).AsCosmosIteratorAsync();
         }
 
         private async Task<IEnumerable<CosmosDataAvailable>> GetCabinetDrawerContentsAsync(CosmosCabinetDrawer drawer)
