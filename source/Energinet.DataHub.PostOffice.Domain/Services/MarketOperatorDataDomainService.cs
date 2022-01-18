@@ -25,8 +25,6 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 {
     public sealed class MarketOperatorDataDomainService : IMarketOperatorDataDomainService
     {
-        private static readonly DomainOrigin[] _allDomains = GetAllDomains();
-
         private readonly IBundleRepository _bundleRepository;
         private readonly IDataAvailableNotificationRepository _dataAvailableNotificationRepository;
         private readonly IRequestBundleDomainService _requestBundleDomainService;
@@ -49,7 +47,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
         public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid bundleId)
         {
-            return GetNextUnacknowledgedForDomainsAsync(recipient, bundleId, _allDomains);
+            return GetNextUnacknowledgedForDomainsAsync(recipient, bundleId);
         }
 
         public Task<Bundle?> GetNextUnacknowledgedTimeSeriesAsync(MarketOperator recipient, Uuid bundleId)
@@ -108,11 +106,6 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             await _bundleRepository
                 .AcknowledgeAsync(bundle.Recipient, bundle.BundleId)
                 .ConfigureAwait(false);
-        }
-
-        private static DomainOrigin[] GetAllDomains()
-        {
-            return Enum.GetValues<DomainOrigin>().Where(domainOrigin => domainOrigin != DomainOrigin.Unknown).ToArray();
         }
 
         private async Task<Bundle?> GetNextUnacknowledgedForDomainsAsync(MarketOperator recipient, Uuid bundleId, params DomainOrigin[] domains)
