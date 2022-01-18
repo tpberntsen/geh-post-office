@@ -13,9 +13,10 @@
 // limitations under the License.
 
 using System;
-using Energinet.DataHub.Core.Logging.RequestResponseMiddleware;
+using Energinet.DataHub.Core.Logging.RequestResponseMiddleware.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.Common
@@ -40,7 +41,9 @@ namespace Energinet.DataHub.PostOffice.Common
                     throw new InvalidOperationException("Please specify a valid RequestResponseLogContainerName in the appSettings.json file or your Azure Functions Settings.");
                 }
 
-                return new RequestResponseLoggingBlobStorage(connectionString, containerName);
+                var logger = container.GetService<ILogger<RequestResponseLoggingBlobStorage>>();
+
+                return new RequestResponseLoggingBlobStorage(connectionString, containerName, logger!);
             });
         }
     }
