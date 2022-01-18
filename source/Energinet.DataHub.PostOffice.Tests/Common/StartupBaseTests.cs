@@ -15,7 +15,7 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.Core.Logging.RequestResponseMiddleware;
+using Energinet.DataHub.Core.Logging.RequestResponseMiddleware.Storage;
 using Energinet.DataHub.MessageHub.Core;
 using Energinet.DataHub.MessageHub.Core.Factories;
 using Energinet.DataHub.PostOffice.Common;
@@ -23,6 +23,7 @@ using Energinet.DataHub.PostOffice.Infrastructure;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers.CosmosClients;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SimpleInjector;
 using Xunit;
@@ -84,6 +85,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
 
             private static void AddMockConfiguration(Container container)
             {
+                var logStorageLogger = new Mock<ILogger<RequestResponseLoggingBlobStorage>>().Object;
+
                 container.Options.AllowOverridingRegistrations = true;
                 container.RegisterSingleton<ServiceBusClient>(() => new MockedServiceBusClient());
                 container.RegisterSingleton<ICosmosBulkClient>(() => new CosmosClientProvider(new MockedCosmosClient()));
@@ -93,7 +96,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
                 container.RegisterSingleton(() => new CosmosDatabaseConfig("fake_value", "fake_value"));
                 container.RegisterSingleton<IServiceBusClientFactory>(() => new MockedServiceBusClientFactory(new MockedServiceBusClient()));
                 container.RegisterSingleton<IStorageServiceClientFactory>(() => new MockedStorageServiceClientFactory());
-                container.RegisterSingleton<IRequestResponseLogging>(() => new RequestResponseLoggingBlobStorage("fake_value", "fake_value"));
+                container.RegisterSingleton<IRequestResponseLogging>(() => new RequestResponseLoggingBlobStorage("fake_value", "fake_value", logStorageLogger));
             }
         }
     }
