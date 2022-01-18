@@ -63,6 +63,13 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         Task AcknowledgeAsync(MarketOperator recipient, IEnumerable<Uuid> dataAvailableNotificationUuids);
 
         /// <summary>
+        /// Acknowledges the specified bundle and its notifications.
+        /// These acknowledged notifications will no longer be returned from <see cref="GetNextUnacknowledgedAsync(MarketOperator, DomainOrigin[])" />.
+        /// </summary>
+        /// <param name="bundle">The bundle to acknowledge.</param>
+        Task AcknowledgeAsync(Bundle bundle);
+
+        /// <summary>
         /// Writes copy of DataAvailableNotification to archive
         /// </summary>
         /// <param name="dataAvailableNotifications"></param>

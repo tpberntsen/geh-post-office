@@ -31,8 +31,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         public async Task GetNextUnacknowledgedAsync_NullRecipient_ThrowsException()
         {
             // Arrange
-            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
-            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+            var target = CreateTarget();
 
             // Act + Assert
             await Assert
@@ -44,8 +43,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         public async Task GetNextUnacknowledgedAsync_NullRecipientNotContent_ThrowsException()
         {
             // Arrange
-            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
-            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+            var target = CreateTarget();
 
             // Act + Assert
             await Assert
@@ -62,8 +60,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         public async Task GetNextUnacknowledgedAsync_NullContentNotRecipient_ThrowsException()
         {
             // Arrange
-            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
-            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+            var target = CreateTarget();
 
             // Act + Assert
             await Assert
@@ -80,8 +77,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         public async Task AcknowledgeAsync_NullRecipient_ThrowsException()
         {
             // Arrange
-            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
-            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+            var target = CreateTarget();
 
             // Act + Assert
             await Assert
@@ -95,8 +91,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         public async Task AcknowledgeAsync_NullCollection_ThrowsException()
         {
             // Arrange
-            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
-            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+            var target = CreateTarget();
 
             // Act + Assert
             await Assert
@@ -107,17 +102,37 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         }
 
         [Fact]
+        public async Task AcknowledgeAsync_NullBundle_ThrowsException()
+        {
+            // Arrange
+            var target = CreateTarget();
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() => target.AcknowledgeAsync(null!))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
         public async Task SaveAsync_NullNotification_ThrowsException()
         {
             // Arrange
-            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
-            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+            var target = CreateTarget();
             DataAvailableNotification dataAvailableNotification = null!;
 
             // Act + Assert
             await Assert
                 .ThrowsAsync<ArgumentNullException>(() => target.SaveAsync(dataAvailableNotification))
                 .ConfigureAwait(false);
+        }
+
+        private static DataAvailableNotificationRepository CreateTarget()
+        {
+            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
+            var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
+            return new DataAvailableNotificationRepository(
+                bundleRepositoryContainer.Object,
+                dataAvailableNotificationRepositoryContainer.Object);
         }
     }
 }

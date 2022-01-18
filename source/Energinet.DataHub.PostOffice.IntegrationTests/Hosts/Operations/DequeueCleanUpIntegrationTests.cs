@@ -52,8 +52,9 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.Operations
             var storageHandler = scope.GetInstance<IStorageHandler>();
             var bundleRepository = new BundleRepository(storageHandler, container, storageService);
 
+            var bundleRepositoryContainer = scope.GetInstance<IBundleRepositoryContainer>();
             var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
-            var dataAvailableRepository = new DataAvailableNotificationRepository(dataAvailableContainer);
+            var dataAvailableRepository = new DataAvailableNotificationRepository(bundleRepositoryContainer, dataAvailableContainer);
 
             var dataAvailableToDequeueAndArchive = CreateDataAvailableNotification(notificationIds.First(), marketOperator);
             await dataAvailableRepository.SaveAsync(dataAvailableToDequeueAndArchive).ConfigureAwait(false);
