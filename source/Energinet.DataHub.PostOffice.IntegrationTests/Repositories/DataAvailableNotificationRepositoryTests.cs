@@ -18,8 +18,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
+using Energinet.DataHub.PostOffice.Infrastructure.Documents;
+using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
-using FluentAssertions;
+using Microsoft.Azure.Cosmos;
 using Xunit;
 using Xunit.Categories;
 
@@ -428,6 +430,314 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             // Assert
             Assert.Null(acknowledged);
+        }
+
+        [Fact]
+        public async Task AcknowledgeAsync_AcknowledgedData_UpdatesCabinetDrawer()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+
+            var recipient = new MockedGln().ToString();
+            var origin = DomainOrigin.MeteringPoints.ToString();
+            var contentType = "mp_content_type";
+
+            var initialCabinetDrawer = new CosmosCabinetDrawer
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient, origin, contentType),
+                OrderBy = 1,
+                Position = 3
+            };
+
+            var createdCabinetDrawer = await dataAvailableContainer
+                .Container
+                .CreateItemAsync(initialCabinetDrawer)
+                .ConfigureAwait(false);
+
+            var initialCatalogEntry = new CosmosCatalogEntry
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient, origin),
+                ContentType = contentType,
+                NextSequenceNumber = 3
+            };
+
+            await dataAvailableContainer
+                .Container
+                .CreateItemAsync(initialCatalogEntry)
+                .ConfigureAwait(false);
+
+            var cabinetDrawerChanges = new CosmosCabinetDrawerChanges
+            {
+                UpdatedDrawer = createdCabinetDrawer.Resource with
+                {
+                    Position = 5
+                },
+
+                UpdatedCatalogEntry = initialCatalogEntry with
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    NextSequenceNumber = 12
+                },
+
+                InitialCatalogEntrySequenceNumber = 3
+            };
+
+            var bundleId = Guid.NewGuid().ToString();
+            var bundleDocument = new CosmosBundleDocument2
+            {
+                Id = bundleId,
+                ProcessId = string.Join('_', bundleId, recipient),
+                Recipient = recipient,
+                Origin = origin,
+                MessageType = contentType,
+                Dequeued = false,
+                ContentPath = "/nowhere",
+                AffectedDrawers = { cabinetDrawerChanges }
+            };
+
+            var bundleContainer = scope.GetInstance<IBundleRepositoryContainer>();
+            await bundleContainer
+                .Container
+                .UpsertItemAsync(bundleDocument)
+                .ConfigureAwait(false);
+
+            var bundle = new Bundle(
+                new Uuid(bundleId),
+                new MarketOperator(new GlobalLocationNumber(recipient)),
+                DomainOrigin.MeteringPoints,
+                new ContentType(contentType),
+                Array.Empty<Uuid>());
+
+            var target = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            // Act
+            await target
+                .AcknowledgeAsync(bundle)
+                .ConfigureAwait(false);
+
+            // Assert
+            var updatedCabinetDrawer = await dataAvailableContainer
+                .Container
+                .ReadItemAsync<CosmosCabinetDrawer>(
+                    initialCabinetDrawer.Id,
+                    new PartitionKey(initialCabinetDrawer.PartitionKey))
+                .ConfigureAwait(false);
+
+            var updatedCatalogEntry = await dataAvailableContainer
+                .Container
+                .ReadItemAsync<CosmosCatalogEntry>(
+                    cabinetDrawerChanges.UpdatedCatalogEntry.Id,
+                    new PartitionKey(initialCatalogEntry.PartitionKey))
+                .ConfigureAwait(false);
+
+            Assert.Equal(
+                cabinetDrawerChanges.UpdatedDrawer.Position,
+                updatedCabinetDrawer.Resource.Position);
+
+            Assert.Equal(
+                cabinetDrawerChanges.UpdatedCatalogEntry.NextSequenceNumber,
+                updatedCatalogEntry.Resource.NextSequenceNumber);
+        }
+
+        [Fact]
+        public async Task AcknowledgeAsync_AcknowledgedDataTwice_NoExceptionWhenUpdatingPosition()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+
+            var recipient = new MockedGln().ToString();
+            var origin = DomainOrigin.MeteringPoints.ToString();
+            var contentType = "mp_content_type";
+
+            var initialCabinetDrawer = new CosmosCabinetDrawer
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient, origin, contentType),
+                OrderBy = 1,
+                Position = 3
+            };
+
+            await dataAvailableContainer
+                .Container
+                .CreateItemAsync(initialCabinetDrawer)
+                .ConfigureAwait(false);
+
+            var initialCatalogEntry = new CosmosCatalogEntry
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient, origin),
+                ContentType = contentType,
+                NextSequenceNumber = 3
+            };
+
+            await dataAvailableContainer
+                .Container
+                .CreateItemAsync(initialCatalogEntry)
+                .ConfigureAwait(false);
+
+            var cabinetDrawerChanges = new CosmosCabinetDrawerChanges
+            {
+                UpdatedDrawer = initialCabinetDrawer with
+                {
+                    Position = 5,
+                    ETag = "no_match"
+                },
+
+                UpdatedCatalogEntry = initialCatalogEntry with
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    NextSequenceNumber = 12
+                },
+
+                InitialCatalogEntrySequenceNumber = 3
+            };
+
+            var bundleId = Guid.NewGuid().ToString();
+            var bundleDocument = new CosmosBundleDocument2
+            {
+                Id = bundleId,
+                ProcessId = string.Join('_', bundleId, recipient),
+                Recipient = recipient,
+                Origin = origin,
+                MessageType = contentType,
+                Dequeued = false,
+                ContentPath = "/nowhere",
+                AffectedDrawers = { cabinetDrawerChanges }
+            };
+
+            var bundleContainer = scope.GetInstance<IBundleRepositoryContainer>();
+            await bundleContainer
+                .Container
+                .UpsertItemAsync(bundleDocument)
+                .ConfigureAwait(false);
+
+            var bundle = new Bundle(
+                new Uuid(bundleId),
+                new MarketOperator(new GlobalLocationNumber(recipient)),
+                DomainOrigin.MeteringPoints,
+                new ContentType(contentType),
+                Array.Empty<Uuid>());
+
+            var target = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            // Act
+            await target
+                .AcknowledgeAsync(bundle)
+                .ConfigureAwait(false);
+
+            // Assert
+            var updatedCabinetDrawer = await dataAvailableContainer
+                .Container
+                .ReadItemAsync<CosmosCabinetDrawer>(
+                    initialCabinetDrawer.Id,
+                    new PartitionKey(initialCabinetDrawer.PartitionKey))
+                .ConfigureAwait(false);
+
+            var updatedCatalogEntry = await dataAvailableContainer
+                .Container
+                .ReadItemAsync<CosmosCatalogEntry>(
+                    cabinetDrawerChanges.UpdatedCatalogEntry.Id,
+                    new PartitionKey(initialCatalogEntry.PartitionKey))
+                .ConfigureAwait(false);
+
+            Assert.Equal(
+                initialCabinetDrawer.Position,
+                updatedCabinetDrawer.Resource.Position);
+
+            Assert.Equal(
+                cabinetDrawerChanges.UpdatedCatalogEntry.NextSequenceNumber,
+                updatedCatalogEntry.Resource.NextSequenceNumber);
+        }
+
+        [Fact]
+        public async Task AcknowledgeAsync_AcknowledgedDataTwice_NoCatalogEntryToDelete()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+
+            var recipient = new MockedGln().ToString();
+            var origin = DomainOrigin.MeteringPoints.ToString();
+            var contentType = "mp_content_type";
+
+            var initialCabinetDrawer = new CosmosCabinetDrawer
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient, origin, contentType),
+                OrderBy = 1,
+                Position = 3
+            };
+
+            var createdCabinetDrawer = await dataAvailableContainer
+                .Container
+                .CreateItemAsync(initialCabinetDrawer)
+                .ConfigureAwait(false);
+
+            var cosmosCabinetDrawerChanges = new CosmosCabinetDrawerChanges
+            {
+                UpdatedDrawer = createdCabinetDrawer.Resource with
+                {
+                    Position = 5
+                },
+
+                UpdatedCatalogEntry = null,
+                InitialCatalogEntrySequenceNumber = 12
+            };
+
+            var bundleId = Guid.NewGuid().ToString();
+            var bundleDocument = new CosmosBundleDocument2
+            {
+                Id = bundleId,
+                ProcessId = string.Join('_', bundleId, recipient),
+                Recipient = recipient,
+                Origin = origin,
+                MessageType = contentType,
+                Dequeued = false,
+                ContentPath = "/nowhere",
+                AffectedDrawers = { cosmosCabinetDrawerChanges }
+            };
+
+            var bundleContainer = scope.GetInstance<IBundleRepositoryContainer>();
+            await bundleContainer
+                .Container
+                .UpsertItemAsync(bundleDocument)
+                .ConfigureAwait(false);
+
+            var bundle = new Bundle(
+                new Uuid(bundleId),
+                new MarketOperator(new GlobalLocationNumber(recipient)),
+                DomainOrigin.MeteringPoints,
+                new ContentType(contentType),
+                Array.Empty<Uuid>());
+
+            var target = scope.GetInstance<IDataAvailableNotificationRepository>();
+
+            // Act
+            await target
+                .AcknowledgeAsync(bundle)
+                .ConfigureAwait(false);
+
+            // Assert
+            var updatedCabinetDrawer = await dataAvailableContainer
+                .Container
+                .ReadItemAsync<CosmosCabinetDrawer>(
+                    initialCabinetDrawer.Id,
+                    new PartitionKey(initialCabinetDrawer.PartitionKey))
+                .ConfigureAwait(false);
+
+            Assert.Equal(
+                cosmosCabinetDrawerChanges.UpdatedDrawer.Position,
+                updatedCabinetDrawer.Resource.Position);
         }
 
         [Fact]
