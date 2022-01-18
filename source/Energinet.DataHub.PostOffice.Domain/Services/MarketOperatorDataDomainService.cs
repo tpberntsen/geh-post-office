@@ -97,6 +97,19 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 .ConfigureAwait(false);
         }
 
+        public async Task Acknowledge2Async(Bundle bundle)
+        {
+            Guard.ThrowIfNull(bundle, nameof(bundle));
+
+            await _dataAvailableNotificationRepository
+                .AcknowledgeAsync(bundle)
+                .ConfigureAwait(false);
+
+            await _bundleRepository
+                .AcknowledgeAsync(bundle.Recipient, bundle.BundleId)
+                .ConfigureAwait(false);
+        }
+
         private static DomainOrigin[] GetAllDomains()
         {
             return Enum.GetValues<DomainOrigin>().Where(domainOrigin => domainOrigin != DomainOrigin.Unknown).ToArray();

@@ -38,10 +38,14 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
         private const int MaximumCabinetDrawersInRequest = 6;
 
         private readonly IDataAvailableNotificationRepositoryContainer _repositoryContainer;
+        private readonly IBundleRepositoryContainer _bundleRepositoryContainer;
         private readonly ISequenceNumberRepository _sequenceNumberRepository;
 
-        public DataAvailableNotificationRepository(IDataAvailableNotificationRepositoryContainer repositoryContainer)
+        public DataAvailableNotificationRepository(
+            IBundleRepositoryContainer bundleRepositoryContainer,
+            IDataAvailableNotificationRepositoryContainer repositoryContainer)
         {
+            _bundleRepositoryContainer = bundleRepositoryContainer;
             _repositoryContainer = repositoryContainer;
             _sequenceNumberRepository = new SequenceNumberRepository();
         }
@@ -291,6 +295,38 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
+        public async Task AcknowledgeAsync(Bundle bundle)
+        {
+            Guard.ThrowIfNull(bundle, nameof(bundle));
+
+            var asLinq = _bundleRepositoryContainer
+                .Container
+                .GetItemLinqQueryable<CosmosBundleDocument2>();
+
+            var recipient = bundle.Recipient.Gln.Value;
+            var bundleId = bundle.BundleId.ToString();
+
+            var query =
+                from cosmosBundle in asLinq
+                where cosmosBundle.Recipient == recipient &&
+                      cosmosBundle.Id == bundleId
+                select cosmosBundle;
+
+            var fetchedBundle = await query
+                .AsCosmosIteratorAsync()
+                .SingleAsync()
+                .ConfigureAwait(false);
+
+            var updateTasks = fetchedBundle
+                .AffectedDrawers
+                .Select(changes => Task.WhenAll(
+                    UpdateDrawerAsync(changes),
+                    UpdateCatalogAsync(changes),
+                    DeleteOldCatalogEntriesAsync(fetchedBundle, changes)));
+
+            await Task.WhenAll(updateTasks).ConfigureAwait(false);
+        }
+
         public async Task WriteToArchiveAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
         {
             Guard.ThrowIfNull(partitionKey, nameof(partitionKey));
@@ -425,6 +461,80 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 .AsCosmosIteratorAsync()
                 .ToListAsync()
                 .ConfigureAwait(false);
+        }
+
+        private async Task UpdateDrawerAsync(CosmosCabinetDrawerChanges changes)
+        {
+            var options = new ItemRequestOptions
+            {
+                IfMatchEtag = changes.UpdatedDrawer.ETag
+            };
+
+            var updatedDrawer = changes.UpdatedDrawer;
+
+            try
+            {
+                await _repositoryContainer
+                     .Container
+                     .ReplaceItemAsync(updatedDrawer, updatedDrawer.Id, requestOptions: options)
+                     .ConfigureAwait(false);
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.PreconditionFailed)
+            {
+                // When two Acknowledge are executing, they must not overwrite each others values.
+                // The failed ReplaceItemAsync is discarded.
+            }
+        }
+
+        private async Task UpdateCatalogAsync(CosmosCabinetDrawerChanges changes)
+        {
+            var updatedCatalogEntry = changes.UpdatedCatalogEntry;
+            if (updatedCatalogEntry == null)
+                return;
+
+            await _repositoryContainer
+                .Container
+                .UpsertItemAsync(updatedCatalogEntry)
+                .ConfigureAwait(false);
+        }
+
+        private async Task DeleteOldCatalogEntriesAsync(CosmosBundleDocument2 bundle, CosmosCabinetDrawerChanges changes)
+        {
+            var asLinq = _repositoryContainer
+                .Container
+                .GetItemLinqQueryable<CosmosCatalogEntry>();
+
+            var partitionKey = string.Join('_', bundle.Recipient, bundle.Origin);
+            var contentType = bundle.MessageType;
+
+            var query =
+                from catalogEntry in asLinq
+                where catalogEntry.PartitionKey == partitionKey &&
+                      catalogEntry.ContentType == contentType &&
+                      catalogEntry.NextSequenceNumber == changes.InitialCatalogEntrySequenceNumber
+                select new { catalogEntry.Id, catalogEntry.PartitionKey };
+
+            var entry = await query
+                .AsCosmosIteratorAsync()
+                .SingleOrDefaultAsync()
+                .ConfigureAwait(false);
+
+            // The entry will always be present initially.
+            // The null-check handles case of two concurrent Acknowledge.
+            if (entry != null)
+            {
+                try
+                {
+                    await _repositoryContainer
+                         .Container
+                         .DeleteItemAsync<CosmosCatalogEntry>(entry.Id, new PartitionKey(entry.PartitionKey))
+                         .ConfigureAwait(false);
+                }
+                catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // Concurrent Acknowledge already removed the file.
+                }
+            }
         }
 
         private Task ArchiveDocumentAsync(CosmosDataAvailable documentToWrite)
