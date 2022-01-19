@@ -23,62 +23,38 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
     internal static class BundleMapper
     {
-        public static CosmosBundleDocument MapToDocument(Bundle source)
-        {
-            return new CosmosBundleDocument
-            {
-                Id = source.BundleId.ToString(),
-                ProcessId = source.ProcessId.ToString(),
-
-                Dequeued = source.Dequeued,
-                NotificationsArchived = source.NotificationsArchived,
-
-                Recipient = source.Recipient.Gln.Value,
-                Origin = source.Origin.ToString(),
-                MessageType = source.ContentType.Value,
-
-                NotificationIds = source.NotificationIds.Select(id => id.ToString()).ToList(),
-                ContentPath = MapBundleContent(source)
-            };
-        }
-
-        public static CosmosBundleDocument2 Map(Bundle source, IEnumerable<CosmosCabinetDrawerChanges> changes)
-        {
-            return new CosmosBundleDocument2
-            {
-                Id = source.BundleId.ToString(),
-                ProcessId = source.ProcessId.ToString(),
-
-                Dequeued = source.Dequeued,
-
-                Recipient = source.Recipient.Gln.Value,
-                Origin = source.Origin.ToString(),
-                MessageType = source.ContentType.Value,
-
-                AffectedDrawers = changes.ToList(),
-
-                NotificationIds = source.NotificationIds.Select(id => id.ToString()).ToList(),
-                ContentPath = MapBundleContent(source)
-            };
-        }
-
-        public static Bundle MapToBundle(CosmosBundleDocument bundleDocument, IBundleContent? bundleContent = null)
+        public static Bundle Map(CosmosBundleDocument bundleDocument, IBundleContent? bundleContent = null)
         {
             var bundle = new Bundle(
                 new Uuid(bundleDocument.Id),
                 new MarketOperator(new GlobalLocationNumber(bundleDocument.Recipient)),
                 Enum.Parse<DomainOrigin>(bundleDocument.Origin),
-                new ContentType(bundleDocument.MessageType),
+                new ContentType(bundleDocument.ContentType),
                 bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList(),
                 bundleContent);
 
             if (bundleDocument.Dequeued)
                 bundle.Dequeue();
 
-            if (bundleDocument.NotificationsArchived)
-                bundle.ArchiveNotifications();
-
             return bundle;
+        }
+
+        public static CosmosBundleDocument Map(Bundle source, IEnumerable<CosmosCabinetDrawerChanges> changes)
+        {
+            return new CosmosBundleDocument
+            {
+                Id = source.BundleId.ToString(),
+                ProcessId = source.ProcessId.ToString(),
+                Recipient = source.Recipient.Gln.Value,
+                Origin = source.Origin.ToString(),
+                ContentType = source.ContentType.Value,
+
+                Dequeued = source.Dequeued,
+
+                AffectedDrawers = changes.ToList(),
+                NotificationIds = source.NotificationIds.Select(id => id.ToString()).ToList(),
+                ContentPath = MapBundleContent(source)
+            };
         }
 
         private static string MapBundleContent(Bundle bundle)

@@ -127,18 +127,18 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             try
             {
-                await _repositoryContainer.Container.CreateItemAsync(uniqueId).ConfigureAwait(false);
+                await _repositoryContainer.Idempotency.CreateItemAsync(uniqueId).ConfigureAwait(false);
             }
             catch (CosmosException e) when (e.StatusCode == HttpStatusCode.Conflict)
             {
                 var query =
-                    from uniqueIdQuery in _repositoryContainer.Container.GetItemLinqQueryable<CosmosUniqueId>()
+                    from uniqueIdQuery in _repositoryContainer.Idempotency.GetItemLinqQueryable<CosmosUniqueId>()
                     where
                         uniqueIdQuery.Id == uniqueId.Id &&
                         uniqueIdQuery.PartitionKey == uniqueId.PartitionKey
                     select uniqueIdQuery;
 
-                await foreach (var existingUniqueId in query.AsCosmosIteratorAsync<CosmosUniqueId>())
+                await foreach (var existingUniqueId in query.AsCosmosIteratorAsync())
                 {
                     if (existingUniqueId.Content == uniqueId.Content)
                     {
@@ -157,11 +157,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 Origin = dataAvailableNotification.Origin.ToString(),
                 SupportsBundling = dataAvailableNotification.SupportsBundling.Value,
                 RelativeWeight = dataAvailableNotification.Weight.Value,
-                Acknowledge = false,
                 PartitionKey = dataAvailableNotification.Recipient.Gln.Value + dataAvailableNotification.Origin + dataAvailableNotification.ContentType.Value
             };
 
-            await _repositoryContainer.Container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
+            await _repositoryContainer.Cabinet.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
 
             static string Base64Content(DataAvailableNotification dataAvailableNotification)
             {
@@ -175,140 +174,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
-        public Task<DataAvailableNotification?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
-        {
-            Guard.ThrowIfNull(recipient, nameof(recipient));
-
-            var asLinq = _repositoryContainer
-                .Container
-                .GetItemLinqQueryable<CosmosDataAvailable>();
-
-            IQueryable<CosmosDataAvailable> domainFiltered = asLinq;
-
-            if (domains is { Length: > 0 })
-            {
-                var selectedDomains = domains.Select(x => x.ToString());
-                domainFiltered = asLinq.Where(x => selectedDomains.Contains(x.Origin));
-            }
-
-            var query =
-                from dataAvailable in domainFiltered
-                where
-                    dataAvailable.Recipient == recipient.Gln.Value &&
-                    !dataAvailable.Acknowledge
-                orderby dataAvailable.Timestamp
-                select dataAvailable;
-
-            return ExecuteQueryAsync(query).FirstOrDefaultAsync();
-        }
-
-        public async Task<IEnumerable<DataAvailableNotification>> GetNextUnacknowledgedAsync(
-            MarketOperator recipient,
-            DomainOrigin domainOrigin,
-            ContentType contentType,
-            Weight maxWeight)
-        {
-            Guard.ThrowIfNull(recipient, nameof(recipient));
-            Guard.ThrowIfNull(contentType, nameof(contentType));
-
-            var asLinq = _repositoryContainer
-                .Container
-                .GetItemLinqQueryable<CosmosDataAvailable>();
-
-            var query =
-                from dataAvailable in asLinq
-                where
-                    dataAvailable.Recipient == recipient.Gln.Value &&
-                    dataAvailable.ContentType == contentType.Value &&
-                    dataAvailable.Origin == domainOrigin.ToString() &&
-                    !dataAvailable.Acknowledge
-                orderby dataAvailable.Timestamp
-                select dataAvailable;
-
-            var currentWeight = new Weight(0);
-            var allUnacknowledged = new List<DataAvailableNotification>();
-
-            await foreach (var item in ExecuteBatchAsync(query).ConfigureAwait(false))
-            {
-                if (allUnacknowledged.Count == 0 || (currentWeight + item.Weight <= maxWeight && item.SupportsBundling.Value))
-                {
-                    currentWeight += item.Weight;
-                    allUnacknowledged.Add(item);
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return allUnacknowledged;
-        }
-
-        public async Task AcknowledgeAsync(MarketOperator recipient, IEnumerable<Uuid> dataAvailableNotificationUuids)
-        {
-            Guard.ThrowIfNull(recipient, nameof(recipient));
-            Guard.ThrowIfNull(dataAvailableNotificationUuids, nameof(dataAvailableNotificationUuids));
-
-            var stringIds = dataAvailableNotificationUuids
-                .Select(x => x.ToString());
-
-            var container = _repositoryContainer.Container;
-            var asLinq = container
-                .GetItemLinqQueryable<CosmosDataAvailable>();
-
-            var query =
-                from dataAvailable in asLinq
-                where dataAvailable.Recipient == recipient.Gln.Value && stringIds.Contains(dataAvailable.Id)
-                select dataAvailable;
-
-            TransactionalBatch? batch = null;
-
-            var batchSize = 0;
-
-            await foreach (var document in query.AsCosmosIteratorAsync().ConfigureAwait(false))
-            {
-                var updatedDocument = document with { Acknowledge = true };
-
-                batch ??= container.CreateTransactionalBatch(new PartitionKey(updatedDocument.PartitionKey));
-                batch.ReplaceItem(updatedDocument.Id, updatedDocument);
-
-                batchSize++;
-
-                // Microsoft decided on an arbitrary batch limit of 100.
-                if (batchSize == 100)
-                {
-                    using var innerResult = await batch.ExecuteAsync().ConfigureAwait(false);
-
-                    // As written in docs, _this_ API does not throw exceptions and has to be checked.
-                    if (!innerResult.IsSuccessStatusCode)
-                    {
-                        throw new InvalidOperationException(innerResult.ErrorMessage);
-                    }
-
-                    batch = null;
-                    batchSize = 0;
-                }
-            }
-
-            if (batch != null)
-            {
-                using var outerResult = await batch.ExecuteAsync().ConfigureAwait(false);
-
-                // As written in docs, _this_ API does not throw exceptions and has to be checked.
-                if (!outerResult.IsSuccessStatusCode)
-                {
-                    throw new InvalidOperationException(outerResult.ErrorMessage);
-                }
-            }
-        }
-
         public async Task AcknowledgeAsync(Bundle bundle)
         {
             Guard.ThrowIfNull(bundle, nameof(bundle));
 
             var asLinq = _bundleRepositoryContainer
                 .Container
-                .GetItemLinqQueryable<CosmosBundleDocument2>();
+                .GetItemLinqQueryable<CosmosBundleDocument>();
 
             var recipient = bundle.Recipient.Gln.Value;
             var bundleId = bundle.BundleId.ToString();
@@ -334,78 +206,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             await Task.WhenAll(updateTasks).ConfigureAwait(false);
         }
 
-        public async Task WriteToArchiveAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
-        {
-            Guard.ThrowIfNull(partitionKey, nameof(partitionKey));
-
-            var documentPartitionKey = new PartitionKey(partitionKey);
-            var documentsToRead = dataAvailableNotifications.Select(e => (e.ToString(), documentPartitionKey)).ToList();
-
-            var documentsToArchive = await _repositoryContainer
-                .Container
-                .ReadManyItemsAsync<CosmosDataAvailable>(documentsToRead).ConfigureAwait(false);
-
-            if (documentsToArchive.StatusCode != HttpStatusCode.OK)
-            {
-                throw new CosmosException("ReadManyItemsAsync failed", documentsToArchive.StatusCode, -1, documentsToArchive.ActivityId, documentsToArchive.RequestCharge);
-            }
-
-            var archiveWriteTasks = documentsToArchive.Select(ArchiveDocumentAsync);
-            await Task.WhenAll(archiveWriteTasks).ConfigureAwait(false);
-        }
-
-        public Task DeleteAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
-        {
-            var documentPartitionKey = new PartitionKey(partitionKey);
-            var deleteTasks = dataAvailableNotifications
-                .Select(dataAvailableNotification =>
-                    _repositoryContainer.Container.DeleteItemStreamAsync(dataAvailableNotification.ToString(), documentPartitionKey)).ToList();
-
-            return Task.WhenAll(deleteTasks);
-        }
-
-        private static async IAsyncEnumerable<DataAvailableNotification> ExecuteBatchAsync(IQueryable<CosmosDataAvailable> query)
-        {
-            const int batchSize = 10000;
-
-            var batchStart = 0;
-            bool canHaveMoreItems;
-
-            do
-            {
-                var nextBatchQuery = query.Skip(batchStart).Take(batchSize);
-                var returnedItems = 0;
-
-                await foreach (var item in ExecuteQueryAsync(nextBatchQuery).ConfigureAwait(false))
-                {
-                    yield return item;
-                    returnedItems++;
-                }
-
-                batchStart += batchSize;
-                canHaveMoreItems = returnedItems == batchSize;
-            }
-            while (canHaveMoreItems);
-        }
-
-        private static async IAsyncEnumerable<DataAvailableNotification> ExecuteQueryAsync(IQueryable<CosmosDataAvailable> query)
-        {
-            await foreach (var document in query.AsCosmosIteratorAsync().ConfigureAwait(false))
-            {
-                yield return new DataAvailableNotification(
-                    new Uuid(document.Id),
-                    new MarketOperator(new GlobalLocationNumber(document.Recipient)),
-                    new ContentType(document.ContentType),
-                    Enum.Parse<DomainOrigin>(document.Origin, true),
-                    new SupportsBundling(document.SupportsBundling),
-                    new Weight(document.RelativeWeight));
-            }
-        }
-
         private Task<CosmosCatalogEntry?> ReadFromCatalogAsync(MarketOperator recipient, DomainOrigin domain)
         {
             var asLinq = _repositoryContainer
-                    .Container
+                    .Catalog
                     .GetItemLinqQueryable<CosmosCatalogEntry>();
 
             var partitionKey = string.Join('_', recipient.Gln.Value, domain);
@@ -431,7 +235,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 cabinetKey.ContentType.Value);
 
             var asLinq = _repositoryContainer
-                .Container
+                .Cabinet
                 .GetItemLinqQueryable<CosmosCabinetDrawer>();
 
             var query =
@@ -452,7 +256,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 .ConfigureAwait(false);
 
             var asLinq = _repositoryContainer
-                .Container
+                .Cabinet
                 .GetItemLinqQueryable<CosmosDataAvailable>();
 
             var query =
@@ -482,7 +286,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             try
             {
                 await _repositoryContainer
-                     .Container
+                     .Cabinet
                      .ReplaceItemAsync(updatedDrawer, updatedDrawer.Id, requestOptions: options)
                      .ConfigureAwait(false);
             }
@@ -500,19 +304,19 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 return;
 
             await _repositoryContainer
-                .Container
+                .Catalog
                 .UpsertItemAsync(updatedCatalogEntry)
                 .ConfigureAwait(false);
         }
 
-        private async Task DeleteOldCatalogEntriesAsync(CosmosBundleDocument2 bundle, CosmosCabinetDrawerChanges changes)
+        private async Task DeleteOldCatalogEntriesAsync(CosmosBundleDocument bundle, CosmosCabinetDrawerChanges changes)
         {
             var asLinq = _repositoryContainer
-                .Container
+                .Catalog
                 .GetItemLinqQueryable<CosmosCatalogEntry>();
 
             var partitionKey = string.Join('_', bundle.Recipient, bundle.Origin);
-            var contentType = bundle.MessageType;
+            var contentType = bundle.ContentType;
 
             var query =
                 from catalogEntry in asLinq
@@ -533,7 +337,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 try
                 {
                     await _repositoryContainer
-                         .Container
+                         .Catalog
                          .DeleteItemAsync<CosmosCatalogEntry>(entry.Id, new PartitionKey(entry.PartitionKey))
                          .ConfigureAwait(false);
                 }
@@ -542,12 +346,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     // Concurrent Acknowledge already removed the file.
                 }
             }
-        }
-
-        private Task ArchiveDocumentAsync(CosmosDataAvailable documentToWrite)
-        {
-            return _repositoryContainer
-                .ArchiveContainer.UpsertItemAsync(documentToWrite, new PartitionKey(documentToWrite.PartitionKey));
         }
     }
 }

@@ -13,11 +13,13 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Core.Storage;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
+using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Energinet.DataHub.PostOffice.Infrastructure.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
@@ -67,6 +69,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var reader = CreateMockedReader();
             var setupBundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
                 recipient,
@@ -74,10 +77,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 new ContentType("fake_value"),
                 new[] { new Uuid(Guid.NewGuid()) });
 
-            await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+            await target.TryAddNextUnacknowledgedAsync(setupBundle, reader).ConfigureAwait(false);
 
             // Act
-            var bundle = await target.GetNextUnacknowledgedAsync(recipient, DomainOrigin.MarketRoles).ConfigureAwait(false);
+            var bundle = await target
+                .GetNextUnacknowledgedAsync(recipient, DomainOrigin.MarketRoles)
+                .ConfigureAwait(false);
 
             // Assert
             Assert.Null(bundle);
@@ -96,6 +101,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var reader = CreateMockedReader();
             var setupBundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
                 recipient,
@@ -103,7 +109,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 new ContentType("fake_value"),
                 new[] { new Uuid(Guid.NewGuid()) });
 
-            await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+            await target.TryAddNextUnacknowledgedAsync(setupBundle, reader).ConfigureAwait(false);
 
             // Act
             var bundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
@@ -130,11 +136,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var target = new BundleRepository(storageHandler, container, storageService);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var reader = CreateMockedReader();
             var setupBundle = CreateBundle(
                 recipient,
                 new AzureBlobBundleContent(storageService, _contentPathUri));
 
-            await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+            await target.TryAddNextUnacknowledgedAsync(setupBundle, reader).ConfigureAwait(false);
 
             // Act
             var bundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
@@ -163,10 +170,9 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
             var setupBundle = CreateBundle(recipient);
-            setupBundle.ArchiveNotifications();
 
             var beforeAdd = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
-            await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+            await target.TryAddNextUnacknowledgedAsync(setupBundle, CreateMockedReader()).ConfigureAwait(false);
             var afterAdd = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
 
             // Act
@@ -211,11 +217,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 new ContentType("fake_value"),
                 bundleA.NotificationIds);
 
-            bundleA.ArchiveNotifications();
-            bundleB.ArchiveNotifications();
-
-            await target.TryAddNextUnacknowledgedAsync(bundleA).ConfigureAwait(false);
-            await target.TryAddNextUnacknowledgedAsync(bundleB).ConfigureAwait(false);
+            await target.TryAddNextUnacknowledgedAsync(bundleA, CreateMockedReader()).ConfigureAwait(false);
+            await target.TryAddNextUnacknowledgedAsync(bundleB, CreateMockedReader()).ConfigureAwait(false);
 
             // Assert: Read bundles back.
             Assert.NotNull(await target.GetNextUnacknowledgedAsync(recipientA).ConfigureAwait(false));
@@ -245,7 +248,9 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var setupBundle = CreateBundle(recipient);
 
             // Act
-            var couldAdd = await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+            var couldAdd = await target
+                .TryAddNextUnacknowledgedAsync(setupBundle, CreateMockedReader())
+                .ConfigureAwait(false);
 
             // Assert
             Assert.Equal(BundleCreatedResponse.Success, couldAdd);
@@ -268,10 +273,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var setupBundle = CreateBundle(recipient);
             var existingBundle = CreateBundle(recipient);
 
-            await target.TryAddNextUnacknowledgedAsync(existingBundle).ConfigureAwait(false);
+            await target
+                .TryAddNextUnacknowledgedAsync(existingBundle, CreateMockedReader())
+                .ConfigureAwait(false);
 
             // Act
-            var couldAdd = await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+            var couldAdd = await target
+                .TryAddNextUnacknowledgedAsync(setupBundle, CreateMockedReader())
+                .ConfigureAwait(false);
 
             // Assert
             Assert.Equal(BundleCreatedResponse.AnotherBundleExists, couldAdd);
@@ -298,10 +307,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var recipient2 = new MarketOperator(recipientGln);
             var bundleWithDuplicateId = CreateBundle(bundleId.AsGuid(), recipient2);
 
-            await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+            await target
+                .TryAddNextUnacknowledgedAsync(setupBundle, CreateMockedReader())
+                .ConfigureAwait(false);
 
             // Act
-            var couldAddBundleWithDuplicateId = await target.TryAddNextUnacknowledgedAsync(bundleWithDuplicateId).ConfigureAwait(false);
+            var couldAddBundleWithDuplicateId = await target
+                .TryAddNextUnacknowledgedAsync(bundleWithDuplicateId, CreateMockedReader())
+                .ConfigureAwait(false);
 
             // Assert
             Assert.Equal(BundleCreatedResponse.BundleIdAlreadyInUse, couldAddBundleWithDuplicateId);
@@ -334,10 +347,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var setupBundle = CreateBundle(recipient, domainOrigin: initial);
             var conflictBundle = CreateBundle(recipient, domainOrigin: conflicting);
 
-            await target.TryAddNextUnacknowledgedAsync(conflictBundle).ConfigureAwait(false);
+            await target
+                .TryAddNextUnacknowledgedAsync(conflictBundle, CreateMockedReader())
+                .ConfigureAwait(false);
 
             // Act
-            var couldAdd = await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+            var couldAdd = await target
+                .TryAddNextUnacknowledgedAsync(setupBundle, CreateMockedReader())
+                .ConfigureAwait(false);
 
             // Assert
             Assert.Equal(BundleCreatedResponse.AnotherBundleExists, couldAdd);
@@ -366,10 +383,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var setupBundle = CreateBundle(recipient, domainOrigin: initial);
             var conflictBundle = CreateBundle(recipient, domainOrigin: conflicting);
 
-            await target.TryAddNextUnacknowledgedAsync(conflictBundle).ConfigureAwait(false);
+            await target
+                .TryAddNextUnacknowledgedAsync(conflictBundle, CreateMockedReader())
+                .ConfigureAwait(false);
 
             // Act
-            var couldAdd = await target.TryAddNextUnacknowledgedAsync(setupBundle).ConfigureAwait(false);
+            var couldAdd = await target
+                .TryAddNextUnacknowledgedAsync(setupBundle, CreateMockedReader())
+                .ConfigureAwait(false);
 
             // Assert
             Assert.Equal(BundleCreatedResponse.Success, couldAdd);
@@ -390,7 +411,10 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var recipient = new MarketOperator(new MockedGln());
             var bundleContent = new AzureBlobBundleContent(storageService, _contentPathUri);
 
-            await target.TryAddNextUnacknowledgedAsync(CreateBundle(recipient)).ConfigureAwait(false);
+            await target
+                .TryAddNextUnacknowledgedAsync(CreateBundle(recipient), CreateMockedReader())
+                .ConfigureAwait(false);
+
             var modifiedBundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
             modifiedBundle!.AssignContent(bundleContent);
 
@@ -427,6 +451,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 new ContentType("fake_value"),
                 new[] { new Uuid(Guid.NewGuid()) },
                 bundleContent);
+        }
+
+        private static AsyncCabinetReader CreateMockedReader()
+        {
+            return new AsyncCabinetReader(
+                null!,
+                Array.Empty<CosmosCabinetDrawer>(),
+                Array.Empty<Task<IEnumerable<CosmosDataAvailable>>>());
         }
     }
 }

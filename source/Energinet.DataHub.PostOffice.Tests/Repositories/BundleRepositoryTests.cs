@@ -16,6 +16,7 @@ using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Core.Storage;
 using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
@@ -101,9 +102,10 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         }
 
         [Fact]
-        public async Task TryAddNextUnacknowledgedAsync_NullArgument_ThrowsException()
+        public async Task TryAddNextUnacknowledgedAsync_NullBundle_ThrowsException()
         {
             // Arrange
+            var cabinetReader = new Mock<ICabinetReader>();
             var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
             var marketOperatorDataStorageService = new Mock<IMarketOperatorDataStorageService>();
             var storageHandler = new Mock<IStorageHandler>();
@@ -114,7 +116,34 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.TryAddNextUnacknowledgedAsync(null!))
+                .ThrowsAsync<ArgumentNullException>(() =>
+                    target.TryAddNextUnacknowledgedAsync(null!, cabinetReader.Object))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task TryAddNextUnacknowledgedAsync_NullReader_ThrowsException()
+        {
+            // Arrange
+            var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
+            var marketOperatorDataStorageService = new Mock<IMarketOperatorDataStorageService>();
+            var storageHandler = new Mock<IStorageHandler>();
+            var target = new BundleRepository(
+                storageHandler.Object,
+                bundleRepositoryContainer.Object,
+                marketOperatorDataStorageService.Object);
+
+            var bundle = new Bundle(
+                new Uuid(Guid.NewGuid()),
+                new MarketOperator(new GlobalLocationNumber(null!)),
+                DomainOrigin.Aggregations,
+                null!,
+                Array.Empty<Uuid>());
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() =>
+                    target.TryAddNextUnacknowledgedAsync(bundle, null!))
                 .ConfigureAwait(false);
         }
     }

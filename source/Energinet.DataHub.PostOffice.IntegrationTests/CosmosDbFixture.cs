@@ -38,15 +38,19 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
             var logDatabase = logDatabaseResponse.Database;
 
             await testDatabase
-                .CreateContainerIfNotExistsAsync("dataavailable", "/partitionKey")
+                .CreateContainerIfNotExistsAsync("catalog", "/partitionKey")
                 .ConfigureAwait(false);
 
             await testDatabase
-                .CreateContainerIfNotExistsAsync("dataavailable-archive", "/partitionKey")
+                .CreateContainerIfNotExistsAsync("cabinet", "/partitionKey")
+                .ConfigureAwait(false);
+
+            await testDatabase
+                .CreateContainerIfNotExistsAsync("idempotency", "/partitionKey")
                 .ConfigureAwait(false);
 
             var bundlesResponse = await testDatabase
-                .CreateContainerIfNotExistsAsync("bundles", "/recipient")
+                .CreateContainerIfNotExistsAsync("bundle", "/recipient")
                 .ConfigureAwait(false);
 
             await logDatabase
@@ -68,7 +72,7 @@ function trigger() {
 
     // Query for checking if there are other unacknowledged bundles for market operator.
     var filterQuery = `
-    SELECT * FROM bundles b
+    SELECT * FROM bundle b
     WHERE b.recipient = '${createdItem.recipient}' AND
           b.dequeued = false AND (
           b.origin = '${createdItem.origin}' OR

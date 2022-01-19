@@ -39,9 +39,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
         public bool SupportsBundling { get; init; }
         public int RelativeWeight { get; init; }
 
-        // TODO: Can be removed later.
-        public bool Acknowledge { get; init; }
-
         [JsonProperty(PropertyName = "_ts")]
         public string Timestamp { get; init; }
     }

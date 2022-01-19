@@ -15,7 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
@@ -29,20 +28,17 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         private readonly IDataAvailableNotificationRepository _dataAvailableNotificationRepository;
         private readonly IRequestBundleDomainService _requestBundleDomainService;
         private readonly IWeightCalculatorDomainService _weightCalculatorDomainService;
-        private readonly IDequeueCleanUpSchedulingService _dequeueCleanUpSchedulingService;
 
         public MarketOperatorDataDomainService(
             IBundleRepository bundleRepository,
             IDataAvailableNotificationRepository dataAvailableRepository,
             IRequestBundleDomainService requestBundleDomainService,
-            IWeightCalculatorDomainService weightCalculatorDomainService,
-            IDequeueCleanUpSchedulingService dequeueCleanUpSchedulingService)
+            IWeightCalculatorDomainService weightCalculatorDomainService)
         {
             _bundleRepository = bundleRepository;
             _dataAvailableNotificationRepository = dataAvailableRepository;
             _requestBundleDomainService = requestBundleDomainService;
             _weightCalculatorDomainService = weightCalculatorDomainService;
-            _dequeueCleanUpSchedulingService = dequeueCleanUpSchedulingService;
         }
 
         public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid bundleId)
@@ -73,29 +69,12 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         public async Task<(bool CanAcknowledge, Bundle? Bundle)> CanAcknowledgeAsync(MarketOperator recipient, Uuid bundleId)
         {
             var bundle = await _bundleRepository.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
-            return bundle != null && bundle.BundleId == bundleId && !bundle.WaitingForDequeueCleanup
+            return bundle != null && bundle.BundleId == bundleId
                 ? (true, bundle)
                 : (false, null);
         }
 
         public async Task AcknowledgeAsync(Bundle bundle)
-        {
-            Guard.ThrowIfNull(bundle, nameof(bundle));
-
-            await _dataAvailableNotificationRepository
-                .AcknowledgeAsync(bundle.Recipient, bundle.NotificationIds)
-                .ConfigureAwait(false);
-
-            await _bundleRepository
-                .AcknowledgeAsync(bundle.Recipient, bundle.BundleId)
-                .ConfigureAwait(false);
-
-            await _dequeueCleanUpSchedulingService
-                .TriggerDequeueCleanUpOperationAsync(bundle)
-                .ConfigureAwait(false);
-        }
-
-        public async Task Acknowledge2Async(Bundle bundle)
         {
             Guard.ThrowIfNull(bundle, nameof(bundle));
 
@@ -109,41 +88,6 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         }
 
         private async Task<Bundle?> GetNextUnacknowledgedForDomainsAsync(MarketOperator recipient, Uuid bundleId, params DomainOrigin[] domains)
-        {
-            var existingBundle = await _bundleRepository.GetNextUnacknowledgedAsync(recipient, domains).ConfigureAwait(false);
-            if (existingBundle != null)
-            {
-                if (existingBundle.WaitingForDequeueCleanup)
-                    return null;
-
-                if (existingBundle.BundleId != bundleId)
-                    throw new ValidationException($"The provided bundleId does not match current scoped bundleId: {existingBundle.BundleId}");
-
-                return await AskSubDomainForContentAsync(existingBundle).ConfigureAwait(false);
-            }
-
-            var dataAvailableNotification = await _dataAvailableNotificationRepository.GetNextUnacknowledgedAsync(recipient, domains).ConfigureAwait(false);
-            if (dataAvailableNotification == null)
-                return null;
-
-            var newBundle = await CreateNextBundleAsync(bundleId, dataAvailableNotification)
-                .ConfigureAwait(false);
-
-            var bundleCreatedResponse = await _bundleRepository
-                .TryAddNextUnacknowledgedAsync(newBundle)
-                .ConfigureAwait(false);
-
-            return bundleCreatedResponse switch
-            {
-                BundleCreatedResponse.Success => await AskSubDomainForContentAsync(newBundle).ConfigureAwait(false),
-                BundleCreatedResponse.AnotherBundleExists => null,
-                BundleCreatedResponse.BundleIdAlreadyInUse => throw new ValidationException(nameof(BundleCreatedResponse.BundleIdAlreadyInUse)),
-                _ => throw new InvalidOperationException($"bundleCreatedResponse was {bundleCreatedResponse}")
-            };
-        }
-
-        // TODO: Move original UTs to point at this method. Separate PR.
-        private async Task<Bundle?> GetNextUnacknowledgedForDomains2Async(MarketOperator recipient, Uuid bundleId, params DomainOrigin[] domains)
         {
             var existingBundle = await _bundleRepository
                 .GetNextUnacknowledgedAsync(recipient, domains)
@@ -202,40 +146,6 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             bundle.AssignContent(bundleContent);
             await _bundleRepository.SaveAsync(bundle).ConfigureAwait(false);
             return bundle;
-        }
-
-        private async Task<Bundle> CreateNextBundleAsync(Uuid bundleUuid, DataAvailableNotification source)
-        {
-            var recipient = source.Recipient;
-            var domainOrigin = source.Origin;
-            var contentType = source.ContentType;
-
-            var maxWeight = _weightCalculatorDomainService.CalculateMaxWeight(domainOrigin);
-
-            if (!source.SupportsBundling.Value || source.Weight >= maxWeight)
-            {
-                return new Bundle(
-                    bundleUuid,
-                    recipient,
-                    domainOrigin,
-                    contentType,
-                    new[] { source.NotificationId });
-            }
-
-            var dataAvailableNotifications = await _dataAvailableNotificationRepository
-                .GetNextUnacknowledgedAsync(recipient, domainOrigin, contentType, maxWeight)
-                .ConfigureAwait(false);
-
-            var notificationIds = dataAvailableNotifications
-                .Select(x => x.NotificationId)
-                .ToList();
-
-            return new Bundle(
-                bundleUuid,
-                recipient,
-                domainOrigin,
-                contentType,
-                notificationIds);
         }
 
         private async Task<Bundle> CreateNextBundleAsync(Uuid bundleId, ICabinetReader cabinetReader)

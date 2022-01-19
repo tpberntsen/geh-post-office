@@ -61,12 +61,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
 
             // Assert
             Assert.NotNull(response);
-            repository.Verify(x => x.SaveAsync(It.Is<DataAvailableNotification>(x =>
-                x.Recipient.Gln.Value == request.Recipient &&
-                x.Origin == DomainOrigin.TimeSeries &&
-                x.Weight.Value == request.Weight &&
-                x.ContentType.Value == "timeseries" &&
-                x.NotificationId == new Uuid(request.Uuid))));
+            repository.Verify(x => x.SaveAsync(It.Is<DataAvailableNotification>(notification =>
+                notification.Recipient.Gln.Value == request.Recipient &&
+                notification.Origin == DomainOrigin.TimeSeries &&
+                notification.Weight.Value == request.Weight &&
+                notification.ContentType.Value == "timeseries" &&
+                notification.NotificationId == new Uuid(request.Uuid))));
         }
     }
 }

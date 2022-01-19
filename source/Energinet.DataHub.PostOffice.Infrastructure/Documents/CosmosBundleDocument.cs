@@ -21,30 +21,31 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
     {
         public CosmosBundleDocument()
         {
-            Id = string.Empty;
-            ProcessId = string.Empty;
-
-            Recipient = string.Empty;
-            Origin = string.Empty;
-            MessageType = string.Empty;
-
+            Id = null!;
+            ProcessId = null!;
+            Recipient = null!;
+            Origin = null!;
+            ContentType = null!;
+            Dequeued = false;
             NotificationIds = new List<string>();
-            ContentPath = string.Empty;
-            NotificationsArchived = false;
+            AffectedDrawers = new List<CosmosCabinetDrawerChanges>();
+            ContentPath = null!;
             Timestamp = null!;
         }
 
         public string Id { get; init; }
         public string ProcessId { get; init; }
-        public bool Dequeued { get; init; }
-
         public string Recipient { get; init; }
         public string Origin { get; init; }
-        public string MessageType { get; init; }
+        public string ContentType { get; init; }
+
+        public bool Dequeued { get; init; }
 
         public ICollection<string> NotificationIds { get; init; }
+
+        public ICollection<CosmosCabinetDrawerChanges> AffectedDrawers { get; init; }
+
         public string ContentPath { get; init; }
-        public bool NotificationsArchived { get; init; }
 
         [JsonProperty(PropertyName = "_ts")]
         public string Timestamp { get; init; }
