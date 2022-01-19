@@ -80,7 +80,7 @@ resource "azurerm_cosmosdb_sql_container" "collection_bundle" {
 
 resource "azurerm_cosmosdb_sql_trigger" "triggers_ensuresingleunacknowledgedbundle" {
   name         = "EnsureSingleUnacknowledgedBundle"
-  container_id = azurerm_cosmosdb_sql_container.collection_bundles.id
+  container_id = azurerm_cosmosdb_sql_container.collection_bundle.id
   body         = <<EOT
     function trigger() {
 
