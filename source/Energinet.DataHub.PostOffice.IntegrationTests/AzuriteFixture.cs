@@ -20,17 +20,25 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
 {
     internal sealed class AzuriteFixture : IAsyncLifetime
     {
-        private readonly AzuriteManager _azuriteManager = new();
+        private readonly AzuriteManager? _azuriteManager;
+
+        public AzuriteFixture()
+        {
+            if (!LocalSettings.DisableAzurite)
+                _azuriteManager = new();
+        }
 
         public Task InitializeAsync()
         {
-            _azuriteManager.StartAzurite();
+            if (_azuriteManager != null)
+                _azuriteManager.StartAzurite();
             return Task.CompletedTask;
         }
 
         public Task DisposeAsync()
         {
-            _azuriteManager.Dispose();
+            if (_azuriteManager != null)
+                _azuriteManager.Dispose();
             return Task.CompletedTask;
         }
     }
