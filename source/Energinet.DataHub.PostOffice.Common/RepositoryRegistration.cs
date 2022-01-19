@@ -29,6 +29,7 @@ namespace Energinet.DataHub.PostOffice.Common
             container.Register<IDataAvailableNotificationRepositoryContainer, DataAvailableNotificationRepositoryContainer>(Lifestyle.Scoped);
             container.Register<IBundleRepository, BundleRepository>(Lifestyle.Scoped);
             container.Register<IBundleRepositoryContainer, BundleRepositoryContainer>(Lifestyle.Scoped);
+            container.Register<ISequenceNumberRepository, SequenceNumberRepository>(Lifestyle.Scoped);
         }
     }
 }

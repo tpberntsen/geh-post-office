@@ -32,6 +32,617 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
     public sealed class DataAvailableNotificationRepositoryTests
     {
         [Fact]
+        public async Task ReadCatalogForNextUnacknowledgedAsync_NoData_ReturnsNull()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+            var recipient = new MarketOperator(new MockedGln());
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .ReadCatalogForNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.Null(actual);
+        }
+
+        [Fact]
+        public async Task ReadCatalogForNextUnacknowledgedAsync_OneCatalog_ReturnsKey()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+            var recipient = new MarketOperator(new MockedGln());
+            var origin = DomainOrigin.Aggregations;
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+
+            var cosmosCatalogEntry = new CosmosCatalogEntry
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient.Gln.Value, origin),
+                ContentType = "target_content_type",
+                NextSequenceNumber = 1
+            };
+
+            await dataAvailableContainer
+                .Container
+                .CreateItemAsync(cosmosCatalogEntry)
+                .ConfigureAwait(false);
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .ReadCatalogForNextUnacknowledgedAsync(recipient, origin)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(actual);
+            Assert.Equal(recipient, actual!.Recipient);
+            Assert.Equal(origin, actual.Origin);
+            Assert.Equal(cosmosCatalogEntry.ContentType, actual.ContentType.Value);
+        }
+
+        [Fact]
+        public async Task ReadCatalogForNextUnacknowledgedAsync_OneCatalogNoDomains_ReturnsKey()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+            var recipient = new MarketOperator(new MockedGln());
+            var origin = DomainOrigin.Aggregations;
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+
+            var cosmosCatalogEntry = new CosmosCatalogEntry
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient.Gln.Value, origin),
+                ContentType = "target_content_type",
+                NextSequenceNumber = 1
+            };
+
+            await dataAvailableContainer
+                .Container
+                .CreateItemAsync(cosmosCatalogEntry)
+                .ConfigureAwait(false);
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .ReadCatalogForNextUnacknowledgedAsync(recipient)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(actual);
+            Assert.Equal(recipient, actual!.Recipient);
+            Assert.Equal(origin, actual.Origin);
+            Assert.Equal(cosmosCatalogEntry.ContentType, actual.ContentType.Value);
+        }
+
+        [Fact]
+        public async Task ReadCatalogForNextUnacknowledgedAsync_MultipleCatalogs_ReturnsSmallestKey()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+            var recipient = new MarketOperator(new MockedGln());
+            var origins = new[] { DomainOrigin.Aggregations, DomainOrigin.Charges, DomainOrigin.MarketRoles };
+            var values = new[] { 12, 3, 4 };
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+
+            for (var i = 0; i < origins.Length; i++)
+            {
+                var cosmosCatalogEntry = new CosmosCatalogEntry
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    PartitionKey = string.Join('_', recipient.Gln.Value, origins[i]),
+                    ContentType = $"content_{values[i]}",
+                    NextSequenceNumber = values[i]
+                };
+
+                await dataAvailableContainer
+                    .Container
+                    .CreateItemAsync(cosmosCatalogEntry)
+                    .ConfigureAwait(false);
+
+                var cosmosCatalogEntry2 = new CosmosCatalogEntry
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    PartitionKey = string.Join('_', recipient.Gln.Value, origins[i]),
+                    ContentType = $"content_{values[i]}_2",
+                    NextSequenceNumber = values[i] + 100
+                };
+
+                await dataAvailableContainer
+                    .Container
+                    .CreateItemAsync(cosmosCatalogEntry2)
+                    .ConfigureAwait(false);
+            }
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .ReadCatalogForNextUnacknowledgedAsync(recipient, origins)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(actual);
+            Assert.Equal(recipient, actual!.Recipient);
+            Assert.Equal(origins[1], actual.Origin);
+            Assert.Equal($"content_{values[1]}", actual.ContentType.Value);
+        }
+
+        [Fact]
+        public async Task ReadCatalogForNextUnacknowledgedAsync_MultipleUnrelatedCatalogs_ReturnsSmallestKey()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+            var recipient = new MarketOperator(new MockedGln());
+            var origins = new[] { DomainOrigin.Aggregations, DomainOrigin.Charges, DomainOrigin.MarketRoles };
+            var values = new[] { 12, 3, 4 };
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+
+            for (var i = 0; i < origins.Length; i++)
+            {
+                var cosmosCatalogEntry = new CosmosCatalogEntry
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    PartitionKey = string.Join('_', recipient.Gln.Value, origins[i]),
+                    ContentType = $"content_{values[i]}",
+                    NextSequenceNumber = values[i]
+                };
+
+                await dataAvailableContainer
+                    .Container
+                    .CreateItemAsync(cosmosCatalogEntry)
+                    .ConfigureAwait(false);
+
+                var cosmosCatalogEntry2 = new CosmosCatalogEntry
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    PartitionKey = string.Join('_', recipient.Gln.Value, origins[i]),
+                    ContentType = $"content_{values[i]}_2",
+                    NextSequenceNumber = values[i] + 100
+                };
+
+                await dataAvailableContainer
+                    .Container
+                    .CreateItemAsync(cosmosCatalogEntry2)
+                    .ConfigureAwait(false);
+            }
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .ReadCatalogForNextUnacknowledgedAsync(recipient, new[] { DomainOrigin.Aggregations })
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(actual);
+            Assert.Equal(recipient, actual!.Recipient);
+            Assert.Equal(origins[0], actual.Origin);
+            Assert.Equal($"content_{values[0]}", actual.ContentType.Value);
+        }
+
+        [Fact]
+        public async Task GetCabinetReaderAsync_OneItem_ReturnsItem()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+            var recipient = new MarketOperator(new MockedGln());
+            var origin = DomainOrigin.Aggregations;
+            var contentType = new ContentType("target_content");
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+            var dataAvailableId = Guid.NewGuid();
+
+            var cosmosCatalogDrawer = new CosmosCabinetDrawer
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value),
+                Position = 0,
+                OrderBy = 1
+            };
+
+            var cosmosDataAvailable = new CosmosDataAvailable
+            {
+                Id = dataAvailableId.ToString(),
+                Recipient = recipient.Gln.Value,
+                Origin = origin.ToString(),
+                ContentType = contentType.Value,
+                PartitionKey = cosmosCatalogDrawer.Id,
+                SequenceNumber = 1
+            };
+
+            await dataAvailableContainer
+                .Container
+                .CreateItemAsync(cosmosDataAvailable)
+                .ConfigureAwait(false);
+
+            await dataAvailableContainer
+                .Container
+                .CreateItemAsync(cosmosCatalogDrawer)
+                .ConfigureAwait(false);
+
+            var cabinetKey = new CabinetKey(recipient, origin, contentType);
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .GetCabinetReaderAsync(cabinetKey)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(actual);
+            Assert.True(actual.CanPeek);
+
+            var actualValue = actual.Peek();
+            Assert.Equal(dataAvailableId, actualValue.NotificationId.AsGuid());
+        }
+
+        [Fact]
+        public async Task GetCabinetReaderAsync_TwoItemsMovedPosition_ReturnsItem()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+            var recipient = new MarketOperator(new MockedGln());
+            var origin = DomainOrigin.Aggregations;
+            var contentType = new ContentType("target_content");
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+            var dataAvailableId = Guid.NewGuid();
+
+            var cosmosCatalogDrawer = new CosmosCabinetDrawer
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value),
+                Position = 3,
+                OrderBy = 0
+            };
+
+            for (var i = 0; i < 4; i++)
+            {
+                dataAvailableId = Guid.NewGuid();
+
+                var cosmosDataAvailable = new CosmosDataAvailable
+                {
+                    Id = dataAvailableId.ToString(),
+                    Recipient = recipient.Gln.Value,
+                    Origin = origin.ToString(),
+                    ContentType = contentType.Value,
+                    PartitionKey = cosmosCatalogDrawer.Id,
+                    SequenceNumber = i
+                };
+
+                await dataAvailableContainer
+                    .Container
+                    .CreateItemAsync(cosmosDataAvailable)
+                    .ConfigureAwait(false);
+            }
+
+            await dataAvailableContainer
+                .Container
+                .CreateItemAsync(cosmosCatalogDrawer)
+                .ConfigureAwait(false);
+
+            var cabinetKey = new CabinetKey(recipient, origin, contentType);
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .GetCabinetReaderAsync(cabinetKey)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(actual);
+            Assert.True(actual.CanPeek);
+
+            var actualValue = await actual.TakeAsync().ConfigureAwait(false);
+            Assert.Equal(dataAvailableId, actualValue.NotificationId.AsGuid());
+            Assert.False(actual.CanPeek);
+        }
+
+        [Fact]
+        public async Task GetCabinetReaderAsync_UnrelatedRecipient_ReturnsOneItem()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+            var recipient = new MarketOperator(new MockedGln());
+            var origin = DomainOrigin.Aggregations;
+            var contentType = new ContentType("target_content");
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+
+            for (var i = 0; i < 2; i++)
+            {
+                recipient = new MarketOperator(new MockedGln());
+
+                var cosmosCatalogDrawer = new CosmosCabinetDrawer
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value),
+                    Position = 0,
+                    OrderBy = 1
+                };
+
+                var cosmosDataAvailable = new CosmosDataAvailable
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Recipient = recipient.Gln.Value,
+                    Origin = origin.ToString(),
+                    ContentType = contentType.Value,
+                    PartitionKey = cosmosCatalogDrawer.Id,
+                    SequenceNumber = 1
+                };
+
+                await dataAvailableContainer
+                    .Container
+                    .CreateItemAsync(cosmosDataAvailable)
+                    .ConfigureAwait(false);
+
+                await dataAvailableContainer
+                    .Container
+                    .CreateItemAsync(cosmosCatalogDrawer)
+                    .ConfigureAwait(false);
+            }
+
+            var cabinetKey = new CabinetKey(recipient, origin, contentType);
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .GetCabinetReaderAsync(cabinetKey)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(actual);
+            Assert.True(actual.CanPeek);
+
+            var items = new List<DataAvailableNotification>();
+
+            while (actual.CanPeek)
+            {
+                var notification = await actual.TakeAsync().ConfigureAwait(false);
+                items.Add(notification);
+            }
+
+            Assert.Single(items);
+        }
+
+        [Fact]
+        public async Task GetCabinetReaderAsync_UnrelatedOrigin_ReturnsOneItem()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+            var recipient = new MarketOperator(new MockedGln());
+            var origin = DomainOrigin.Aggregations;
+            var contentType = new ContentType("target_content");
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+
+            for (var i = 0; i < 2; i++)
+            {
+                var cosmosCatalogDrawer = new CosmosCabinetDrawer
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value),
+                    Position = 0,
+                    OrderBy = 1
+                };
+
+                var cosmosDataAvailable = new CosmosDataAvailable
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Recipient = recipient.Gln.Value,
+                    Origin = origin.ToString(),
+                    ContentType = contentType.Value,
+                    PartitionKey = cosmosCatalogDrawer.Id,
+                    SequenceNumber = 1
+                };
+
+                await dataAvailableContainer
+                    .Container
+                    .CreateItemAsync(cosmosDataAvailable)
+                    .ConfigureAwait(false);
+
+                await dataAvailableContainer
+                    .Container
+                    .CreateItemAsync(cosmosCatalogDrawer)
+                    .ConfigureAwait(false);
+
+                origin = DomainOrigin.Charges;
+            }
+
+            var cabinetKey = new CabinetKey(recipient, DomainOrigin.Charges, contentType);
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .GetCabinetReaderAsync(cabinetKey)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(actual);
+            Assert.True(actual.CanPeek);
+
+            var items = new List<DataAvailableNotification>();
+
+            while (actual.CanPeek)
+            {
+                var notification = await actual.TakeAsync().ConfigureAwait(false);
+                items.Add(notification);
+            }
+
+            Assert.Single(items);
+        }
+
+        [Fact]
+        public async Task GetCabinetReaderAsync_UnrelatedContentType_ReturnsOneItem()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+            var recipient = new MarketOperator(new MockedGln());
+            var origin = DomainOrigin.Aggregations;
+            var contentType = new ContentType("other_content");
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+
+            for (var i = 0; i < 2; i++)
+            {
+                var cosmosCatalogDrawer = new CosmosCabinetDrawer
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value),
+                    Position = 0,
+                    OrderBy = 1
+                };
+
+                var cosmosDataAvailable = new CosmosDataAvailable
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Recipient = recipient.Gln.Value,
+                    Origin = origin.ToString(),
+                    ContentType = contentType.Value,
+                    PartitionKey = cosmosCatalogDrawer.Id,
+                    SequenceNumber = 1
+                };
+
+                await dataAvailableContainer
+                    .Container
+                    .CreateItemAsync(cosmosDataAvailable)
+                    .ConfigureAwait(false);
+
+                await dataAvailableContainer
+                    .Container
+                    .CreateItemAsync(cosmosCatalogDrawer)
+                    .ConfigureAwait(false);
+
+                contentType = new ContentType("actual");
+            }
+
+            var cabinetKey = new CabinetKey(recipient, origin, new ContentType("actual"));
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .GetCabinetReaderAsync(cabinetKey)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(actual);
+            Assert.True(actual.CanPeek);
+
+            var items = new List<DataAvailableNotification>();
+
+            while (actual.CanPeek)
+            {
+                var notification = await actual.TakeAsync().ConfigureAwait(false);
+                items.Add(notification);
+            }
+
+            Assert.Single(items);
+        }
+
+        [Fact]
+        public async Task GetCabinetReaderAsync_FromSeveralDrawers_ReturnsAllItems()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+            var recipient = new MarketOperator(new MockedGln());
+            var origin = DomainOrigin.Aggregations;
+            var contentType = new ContentType("target_content");
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+            var seqNum = 0;
+
+            for (var i = 0; i < 6; i++)
+            {
+                var cosmosCatalogDrawer = new CosmosCabinetDrawer
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value),
+                    Position = 0,
+                    OrderBy = seqNum
+                };
+
+                var insertions = new List<Task>();
+
+                for (var j = 0; j < 10000; j++)
+                {
+                    var cosmosDataAvailable = new CosmosDataAvailable
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Recipient = recipient.Gln.Value,
+                        Origin = origin.ToString(),
+                        ContentType = contentType.Value,
+                        PartitionKey = cosmosCatalogDrawer.Id,
+                        SequenceNumber = seqNum
+                    };
+
+                    seqNum++;
+
+                    insertions.Add(dataAvailableContainer
+                        .Container
+                        .CreateItemAsync(cosmosDataAvailable));
+                }
+
+                await Task.WhenAll(insertions).ConfigureAwait(false);
+
+                await dataAvailableContainer
+                    .Container
+                    .CreateItemAsync(cosmosCatalogDrawer)
+                    .ConfigureAwait(false);
+            }
+
+            var cabinetKey = new CabinetKey(recipient, origin, contentType);
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .GetCabinetReaderAsync(cabinetKey)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(actual);
+            Assert.True(actual.CanPeek);
+
+            // Must read all 60.000 items back.
+            var items = new List<DataAvailableNotification>();
+
+            while (actual.CanPeek)
+            {
+                var notification = await actual.TakeAsync().ConfigureAwait(false);
+                items.Add(notification);
+            }
+
+            Assert.Equal(60000, items.Count);
+        }
+
+        [Fact]
         public async Task GetNextUnacknowledgedAsync_NoData_ReturnsNull()
         {
             // Arrange

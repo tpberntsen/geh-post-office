@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
@@ -35,6 +36,26 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 Recipient = source.Recipient.Gln.Value,
                 Origin = source.Origin.ToString(),
                 MessageType = source.ContentType.Value,
+
+                NotificationIds = source.NotificationIds.Select(id => id.ToString()).ToList(),
+                ContentPath = MapBundleContent(source)
+            };
+        }
+
+        public static CosmosBundleDocument2 Map(Bundle source, IEnumerable<CosmosCabinetDrawerChanges> changes)
+        {
+            return new CosmosBundleDocument2
+            {
+                Id = source.BundleId.ToString(),
+                ProcessId = source.ProcessId.ToString(),
+
+                Dequeued = source.Dequeued,
+
+                Recipient = source.Recipient.Gln.Value,
+                Origin = source.Origin.ToString(),
+                MessageType = source.ContentType.Value,
+
+                AffectedDrawers = changes.ToList(),
 
                 NotificationIds = source.NotificationIds.Select(id => id.ToString()).ToList(),
                 ContentPath = MapBundleContent(source)

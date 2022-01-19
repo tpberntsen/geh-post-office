@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -141,6 +142,51 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             };
         }
 
+        // TODO: Move original UTs to point at this method. Separate PR.
+        private async Task<Bundle?> GetNextUnacknowledgedForDomains2Async(MarketOperator recipient, Uuid bundleId, params DomainOrigin[] domains)
+        {
+            var existingBundle = await _bundleRepository
+                .GetNextUnacknowledgedAsync(recipient, domains)
+                .ConfigureAwait(false);
+
+            if (existingBundle != null)
+            {
+                if (existingBundle.BundleId != bundleId)
+                {
+                    throw new ValidationException(
+                        $"The specified bundle id was rejected, as the current bundle {existingBundle.BundleId} is yet to be acknowledged.");
+                }
+
+                return await AskSubDomainForContentAsync(existingBundle).ConfigureAwait(false);
+            }
+
+            var cabinetKey = await _dataAvailableNotificationRepository
+                .ReadCatalogForNextUnacknowledgedAsync(recipient, domains)
+                .ConfigureAwait(false);
+
+            // Nothing to return.
+            if (cabinetKey == null)
+                return null;
+
+            var cabinetReader = await _dataAvailableNotificationRepository
+                .GetCabinetReaderAsync(cabinetKey)
+                .ConfigureAwait(false);
+
+            var newBundle = await CreateNextBundleAsync(bundleId, cabinetReader).ConfigureAwait(false);
+
+            var bundleCreatedResponse = await _bundleRepository
+                .TryAddNextUnacknowledgedAsync(newBundle, cabinetReader)
+                .ConfigureAwait(false);
+
+            return bundleCreatedResponse switch
+            {
+                BundleCreatedResponse.Success => await AskSubDomainForContentAsync(newBundle).ConfigureAwait(false),
+                BundleCreatedResponse.AnotherBundleExists => null,
+                BundleCreatedResponse.BundleIdAlreadyInUse => throw new ValidationException(nameof(BundleCreatedResponse.BundleIdAlreadyInUse)),
+                _ => throw new InvalidOperationException($"bundleCreatedResponse was {bundleCreatedResponse}")
+            };
+        }
+
         private async Task<Bundle?> AskSubDomainForContentAsync(Bundle bundle)
         {
             if (bundle.TryGetContent(out _))
@@ -189,6 +235,42 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 recipient,
                 domainOrigin,
                 contentType,
+                notificationIds);
+        }
+
+        private async Task<Bundle> CreateNextBundleAsync(Uuid bundleId, ICabinetReader cabinetReader)
+        {
+            var cabinetKey = cabinetReader.Key;
+
+            var weight = new Weight(0);
+            var maxWeight = _weightCalculatorDomainService.CalculateMaxWeight(cabinetKey.Origin);
+
+            var notificationIds = new List<Uuid>();
+
+            while (cabinetReader.CanPeek)
+            {
+                var notification = cabinetReader.Peek();
+
+                if (notificationIds.Count == 0 || (weight + notification.Weight <= maxWeight && notification.SupportsBundling.Value))
+                {
+                    var dequeued = await cabinetReader
+                        .TakeAsync()
+                        .ConfigureAwait(false);
+
+                    weight += dequeued.Weight;
+                    notificationIds.Add(dequeued.NotificationId);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return new Bundle(
+                bundleId,
+                cabinetKey.Recipient,
+                cabinetKey.Origin,
+                cabinetKey.ContentType,
                 notificationIds);
         }
     }

@@ -29,13 +29,18 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
         }
 
         public string Id { get; init; }
-        public string ContentType { get; init; }
-        public string Origin { get; init; }
         public string Recipient { get; init; }
+        public string Origin { get; init; }
+        public string ContentType { get; init; }
+
+        public string PartitionKey { get; init; }
+        public long SequenceNumber { get; init; }
+
         public bool SupportsBundling { get; init; }
         public int RelativeWeight { get; init; }
+
+        // TODO: Can be removed later.
         public bool Acknowledge { get; init; }
-        public string PartitionKey { get; init; }
 
         [JsonProperty(PropertyName = "_ts")]
         public string Timestamp { get; init; }
