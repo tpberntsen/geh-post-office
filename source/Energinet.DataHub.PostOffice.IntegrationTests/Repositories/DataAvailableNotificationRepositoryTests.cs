@@ -334,8 +334,10 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
 
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < 2; i++)
             {
+                recipient = new MarketOperator(new MockedGln());
+
                 var cosmosCatalogDrawer = new CosmosCabinetDrawer
                 {
                     Id = Guid.NewGuid().ToString(),
@@ -363,8 +365,6 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                     .Container
                     .CreateItemAsync(cosmosCatalogDrawer)
                     .ConfigureAwait(false);
-
-                recipient = new MarketOperator(new MockedGln());
             }
 
             var cabinetKey = new CabinetKey(recipient, origin, contentType);
@@ -436,7 +436,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 origin = DomainOrigin.Charges;
             }
 
-            var cabinetKey = new CabinetKey(recipient, origin, contentType);
+            var cabinetKey = new CabinetKey(recipient, DomainOrigin.Charges, contentType);
 
             // Act
             var actual = await dataAvailableNotificationRepository
@@ -505,7 +505,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 contentType = new ContentType("actual");
             }
 
-            var cabinetKey = new CabinetKey(recipient, origin, contentType);
+            var cabinetKey = new CabinetKey(recipient, origin, new ContentType("actual"));
 
             // Act
             var actual = await dataAvailableNotificationRepository
