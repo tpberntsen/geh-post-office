@@ -50,16 +50,23 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             _sequenceNumberRepository = new SequenceNumberRepository();
         }
 
-        public async Task<CabinetKey?> ReadCatalogForNextUnacknowledgedAsync(MarketOperator recipient, IEnumerable<DomainOrigin> domains)
+        public async Task<CabinetKey?> ReadCatalogForNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
         {
             Guard.ThrowIfNull(recipient, nameof(recipient));
             Guard.ThrowIfNull(domains, nameof(domains));
 
-            var catalogTasks = domains.Select(async domainOrigin =>
+            if (domains.Length == 0)
             {
-                var entry = await ReadFromCatalogAsync(recipient, domainOrigin).ConfigureAwait(false);
-                return new { domainOrigin, entry };
-            }).ToList();
+                domains = Enum.GetValues<DomainOrigin>();
+            }
+
+            var catalogTasks = domains
+                .Where(origin => origin != DomainOrigin.Unknown)
+                .Select(async origin =>
+                {
+                    var entry = await ReadFromCatalogAsync(recipient, origin).ConfigureAwait(false);
+                    return new { domainOrigin = origin, entry };
+                }).ToList();
 
             await Task.WhenAll(catalogTasks).ConfigureAwait(false);
 

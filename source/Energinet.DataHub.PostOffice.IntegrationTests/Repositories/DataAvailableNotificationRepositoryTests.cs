@@ -43,7 +43,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             // Act
             var actual = await dataAvailableNotificationRepository
-                .ReadCatalogForNextUnacknowledgedAsync(recipient, new[] { DomainOrigin.Aggregations })
+                .ReadCatalogForNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations)
                 .ConfigureAwait(false);
 
             // Assert
@@ -78,7 +78,45 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             // Act
             var actual = await dataAvailableNotificationRepository
-                .ReadCatalogForNextUnacknowledgedAsync(recipient, new[] { origin })
+                .ReadCatalogForNextUnacknowledgedAsync(recipient, origin)
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(actual);
+            Assert.Equal(recipient, actual!.Recipient);
+            Assert.Equal(origin, actual.Origin);
+            Assert.Equal(cosmosCatalogEntry.ContentType, actual.ContentType.Value);
+        }
+
+        [Fact]
+        public async Task ReadCatalogForNextUnacknowledgedAsync_OneCatalogNoDomains_ReturnsKey()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+            var recipient = new MarketOperator(new MockedGln());
+            var origin = DomainOrigin.Aggregations;
+
+            var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
+
+            var cosmosCatalogEntry = new CosmosCatalogEntry
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = string.Join('_', recipient.Gln.Value, origin),
+                ContentType = "target_content_type",
+                NextSequenceNumber = 1
+            };
+
+            await dataAvailableContainer
+                .Container
+                .CreateItemAsync(cosmosCatalogEntry)
+                .ConfigureAwait(false);
+
+            // Act
+            var actual = await dataAvailableNotificationRepository
+                .ReadCatalogForNextUnacknowledgedAsync(recipient)
                 .ConfigureAwait(false);
 
             // Assert
