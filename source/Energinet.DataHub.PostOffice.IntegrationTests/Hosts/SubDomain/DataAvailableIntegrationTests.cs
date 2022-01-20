@@ -46,6 +46,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 blankValue,
                 blankValue,
                 false,
+                1,
                 1);
 
             // Act + Assert
@@ -74,6 +75,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 "timeseries",
                 "timeseries",
                 false,
+                1,
                 1);
 
             // Act

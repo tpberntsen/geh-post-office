@@ -14,6 +14,7 @@
 
 using System.Net;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
 using Xunit;
@@ -37,8 +38,12 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
             var testDatabase = databaseResponse.Database;
             var logDatabase = logDatabaseResponse.Database;
 
-            await testDatabase
+            var container = await testDatabase
                 .CreateContainerIfNotExistsAsync("dataavailable", "/partitionKey")
+                .ConfigureAwait(false);
+
+            await container.Container
+                .UpsertItemAsync(new CosmosSequenceNumber(11))
                 .ConfigureAwait(false);
 
             await testDatabase
