@@ -13,6 +13,8 @@
     "BlobStorageConnectionString": "",
     "BlobStorageContainerName": "",
     "LOG_DB_NAME": "",
-    "LOG_DB_CONTAINER": ""
+    "LOG_DB_CONTAINER": "",
+    "B2C_TENANT_ID": "<Azure B2C tenant id>",
+    "BACKEND_SERVICE_APP_ID": "<Backend service application id>"
   }
 }

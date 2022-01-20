@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Threading.Tasks;
+using Energinet.DataHub.Core.FunctionApp.Common.Middleware;
 using Energinet.DataHub.Core.Logging.RequestResponseMiddleware;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Common.Auth;
@@ -34,6 +35,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
                 var host = new HostBuilder()
                     .ConfigureFunctionsWorkerDefaults(options =>
                     {
+                        options.UseMiddleware<JwtTokenMiddleware>();
                         options.UseMiddleware<SimpleInjectorScopedRequest>();
                         options.UseMiddleware<CorrelationIdMiddleware>();
                         options.UseMiddleware<EntryPointTelemetryScopeMiddleware>();

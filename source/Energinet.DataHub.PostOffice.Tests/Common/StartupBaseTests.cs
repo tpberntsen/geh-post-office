@@ -70,6 +70,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
 
         private static IConfigurationRoot BuildConfig()
         {
+            Environment.SetEnvironmentVariable("B2C_TENANT_ID", "test-tenant-id");
+            Environment.SetEnvironmentVariable("BACKEND_SERVICE_APP_ID", "test-backend-service-id");
             return new ConfigurationBuilder().AddEnvironmentVariables().Build();
         }
 

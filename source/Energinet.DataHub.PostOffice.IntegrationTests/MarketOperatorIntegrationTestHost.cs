@@ -64,6 +64,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
         {
             Environment.SetEnvironmentVariable("BlobStorageConnectionString", "UseDevelopmentStorage=true");
             Environment.SetEnvironmentVariable("BlobStorageContainerName", "test-blob-storage");
+            Environment.SetEnvironmentVariable("B2C_TENANT_ID", "test-tenant-id");
+            Environment.SetEnvironmentVariable("BACKEND_SERVICE_APP_ID", "test-backend-service-id");
 
             return new ConfigurationBuilder().AddEnvironmentVariables().Build();
         }
