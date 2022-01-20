@@ -23,7 +23,7 @@ jobs:
     uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@2.1.0
 
   dotnet_solution_ci:
-    uses: Energinet-DataHub/.github/.github/workflows/dotnet-solution-ci.yml@2.6.1
+    uses: Energinet-DataHub/.github/.github/workflows/dotnet-solution-ci.yml@f43f43e1ce75f91669a3eb4235d9ace23bf13a6c
     with:
       SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.sln'
       DOTNET_VERSION: '5.0'
