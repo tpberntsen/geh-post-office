@@ -17,5 +17,5 @@ using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public record UpdateMaximumSequenceNumberCommand(SequenceNumber SequenceNumber) : IRequest<UpdateMaximumSequenceNumberResponse>;
+    public sealed record UpdateMaximumSequenceNumberCommand(SequenceNumber SequenceNumber) : IRequest;
 }

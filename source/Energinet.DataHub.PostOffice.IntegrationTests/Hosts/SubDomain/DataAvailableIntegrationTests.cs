@@ -40,7 +40,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
             await using var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
 
-            var dataAvailableNotificationCommand = new DataAvailableNotificationCommand(
+            var dataAvailableNotificationCommand = new DataAvailableNotificationDto(
                 blankValue,
                 blankValue,
                 blankValue,
@@ -69,7 +69,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
             await using var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
 
-            var dataAvailableNotificationCommand = new DataAvailableNotificationCommand(
+            var dataAvailableNotificationCommand = new DataAvailableNotificationDto(
                 Guid.NewGuid().ToString(),
                 recipientGln,
                 "timeseries",

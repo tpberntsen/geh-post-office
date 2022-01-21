@@ -23,9 +23,10 @@ using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
-    public class SequenceNumberRepository : ISequenceNumberRepository
+    public sealed class SequenceNumberRepository : ISequenceNumberRepository
     {
         private readonly IDataAvailableNotificationRepositoryContainer _repositoryContainer;
+        private SequenceNumber? _sequenceNumberInScope;
 
         public SequenceNumberRepository(IDataAvailableNotificationRepositoryContainer repositoryContainer)
         {
@@ -34,14 +35,21 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public async Task<SequenceNumber> GetMaximumSequenceNumberAsync()
         {
+            if (_sequenceNumberInScope != null)
+            {
+                return _sequenceNumberInScope;
+            }
+
             try
             {
                 var response = await _repositoryContainer
                     .Catalog
-                    .ReadItemAsync<CosmosSequenceNumber>("1", new PartitionKey("SequenceNumber"))
+                    .ReadItemAsync<CosmosSequenceNumber>(
+                        CosmosSequenceNumber.CosmosSequenceNumberIdentifier,
+                        new PartitionKey(CosmosSequenceNumber.CosmosSequenceNumberPartitionKey))
                     .ConfigureAwait(false);
 
-                return new SequenceNumber(response.Resource.SequenceNumber);
+                return _sequenceNumberInScope = new SequenceNumber(response.Resource.SequenceNumber);
             }
             catch (CosmosException e) when (e.StatusCode == HttpStatusCode.NotFound)
             {
@@ -52,6 +60,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
         public Task AdvanceSequenceNumberAsync(SequenceNumber sequenceNumber)
         {
             Guard.ThrowIfNull(sequenceNumber, nameof(sequenceNumber));
+
+            _sequenceNumberInScope = sequenceNumber;
 
             return _repositoryContainer
                 .Catalog

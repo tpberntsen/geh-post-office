@@ -30,7 +30,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 new MarketOperator(new GlobalLocationNumber(bundleDocument.Recipient)),
                 Enum.Parse<DomainOrigin>(bundleDocument.Origin),
                 new ContentType(bundleDocument.ContentType),
-                bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList(),
+                bundleDocument.NotificationIds.Select(id => new Uuid(id)),
                 bundleContent);
 
             if (bundleDocument.Dequeued)

@@ -160,7 +160,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
         private static async Task AddDataAvailableNotificationAsync(string recipientGln)
         {
             var dataAvailableUuid = Guid.NewGuid().ToString();
-            var dataAvailableCommand = new DataAvailableNotificationCommand(
+            var dataAvailableCommand = new DataAvailableNotificationDto(
                 dataAvailableUuid,
                 recipientGln,
                 "timeseries",

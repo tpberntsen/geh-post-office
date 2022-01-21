@@ -104,17 +104,13 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 return await AskSubDomainForContentAsync(existingBundle).ConfigureAwait(false);
             }
 
-            var cabinetKey = await _dataAvailableNotificationRepository
-                .ReadCatalogForNextUnacknowledgedAsync(recipient, domains)
+            var cabinetReader = await _dataAvailableNotificationRepository
+                .GetNextUnacknowledgedAsync(recipient, domains)
                 .ConfigureAwait(false);
 
             // Nothing to return.
-            if (cabinetKey == null)
+            if (cabinetReader == null)
                 return null;
-
-            var cabinetReader = await _dataAvailableNotificationRepository
-                .GetCabinetReaderAsync(cabinetKey)
-                .ConfigureAwait(false);
 
             var newBundle = await CreateNextBundleAsync(bundleId, cabinetReader).ConfigureAwait(false);
 

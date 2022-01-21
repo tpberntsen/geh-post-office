@@ -16,9 +16,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Model.DataAvailable;
-using Energinet.DataHub.MessageHub.Model.Exceptions;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.ServiceBus;
@@ -26,14 +26,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
 {
-    // TODO: Name
-    public class InsertTimerTrigger
+    public class DataAvailableTimerTrigger
     {
         private readonly IMediator _mediator;
         private readonly IDataAvailableMessageReceiver _messageReceiver;
         private readonly IDataAvailableNotificationParser _dataAvailableNotificationParser;
 
-        public InsertTimerTrigger(
+        public DataAvailableTimerTrigger(
             IMediator mediator,
             IDataAvailableMessageReceiver messageReceiver,
             IDataAvailableNotificationParser dataAvailableNotificationParser)
@@ -43,11 +42,11 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             _dataAvailableNotificationParser = dataAvailableNotificationParser;
         }
 
-        [Function("InsertTimerTrigger")]
+        [Function(nameof(DataAvailableTimerTrigger))]
         public async Task RunAsync([TimerTrigger("0 */1 * * * *")] FunctionContext context)
         {
-            var logger = context.GetLogger("InsertTimerTrigger");
-            logger.LogInformation("Begins processing InsertTimerTrigger.");
+            var logger = context.GetLogger<DataAvailableTimerTrigger>();
+            logger.LogInformation("Begins processing DataAvailableTimerTrigger.");
 
             var protobufMessages = await _messageReceiver
                 .ReceiveAsync()
@@ -57,51 +56,79 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
                 .Select(TryParse)
                 .ToList();
 
-            var notificationsPrRecipient = notifications
+            var commandTasks = notifications
                 .Where(x => x.CouldBeParsed)
-                .GroupBy(x => x.Command!.Recipient);
+                .GroupBy(x => x.Value!.Recipient)
+                .Select(async grouping =>
+                {
+                    try
+                    {
+                        var items = grouping.Select(x => x.Value!);
+                        var request = new InsertDataAvailableNotificationsCommand(items);
 
-            var tasks = new List<Task<DataAvailableNotificationResponse>>();
+                        await _mediator.Send(request).ConfigureAwait(false);
+                        return new { grouping, deadletter = false };
+                    }
+#pragma warning disable CA1031 // Do not catch general exception types
+                    catch
+#pragma warning restore CA1031 // Do not catch general exception types
+                    {
+                        return new { grouping, deadletter = true };
+                    }
+                });
 
-            foreach (var group in notificationsPrRecipient)
+            var complete = new List<Message>();
+            var deadletter = new List<Message>();
+
+            foreach (var commandTask in commandTasks)
             {
-                var recipientCommand = new DataAvailableNotificationsForRecipientCommand(group.Select(x => x.Command!));
-                tasks.Add(_mediator.Send(recipientCommand));
+                var result = await commandTask.ConfigureAwait(false);
+                if (result.deadletter)
+                {
+                    deadletter.AddRange(result.grouping.Select(x => x.Message));
+                }
+                else
+                {
+                    complete.AddRange(result.grouping.Select(x => x.Message));
+                }
             }
 
-            // TODO: What happens if one task is in error.
-            await Task.WhenAll(tasks).ConfigureAwait(false);
+            deadletter.AddRange(notifications.Where(x => !x.CouldBeParsed).Select(x => x.Message));
 
-            // TODO: Make proper deadletter.
-            await _messageReceiver
-                .CompleteAsync(protobufMessages)
-                .ConfigureAwait(false);
+            await _messageReceiver.CompleteAsync(complete).ConfigureAwait(false);
+            await _messageReceiver.DeadLetterAsync(deadletter).ConfigureAwait(false);
 
-            var newMaximumSequenceNumber = protobufMessages.Max(x => x.SystemProperties.SequenceNumber);
+            var newMaximumSequenceNumber = protobufMessages.Max(GetSequenceNumber);
             await _mediator
                 .Send(new UpdateMaximumSequenceNumberCommand(new SequenceNumber(newMaximumSequenceNumber)))
                 .ConfigureAwait(false);
         }
 
-        private (bool CouldBeParsed, DataAvailableNotificationCommand? Command) TryParse(Message message)
+        protected virtual long GetSequenceNumber(Message message)
+        {
+            Guard.ThrowIfNull(message, nameof(message));
+            return message.SystemProperties.SequenceNumber;
+        }
+
+        private (Message Message, bool CouldBeParsed, DataAvailableNotificationDto? Value) TryParse(Message message)
         {
             try
             {
                 var parsedValue = _dataAvailableNotificationParser.Parse(message.Body);
-
-                // TODO: Check om Parse kontrollerer obligatoriske felter.
-                return (true, new DataAvailableNotificationCommand(
+                return (message, true, new DataAvailableNotificationDto(
                     parsedValue.Uuid.ToString(),
                     parsedValue.Recipient.Value,
                     parsedValue.MessageType.Value,
                     parsedValue.Origin.ToString(),
                     parsedValue.SupportsBundling,
                     parsedValue.RelativeWeight,
-                    message.SystemProperties.SequenceNumber));
+                    GetSequenceNumber(message)));
             }
-            catch (MessageHubException)
+#pragma warning disable CA1031 // Do not catch general exception types
+            catch
+#pragma warning restore CA1031 // Do not catch general exception types
             {
-                return (false, null);
+                return (message, false, null);
             }
         }
     }

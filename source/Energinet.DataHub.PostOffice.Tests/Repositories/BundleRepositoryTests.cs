@@ -43,7 +43,28 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.GetNextUnacknowledgedAsync(null!))
+                .ThrowsAsync<ArgumentNullException>(() =>
+                    target.GetNextUnacknowledgedAsync(null!))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task GetNextUnacknowledgedAsync_NullDomains_ThrowsException()
+        {
+            // Arrange
+            var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
+            var marketOperatorDataStorageService = new Mock<IMarketOperatorDataStorageService>();
+            var storageHandler = new Mock<IStorageHandler>();
+            var marketOperator = new MarketOperator(new GlobalLocationNumber("fake_value"));
+            var target = new BundleRepository(
+                storageHandler.Object,
+                bundleRepositoryContainer.Object,
+                marketOperatorDataStorageService.Object);
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() =>
+                    target.GetNextUnacknowledgedAsync(marketOperator, null!))
                 .ConfigureAwait(false);
         }
 

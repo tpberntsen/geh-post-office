@@ -24,27 +24,19 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
     public interface IDataAvailableNotificationRepository
     {
         /// <summary>
-        /// Looks up in the catalog the cabinet key for the next set of unacknowledged notifications.
-        /// Returns null if there are no unacknowledged notifications.
+        /// Gets a reader that can be used to obtain unacknowledged notifications.
         /// </summary>
         /// <param name="recipient">The market operator to get the next notification for.</param>
         /// <param name="domains">The domains the retrieved notification must belong to.</param>
-        /// <returns>The cabinet key to the unacknowledged notifications; or null, if there are no unacknowledged notifications.</returns>
-        Task<CabinetKey?> ReadCatalogForNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains);
-
-        /// <summary>
-        /// Gets a reader that can be used to obtain unacknowledged notifications from the given cabinet.
-        /// </summary>
-        /// <param name="cabinetKey">The key to the cabinet to read the unacknowledged notifications from.</param>
-        /// <returns>A reader that can be used to obtain unacknowledged notifications.</returns>
-        Task<ICabinetReader> GetCabinetReaderAsync(CabinetKey cabinetKey);
+        /// <returns>A reader that can be used to obtain unacknowledged notifications; otherwise null.</returns>
+        Task<ICabinetReader?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains);
 
         /// <summary>
         /// Saves the given notification as unacknowledged.
         /// </summary>
-        /// <param name="dataAvailableNotifications">The notifications to save.</param>
-        /// <param name="key">The cabinet key</param>
-        Task SaveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications, CabinetKey key);
+        /// <param name="key">The key to the cabinet where the notifications will be saved.</param>
+        /// <param name="notifications">The notifications to save.</param>
+        Task SaveAsync(CabinetKey key, IEnumerable<DataAvailableNotification> notifications);
 
         /// <summary>
         /// Acknowledges the specified bundle and its notifications.

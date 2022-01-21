@@ -47,7 +47,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
             exception.Log(logger);
 
             // assert
-            Assert.Equal(1, logger.LogCallCount);
+            Assert.Equal(2, logger.LogCallCount);
         }
 
         [Fact]

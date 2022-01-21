@@ -14,5 +14,5 @@
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public record SequenceNumber(long Value);
+    public sealed record SequenceNumber(long Value);
 }

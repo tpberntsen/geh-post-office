@@ -14,8 +14,6 @@
 
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Infrastructure;
-using Energinet.DataHub.PostOffice.Utilities;
-using MediatR;
 using Microsoft.Azure.Functions.Worker;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
@@ -23,13 +21,6 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
     public class DequeueCleanUpFunction
     {
         private const string FunctionName = "DequeueCleanUp";
-
-        private readonly IMediator _mediator;
-
-        public DequeueCleanUpFunction(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
 
         [Function(FunctionName)]
         public Task RunAsync(

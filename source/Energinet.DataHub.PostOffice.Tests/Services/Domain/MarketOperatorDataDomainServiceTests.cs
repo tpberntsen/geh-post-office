@@ -38,9 +38,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
-                .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient))
-                .ReturnsAsync((CabinetKey?)null);
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
+                .ReturnsAsync((ICabinetReader?)null);
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -80,14 +79,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 CreateDataAvailableNotification(recipient, contentType)
             };
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotificationFirst);
             var cabinetReader = CreateReaderMock(allDataAvailableNotificationsForMessageType);
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
-                .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient))
-                .ReturnsAsync(cabinetKey);
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
+                .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(1);
 
@@ -95,10 +92,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             contentTypeWeightMapMock
                 .Setup(x => x.CalculateMaxWeight(DomainOrigin.TimeSeries))
                 .Returns(weight);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
-                .ReturnsAsync(cabinetReader);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
 
@@ -141,14 +134,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 CreateDataAvailableNotification(recipient, contentType)
             };
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotificationFirst);
             var cabinetReader = CreateReaderMock(allDataAvailableNotificationsForMessageType);
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
-                .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient))
-                .ReturnsAsync(cabinetKey);
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
+                .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(1);
 
@@ -156,10 +147,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             contentTypeWeightMapMock
                 .Setup(x => x.CalculateMaxWeight(DomainOrigin.TimeSeries))
                 .Returns(weight);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
-                .ReturnsAsync(cabinetReader);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
@@ -211,14 +198,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 CreateDataAvailableNotification(recipient, contentType)
             };
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotificationFirst);
             var cabinetReader = CreateReaderMock(allDataAvailableNotificationsForMessageType);
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
-                .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient))
-                .ReturnsAsync(cabinetKey);
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
+                .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(1);
 
@@ -226,10 +211,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             contentTypeWeightMapMock
                 .Setup(x => x.CalculateMaxWeight(DomainOrigin.TimeSeries))
                 .Returns(weight);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
-                .ReturnsAsync(cabinetReader);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
@@ -395,17 +376,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new Weight(1),
                 new SequenceNumber(1));
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotification);
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
-                .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient))
-                .ReturnsAsync(cabinetKey);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(100);
@@ -465,18 +440,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new Weight(int.MaxValue),
                 new SequenceNumber(1));
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotification);
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
-                .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient))
-                .ReturnsAsync(cabinetKey);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x =>
-                    x.GetCabinetReaderAsync(cabinetKey))
+                .Setup(x => x.GetNextUnacknowledgedAsync(recipient))
                 .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(100);
@@ -529,8 +497,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries))
-                .ReturnsAsync((CabinetKey?)null);
+                    x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries))
+                .ReturnsAsync((ICabinetReader?)null);
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -570,14 +538,13 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 CreateDataAvailableNotification(recipient, contentType)
             };
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotificationFirst);
             var cabinetReader = CreateReaderMock(allDataAvailableNotificationsForMessageType);
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries))
-                .ReturnsAsync(cabinetKey);
+                    x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries))
+                .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(1);
 
@@ -585,10 +552,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             contentTypeWeightMapMock
                 .Setup(x => x.CalculateMaxWeight(DomainOrigin.TimeSeries))
                 .Returns(weight);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
-                .ReturnsAsync(cabinetReader);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
 
@@ -631,14 +594,13 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 CreateDataAvailableNotification(recipient, contentType)
             };
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotificationFirst);
             var cabinetReader = CreateReaderMock(allDataAvailableNotificationsForMessageType);
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries))
-                .ReturnsAsync(cabinetKey);
+                    x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries))
+                .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(1);
 
@@ -646,10 +608,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             contentTypeWeightMapMock
                 .Setup(x => x.CalculateMaxWeight(DomainOrigin.TimeSeries))
                 .Returns(weight);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
-                .ReturnsAsync(cabinetReader);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
@@ -817,17 +775,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new Weight(1),
                 new SequenceNumber(1));
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotification);
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries))
-                .ReturnsAsync(cabinetKey);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
+                    x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries))
                 .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(100);
@@ -887,17 +840,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new Weight(int.MaxValue),
                 new SequenceNumber(1));
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotification);
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries))
-                .ReturnsAsync(cabinetKey);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
+                    x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.TimeSeries))
                 .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(100);
@@ -950,8 +898,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations))
-                .ReturnsAsync((CabinetKey?)null);
+                    x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations))
+                .ReturnsAsync((ICabinetReader?)null);
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -991,14 +939,13 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 CreateDataAvailableNotification(recipient, contentType)
             };
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotificationFirst);
             var cabinetReader = CreateReaderMock(allDataAvailableNotificationsForMessageType);
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations))
-                .ReturnsAsync(cabinetKey);
+                    x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations))
+                .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(1);
 
@@ -1006,10 +953,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             contentTypeWeightMapMock
                 .Setup(x => x.CalculateMaxWeight(DomainOrigin.Aggregations))
                 .Returns(weight);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
-                .ReturnsAsync(cabinetReader);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
 
@@ -1052,14 +995,13 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 CreateDataAvailableNotification(recipient, contentType)
             };
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotificationFirst);
             var cabinetReader = CreateReaderMock(allDataAvailableNotificationsForMessageType);
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations))
-                .ReturnsAsync(cabinetKey);
+                    x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations))
+                .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(1);
 
@@ -1067,10 +1009,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             contentTypeWeightMapMock
                 .Setup(x => x.CalculateMaxWeight(DomainOrigin.Aggregations))
                 .Returns(weight);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
-                .ReturnsAsync(cabinetReader);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
@@ -1241,17 +1179,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new Weight(1),
                 new SequenceNumber(1));
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotification);
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations))
-                .ReturnsAsync(cabinetKey);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
+                    x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations))
                 .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(100);
@@ -1311,17 +1244,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new Weight(int.MaxValue),
                 new SequenceNumber(1));
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotification);
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations))
-                .ReturnsAsync(cabinetKey);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
+                    x.GetNextUnacknowledgedAsync(recipient, DomainOrigin.Aggregations))
                 .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(100);
@@ -1374,12 +1302,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(
+                    x.GetNextUnacknowledgedAsync(
                         recipient,
                         DomainOrigin.MarketRoles,
                         DomainOrigin.MeteringPoints,
                         DomainOrigin.Charges))
-                .ReturnsAsync((CabinetKey?)null);
+                .ReturnsAsync((ICabinetReader?)null);
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1424,18 +1352,17 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 CreateDataAvailableNotification(recipient, contentType)
             };
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotificationFirst);
             var cabinetReader = CreateReaderMock(allDataAvailableNotificationsForMessageType);
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(
+                    x.GetNextUnacknowledgedAsync(
                         recipient,
                         DomainOrigin.MarketRoles,
                         DomainOrigin.MeteringPoints,
                         DomainOrigin.Charges))
-                .ReturnsAsync(cabinetKey);
+                .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(1);
 
@@ -1443,10 +1370,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             contentTypeWeightMapMock
                 .Setup(x => x.CalculateMaxWeight(DomainOrigin.MarketRoles))
                 .Returns(weight);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
-                .ReturnsAsync(cabinetReader);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
 
@@ -1494,18 +1417,17 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 CreateDataAvailableNotification(recipient, contentType)
             };
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotificationFirst);
             var cabinetReader = CreateReaderMock(allDataAvailableNotificationsForMessageType);
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(
+                    x.GetNextUnacknowledgedAsync(
                         recipient,
                         DomainOrigin.MarketRoles,
                         DomainOrigin.MeteringPoints,
                         DomainOrigin.Charges))
-                .ReturnsAsync(cabinetKey);
+                .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(1);
 
@@ -1513,10 +1435,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             contentTypeWeightMapMock
                 .Setup(x => x.CalculateMaxWeight(DomainOrigin.MeteringPoints))
                 .Returns(weight);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
-                .ReturnsAsync(cabinetReader);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
 
@@ -1564,18 +1482,17 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 CreateDataAvailableNotification(recipient, contentType)
             };
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotificationFirst);
             var cabinetReader = CreateReaderMock(allDataAvailableNotificationsForMessageType);
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(
+                    x.GetNextUnacknowledgedAsync(
                         recipient,
                         DomainOrigin.MarketRoles,
                         DomainOrigin.MeteringPoints,
                         DomainOrigin.Charges))
-                .ReturnsAsync(cabinetKey);
+                .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(1);
 
@@ -1583,10 +1500,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             contentTypeWeightMapMock
                 .Setup(x => x.CalculateMaxWeight(DomainOrigin.MarketRoles))
                 .Returns(weight);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
-                .ReturnsAsync(cabinetReader);
 
             var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
             var bundleContentMock = new Mock<IBundleContent>();
@@ -1776,21 +1689,16 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new Weight(1),
                 new SequenceNumber(1));
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotification);
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(
+                    x.GetNextUnacknowledgedAsync(
                         recipient,
                         DomainOrigin.MarketRoles,
                         DomainOrigin.MeteringPoints,
                         DomainOrigin.Charges))
-                .ReturnsAsync(cabinetKey);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
                 .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(100);
@@ -1854,21 +1762,16 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new Weight(int.MaxValue),
                 new SequenceNumber(1));
 
-            var cabinetKey = CreateKeyMock(dataAvailableNotification);
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
                 .Setup(x =>
-                    x.ReadCatalogForNextUnacknowledgedAsync(
+                    x.GetNextUnacknowledgedAsync(
                         recipient,
                         DomainOrigin.MarketRoles,
                         DomainOrigin.MeteringPoints,
                         DomainOrigin.Charges))
-                .ReturnsAsync(cabinetKey);
-
-            dataAvailableNotificationRepositoryMock
-                .Setup(x => x.GetCabinetReaderAsync(cabinetKey))
                 .ReturnsAsync(cabinetReader);
 
             var weight = new Weight(100);
@@ -2062,6 +1965,27 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             dataAvailableNotificationRepositoryMock.Verify(x => x.AcknowledgeAsync(bundle), Times.Once);
         }
 
+        [Fact]
+        public async Task AcknowledgeAsync_NullBundle_ThrowsException()
+        {
+            // Arrange
+            var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
+            var bundleRepositoryMock = new Mock<IBundleRepository>();
+
+            var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
+            var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
+            var target = new MarketOperatorDataDomainService(
+                bundleRepositoryMock.Object,
+                dataAvailableNotificationRepositoryMock.Object,
+                requestDomainServiceMock.Object,
+                contentTypeWeightMapMock.Object);
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() => target.AcknowledgeAsync(null!))
+                .ConfigureAwait(false);
+        }
+
         private static DataAvailableNotification CreateDataAvailableNotification(
             MarketOperator recipient,
             ContentType contentType,
@@ -2075,14 +1999,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new SupportsBundling(true),
                 new Weight(1),
                 new SequenceNumber(1));
-        }
-
-        private static CabinetKey CreateKeyMock(DataAvailableNotification notification)
-        {
-            return new CabinetKey(
-                notification.Recipient,
-                notification.Origin,
-                notification.ContentType);
         }
 
         private static ICabinetReader CreateReaderMock(IEnumerable<DataAvailableNotification> notifications)

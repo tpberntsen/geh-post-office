@@ -13,13 +13,9 @@
 // limitations under the License.
 
 using System;
-using Energinet.DataHub.MessageHub.Model.Model;
-using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions;
 using Energinet.DataHub.PostOffice.Infrastructure;
-using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using Microsoft.Azure.ServiceBus.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,8 +42,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain
                 return new DataAvailableMessageReceiver(messageReceiver, batchSize, TimeSpan.FromMilliseconds(timeoutInMs));
             });
 
-            container.Register<IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand>, DataAvailableMapper>(Lifestyle.Scoped);
-            container.Register<InsertTimerTrigger>(Lifestyle.Scoped);
+            container.Register<DataAvailableTimerTrigger>(Lifestyle.Scoped);
         }
     }
 }

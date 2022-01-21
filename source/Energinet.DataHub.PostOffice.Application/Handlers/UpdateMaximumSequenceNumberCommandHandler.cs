@@ -21,17 +21,16 @@ using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
-    public sealed class UpdateMaximumSequenceNumberCommandHandler
-        : IRequestHandler<UpdateMaximumSequenceNumberCommand, UpdateMaximumSequenceNumberResponse>
+    public sealed class UpdateMaximumSequenceNumberCommandHandler : IRequestHandler<UpdateMaximumSequenceNumberCommand>
     {
         private readonly ISequenceNumberRepository _sequenceNumberRepository;
 
-        public UpdateMaximumSequenceNumberCommandHandler(ISequenceNumberRepository dataAvailableNotificationRepository)
+        public UpdateMaximumSequenceNumberCommandHandler(ISequenceNumberRepository sequenceNumberRepository)
         {
-            _sequenceNumberRepository = dataAvailableNotificationRepository;
+            _sequenceNumberRepository = sequenceNumberRepository;
         }
 
-        public async Task<UpdateMaximumSequenceNumberResponse> Handle(UpdateMaximumSequenceNumberCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateMaximumSequenceNumberCommand request, CancellationToken cancellationToken)
         {
             Guard.ThrowIfNull(request, nameof(request));
 
@@ -39,7 +38,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 .AdvanceSequenceNumberAsync(request.SequenceNumber)
                 .ConfigureAwait(false);
 
-            return new UpdateMaximumSequenceNumberResponse();
+            return Unit.Value;
         }
     }
 }

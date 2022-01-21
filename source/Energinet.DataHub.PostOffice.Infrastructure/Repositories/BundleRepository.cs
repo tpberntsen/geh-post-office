@@ -49,6 +49,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
         public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
         {
             Guard.ThrowIfNull(recipient, nameof(recipient));
+            Guard.ThrowIfNull(domains, nameof(domains));
 
             var asLinq = _repositoryContainer
                 .Container
@@ -90,6 +91,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 await _repositoryContainer.Container
                     .CreateItemAsync(cosmosBundleDocument, requestOptions: requestOptions)
                     .ConfigureAwait(false);
+
                 return BundleCreatedResponse.Success;
             }
             catch (CosmosException ex) when (IsConcurrencyError(ex))

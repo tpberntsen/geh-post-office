@@ -39,7 +39,12 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
             Guard.ThrowIfNull(source, nameof(source));
 
             if (source is not FluentValidationException)
+            {
                 logger.LogError(source, "An error occurred while processing request");
+
+                // Observed that LogError does not always write the exception.
+                logger.LogError(source.ToString());
+            }
         }
 
         public static async Task<HttpResponseData> AsHttpResponseDataAsync(this Exception source, HttpRequestData request)
