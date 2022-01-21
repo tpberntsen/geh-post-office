@@ -13,18 +13,25 @@
 // limitations under the License.
 
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Domain.Model;
 
 namespace Energinet.DataHub.PostOffice.Domain.Repositories
 {
     /// <summary>
-    /// TODO: Will be implemented in another PR.
+    /// Accesses sequence number in a partition in data storage
     /// </summary>
     public interface ISequenceNumberRepository
     {
         /// <summary>
-        /// TODO: Will be implemented in another PR.
+        /// Gets the current maximum sequence number in the partition
         /// </summary>
-        /// <returns>TODO: Another PR.</returns>
-        public Task<long> GetMaximumSequenceNumberAsync() => Task.FromResult(long.MaxValue);
+        /// <returns>The current maximum sequence number</returns>
+        Task<SequenceNumber> GetMaximumSequenceNumberAsync();
+
+        /// <summary>
+        /// Store max available sequence number representing a data available notification
+        /// </summary>
+        /// <param name="sequenceNumber"></param>
+        Task AdvanceSequenceNumberAsync(SequenceNumber sequenceNumber);
     }
 }

@@ -192,7 +192,13 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain.Functions
         private static DataAvailableNotificationCommand CreateCommand(int weight)
         {
             return new DataAvailableNotificationCommand(
-                string.Empty, string.Empty, string.Empty, string.Empty, true, weight);
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                true,
+                weight,
+                1);
         }
 
         private static (DataAvailableTimerTrigger Target,

@@ -18,7 +18,6 @@ using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
-    // TODO: Use everywhere.
     internal static class DataAvailableNotificationMapper
     {
         public static DataAvailableNotification Map(CosmosDataAvailable document)
@@ -29,7 +28,23 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 new ContentType(document.ContentType),
                 Enum.Parse<DomainOrigin>(document.Origin),
                 new SupportsBundling(document.SupportsBundling),
-                new Weight(document.RelativeWeight));
+                new Weight(document.RelativeWeight),
+                new SequenceNumber(document.SequenceNumber));
+        }
+
+        public static CosmosDataAvailable Map(DataAvailableNotification notification, string partitionKey)
+        {
+            return new CosmosDataAvailable
+            {
+                Id = notification.NotificationId.ToString(),
+                Recipient = notification.Recipient.Gln.Value,
+                ContentType = notification.ContentType.Value,
+                Origin = notification.Origin.ToString(),
+                SupportsBundling = notification.SupportsBundling.Value,
+                RelativeWeight = notification.Weight.Value,
+                SequenceNumber = notification.SequenceNumber.Value,
+                PartitionKey = partitionKey
+            };
         }
     }
 }
