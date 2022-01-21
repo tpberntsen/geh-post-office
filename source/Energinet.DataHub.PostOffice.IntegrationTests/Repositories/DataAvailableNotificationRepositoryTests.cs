@@ -63,13 +63,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
 
-            var cosmosCatalogEntry = new CosmosCatalogEntry
-            {
-                Id = Guid.NewGuid().ToString(),
-                PartitionKey = string.Join('_', recipient.Gln.Value, origin),
-                ContentType = "target_content_type",
-                NextSequenceNumber = 1
-            };
+            var cosmosCatalogEntry = new CosmosCatalogEntry { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient.Gln.Value, origin), ContentType = "target_content_type", NextSequenceNumber = 1 };
 
             await dataAvailableContainer
                 .Container
@@ -101,13 +95,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
 
-            var cosmosCatalogEntry = new CosmosCatalogEntry
-            {
-                Id = Guid.NewGuid().ToString(),
-                PartitionKey = string.Join('_', recipient.Gln.Value, origin),
-                ContentType = "target_content_type",
-                NextSequenceNumber = 1
-            };
+            var cosmosCatalogEntry = new CosmosCatalogEntry { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient.Gln.Value, origin), ContentType = "target_content_type", NextSequenceNumber = 1 };
 
             await dataAvailableContainer
                 .Container
@@ -142,26 +130,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             for (var i = 0; i < origins.Length; i++)
             {
-                var cosmosCatalogEntry = new CosmosCatalogEntry
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    PartitionKey = string.Join('_', recipient.Gln.Value, origins[i]),
-                    ContentType = $"content_{values[i]}",
-                    NextSequenceNumber = values[i]
-                };
+                var cosmosCatalogEntry = new CosmosCatalogEntry { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient.Gln.Value, origins[i]), ContentType = $"content_{values[i]}", NextSequenceNumber = values[i] };
 
                 await dataAvailableContainer
                     .Container
                     .CreateItemAsync(cosmosCatalogEntry)
                     .ConfigureAwait(false);
 
-                var cosmosCatalogEntry2 = new CosmosCatalogEntry
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    PartitionKey = string.Join('_', recipient.Gln.Value, origins[i]),
-                    ContentType = $"content_{values[i]}_2",
-                    NextSequenceNumber = values[i] + 100
-                };
+                var cosmosCatalogEntry2 = new CosmosCatalogEntry { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient.Gln.Value, origins[i]), ContentType = $"content_{values[i]}_2", NextSequenceNumber = values[i] + 100 };
 
                 await dataAvailableContainer
                     .Container
@@ -191,32 +167,20 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
             var recipient = new MarketOperator(new MockedGln());
             var origins = new[] { DomainOrigin.Aggregations, DomainOrigin.Charges, DomainOrigin.MarketRoles };
-            var values = new[] { 12, 3, 4 };
+            var values = new[] { 11, 3, 4 };
 
             var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
 
             for (var i = 0; i < origins.Length; i++)
             {
-                var cosmosCatalogEntry = new CosmosCatalogEntry
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    PartitionKey = string.Join('_', recipient.Gln.Value, origins[i]),
-                    ContentType = $"content_{values[i]}",
-                    NextSequenceNumber = values[i]
-                };
+                var cosmosCatalogEntry = new CosmosCatalogEntry { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient.Gln.Value, origins[i]), ContentType = $"content_{values[i]}", NextSequenceNumber = values[i] };
 
                 await dataAvailableContainer
                     .Container
                     .CreateItemAsync(cosmosCatalogEntry)
                     .ConfigureAwait(false);
 
-                var cosmosCatalogEntry2 = new CosmosCatalogEntry
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    PartitionKey = string.Join('_', recipient.Gln.Value, origins[i]),
-                    ContentType = $"content_{values[i]}_2",
-                    NextSequenceNumber = values[i] + 100
-                };
+                var cosmosCatalogEntry2 = new CosmosCatalogEntry { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient.Gln.Value, origins[i]), ContentType = $"content_{values[i]}_2", NextSequenceNumber = values[i] + 100 };
 
                 await dataAvailableContainer
                     .Container
@@ -251,13 +215,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
             var dataAvailableId = Guid.NewGuid();
 
-            var cosmosCatalogDrawer = new CosmosCabinetDrawer
-            {
-                Id = Guid.NewGuid().ToString(),
-                PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value),
-                Position = 0,
-                OrderBy = 1
-            };
+            var cosmosCatalogDrawer = new CosmosCabinetDrawer { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value), Position = 0, OrderBy = 1 };
 
             var cosmosDataAvailable = new CosmosDataAvailable
             {
@@ -309,13 +267,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
             var dataAvailableId = Guid.NewGuid();
 
-            var cosmosCatalogDrawer = new CosmosCabinetDrawer
-            {
-                Id = Guid.NewGuid().ToString(),
-                PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value),
-                Position = 3,
-                OrderBy = 0
-            };
+            var cosmosCatalogDrawer = new CosmosCabinetDrawer { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value), Position = 3, OrderBy = 0 };
 
             for (var i = 0; i < 4; i++)
             {
@@ -376,13 +328,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             {
                 recipient = new MarketOperator(new MockedGln());
 
-                var cosmosCatalogDrawer = new CosmosCabinetDrawer
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value),
-                    Position = 0,
-                    OrderBy = 1
-                };
+                var cosmosCatalogDrawer = new CosmosCabinetDrawer { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value), Position = 0, OrderBy = 1 };
 
                 var cosmosDataAvailable = new CosmosDataAvailable
                 {
@@ -443,13 +389,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             for (var i = 0; i < 2; i++)
             {
-                var cosmosCatalogDrawer = new CosmosCabinetDrawer
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value),
-                    Position = 0,
-                    OrderBy = 1
-                };
+                var cosmosCatalogDrawer = new CosmosCabinetDrawer { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value), Position = 0, OrderBy = 1 };
 
                 var cosmosDataAvailable = new CosmosDataAvailable
                 {
@@ -512,13 +452,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             for (var i = 0; i < 2; i++)
             {
-                var cosmosCatalogDrawer = new CosmosCabinetDrawer
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value),
-                    Position = 0,
-                    OrderBy = 1
-                };
+                var cosmosCatalogDrawer = new CosmosCabinetDrawer { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value), Position = 0, OrderBy = 1 };
 
                 var cosmosDataAvailable = new CosmosDataAvailable
                 {
@@ -582,13 +516,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
 
             for (var i = 0; i < 6; i++)
             {
-                var cosmosCatalogDrawer = new CosmosCabinetDrawer
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value),
-                    Position = 0,
-                    OrderBy = seqNum
-                };
+                var cosmosCatalogDrawer = new CosmosCabinetDrawer { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient.Gln.Value, origin, contentType.Value), Position = 0, OrderBy = seqNum };
 
                 var insertions = new List<Task>();
 
@@ -677,7 +605,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 new ContentType("fake_value"),
                 DomainOrigin.Aggregations,
                 new SupportsBundling(false),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
 
@@ -712,7 +641,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 new ContentType("fake_value"),
                 DomainOrigin.Aggregations,
                 new SupportsBundling(false),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
 
@@ -741,7 +671,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 new ContentType("fake_value"),
                 DomainOrigin.Aggregations,
                 new SupportsBundling(false),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
 
@@ -753,7 +684,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                     expected.ContentType,
                     expected.Origin,
                     expected.SupportsBundling,
-                    expected.Weight);
+                    expected.Weight,
+                    expected.SequenceNumber);
 
                 await dataAvailableNotificationRepository.SaveAsync(other).ConfigureAwait(false);
             }
@@ -789,7 +721,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 new ContentType("fake_value"),
                 DomainOrigin.Aggregations,
                 new SupportsBundling(true),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             for (var i = 0; i < 5; i++)
             {
@@ -799,7 +732,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                     new ContentType("target"),
                     expected.Origin,
                     expected.SupportsBundling,
-                    expected.Weight);
+                    expected.Weight,
+                    expected.SequenceNumber);
 
                 await dataAvailableNotificationRepository.SaveAsync(other).ConfigureAwait(false);
             }
@@ -831,7 +765,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 new ContentType("target"),
                 DomainOrigin.Aggregations,
                 new SupportsBundling(true),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             for (var i = 0; i < 5; i++)
             {
@@ -841,7 +776,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                     new ContentType("fake_value"),
                     expected.Origin,
                     expected.SupportsBundling,
-                    expected.Weight);
+                    expected.Weight,
+                    expected.SequenceNumber);
 
                 await dataAvailableNotificationRepository.SaveAsync(other).ConfigureAwait(false);
             }
@@ -878,7 +814,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 new ContentType("target"),
                 DomainOrigin.Aggregations,
                 new SupportsBundling(true),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             for (var i = 0; i < 5; i++)
             {
@@ -888,7 +825,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                     expected.ContentType,
                     expected.Origin,
                     expected.SupportsBundling,
-                    expected.Weight);
+                    expected.Weight,
+                    expected.SequenceNumber);
 
                 await dataAvailableNotificationRepository.SaveAsync(other).ConfigureAwait(false);
             }
@@ -921,7 +859,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 new ContentType("target"),
                 DomainOrigin.Aggregations,
                 new SupportsBundling(true),
-                new Weight(10));
+                new Weight(10),
+                new SequenceNumber(1));
 
             await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
 
@@ -951,7 +890,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 new ContentType("target"),
                 DomainOrigin.Aggregations,
                 new SupportsBundling(false),
-                new Weight(0));
+                new Weight(0),
+                new SequenceNumber(1));
 
             await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
 
@@ -980,7 +920,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 new ContentType("target"),
                 DomainOrigin.Aggregations,
                 new SupportsBundling(false),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
 
@@ -1025,7 +966,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                     new ContentType("target"),
                     DomainOrigin.Aggregations,
                     new SupportsBundling(true),
-                    new Weight(1));
+                    new Weight(1),
+                    new SequenceNumber(1));
 
                 await dataAvailableNotificationRepository.SaveAsync(expected).ConfigureAwait(false);
             }
@@ -1056,47 +998,21 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var origin = DomainOrigin.MeteringPoints.ToString();
             var contentType = "mp_content_type";
 
-            var initialCabinetDrawer = new CosmosCabinetDrawer
-            {
-                Id = Guid.NewGuid().ToString(),
-                PartitionKey = string.Join('_', recipient, origin, contentType),
-                OrderBy = 1,
-                Position = 3
-            };
+            var initialCabinetDrawer = new CosmosCabinetDrawer { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient, origin, contentType), OrderBy = 1, Position = 3 };
 
             var createdCabinetDrawer = await dataAvailableContainer
                 .Container
                 .CreateItemAsync(initialCabinetDrawer)
                 .ConfigureAwait(false);
 
-            var initialCatalogEntry = new CosmosCatalogEntry
-            {
-                Id = Guid.NewGuid().ToString(),
-                PartitionKey = string.Join('_', recipient, origin),
-                ContentType = contentType,
-                NextSequenceNumber = 3
-            };
+            var initialCatalogEntry = new CosmosCatalogEntry { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient, origin), ContentType = contentType, NextSequenceNumber = 3 };
 
             await dataAvailableContainer
                 .Container
                 .CreateItemAsync(initialCatalogEntry)
                 .ConfigureAwait(false);
 
-            var cabinetDrawerChanges = new CosmosCabinetDrawerChanges
-            {
-                UpdatedDrawer = createdCabinetDrawer.Resource with
-                {
-                    Position = 5
-                },
-
-                UpdatedCatalogEntry = initialCatalogEntry with
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    NextSequenceNumber = 12
-                },
-
-                InitialCatalogEntrySequenceNumber = 3
-            };
+            var cabinetDrawerChanges = new CosmosCabinetDrawerChanges { UpdatedDrawer = createdCabinetDrawer.Resource with { Position = 5 }, UpdatedCatalogEntry = initialCatalogEntry with { Id = Guid.NewGuid().ToString(), NextSequenceNumber = 12 }, InitialCatalogEntrySequenceNumber = 3 };
 
             var bundleId = Guid.NewGuid().ToString();
             var bundleDocument = new CosmosBundleDocument2
@@ -1168,48 +1084,21 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var origin = DomainOrigin.MeteringPoints.ToString();
             var contentType = "mp_content_type";
 
-            var initialCabinetDrawer = new CosmosCabinetDrawer
-            {
-                Id = Guid.NewGuid().ToString(),
-                PartitionKey = string.Join('_', recipient, origin, contentType),
-                OrderBy = 1,
-                Position = 3
-            };
+            var initialCabinetDrawer = new CosmosCabinetDrawer { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient, origin, contentType), OrderBy = 1, Position = 3 };
 
             await dataAvailableContainer
                 .Container
                 .CreateItemAsync(initialCabinetDrawer)
                 .ConfigureAwait(false);
 
-            var initialCatalogEntry = new CosmosCatalogEntry
-            {
-                Id = Guid.NewGuid().ToString(),
-                PartitionKey = string.Join('_', recipient, origin),
-                ContentType = contentType,
-                NextSequenceNumber = 3
-            };
+            var initialCatalogEntry = new CosmosCatalogEntry { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient, origin), ContentType = contentType, NextSequenceNumber = 3 };
 
             await dataAvailableContainer
                 .Container
                 .CreateItemAsync(initialCatalogEntry)
                 .ConfigureAwait(false);
 
-            var cabinetDrawerChanges = new CosmosCabinetDrawerChanges
-            {
-                UpdatedDrawer = initialCabinetDrawer with
-                {
-                    Position = 5,
-                    ETag = "no_match"
-                },
-
-                UpdatedCatalogEntry = initialCatalogEntry with
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    NextSequenceNumber = 12
-                },
-
-                InitialCatalogEntrySequenceNumber = 3
-            };
+            var cabinetDrawerChanges = new CosmosCabinetDrawerChanges { UpdatedDrawer = initialCabinetDrawer with { Position = 5, ETag = "no_match" }, UpdatedCatalogEntry = initialCatalogEntry with { Id = Guid.NewGuid().ToString(), NextSequenceNumber = 12 }, InitialCatalogEntrySequenceNumber = 3 };
 
             var bundleId = Guid.NewGuid().ToString();
             var bundleDocument = new CosmosBundleDocument2
@@ -1281,29 +1170,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var origin = DomainOrigin.MeteringPoints.ToString();
             var contentType = "mp_content_type";
 
-            var initialCabinetDrawer = new CosmosCabinetDrawer
-            {
-                Id = Guid.NewGuid().ToString(),
-                PartitionKey = string.Join('_', recipient, origin, contentType),
-                OrderBy = 1,
-                Position = 3
-            };
+            var initialCabinetDrawer = new CosmosCabinetDrawer { Id = Guid.NewGuid().ToString(), PartitionKey = string.Join('_', recipient, origin, contentType), OrderBy = 1, Position = 3 };
 
             var createdCabinetDrawer = await dataAvailableContainer
                 .Container
                 .CreateItemAsync(initialCabinetDrawer)
                 .ConfigureAwait(false);
 
-            var cosmosCabinetDrawerChanges = new CosmosCabinetDrawerChanges
-            {
-                UpdatedDrawer = createdCabinetDrawer.Resource with
-                {
-                    Position = 5
-                },
-
-                UpdatedCatalogEntry = null,
-                InitialCatalogEntrySequenceNumber = 12
-            };
+            var cosmosCabinetDrawerChanges = new CosmosCabinetDrawerChanges { UpdatedDrawer = createdCabinetDrawer.Resource with { Position = 5 }, UpdatedCatalogEntry = null, InitialCatalogEntrySequenceNumber = 12 };
 
             var bundleId = Guid.NewGuid().ToString();
             var bundleDocument = new CosmosBundleDocument2
@@ -1367,7 +1241,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 new ContentType("target"),
                 DomainOrigin.Aggregations,
                 new SupportsBundling(false),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             // Act
             await dataAvailableNotificationRepository
@@ -1386,6 +1261,86 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             Assert.Equal(expected.Origin, actual.Origin);
             Assert.Equal(expected.SupportsBundling, actual.SupportsBundling);
             Assert.Equal(expected.Weight, actual.Weight);
+        }
+
+        [Fact]
+        public async Task SaveAsync_OneCabinetKey_DataIsSaved()
+        {
+            // Arrange
+            await using var host = await SubDomainIntegrationTestHost.InitializeAsync().ConfigureAwait(false);
+            var scope = host.BeginScope();
+
+            var dataAvailableNotificationRepository = scope.GetInstance<IDataAvailableNotificationRepository>();
+            var sequenceNumberRepository = scope.GetInstance<ISequenceNumberRepository>();
+
+            var (expectedDataAvailableNotifications, key) = GetNewData();
+            var expectedDataAvailableNotificationList = expectedDataAvailableNotifications.ToList();
+
+            var cabinetKey = new CabinetKey(key.Recipient, key.Origin, key.ContentType);
+            var maxSequenceNumber = expectedDataAvailableNotificationList.Max(x => x.SequenceNumber.Value);
+
+            // Act
+            await dataAvailableNotificationRepository.SaveAsync(expectedDataAvailableNotificationList, key).ConfigureAwait(false);
+
+            await sequenceNumberRepository
+                .AdvanceSequenceNumberAsync(new SequenceNumber(maxSequenceNumber))
+                .ConfigureAwait(false);
+
+            var reader = await dataAvailableNotificationRepository
+                .GetCabinetReaderAsync(cabinetKey)
+                .ConfigureAwait(false);
+
+            var actualDataAvailableNotifications = new List<DataAvailableNotification>();
+
+            while (reader.CanPeek)
+            {
+                actualDataAvailableNotifications.Add(await reader.TakeAsync().ConfigureAwait(false));
+            }
+
+            // Assert
+            Assert.Equal(expectedDataAvailableNotificationList[0].NotificationId, actualDataAvailableNotifications[0].NotificationId);
+            Assert.Equal(expectedDataAvailableNotificationList[1].NotificationId, actualDataAvailableNotifications[1].NotificationId);
+            Assert.Equal(expectedDataAvailableNotificationList[2].NotificationId, actualDataAvailableNotifications[2].NotificationId);
+        }
+
+        private static (IEnumerable<DataAvailableNotification> DataAvailableNotifications, CabinetKey Key) GetNewData()
+        {
+            var mockedGln = new MockedGln();
+
+            var dataAvailableNotifications = new List<DataAvailableNotification>
+            {
+                new DataAvailableNotification(
+                    new Uuid(Guid.NewGuid()),
+                    new MarketOperator(mockedGln),
+                    new ContentType("fake_value_Charges123"),
+                    DomainOrigin.Charges,
+                    new SupportsBundling(true),
+                    new Weight(1),
+                    new SequenceNumber(1)),
+                new DataAvailableNotification(
+                    new Uuid(Guid.NewGuid()),
+                    new MarketOperator(mockedGln),
+                    new ContentType("fake_value_Charges123"),
+                    DomainOrigin.Charges,
+                    new SupportsBundling(true),
+                    new Weight(1),
+                    new SequenceNumber(4)),
+                new DataAvailableNotification(
+                    new Uuid(Guid.NewGuid()),
+                    new MarketOperator(mockedGln),
+                    new ContentType("fake_value_Charges123"),
+                    DomainOrigin.Charges,
+                    new SupportsBundling(true),
+                    new Weight(1),
+                    new SequenceNumber(11)),
+            };
+
+            var cabinetKey = new CabinetKey(
+                dataAvailableNotifications[0].Recipient,
+                dataAvailableNotifications[0].Origin,
+                dataAvailableNotifications[0].ContentType);
+
+            return (dataAvailableNotifications, cabinetKey);
         }
     }
 }

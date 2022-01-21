@@ -166,6 +166,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 "timeseries",
                 "timeseries",
                 false,
+                1,
                 1);
 
             await using var host = await SubDomainIntegrationTestHost

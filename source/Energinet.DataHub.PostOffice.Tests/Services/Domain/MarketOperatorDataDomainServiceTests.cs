@@ -391,7 +391,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.TimeSeries,
                 new SupportsBundling(false),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -454,7 +455,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.TimeSeries,
                 new SupportsBundling(true),
-                new Weight(int.MaxValue));
+                new Weight(int.MaxValue),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -801,7 +803,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.TimeSeries,
                 new SupportsBundling(false),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -864,7 +867,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.TimeSeries,
                 new SupportsBundling(true),
-                new Weight(int.MaxValue));
+                new Weight(int.MaxValue),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -1214,7 +1218,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.Aggregations,
                 new SupportsBundling(false),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -1277,7 +1282,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.Aggregations,
                 new SupportsBundling(true),
-                new Weight(int.MaxValue));
+                new Weight(int.MaxValue),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -1740,7 +1746,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.Charges,
                 new SupportsBundling(false),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -1811,7 +1818,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.Charges,
                 new SupportsBundling(true),
-                new Weight(int.MaxValue));
+                new Weight(int.MaxValue),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -2076,7 +2084,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 domainOrigin,
                 new SupportsBundling(true),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
         }
     }
 }
