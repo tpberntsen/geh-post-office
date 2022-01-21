@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Energinet.DataHub.PostOffice.Application.Commands
+namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public sealed record OperationResponse(bool Completed);
+    public record SequenceNumber(long Value);
 }

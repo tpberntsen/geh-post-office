@@ -13,9 +13,9 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Moq;
@@ -77,26 +77,15 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
                 .ConfigureAwait(false);
         }
 
-        [Fact]
-        public async Task SaveAsync_NullNotification_ThrowsException()
-        {
-            // Arrange
-            var target = CreateTarget();
-            DataAvailableNotification dataAvailableNotification = null!;
-
-            // Act + Assert
-            await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.SaveAsync(dataAvailableNotification))
-                .ConfigureAwait(false);
-        }
-
         private static DataAvailableNotificationRepository CreateTarget()
         {
             var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
             var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
+            var sequenceNumberRepository = new Mock<ISequenceNumberRepository>();
             return new DataAvailableNotificationRepository(
                 bundleRepositoryContainer.Object,
-                dataAvailableNotificationRepositoryContainer.Object);
+                dataAvailableNotificationRepositoryContainer.Object,
+                sequenceNumberRepository.Object);
         }
     }
 }

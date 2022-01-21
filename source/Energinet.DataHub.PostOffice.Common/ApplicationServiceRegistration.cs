@@ -28,7 +28,6 @@ namespace Energinet.DataHub.PostOffice.Common
     {
         public static void AddApplicationServices(this Container container)
         {
-            container.Register<IValidator<DataAvailableNotificationCommand>, DataAvailableNotificationCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<PeekCommand>, PeekCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<PeekTimeSeriesCommand>, PeekTimeSeriesCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<PeekMasterDataCommand>, PeekMasterDataCommandRuleSet>(Lifestyle.Scoped);

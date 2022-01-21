@@ -14,21 +14,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Common;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
+using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using Energinet.DataHub.PostOffice.Infrastructure.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
@@ -43,11 +41,48 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public DataAvailableNotificationRepository(
             IBundleRepositoryContainer bundleRepositoryContainer,
-            IDataAvailableNotificationRepositoryContainer repositoryContainer)
+            IDataAvailableNotificationRepositoryContainer repositoryContainer,
+            ISequenceNumberRepository sequenceNumberRepository)
         {
             _bundleRepositoryContainer = bundleRepositoryContainer;
             _repositoryContainer = repositoryContainer;
-            _sequenceNumberRepository = new SequenceNumberRepository();
+            _sequenceNumberRepository = sequenceNumberRepository;
+        }
+
+        public async Task SaveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications, CabinetKey key)
+        {
+            Guard.ThrowIfNull(key, nameof(key));
+            Guard.ThrowIfNull(dataAvailableNotifications, nameof(dataAvailableNotifications));
+
+            var nextDrawer = await FindNextAvailableDrawerAsync(key).ConfigureAwait(false);
+
+            var nextDrawerSize = nextDrawer is null ? 0 : await GetDrawerSizeAsync(nextDrawer.Id).ConfigureAwait(false);
+
+            foreach (var notification in dataAvailableNotifications)
+            {
+                if (nextDrawer is null)
+                {
+                    nextDrawer = CreateNewDrawer(key, notification);
+                    nextDrawerSize = 0;
+
+                    await _repositoryContainer.Cabinet.CreateItemAsync(nextDrawer).ConfigureAwait(false);
+                }
+
+                if (nextDrawer.Position == nextDrawerSize)
+                {
+                    var catalogEntry = CreateCatalogEntry(notification);
+                    await _repositoryContainer.Catalog.CreateItemAsync(catalogEntry).ConfigureAwait(false);
+                }
+
+                var cosmosDataAvailable = DataAvailableNotificationMapper.Map(notification, nextDrawer.Id);
+                await _repositoryContainer.Cabinet.CreateItemAsync(cosmosDataAvailable).ConfigureAwait(false);
+                nextDrawerSize++;
+
+                if (nextDrawerSize.Equals(10000))
+                {
+                    nextDrawer = null;
+                }
+            }
         }
 
         public async Task<CabinetKey?> ReadCatalogForNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
@@ -90,7 +125,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 .GetMaximumSequenceNumberAsync()
                 .ConfigureAwait(false);
 
-            return smallestEntry == null || smallestEntry.NextSequenceNumber > maximumSequenceNumber
+            return smallestEntry == null || smallestEntry.NextSequenceNumber > maximumSequenceNumber.Value
                 ? null
                 : new CabinetKey(recipient, entryDomain, new ContentType(smallestEntry.ContentType));
         }
@@ -112,66 +147,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var cabinetReader = new AsyncCabinetReader(cabinetKey, drawers, content);
             await cabinetReader.InitializeAsync().ConfigureAwait(false);
             return cabinetReader;
-        }
-
-        public async Task SaveAsync(DataAvailableNotification dataAvailableNotification)
-        {
-            Guard.ThrowIfNull(dataAvailableNotification, nameof(dataAvailableNotification));
-
-            var uniqueId = new CosmosUniqueId
-            {
-                Id = dataAvailableNotification.NotificationId.ToString(),
-                PartitionKey = (dataAvailableNotification.NotificationId.AsGuid().GetHashCode() % 10).ToString(CultureInfo.InvariantCulture),
-                Content = Base64Content(dataAvailableNotification)
-            };
-
-            try
-            {
-                await _repositoryContainer.Idempotency.CreateItemAsync(uniqueId).ConfigureAwait(false);
-            }
-            catch (CosmosException e) when (e.StatusCode == HttpStatusCode.Conflict)
-            {
-                var query =
-                    from uniqueIdQuery in _repositoryContainer.Idempotency.GetItemLinqQueryable<CosmosUniqueId>()
-                    where
-                        uniqueIdQuery.Id == uniqueId.Id &&
-                        uniqueIdQuery.PartitionKey == uniqueId.PartitionKey
-                    select uniqueIdQuery;
-
-                await foreach (var existingUniqueId in query.AsCosmosIteratorAsync())
-                {
-                    if (existingUniqueId.Content == uniqueId.Content)
-                    {
-                        return;
-                    }
-
-                    throw new ValidationException("ID already in use", e);
-                }
-            }
-
-            var cosmosDocument = new CosmosDataAvailable
-            {
-                Id = dataAvailableNotification.NotificationId.ToString(),
-                Recipient = dataAvailableNotification.Recipient.Gln.Value,
-                ContentType = dataAvailableNotification.ContentType.Value,
-                Origin = dataAvailableNotification.Origin.ToString(),
-                SupportsBundling = dataAvailableNotification.SupportsBundling.Value,
-                RelativeWeight = dataAvailableNotification.Weight.Value,
-                PartitionKey = dataAvailableNotification.Recipient.Gln.Value + dataAvailableNotification.Origin + dataAvailableNotification.ContentType.Value
-            };
-
-            await _repositoryContainer.Cabinet.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
-
-            static string Base64Content(DataAvailableNotification dataAvailableNotification)
-            {
-                using var ms = new MemoryStream();
-                ms.Write(Encoding.UTF8.GetBytes(dataAvailableNotification.ContentType.Value));
-                ms.Write(BitConverter.GetBytes((int)dataAvailableNotification.Origin));
-                ms.Write(Encoding.UTF8.GetBytes(dataAvailableNotification.Recipient.Gln.Value));
-                ms.Write(BitConverter.GetBytes(dataAvailableNotification.SupportsBundling.Value));
-                ms.Write(BitConverter.GetBytes(dataAvailableNotification.Weight.Value));
-                return Convert.ToBase64String(ms.ToArray());
-            }
         }
 
         public async Task AcknowledgeAsync(Bundle bundle)
@@ -204,6 +179,38 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     DeleteOldCatalogEntriesAsync(fetchedBundle, changes)));
 
             await Task.WhenAll(updateTasks).ConfigureAwait(false);
+        }
+
+        private static async IAsyncEnumerable<T> ExecuteQueryAsync<T>(IQueryable<T> query)
+        {
+            await foreach (var document in query.AsCosmosIteratorAsync().ConfigureAwait(false))
+            {
+                yield return document;
+            }
+        }
+
+        private static CosmosCatalogEntry CreateCatalogEntry(DataAvailableNotification notification)
+        {
+            return new CosmosCatalogEntry()
+            {
+                Id = Guid.NewGuid().ToString(),
+                ContentType = notification.ContentType.Value,
+                NextSequenceNumber = notification.SequenceNumber.Value,
+                PartitionKey = string.Join("_", notification.Recipient.Gln.Value, notification.Origin)
+            };
+        }
+
+        private static CosmosCabinetDrawer CreateNewDrawer(CabinetKey key, DataAvailableNotification notification)
+        {
+            var partitionKey = string.Join('_', key.Recipient.Gln.Value, key.Origin, key.ContentType.Value);
+
+            return new CosmosCabinetDrawer
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = partitionKey,
+                OrderBy = notification.SequenceNumber.Value,
+                Position = 0
+            };
         }
 
         private Task<CosmosCatalogEntry?> ReadFromCatalogAsync(MarketOperator recipient, DomainOrigin domain)
@@ -263,7 +270,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 from dataAvailableNotification in asLinq
                 where
                     dataAvailableNotification.PartitionKey == drawer.Id &&
-                    dataAvailableNotification.SequenceNumber <= maximumSequenceNumber
+                    dataAvailableNotification.SequenceNumber <= maximumSequenceNumber.Value
                 orderby dataAvailableNotification.SequenceNumber
                 select dataAvailableNotification;
 
@@ -346,6 +353,41 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     // Concurrent Acknowledge already removed the file.
                 }
             }
+        }
+
+        private async Task<CosmosCabinetDrawer?> FindNextAvailableDrawerAsync(CabinetKey cabinetKey)
+        {
+            var asLinq = _repositoryContainer
+                .Cabinet
+                .GetItemLinqQueryable<CosmosCabinetDrawer>();
+
+            var partitionKey = string.Join(cabinetKey.Recipient.Gln.Value, cabinetKey.Origin, cabinetKey.ContentType.Value);
+
+            var query =
+                from cabinetDrawer in asLinq
+                where
+                    cabinetDrawer.PartitionKey == partitionKey && cabinetDrawer.Position < 10000
+                orderby cabinetDrawer.OrderBy descending
+                select cabinetDrawer;
+
+            return await ExecuteQueryAsync(query)
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
+        }
+
+        private async Task<int> GetDrawerSizeAsync(string partitionKey)
+        {
+            var asLinq = _repositoryContainer
+                .Cabinet
+                .GetItemLinqQueryable<CosmosDataAvailable>();
+
+            var query =
+                from dataAvailable in asLinq
+                where
+                    dataAvailable.PartitionKey == partitionKey
+                select dataAvailable;
+
+            return await query.CountAsync().ConfigureAwait(false);
         }
     }
 }

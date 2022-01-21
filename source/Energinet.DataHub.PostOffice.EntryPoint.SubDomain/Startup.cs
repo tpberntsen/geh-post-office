@@ -47,8 +47,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain
             });
 
             container.Register<IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand>, DataAvailableMapper>(Lifestyle.Scoped);
-            container.Register<DataAvailableInbox>(Lifestyle.Scoped);
-            container.Register<DataAvailableTimerTrigger>(Lifestyle.Scoped);
+            container.Register<InsertTimerTrigger>(Lifestyle.Scoped);
         }
     }
 }

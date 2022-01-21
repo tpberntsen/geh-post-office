@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 
@@ -41,8 +42,9 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// <summary>
         /// Saves the given notification as unacknowledged.
         /// </summary>
-        /// <param name="dataAvailableNotification">The notification to save.</param>
-        Task SaveAsync(DataAvailableNotification dataAvailableNotification);
+        /// <param name="dataAvailableNotifications">The notifications to save.</param>
+        /// <param name="key">The cabinet key</param>
+        Task SaveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications, CabinetKey key);
 
         /// <summary>
         /// Acknowledges the specified bundle and its notifications.

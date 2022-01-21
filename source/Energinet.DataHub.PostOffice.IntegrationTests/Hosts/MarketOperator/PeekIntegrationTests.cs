@@ -810,6 +810,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 "timeseries",
                 "TimeSeries",
                 false,
+                1,
                 1);
 
             await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
@@ -824,6 +825,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 "aggregations",
                 "Aggregations",
                 false,
+                1,
                 1);
 
             await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
@@ -838,6 +840,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 "marketroles",
                 "MarketRoles",
                 false,
+                1,
                 1);
 
             await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
@@ -853,6 +856,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 "meteringpoints",
                 "MeteringPoints",
                 false,
+                1,
                 1);
 
             await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
@@ -868,6 +872,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 "charges",
                 "Charges",
                 false,
+                1,
                 1);
 
             await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
@@ -883,6 +888,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 "content_type",
                 origin,
                 supportsBundling,
+                1,
                 1);
 
             await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
