@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
+using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
@@ -32,8 +33,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
         protected override async Task Handle(UpdateMaximumSequenceNumberCommand request, CancellationToken cancellationToken)
         {
-            if (request is null)
-                throw new ArgumentNullException(nameof(request));
+            Guard.ThrowIfNull(request, nameof(request));
 
             await _sequenceNumberRepository.AdvanceSequenceNumberAsync(request.SequenceNumber).ConfigureAwait(false);
         }
