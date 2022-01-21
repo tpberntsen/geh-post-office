@@ -43,7 +43,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
                 .ConfigureAwait(false);
 
             await container.Container
-                .UpsertItemAsync(new CosmosSequenceNumber(11))
+                .UpsertItemAsync(new CosmosSequenceNumber(int.MaxValue))
                 .ConfigureAwait(false);
 
             await testDatabase

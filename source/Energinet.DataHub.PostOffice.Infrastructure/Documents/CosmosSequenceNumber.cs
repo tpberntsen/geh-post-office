@@ -16,16 +16,22 @@ using Newtonsoft.Json;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 {
-    public record CosmosSequenceNumber
+    // JsonProperty is required for all properties, as the object is
+    // used in CosmosDbFixture where naming rules are not yet configured,
+    public sealed record CosmosSequenceNumber
     {
         public CosmosSequenceNumber(long sequenceNumber)
         {
+            Id = "1";
+            PartitionKey = "SequenceNumber";
             SequenceNumber = sequenceNumber;
         }
 
-        [JsonProperty("id")]
-        public string Id { get; } = "1";
-        public long SequenceNumber { get; set; }
-        public string PartitionKey { get; } = "SequenceNumber";
+        [JsonProperty(PropertyName = "id")]
+        public string Id { get; init; }
+        [JsonProperty(PropertyName = "partitionKey")]
+        public string PartitionKey { get; init; }
+        [JsonProperty(PropertyName = "sequenceNumber")]
+        public long SequenceNumber { get; init; }
     }
 }
