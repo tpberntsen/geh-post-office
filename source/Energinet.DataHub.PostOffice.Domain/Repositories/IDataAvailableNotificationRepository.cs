@@ -24,6 +24,30 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
     public interface IDataAvailableNotificationRepository
     {
         /// <summary>
+        /// Looks up in the catalog the cabinet key for the next set of unacknowledged notifications.
+        /// Returns null if there are no unacknowledged notifications.
+        /// </summary>
+        /// <param name="recipient">The market operator to get the next notification for.</param>
+        /// <param name="domains">The domains the retrieved notification must belong to.</param>
+        /// <returns>The cabinet key to the unacknowledged notifications; or null, if there are no unacknowledged notifications.</returns>
+        Task<CabinetKey?> ReadCatalogForNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains);
+
+        /// <summary>
+        /// Gets a reader that can be used to obtain unacknowledged notifications from the given cabinet.
+        /// </summary>
+        /// <param name="cabinetKey">The key to the cabinet to read the unacknowledged notifications from.</param>
+        /// <returns>A reader that can be used to obtain unacknowledged notifications.</returns>
+        Task<ICabinetReader> GetCabinetReaderAsync(CabinetKey cabinetKey);
+
+        /// <summary>
+        /// Saves the given notification as unacknowledged.
+        /// </summary>
+        /// <param name="dataAvailableNotifications">The notifications to save.</param>
+        /// <param name="key">The cabinet key</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        Task SaveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications, CabinetKey key);
+
+        /// <summary>
         /// Saves the given notification as unacknowledged.
         /// </summary>
         /// <param name="dataAvailableNotification">The notification to save.</param>
@@ -61,6 +85,13 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// <param name="recipient">The market operator the next notifications belong to.</param>
         /// <param name="dataAvailableNotificationUuids">The list of notification ids to acknowledge.</param>
         Task AcknowledgeAsync(MarketOperator recipient, IEnumerable<Uuid> dataAvailableNotificationUuids);
+
+        /// <summary>
+        /// Acknowledges the specified bundle and its notifications.
+        /// These acknowledged notifications will no longer be returned from <see cref="GetNextUnacknowledgedAsync(MarketOperator, DomainOrigin[])" />.
+        /// </summary>
+        /// <param name="bundle">The bundle to acknowledge.</param>
+        Task AcknowledgeAsync(Bundle bundle);
 
         /// <summary>
         /// Writes copy of DataAvailableNotification to archive

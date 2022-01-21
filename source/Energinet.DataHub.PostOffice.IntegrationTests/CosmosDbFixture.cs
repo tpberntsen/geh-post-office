@@ -14,6 +14,7 @@
 
 using System.Net;
 using System.Threading.Tasks;
+using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
 using Xunit;
@@ -28,30 +29,34 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests
 
             var databaseResponse = await cosmosClient
                 .CreateDatabaseIfNotExistsAsync(LocalSettings.DatabaseName)
-                .ConfigureAwait(true);
+                .ConfigureAwait(false);
 
             var logDatabaseResponse = await cosmosClient
                 .CreateDatabaseIfNotExistsAsync(LocalSettings.LogDatabaseName)
-                .ConfigureAwait(true);
+                .ConfigureAwait(false);
 
             var testDatabase = databaseResponse.Database;
             var logDatabase = logDatabaseResponse.Database;
 
-            await testDatabase
+            var container = await testDatabase
                 .CreateContainerIfNotExistsAsync("dataavailable", "/partitionKey")
-                .ConfigureAwait(true);
+                .ConfigureAwait(false);
+
+            await container.Container
+                .UpsertItemAsync(new CosmosSequenceNumber(int.MaxValue))
+                .ConfigureAwait(false);
 
             await testDatabase
                 .CreateContainerIfNotExistsAsync("dataavailable-archive", "/partitionKey")
-                .ConfigureAwait(true);
+                .ConfigureAwait(false);
 
             var bundlesResponse = await testDatabase
                 .CreateContainerIfNotExistsAsync("bundles", "/recipient")
-                .ConfigureAwait(true);
+                .ConfigureAwait(false);
 
             await logDatabase
                 .CreateContainerIfNotExistsAsync("Logs", "/marketOperator")
-                .ConfigureAwait(true);
+                .ConfigureAwait(false);
 
             var singleBundleViolationTrigger = new TriggerProperties
             {

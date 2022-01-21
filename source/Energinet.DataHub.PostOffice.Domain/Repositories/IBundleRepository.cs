@@ -54,6 +54,15 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         Task<BundleCreatedResponse> TryAddNextUnacknowledgedAsync(Bundle bundle);
 
         /// <summary>
+        /// Adds the specified bundle as the next unacknowledged bundle,
+        /// ensuring that only one bundle can be unacknowledged at a time.
+        /// </summary>
+        /// <param name="bundle">The bundle to add.</param>
+        /// <param name="cabinetReader">The reader used to retrieve the notifications for the bundle.</param>
+        /// <returns>Returns a value indicating whether the bundle was successfully added.</returns>
+        Task<BundleCreatedResponse> TryAddNextUnacknowledgedAsync(Bundle bundle, ICabinetReader cabinetReader);
+
+        /// <summary>
         /// Saves the bundle.
         /// </summary>
         /// <param name="bundle">The bundle to save.</param>

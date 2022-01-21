@@ -391,7 +391,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.TimeSeries,
                 new SupportsBundling(false),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -454,7 +455,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.TimeSeries,
                 new SupportsBundling(true),
-                new Weight(int.MaxValue));
+                new Weight(int.MaxValue),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -801,7 +803,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.TimeSeries,
                 new SupportsBundling(false),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -864,7 +867,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.TimeSeries,
                 new SupportsBundling(true),
-                new Weight(int.MaxValue));
+                new Weight(int.MaxValue),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -1214,7 +1218,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.Aggregations,
                 new SupportsBundling(false),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -1277,7 +1282,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.Aggregations,
                 new SupportsBundling(true),
-                new Weight(int.MaxValue));
+                new Weight(int.MaxValue),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -1740,7 +1746,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.Charges,
                 new SupportsBundling(false),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -1811,7 +1818,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 DomainOrigin.Charges,
                 new SupportsBundling(true),
-                new Weight(int.MaxValue));
+                new Weight(int.MaxValue),
+                new SequenceNumber(1));
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -2023,6 +2031,48 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             dataAvailableNotificationRepositoryMock.Verify(x => x.AcknowledgeAsync(recipient, idsInBundle), Times.Once);
         }
 
+        [Fact]
+        public async Task Acknowledge2Async_HasBundle_Succeeds()
+        {
+            // Arrange
+            var recipient = new MarketOperator(new GlobalLocationNumber("fake_value"));
+            var bundleUuid = new Uuid("1E0A906E-8895-4C86-B4FC-48E9BAF2A2B6");
+            var idsInBundle = new[]
+            {
+                new Uuid("5AA0BDE7-EAB7-408D-B4A4-BBF1EEFF3F7E"),
+                new Uuid("7E188D0E-A923-4AD5-A7CB-39889884241B"),
+                new Uuid("9DEA909A-179B-413B-A669-E38D4C812009"),
+                new Uuid("B0425457-8E0A-4E66-80EF-2717562EAEA7")
+            };
+
+            var bundle = new Bundle(
+                bundleUuid,
+                recipient,
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
+                idsInBundle);
+
+            var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
+            var bundleRepositoryMock = new Mock<IBundleRepository>();
+
+            var contentTypeWeightMapMock = new Mock<IWeightCalculatorDomainService>();
+            var requestDomainServiceMock = new Mock<IRequestBundleDomainService>();
+            var operationServiceMock = new Mock<IDequeueCleanUpSchedulingService>();
+            var target = new MarketOperatorDataDomainService(
+                bundleRepositoryMock.Object,
+                dataAvailableNotificationRepositoryMock.Object,
+                requestDomainServiceMock.Object,
+                contentTypeWeightMapMock.Object,
+                operationServiceMock.Object);
+
+            // Act
+            await target.Acknowledge2Async(bundle).ConfigureAwait(false);
+
+            // Assert
+            bundleRepositoryMock.Verify(x => x.AcknowledgeAsync(recipient, bundleUuid), Times.Once);
+            dataAvailableNotificationRepositoryMock.Verify(x => x.AcknowledgeAsync(bundle), Times.Once);
+        }
+
         private static DataAvailableNotification CreateDataAvailableNotification(
             MarketOperator recipient,
             ContentType contentType,
@@ -2034,7 +2084,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 contentType,
                 domainOrigin,
                 new SupportsBundling(true),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(1));
         }
     }
 }

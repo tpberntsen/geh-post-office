@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
 using Moq;
@@ -28,11 +29,48 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
     public sealed class DataAvailableNotificationRepositoryTests
     {
         [Fact]
+        public async Task ReadCatalogForNextUnacknowledgedAsync_NullRecipient_ThrowsException()
+        {
+            // Arrange
+            var target = CreateTarget();
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() =>
+                    target.ReadCatalogForNextUnacknowledgedAsync(null!, Array.Empty<DomainOrigin>()))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task ReadCatalogForNextUnacknowledgedAsync_NullDomains_ThrowsException()
+        {
+            // Arrange
+            var target = CreateTarget();
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() =>
+                    target.ReadCatalogForNextUnacknowledgedAsync(new MarketOperator(null!), null!))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task GetCabinetReaderAsync_NullKey_ThrowsException()
+        {
+            // Arrange
+            var target = CreateTarget();
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() => target.GetCabinetReaderAsync(null!))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
         public async Task GetNextUnacknowledgedAsync_NullRecipient_ThrowsException()
         {
             // Arrange
-            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
-            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+            var target = CreateTarget();
 
             // Act + Assert
             await Assert
@@ -44,8 +82,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         public async Task GetNextUnacknowledgedAsync_NullRecipientNotContent_ThrowsException()
         {
             // Arrange
-            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
-            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+            var target = CreateTarget();
 
             // Act + Assert
             await Assert
@@ -62,8 +99,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         public async Task GetNextUnacknowledgedAsync_NullContentNotRecipient_ThrowsException()
         {
             // Arrange
-            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
-            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+            var target = CreateTarget();
 
             // Act + Assert
             await Assert
@@ -80,8 +116,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         public async Task AcknowledgeAsync_NullRecipient_ThrowsException()
         {
             // Arrange
-            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
-            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+            var target = CreateTarget();
 
             // Act + Assert
             await Assert
@@ -95,8 +130,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         public async Task AcknowledgeAsync_NullCollection_ThrowsException()
         {
             // Arrange
-            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
-            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+            var target = CreateTarget();
 
             // Act + Assert
             await Assert
@@ -107,17 +141,39 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
         }
 
         [Fact]
+        public async Task AcknowledgeAsync_NullBundle_ThrowsException()
+        {
+            // Arrange
+            var target = CreateTarget();
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ArgumentNullException>(() => target.AcknowledgeAsync(null!))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
         public async Task SaveAsync_NullNotification_ThrowsException()
         {
             // Arrange
-            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
-            var target = new DataAvailableNotificationRepository(dataAvailableNotificationRepositoryContainer.Object);
+            var target = CreateTarget();
             DataAvailableNotification dataAvailableNotification = null!;
 
             // Act + Assert
             await Assert
                 .ThrowsAsync<ArgumentNullException>(() => target.SaveAsync(dataAvailableNotification))
                 .ConfigureAwait(false);
+        }
+
+        private static DataAvailableNotificationRepository CreateTarget()
+        {
+            var dataAvailableNotificationRepositoryContainer = new Mock<IDataAvailableNotificationRepositoryContainer>();
+            var bundleRepositoryContainer = new Mock<IBundleRepositoryContainer>();
+            var sequenceNumberRepository = new Mock<ISequenceNumberRepository>();
+            return new DataAvailableNotificationRepository(
+                bundleRepositoryContainer.Object,
+                dataAvailableNotificationRepositoryContainer.Object,
+                sequenceNumberRepository.Object);
         }
     }
 }

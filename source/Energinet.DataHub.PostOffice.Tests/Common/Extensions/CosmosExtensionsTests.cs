@@ -102,6 +102,44 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
         }
 
         [Fact]
+        public async Task SingleOrDefaultAsync_EmptyCollection_ReturnsNull()
+        {
+            // Arrange
+            var collection = GetCollectionAsync<object>();
+
+            // Act
+            var actual = await collection.SingleOrDefaultAsync().ConfigureAwait(false);
+
+            // Assert
+            Assert.Null(actual);
+        }
+
+        [Fact]
+        public async Task SingleOrDefaultAsync_SingleElement_ReturnsThatElement()
+        {
+            // Arrange
+            var expected = new { Value = 5 };
+            var collection = GetCollectionAsync<object>(expected);
+
+            // Act
+            var actual = await collection.SingleOrDefaultAsync().ConfigureAwait(false);
+
+            // Assert
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public async Task SingleOrDefaultAsync_MultipleElements_ThrowsException()
+        {
+            // Arrange
+            var unexpected = new { Value = 5 };
+            var collection = GetCollectionAsync<object>(unexpected, unexpected, unexpected);
+
+            // Act + Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => collection.SingleOrDefaultAsync()).ConfigureAwait(false);
+        }
+
+        [Fact]
         public async Task ToListAsync_MultipleElements_CreatesList()
         {
             // Arrange

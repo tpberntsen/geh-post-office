@@ -92,7 +92,7 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
             using var cancellationTokenSource = new CancellationTokenSource(_waitTimeout);
             var cancellationToken = cancellationTokenSource.Token;
 
-            var expectedIds = new HashSet<string>(correlationIds, StringComparer.OrdinalIgnoreCase);
+            var expectedIds = correlationIds.Select(x => x.ToUpperInvariant()).ToList();
 
             while (expectedIds.Count > 0)
             {
@@ -105,7 +105,7 @@ namespace Energinet.DataHub.MessageHub.IntegrationTesting
 
                 if (message.ApplicationProperties.TryGetValue("OperationCorrelationId", out var correlationObj))
                 {
-                    if (correlationObj is string correlationId && expectedIds.Remove(correlationId))
+                    if (correlationObj is string correlationId && expectedIds.Remove(correlationId.ToUpperInvariant()))
                     {
                         var dataAvailableNotificationDto = _dataAvailableNotificationParser.Parse(message.Body.ToArray());
                         _notifications.Add(dataAvailableNotificationDto);

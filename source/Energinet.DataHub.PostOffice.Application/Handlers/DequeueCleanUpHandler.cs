@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
+using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
@@ -37,8 +37,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
         public async Task<OperationResponse> Handle(DequeueCleanUpCommand request, CancellationToken cancellationToken)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
+            Guard.ThrowIfNull(request, nameof(request));
 
             var bundleUuid = new Uuid(request.BundleId);
             var marketOperator = new MarketOperator(new GlobalLocationNumber(request.MarketOperator));

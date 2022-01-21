@@ -25,6 +25,7 @@ using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Energinet.DataHub.PostOffice.Infrastructure.Mappers;
 using Energinet.DataHub.PostOffice.Infrastructure.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
+using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
@@ -62,8 +63,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
         {
-            if (recipient is null)
-                throw new ArgumentNullException(nameof(recipient));
+            Guard.ThrowIfNull(recipient, nameof(recipient));
 
             var asLinq = _repositoryContainer
                 .Container
@@ -90,8 +90,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public async Task<BundleCreatedResponse> TryAddNextUnacknowledgedAsync(Bundle bundle)
         {
-            if (bundle == null)
-                throw new ArgumentNullException(nameof(bundle));
+            Guard.ThrowIfNull(bundle, nameof(bundle));
 
             await _storageHandler
                 .AddDataAvailableNotificationIdsToStorageAsync(bundle.ProcessId.ToString(), bundle.NotificationIds.Select(x => x.AsGuid()))
@@ -120,13 +119,44 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
+        public async Task<BundleCreatedResponse> TryAddNextUnacknowledgedAsync(Bundle bundle, ICabinetReader cabinetReader)
+        {
+            Guard.ThrowIfNull(bundle, nameof(bundle));
+            Guard.ThrowIfNull(cabinetReader, nameof(cabinetReader));
+
+            await _storageHandler
+                .AddDataAvailableNotificationIdsToStorageAsync(bundle.ProcessId.ToString(), bundle.NotificationIds.Select(x => x.AsGuid()))
+                .ConfigureAwait(false);
+
+            var reader = (AsyncCabinetReader)cabinetReader;
+
+            var messageDocument = BundleMapper.Map(bundle, reader.GetChanges());
+            var requestOptions = new ItemRequestOptions
+            {
+                PostTriggers = new[] { "EnsureSingleUnacknowledgedBundle" }
+            };
+
+            try
+            {
+                await _repositoryContainer.Container
+                    .CreateItemAsync(messageDocument, requestOptions: requestOptions)
+                    .ConfigureAwait(false);
+                return BundleCreatedResponse.Success;
+            }
+            catch (CosmosException ex) when (IsConcurrencyError(ex))
+            {
+                return BundleCreatedResponse.AnotherBundleExists;
+            }
+            catch (CosmosException ex) when (IsBundleIdDuplicateError(ex))
+            {
+                return BundleCreatedResponse.BundleIdAlreadyInUse;
+            }
+        }
+
         public async Task AcknowledgeAsync(MarketOperator recipient, Uuid bundleId)
         {
-            if (recipient is null)
-                throw new ArgumentNullException(nameof(recipient));
-
-            if (bundleId is null)
-                throw new ArgumentNullException(nameof(bundleId));
+            Guard.ThrowIfNull(recipient, nameof(recipient));
+            Guard.ThrowIfNull(bundleId, nameof(bundleId));
 
             var asLinq = _repositoryContainer
                 .Container
@@ -150,8 +180,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public Task SaveAsync(Bundle bundle)
         {
-            if (bundle == null)
-                throw new ArgumentNullException(nameof(bundle));
+            Guard.ThrowIfNull(bundle, nameof(bundle));
 
             var messageDocument = BundleMapper.MapToDocument(bundle);
             return _repositoryContainer.Container.ReplaceItemAsync(messageDocument, messageDocument.Id);

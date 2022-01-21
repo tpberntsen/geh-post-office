@@ -22,9 +22,12 @@ limitations under the License.
         <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
+  
+    <ItemGroup>
+      <ProjectReference Include="..\Energinet.DataHub.PostOffice.Utilities\Energinet.DataHub.PostOffice.Utilities.csproj" />
+    </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="NodaTime" Version="3.0.9" />
     </ItemGroup>
-  
 </Project>

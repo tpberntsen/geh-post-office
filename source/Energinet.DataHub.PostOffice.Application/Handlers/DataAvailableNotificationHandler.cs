@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
+using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
@@ -34,8 +35,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
         public async Task<DataAvailableNotificationResponse> Handle(DataAvailableNotificationCommand request, CancellationToken cancellationToken)
         {
-            if (request is null)
-                throw new ArgumentNullException(nameof(request));
+            Guard.ThrowIfNull(request, nameof(request));
 
             var dataAvailableNotification = MapToDataAvailableNotification(request);
             await _dataAvailableNotificationRepository.SaveAsync(dataAvailableNotification).ConfigureAwait(false);
@@ -50,7 +50,8 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 new ContentType(request.ContentType),
                 Enum.Parse<DomainOrigin>(request.Origin, true),
                 new SupportsBundling(request.SupportsBundling),
-                new Weight(request.Weight));
+                new Weight(request.Weight),
+                new SequenceNumber(request.SequenceNumber));
         }
     }
 }

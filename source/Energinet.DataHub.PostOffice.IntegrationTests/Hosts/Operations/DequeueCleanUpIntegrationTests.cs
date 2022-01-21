@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Core.Storage;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
@@ -52,8 +53,10 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.Operations
             var storageHandler = scope.GetInstance<IStorageHandler>();
             var bundleRepository = new BundleRepository(storageHandler, container, storageService);
 
+            var bundleRepositoryContainer = scope.GetInstance<IBundleRepositoryContainer>();
             var dataAvailableContainer = scope.GetInstance<IDataAvailableNotificationRepositoryContainer>();
-            var dataAvailableRepository = new DataAvailableNotificationRepository(dataAvailableContainer);
+            var sequenceNumberRepository = scope.GetInstance<ISequenceNumberRepository>();
+            var dataAvailableRepository = new DataAvailableNotificationRepository(bundleRepositoryContainer, dataAvailableContainer, sequenceNumberRepository);
 
             var dataAvailableToDequeueAndArchive = CreateDataAvailableNotification(notificationIds.First(), marketOperator);
             await dataAvailableRepository.SaveAsync(dataAvailableToDequeueAndArchive).ConfigureAwait(false);
@@ -98,7 +101,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.Operations
                 new ContentType("fake_value"),
                 domain,
                 new SupportsBundling(false),
-                new Weight(1));
+                new Weight(1),
+                new SequenceNumber(322));
         }
     }
 }

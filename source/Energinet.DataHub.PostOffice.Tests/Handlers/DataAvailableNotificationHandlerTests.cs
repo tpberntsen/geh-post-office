@@ -54,6 +54,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 "timeseries",
                 "timeseries",
                 false,
+                1,
                 1);
 
             // Act
