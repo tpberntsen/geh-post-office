@@ -107,7 +107,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 Times.Once);
         }
 
-        private static Expression<Func<IEnumerable<DataAvailableNotification>, bool>>
+        private static Expression<Func<IReadOnlyList<DataAvailableNotification>, bool>>
             ExpectedNotification(DataAvailableNotificationDto dataAvailableNotification)
         {
             return notifications => ExpectedNotification(notifications.Single(), dataAvailableNotification);
@@ -129,7 +129,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         {
             return cabinetKey => cabinetKey == new CabinetKey(
                 new MarketOperator(new GlobalLocationNumber(dto.Recipient)),
-                Enum.Parse<DomainOrigin>(dto.Origin),
+                Enum.Parse<DomainOrigin>(dto.Origin, true),
                 new ContentType(dto.ContentType));
         }
     }

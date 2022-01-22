@@ -53,7 +53,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 new Uuid(notificationDto.Uuid),
                 new MarketOperator(new GlobalLocationNumber(notificationDto.Recipient)),
                 new ContentType(notificationDto.ContentType),
-                Enum.Parse<DomainOrigin>(notificationDto.Origin),
+                Enum.Parse<DomainOrigin>(notificationDto.Origin, true),
                 new SupportsBundling(notificationDto.SupportsBundling),
                 new Weight(notificationDto.Weight),
                 new SequenceNumber(notificationDto.SequenceNumber));
@@ -61,7 +61,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
         private Task HandleGroupAsync(IGrouping<CabinetKey, DataAvailableNotification> group)
         {
-            return _dataAvailableNotificationRepository.SaveAsync(group.Key, group);
+            return _dataAvailableNotificationRepository.SaveAsync(group.Key, group.ToList());
         }
     }
 }

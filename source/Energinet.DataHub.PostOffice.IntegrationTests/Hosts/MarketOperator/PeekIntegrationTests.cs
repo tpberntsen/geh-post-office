@@ -904,7 +904,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             await using var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
 
-            await mediator.Send(dataAvailableDto).ConfigureAwait(false);
+            var command = new InsertDataAvailableNotificationsCommand(new[] { dataAvailableDto });
+            await mediator.Send(command).ConfigureAwait(false);
         }
     }
 }

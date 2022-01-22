@@ -160,7 +160,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
         private static async Task AddDataAvailableNotificationAsync(string recipientGln)
         {
             var dataAvailableUuid = Guid.NewGuid().ToString();
-            var dataAvailableCommand = new DataAvailableNotificationDto(
+            var dataAvailableNotification = new DataAvailableNotificationDto(
                 dataAvailableUuid,
                 recipientGln,
                 "timeseries",
@@ -176,7 +176,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             await using var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
 
-            await mediator.Send(dataAvailableCommand).ConfigureAwait(false);
+            var command = new InsertDataAvailableNotificationsCommand(new[] { dataAvailableNotification });
+            await mediator.Send(command).ConfigureAwait(false);
         }
 
         private static async Task<string> ReadBundleIdAsync(PeekResponse response)

@@ -43,16 +43,21 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
         }
 
         [Function(nameof(DataAvailableTimerTrigger))]
-        public async Task RunAsync([TimerTrigger("0 */1 * * * *")] FunctionContext context)
+        public async Task RunAsync([TimerTrigger("* */1 * * * *")] FunctionContext context)
         {
             var logger = context.GetLogger<DataAvailableTimerTrigger>();
             logger.LogInformation("Begins processing DataAvailableTimerTrigger.");
 
-            var protobufMessages = await _messageReceiver
+            var messages = await _messageReceiver
                 .ReceiveAsync()
                 .ConfigureAwait(false);
 
-            var notifications = protobufMessages
+            logger.LogInformation("Received a DataAvailableNotification batch of size {0}.", messages.Count);
+
+            if (messages.Count < 0)
+                return;
+
+            var notifications = messages
                 .Select(TryParse)
                 .ToList();
 
@@ -98,7 +103,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             await _messageReceiver.CompleteAsync(complete).ConfigureAwait(false);
             await _messageReceiver.DeadLetterAsync(deadletter).ConfigureAwait(false);
 
-            var newMaximumSequenceNumber = protobufMessages.Max(GetSequenceNumber);
+            var newMaximumSequenceNumber = messages.Max(GetSequenceNumber);
             await _mediator
                 .Send(new UpdateMaximumSequenceNumberCommand(new SequenceNumber(newMaximumSequenceNumber)))
                 .ConfigureAwait(false);

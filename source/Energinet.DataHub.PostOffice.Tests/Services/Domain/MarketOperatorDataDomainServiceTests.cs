@@ -367,7 +367,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleId = new Uuid("7dfb2080-fb56-4a37-a85d-1ac2f1559b45");
             var contentType = new ContentType("timeseries");
 
-            var dataAvailableNotification = new DataAvailableNotification(
+            var dataAvailableNotificationA = new DataAvailableNotification(
                 new Uuid(Guid.NewGuid()),
                 recipient,
                 contentType,
@@ -376,7 +376,16 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new Weight(1),
                 new SequenceNumber(1));
 
-            var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
+            var dataAvailableNotificationB = new DataAvailableNotification(
+                new Uuid(Guid.NewGuid()),
+                recipient,
+                contentType,
+                DomainOrigin.TimeSeries,
+                new SupportsBundling(true),
+                new Weight(1),
+                new SequenceNumber(1));
+
+            var cabinetReader = CreateReaderMock(new[] { dataAvailableNotificationA, dataAvailableNotificationB });
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -417,8 +426,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             // Assert
             Assert.NotNull(bundle);
-            Assert.Equal(dataAvailableNotification.Recipient, bundle!.Recipient);
-            Assert.Equal(dataAvailableNotification.Origin, bundle.Origin);
+            Assert.Single(bundle!.NotificationIds);
+            Assert.Equal(dataAvailableNotificationA.Recipient, bundle.Recipient);
+            Assert.Equal(dataAvailableNotificationA.Origin, bundle.Origin);
             Assert.True(bundle.TryGetContent(out var actualBundleContent));
             Assert.Equal(bundleContentMock.Object, actualBundleContent);
         }
@@ -766,7 +776,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleId = new Uuid("7dfb2080-fb56-4a37-a85d-1ac2f1559b45");
             var contentType = new ContentType("timeseries");
 
-            var dataAvailableNotification = new DataAvailableNotification(
+            var dataAvailableNotificationA = new DataAvailableNotification(
                 new Uuid(Guid.NewGuid()),
                 recipient,
                 contentType,
@@ -775,7 +785,16 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new Weight(1),
                 new SequenceNumber(1));
 
-            var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
+            var dataAvailableNotificationB = new DataAvailableNotification(
+                new Uuid(Guid.NewGuid()),
+                recipient,
+                contentType,
+                DomainOrigin.TimeSeries,
+                new SupportsBundling(true),
+                new Weight(1),
+                new SequenceNumber(1));
+
+            var cabinetReader = CreateReaderMock(new[] { dataAvailableNotificationA, dataAvailableNotificationB });
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -817,8 +836,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             // Assert
             Assert.NotNull(bundle);
-            Assert.Equal(dataAvailableNotification.Recipient, bundle!.Recipient);
-            Assert.Equal(dataAvailableNotification.Origin, bundle.Origin);
+            Assert.Single(bundle!.NotificationIds);
+            Assert.Equal(dataAvailableNotificationA.Recipient, bundle.Recipient);
+            Assert.Equal(dataAvailableNotificationA.Origin, bundle.Origin);
             Assert.True(bundle.TryGetContent(out var actualBundleContent));
             Assert.Equal(bundleContentMock.Object, actualBundleContent);
         }
@@ -1170,7 +1190,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleId = new Uuid("7dfb2080-fb56-4a37-a85d-1ac2f1559b45");
             var contentType = new ContentType("aggregations");
 
-            var dataAvailableNotification = new DataAvailableNotification(
+            var dataAvailableNotificationA = new DataAvailableNotification(
                 new Uuid(Guid.NewGuid()),
                 recipient,
                 contentType,
@@ -1179,7 +1199,16 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new Weight(1),
                 new SequenceNumber(1));
 
-            var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
+            var dataAvailableNotificationB = new DataAvailableNotification(
+                new Uuid(Guid.NewGuid()),
+                recipient,
+                contentType,
+                DomainOrigin.Aggregations,
+                new SupportsBundling(true),
+                new Weight(1),
+                new SequenceNumber(1));
+
+            var cabinetReader = CreateReaderMock(new[] { dataAvailableNotificationA, dataAvailableNotificationB });
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -1221,8 +1250,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             // Assert
             Assert.NotNull(bundle);
-            Assert.Equal(dataAvailableNotification.Recipient, bundle!.Recipient);
-            Assert.Equal(dataAvailableNotification.Origin, bundle.Origin);
+            Assert.Single(bundle!.NotificationIds);
+            Assert.Equal(dataAvailableNotificationB.Recipient, bundle.Recipient);
+            Assert.Equal(dataAvailableNotificationB.Origin, bundle.Origin);
             Assert.True(bundle.TryGetContent(out var actualBundleContent));
             Assert.Equal(bundleContentMock.Object, actualBundleContent);
         }
@@ -1680,7 +1710,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var bundleId = new Uuid("7dfb2080-fb56-4a37-a85d-1ac2f1559b45");
             var contentType = new ContentType("charges");
 
-            var dataAvailableNotification = new DataAvailableNotification(
+            var dataAvailableNotificationA = new DataAvailableNotification(
                 new Uuid(Guid.NewGuid()),
                 recipient,
                 contentType,
@@ -1689,7 +1719,16 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new Weight(1),
                 new SequenceNumber(1));
 
-            var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
+            var dataAvailableNotificationB = new DataAvailableNotification(
+                new Uuid(Guid.NewGuid()),
+                recipient,
+                contentType,
+                DomainOrigin.Charges,
+                new SupportsBundling(true),
+                new Weight(1),
+                new SequenceNumber(1));
+
+            var cabinetReader = CreateReaderMock(new[] { dataAvailableNotificationA, dataAvailableNotificationB });
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             dataAvailableNotificationRepositoryMock
@@ -1739,8 +1778,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
 
             // Assert
             Assert.NotNull(bundle);
-            Assert.Equal(dataAvailableNotification.Recipient, bundle!.Recipient);
-            Assert.Equal(dataAvailableNotification.Origin, bundle.Origin);
+            Assert.Single(bundle!.NotificationIds);
+            Assert.Equal(dataAvailableNotificationA.Recipient, bundle.Recipient);
+            Assert.Equal(dataAvailableNotificationA.Origin, bundle.Origin);
             Assert.True(bundle.TryGetContent(out var actualBundleContent));
             Assert.Equal(bundleContentMock.Object, actualBundleContent);
         }

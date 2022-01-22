@@ -155,20 +155,34 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
             while (cabinetReader.CanPeek)
             {
-                var notification = cabinetReader.Peek();
-
-                if (notificationIds.Count == 0 || (weight + notification.Weight <= maxWeight && notification.SupportsBundling.Value))
+                if (notificationIds.Count == 0)
                 {
-                    var dequeued = await cabinetReader
-                        .TakeAsync()
-                        .ConfigureAwait(false);
+                    // Initial notification is always taken.
+                    // If the weight is too high, a bundle is created anyway, with just this notification.
+                    var notification = await cabinetReader.TakeAsync().ConfigureAwait(false);
 
-                    weight += dequeued.Weight;
-                    notificationIds.Add(dequeued.NotificationId);
+                    weight += notification.Weight;
+                    notificationIds.Add(notification.NotificationId);
+
+                    if (!notification.SupportsBundling.Value)
+                        break;
                 }
                 else
                 {
-                    break;
+                    var notification = cabinetReader.Peek();
+                    if (notification.SupportsBundling.Value && weight + notification.Weight <= maxWeight)
+                    {
+                        var dequeued = await cabinetReader
+                            .TakeAsync()
+                            .ConfigureAwait(false);
+
+                        weight += dequeued.Weight;
+                        notificationIds.Add(dequeued.NotificationId);
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
 

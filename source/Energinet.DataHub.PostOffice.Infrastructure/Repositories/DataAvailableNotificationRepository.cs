@@ -20,6 +20,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
@@ -53,7 +54,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             _sequenceNumberRepository = sequenceNumberRepository;
         }
 
-        public async Task SaveAsync(CabinetKey key, IEnumerable<DataAvailableNotification> notifications)
+        public async Task SaveAsync(CabinetKey key, IReadOnlyList<DataAvailableNotification> notifications)
         {
             Guard.ThrowIfNull(key, nameof(key));
             Guard.ThrowIfNull(notifications, nameof(notifications));
@@ -63,8 +64,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 ? await CountItemsInDrawerAsync(nextDrawer).ConfigureAwait(false)
                 : 0;
 
-            foreach (var notification in notifications)
+            for (var i = 0; i < notifications.Count; i++)
             {
+                var notification = notifications[i];
+
                 Debug.Assert(key == new CabinetKey(notification), "All notifications should belong to the provided key.");
 
                 if (await CheckIdempotencyAsync(notification).ConfigureAwait(false))
@@ -91,8 +94,25 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 }
 
                 var cosmosDataAvailable = CosmosDataAvailableMapper.Map(notification, nextDrawer.Id);
-                await _repositoryContainer.Cabinet.CreateItemAsync(cosmosDataAvailable).ConfigureAwait(false);
+                await _repositoryContainer
+                    .Cabinet
+                    .CreateItemAsync(cosmosDataAvailable)
+                    .ConfigureAwait(false);
+
+                var itemsLeft = notifications.Count - (i + 1);
+                var spaceLeft = MaximumCabinetDrawerItemCount - (nextDrawerItemCount + 1);
+
+                var itemsToFill = notifications
+                    .Skip(i + 1)
+                    .Take(Math.Min(itemsLeft, spaceLeft));
+
+                var itemsInserted = await FillCabinetDrawerAsync(nextDrawer, itemsToFill).ConfigureAwait(false);
+                nextDrawerItemCount += itemsInserted;
+                i += itemsInserted;
+
                 nextDrawerItemCount++;
+
+                Debug.Assert(nextDrawerItemCount <= MaximumCabinetDrawerItemCount, "Too many items were inserted into a single drawer.");
 
                 if (nextDrawerItemCount == MaximumCabinetDrawerItemCount)
                 {
@@ -255,7 +275,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var query =
                 from cabinetDrawer in asLinq
                 where
-                    cabinetDrawer.PartitionKey == partitionKey && cabinetDrawer.Position < 10000
+                    cabinetDrawer.PartitionKey == partitionKey &&
+                    cabinetDrawer.Position < MaximumCabinetDrawerItemCount
                 orderby cabinetDrawer.OrderBy descending
                 select cabinetDrawer;
 
@@ -276,6 +297,27 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 select dataAvailable;
 
             return await query.CountAsync().ConfigureAwait(false);
+        }
+
+        private async Task<int> FillCabinetDrawerAsync(CosmosCabinetDrawer drawer, IEnumerable<DataAvailableNotification> notifications)
+        {
+            var count = 0;
+            var tasks = notifications.Select(async x =>
+            {
+                if (await CheckIdempotencyAsync(x).ConfigureAwait(false))
+                    return;
+
+                var cosmosDataAvailable = CosmosDataAvailableMapper.Map(x, drawer.Id);
+                await _repositoryContainer
+                    .Cabinet
+                    .CreateItemAsync(cosmosDataAvailable)
+                    .ConfigureAwait(false);
+
+                Interlocked.Increment(ref count);
+            });
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+            return count;
         }
 
         private async Task<ICabinetReader> GetCabinetReaderAsync(CabinetKey cabinetKey)
@@ -455,7 +497,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     return true;
                 }
 
-                throw new ValidationException($"Idempotency check failed for DataAvailable {documentId}", ex);
+                throw new ValidationException($"Idempotency check failed for DataAvailable {documentId}.", ex);
             }
 
             static string Base64Content(DataAvailableNotification notification)

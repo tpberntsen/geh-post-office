@@ -36,7 +36,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// </summary>
         /// <param name="key">The key to the cabinet where the notifications will be saved.</param>
         /// <param name="notifications">The notifications to save.</param>
-        Task SaveAsync(CabinetKey key, IEnumerable<DataAvailableNotification> notifications);
+        Task SaveAsync(CabinetKey key, IReadOnlyList<DataAvailableNotification> notifications);
 
         /// <summary>
         /// Acknowledges the specified bundle and its notifications.

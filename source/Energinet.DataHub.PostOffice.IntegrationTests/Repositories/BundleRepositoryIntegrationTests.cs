@@ -47,7 +47,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var storageHandler = scope.GetInstance<IStorageHandler>();
             var target = new BundleRepository(storageHandler, container, storageService);
 
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var recipient = new MarketOperator(new MockedGln());
 
             // Act
             var bundle = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
@@ -68,7 +68,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var storageHandler = scope.GetInstance<IStorageHandler>();
             var target = new BundleRepository(storageHandler, container, storageService);
 
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var recipient = new MarketOperator(new MockedGln());
             var reader = CreateMockedReader();
             var setupBundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
@@ -100,7 +100,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var storageHandler = scope.GetInstance<IStorageHandler>();
             var target = new BundleRepository(storageHandler, container, storageService);
 
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var recipient = new MarketOperator(new MockedGln());
             var reader = CreateMockedReader();
             var setupBundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
@@ -135,7 +135,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var storageHandler = scope.GetInstance<IStorageHandler>();
             var target = new BundleRepository(storageHandler, container, storageService);
 
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var recipient = new MarketOperator(new MockedGln());
             var reader = CreateMockedReader();
             var setupBundle = CreateBundle(
                 recipient,
@@ -168,7 +168,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var storageHandler = scope.GetInstance<IStorageHandler>();
             var target = new BundleRepository(storageHandler, container, storageService);
 
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var recipient = new MarketOperator(new MockedGln());
             var setupBundle = CreateBundle(recipient);
 
             var beforeAdd = await target.GetNextUnacknowledgedAsync(recipient).ConfigureAwait(false);
@@ -244,7 +244,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var storageHandler = scope.GetInstance<IStorageHandler>();
             var target = new BundleRepository(storageHandler, container, storageService);
 
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var recipient = new MarketOperator(new MockedGln());
             var setupBundle = CreateBundle(recipient);
 
             // Act
@@ -269,7 +269,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var storageHandler = scope.GetInstance<IStorageHandler>();
             var target = new BundleRepository(storageHandler, container, storageService);
 
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var recipient = new MarketOperator(new MockedGln());
             var setupBundle = CreateBundle(recipient);
             var existingBundle = CreateBundle(recipient);
 
@@ -298,7 +298,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var storageHandler = scope.GetInstance<IStorageHandler>();
             var target = new BundleRepository(storageHandler, container, storageService);
 
-            var recipientGln = new GlobalLocationNumber(Guid.NewGuid().ToString());
+            var recipientGln = new MockedGln();
             var bundleId = new Uuid(Guid.NewGuid());
 
             var recipient = new MarketOperator(recipientGln);
@@ -343,7 +343,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var storageHandler = scope.GetInstance<IStorageHandler>();
             var target = new BundleRepository(storageHandler, container, storageService);
 
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var recipient = new MarketOperator(new MockedGln());
             var setupBundle = CreateBundle(recipient, domainOrigin: initial);
             var conflictBundle = CreateBundle(recipient, domainOrigin: conflicting);
 
@@ -379,7 +379,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
             var storageHandler = scope.GetInstance<IStorageHandler>();
             var target = new BundleRepository(storageHandler, container, storageService);
 
-            var recipient = new MarketOperator(new GlobalLocationNumber(Guid.NewGuid().ToString()));
+            var recipient = new MarketOperator(new MockedGln());
             var setupBundle = CreateBundle(recipient, domainOrigin: initial);
             var conflictBundle = CreateBundle(recipient, domainOrigin: conflicting);
 
