@@ -27,10 +27,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
             Origin = null!;
             ContentType = null!;
             Dequeued = false;
-            NotificationIds = new List<string>();
+            NotificationIdsBase64 = null!;
             AffectedDrawers = new List<CosmosCabinetDrawerChanges>();
             ContentPath = null!;
-            Timestamp = null!;
         }
 
         public string Id { get; init; }
@@ -41,13 +40,15 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 
         public bool Dequeued { get; init; }
 
-        public ICollection<string> NotificationIds { get; init; }
+        // TODO: We are running out of space, so I have converted ids to Base64.
+        // We should be able to remove this property, since we have ids in Blob Storage anyway (cos ServiceBus also ran out of space).
+        public string NotificationIdsBase64 { get; init; }
 
         public ICollection<CosmosCabinetDrawerChanges> AffectedDrawers { get; init; }
 
         public string ContentPath { get; init; }
 
         [JsonProperty(PropertyName = "_ts")]
-        public string Timestamp { get; init; }
+        public long Timestamp { get; init; }
     }
 }
