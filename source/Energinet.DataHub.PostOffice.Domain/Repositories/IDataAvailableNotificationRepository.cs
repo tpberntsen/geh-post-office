@@ -42,6 +42,14 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// <summary>
         /// Saves the given notification as unacknowledged.
         /// </summary>
+        /// <param name="dataAvailableNotifications">The notifications to save.</param>
+        /// <param name="key">The cabinet key</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        Task SaveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications, CabinetKey key);
+
+        /// <summary>
+        /// Saves the given notification as unacknowledged.
+        /// </summary>
         /// <param name="dataAvailableNotification">The notification to save.</param>
         Task SaveAsync(DataAvailableNotification dataAvailableNotification);
 
