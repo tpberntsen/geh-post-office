@@ -26,8 +26,7 @@ namespace Energinet.DataHub.PostOffice.Application.Validation
         {
             RuleFor(command => command.Notifications)
                 .NotEmpty()
-                .Must(x => x?.Select(dto => dto.Recipient).Distinct().Count() == 1)
-                .Must(x => x?.Select(dto => dto.Origin).Distinct().Count() == 1);
+                .Must(x => x?.Select(dto => dto.Recipient).Distinct().Count() == 1);
 
             RuleForEach(command => command.Notifications)
                 .NotNull()
