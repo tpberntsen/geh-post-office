@@ -16,5 +16,5 @@ using System.IO;
 
 namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public record PeekResponse(bool HasContent, Stream Data);
+    public sealed record PeekResponse(bool HasContent, Stream Data);
 }

@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Energinet.DataHub.PostOffice.Common.Model;
 using Energinet.DataHub.PostOffice.Utilities;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
@@ -39,7 +40,12 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
             Guard.ThrowIfNull(source, nameof(source));
 
             if (source is not FluentValidationException)
+            {
                 logger.LogError(source, "An error occurred while processing request");
+
+                // Observed that LogError does not always write the exception.
+                logger.LogError(source.ToString());
+            }
         }
 
         public static async Task<HttpResponseData> AsHttpResponseDataAsync(this Exception source, HttpRequestData request)
@@ -113,13 +119,21 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
                             "VALIDATION_EXCEPTION",
                             ve.Message)).ConfigureAwait(false),
 
+                CosmosException { StatusCode: HttpStatusCode.TooManyRequests } =>
+                    await CreateHttpResponseData(
+                        request,
+                        HttpStatusCode.InternalServerError,
+                        new ErrorDescriptor(
+                            "INTERNAL_ERROR",
+                            "TMR")).ConfigureAwait(false),
+
                 _ =>
                     await CreateHttpResponseData(
                         request,
                         HttpStatusCode.InternalServerError,
                         new ErrorDescriptor(
                             "INTERNAL_ERROR",
-                            "An error occured while processing the request")).ConfigureAwait(false)
+                            "An error occured while processing the request.")).ConfigureAwait(false)
             };
         }
     }

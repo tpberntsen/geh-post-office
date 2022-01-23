@@ -804,7 +804,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
         private static async Task AddTimeSeriesNotificationAsync(string recipientGln)
         {
             var dataAvailableUuid = Guid.NewGuid();
-            var dataAvailableCommand = new DataAvailableNotificationCommand(
+            var dataAvailableCommand = new DataAvailableNotificationDto(
                 dataAvailableUuid.ToString(),
                 recipientGln,
                 "timeseries",
@@ -819,7 +819,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
         private static async Task AddAggregationsNotificationAsync(string recipientGln)
         {
             var dataAvailableUuid = Guid.NewGuid();
-            var dataAvailableCommand = new DataAvailableNotificationCommand(
+            var dataAvailableCommand = new DataAvailableNotificationDto(
                 dataAvailableUuid.ToString(),
                 recipientGln,
                 "aggregations",
@@ -834,7 +834,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
         private static async Task<Guid> AddMarketRolesNotificationAsync(string recipientGln)
         {
             var dataAvailableUuid = Guid.NewGuid();
-            var dataAvailableCommand = new DataAvailableNotificationCommand(
+            var dataAvailableCommand = new DataAvailableNotificationDto(
                 dataAvailableUuid.ToString(),
                 recipientGln,
                 "marketroles",
@@ -850,7 +850,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
         private static async Task<Guid> AddMeteringPointsNotificationAsync(string recipientGln)
         {
             var dataAvailableUuid = Guid.NewGuid();
-            var dataAvailableCommand = new DataAvailableNotificationCommand(
+            var dataAvailableCommand = new DataAvailableNotificationDto(
                 dataAvailableUuid.ToString(),
                 recipientGln,
                 "meteringpoints",
@@ -866,7 +866,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
         private static async Task<Guid> AddChargesNotificationAsync(string recipientGln)
         {
             var dataAvailableUuid = Guid.NewGuid();
-            var dataAvailableCommand = new DataAvailableNotificationCommand(
+            var dataAvailableCommand = new DataAvailableNotificationDto(
                 dataAvailableUuid.ToString(),
                 recipientGln,
                 "charges",
@@ -882,7 +882,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
         private static async Task<Guid> AddBundlingNotificationAsync(string recipientGln, string origin, bool supportsBundling)
         {
             var dataAvailableUuid = Guid.NewGuid();
-            var dataAvailableCommand = new DataAvailableNotificationCommand(
+            var dataAvailableCommand = new DataAvailableNotificationDto(
                 dataAvailableUuid.ToString(),
                 recipientGln,
                 "content_type",
@@ -895,7 +895,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             return dataAvailableUuid;
         }
 
-        private static async Task AddNotificationAsync(DataAvailableNotificationCommand dataAvailableCommand)
+        private static async Task AddNotificationAsync(DataAvailableNotificationDto dataAvailableDto)
         {
             await using var host = await SubDomainIntegrationTestHost
                 .InitializeAsync()
@@ -904,7 +904,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             await using var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
 
-            await mediator.Send(dataAvailableCommand).ConfigureAwait(false);
+            var command = new InsertDataAvailableNotificationsCommand(new[] { dataAvailableDto });
+            await mediator.Send(command).ConfigureAwait(false);
         }
     }
 }

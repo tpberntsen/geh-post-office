@@ -12,15 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Infrastructure;
-using Energinet.DataHub.PostOffice.Utilities;
-using MediatR;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
 {
@@ -28,39 +22,16 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
     {
         private const string FunctionName = "DequeueCleanUp";
 
-        private readonly IMediator _mediator;
-
-        public DequeueCleanUpFunction(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         [Function(FunctionName)]
-        public async Task RunAsync(
+        public Task RunAsync(
             [ServiceBusTrigger(
                 "%" + ServiceBusConfig.DequeueCleanUpQueueNameKey + "%",
                 Connection = "ServiceBusConnectionString")]
             string message,
             FunctionContext context)
         {
-            Guard.ThrowIfNull(message, nameof(message));
-
-            var logger = context.GetLogger<DequeueCleanUpFunction>();
-            logger.LogInformation($"C# ServiceBus queue trigger function processed message in {FunctionName}");
-
-            try
-            {
-                var command = JsonSerializer.Deserialize<DequeueCleanUpCommand>(message);
-                var operationResponse = await _mediator.Send(command!).ConfigureAwait(false);
-
-                if (!operationResponse.Completed)
-                    logger.LogError("Dequeue cleanup operation dit not complete successfully");
-            }
-            catch (Exception exception)
-            {
-                logger.LogError(exception, "Error in {FunctionName}, message: {message}", FunctionName, message);
-                throw;
-            }
+            // TODO: This function will become GC at some point.
+            return Task.CompletedTask;
         }
     }
 }

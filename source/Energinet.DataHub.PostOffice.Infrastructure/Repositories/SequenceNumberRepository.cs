@@ -12,23 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
-using Energinet.DataHub.PostOffice.Infrastructure.Common;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 using Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers;
+using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Azure.Cosmos;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
-    public class SequenceNumberRepository : ISequenceNumberRepository
+    public sealed class SequenceNumberRepository : ISequenceNumberRepository
     {
         private readonly IDataAvailableNotificationRepositoryContainer _repositoryContainer;
+        private SequenceNumber? _sequenceNumberInScope;
 
         public SequenceNumberRepository(IDataAvailableNotificationRepositoryContainer repositoryContainer)
         {
@@ -37,14 +35,21 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         public async Task<SequenceNumber> GetMaximumSequenceNumberAsync()
         {
+            if (_sequenceNumberInScope != null)
+            {
+                return _sequenceNumberInScope;
+            }
+
             try
             {
-                var response = await _repositoryContainer.Container.ReadItemAsync<CosmosSequenceNumber>(
-                        "1",
-                        new PartitionKey("SequenceNumber"))
+                var response = await _repositoryContainer
+                    .Catalog
+                    .ReadItemAsync<CosmosSequenceNumber>(
+                        CosmosSequenceNumber.CosmosSequenceNumberIdentifier,
+                        new PartitionKey(CosmosSequenceNumber.CosmosSequenceNumberPartitionKey))
                     .ConfigureAwait(false);
 
-                return new SequenceNumber(response.Resource.SequenceNumber);
+                return _sequenceNumberInScope = new SequenceNumber(response.Resource.SequenceNumber);
             }
             catch (CosmosException e) when (e.StatusCode == HttpStatusCode.NotFound)
             {
@@ -52,14 +57,15 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
-        public async Task AdvanceSequenceNumberAsync(SequenceNumber sequenceNumber)
+        public Task AdvanceSequenceNumberAsync(SequenceNumber sequenceNumber)
         {
-            if (sequenceNumber is null)
-                throw new ArgumentNullException(nameof(sequenceNumber));
+            Guard.ThrowIfNull(sequenceNumber, nameof(sequenceNumber));
 
-            var s = new CosmosSequenceNumber(sequenceNumber.Value);
+            _sequenceNumberInScope = sequenceNumber;
 
-            await _repositoryContainer.Container.UpsertItemAsync(s).ConfigureAwait(false);
+            return _repositoryContainer
+                .Catalog
+                .UpsertItemAsync(new CosmosSequenceNumber(sequenceNumber.Value));
         }
     }
 }

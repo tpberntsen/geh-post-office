@@ -21,32 +21,34 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
     {
         public CosmosBundleDocument()
         {
-            Id = string.Empty;
-            ProcessId = string.Empty;
-
-            Recipient = string.Empty;
-            Origin = string.Empty;
-            MessageType = string.Empty;
-
-            NotificationIds = new List<string>();
-            ContentPath = string.Empty;
-            NotificationsArchived = false;
-            Timestamp = null!;
+            Id = null!;
+            ProcessId = null!;
+            Recipient = null!;
+            Origin = null!;
+            ContentType = null!;
+            Dequeued = false;
+            NotificationIdsBase64 = null!;
+            AffectedDrawers = new List<CosmosCabinetDrawerChanges>();
+            ContentPath = null!;
         }
 
         public string Id { get; init; }
         public string ProcessId { get; init; }
-        public bool Dequeued { get; init; }
-
         public string Recipient { get; init; }
         public string Origin { get; init; }
-        public string MessageType { get; init; }
+        public string ContentType { get; init; }
 
-        public ICollection<string> NotificationIds { get; init; }
+        public bool Dequeued { get; init; }
+
+        // TODO: We are running out of space, so I have converted ids to Base64.
+        // We should be able to remove this property, since we have ids in Blob Storage anyway (cos ServiceBus also ran out of space).
+        public string NotificationIdsBase64 { get; init; }
+
+        public ICollection<CosmosCabinetDrawerChanges> AffectedDrawers { get; init; }
+
         public string ContentPath { get; init; }
-        public bool NotificationsArchived { get; init; }
 
         [JsonProperty(PropertyName = "_ts")]
-        public string Timestamp { get; init; }
+        public long Timestamp { get; init; }
     }
 }

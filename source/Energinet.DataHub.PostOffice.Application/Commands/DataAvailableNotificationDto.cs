@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MediatR;
-
 namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public record DataAvailableNotificationCommand : IRequest<DataAvailableNotificationResponse>
+    public sealed record DataAvailableNotificationDto
     {
-        public DataAvailableNotificationCommand(
+        public DataAvailableNotificationDto(
             string uuid,
             string recipient,
             string contentType,

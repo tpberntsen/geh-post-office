@@ -12,30 +12,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
-    public class UpdateMaximumSequenceNumberCommandHandler : AsyncRequestHandler<UpdateMaximumSequenceNumberCommand>
+    public sealed class MaximumSequenceNumberCommandHandler :
+        IRequestHandler<GetMaximumSequenceNumberCommand, long>,
+        IRequestHandler<UpdateMaximumSequenceNumberCommand>
     {
         private readonly ISequenceNumberRepository _sequenceNumberRepository;
 
-        public UpdateMaximumSequenceNumberCommandHandler(ISequenceNumberRepository dataAvailableNotificationRepository)
+        public MaximumSequenceNumberCommandHandler(ISequenceNumberRepository sequenceNumberRepository)
         {
-            _sequenceNumberRepository = dataAvailableNotificationRepository;
+            _sequenceNumberRepository = sequenceNumberRepository;
         }
 
-        protected override async Task Handle(UpdateMaximumSequenceNumberCommand request, CancellationToken cancellationToken)
+        public async Task<long> Handle(GetMaximumSequenceNumberCommand request, CancellationToken cancellationToken)
+        {
+            var number = await _sequenceNumberRepository
+                .GetMaximumSequenceNumberAsync()
+                .ConfigureAwait(false);
+
+            return number.Value;
+        }
+
+        public async Task<Unit> Handle(UpdateMaximumSequenceNumberCommand request, CancellationToken cancellationToken)
         {
             Guard.ThrowIfNull(request, nameof(request));
 
-            await _sequenceNumberRepository.AdvanceSequenceNumberAsync(request.SequenceNumber).ConfigureAwait(false);
+            await _sequenceNumberRepository
+                .AdvanceSequenceNumberAsync(new SequenceNumber(request.SequenceNumber))
+                .ConfigureAwait(false);
+
+            return Unit.Value;
         }
     }
 }

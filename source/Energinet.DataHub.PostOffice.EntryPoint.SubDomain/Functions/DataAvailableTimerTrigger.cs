@@ -14,97 +14,186 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Model.DataAvailable;
-using Energinet.DataHub.MessageHub.Model.Exceptions;
-using Energinet.DataHub.MessageHub.Model.Model;
-using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Application.Commands;
-using FluentValidation;
+using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
 {
-    public sealed class DataAvailableTimerTrigger
+    public class DataAvailableTimerTrigger
     {
         private const string FunctionName = nameof(DataAvailableTimerTrigger);
 
+        private readonly ILogger<DataAvailableTimerTrigger> _logger;
         private readonly IMediator _mediator;
         private readonly IDataAvailableMessageReceiver _messageReceiver;
         private readonly IDataAvailableNotificationParser _dataAvailableNotificationParser;
-        private readonly IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand> _dataAvailableNotificationMapper;
 
         public DataAvailableTimerTrigger(
+            ILogger<DataAvailableTimerTrigger> logger,
             IMediator mediator,
             IDataAvailableMessageReceiver messageReceiver,
-            IDataAvailableNotificationParser dataAvailableNotificationParser,
-            IMapper<DataAvailableNotificationDto, DataAvailableNotificationCommand> dataAvailableNotificationMapper)
+            IDataAvailableNotificationParser dataAvailableNotificationParser)
         {
+            _logger = logger;
             _mediator = mediator;
             _messageReceiver = messageReceiver;
             _dataAvailableNotificationParser = dataAvailableNotificationParser;
-            _dataAvailableNotificationMapper = dataAvailableNotificationMapper;
         }
 
         [Function(FunctionName)]
-        public async Task RunAsync([TimerTrigger("* */1 * * * *")] FunctionContext context)
+        public async Task RunAsync([TimerTrigger("*/20 * * * * *")] FunctionContext context)
         {
-            var logger = context.GetLogger<DataAvailableInbox>();
-            logger.LogInformation("Begins processing DataAvailableNotifications in timer.");
+            _logger.LogInformation("Begins processing DataAvailableTimerTrigger.");
 
-            var messages = await _messageReceiver.ReceiveAsync().ConfigureAwait(false);
-            logger.LogInformation("Received a DataAvailableNotification batch of size {0}.", messages.Count);
+            var messages = await _messageReceiver
+                .ReceiveAsync()
+                .ConfigureAwait(false);
 
-            if (messages.Count > 0)
-                await ProcessMessagesAsync(messages).ConfigureAwait(false);
+            _logger.LogInformation("Received a batch of size {0}.", messages.Count);
+
+            if (messages.Count == 0)
+                return;
+
+            var sw = Stopwatch.StartNew();
+
+            var internalSequenceNumber = await _mediator
+                .Send(new GetMaximumSequenceNumberCommand())
+                .ConfigureAwait(false);
+
+            var complete = new List<Message>();
+            var deadletter = new List<Message>();
+
+            await ProcessMessagesAsync(
+                messages,
+                internalSequenceNumber + 1,
+                complete,
+                deadletter).ConfigureAwait(false);
+
+            var newMaximumSequenceNumber = internalSequenceNumber + messages.Count;
+            await _mediator
+                .Send(new UpdateMaximumSequenceNumberCommand(newMaximumSequenceNumber))
+                .ConfigureAwait(false);
+
+            _logger.LogInformation("Ready to complete messages after {0} ms.", sw.ElapsedMilliseconds);
+
+            await _messageReceiver.CompleteAsync(complete).ConfigureAwait(false);
+            await _messageReceiver.DeadLetterAsync(deadletter).ConfigureAwait(false);
         }
 
-        private static bool ExceptionFilter(Exception exception)
+        protected virtual long GetSequenceNumber(Message message)
         {
-            return exception is MessageHubException or ValidationException or System.ComponentModel.DataAnnotations.ValidationException;
+            Guard.ThrowIfNull(message, nameof(message));
+            return message.SystemProperties.SequenceNumber;
         }
 
-        private async Task ProcessMessagesAsync(IEnumerable<Message> messages)
+        private async Task ProcessMessagesAsync(
+            IEnumerable<Message> messages,
+            long sequenceNumberOffset,
+            List<Message> complete,
+            List<Message> deadletter)
         {
-            var list = messages
-                .Select(m => new { Message = m, Task = ProcessMessageAsync(m) })
+            var notifications = messages
+                .Select((m, i) => TryParse(m, sequenceNumberOffset, i))
                 .ToList();
 
-            try
+            var commandTasks = notifications
+                .Where(x => x.CouldBeParsed)
+                .GroupBy(x => x.Value!.Recipient)
+                .Select(async grouping =>
+                {
+                    try
+                    {
+                        await ProcessGroupAsync(grouping.Key, grouping.Select(x => x.Value!)).ConfigureAwait(false);
+                        return new { grouping, deadletter = false };
+                    }
+#pragma warning disable CA1031 // Do not catch general exception types
+                    catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
+                    {
+                        _logger.LogWarning(
+                            "{0} will be deadletted ({1} messages).\nReason:\n{2}",
+                            grouping.Key,
+                            grouping.Count(),
+                            ex);
+
+                        return new { grouping, deadletter = true };
+                    }
+                });
+
+            foreach (var commandTask in commandTasks.ToList())
             {
-                await Task.WhenAll(list.Select(x => x.Task)).ConfigureAwait(false);
+                var result = await commandTask.ConfigureAwait(false);
+                if (result.deadletter)
+                {
+                    deadletter.AddRange(result.grouping.Select(x => x.Message));
+                }
+                else
+                {
+                    complete.AddRange(result.grouping.Select(x => x.Message));
+                }
             }
-            catch (Exception ex) when (ExceptionFilter(ex))
-            {
-                var allFaultedMessages = list
-                    .Where(x => !x.Task.IsCompletedSuccessfully)
-                    .Select(x => x.Message);
 
-                await _messageReceiver.DeadLetterAsync(allFaultedMessages).ConfigureAwait(false);
-            }
-
-            var allCompletedMessages = list
-                .Where(x => x.Task.IsCompletedSuccessfully)
-                .Select(x => x.Message);
-
-            await _messageReceiver.CompleteAsync(allCompletedMessages).ConfigureAwait(false);
+            deadletter.AddRange(notifications.Where(x => !x.CouldBeParsed).Select(x => x.Message));
         }
 
-        private Task ProcessMessageAsync(Message message)
+        private async Task ProcessGroupAsync(string key, IEnumerable<DataAvailableNotificationDto> group)
+        {
+            var items = group.ToList();
+            var retry = 0;
+
+            while (true)
+            {
+                try
+                {
+                    var request = new InsertDataAvailableNotificationsCommand(items);
+                    await _mediator.Send(request).ConfigureAwait(false);
+                    return;
+                }
+                catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests)
+                {
+                    if (++retry == 3)
+                    {
+                        throw;
+                    }
+
+                    _logger.LogWarning("{0} will be retried ({1} messages).\nReason:\nTMR", key, items.Count);
+                    await Task.Delay(1500).ConfigureAwait(false);
+                }
+            }
+        }
+
+        private (Message Message, bool CouldBeParsed, DataAvailableNotificationDto? Value) TryParse(
+            Message message,
+            long initialSequenceNumber,
+            long sequenceNumberOffset)
         {
             try
             {
-                var dataAvailableNotification = _dataAvailableNotificationParser.Parse(message.Body);
-                var dataAvailableCommand = _dataAvailableNotificationMapper.Map(dataAvailableNotification);
-                return _mediator.Send(dataAvailableCommand);
+                var parsedValue = _dataAvailableNotificationParser.Parse(message.Body);
+                return (message, true, new DataAvailableNotificationDto(
+                    parsedValue.Uuid.ToString(),
+                    parsedValue.Recipient.Value,
+                    parsedValue.MessageType.Value,
+                    parsedValue.Origin.ToString(),
+                    parsedValue.SupportsBundling,
+                    parsedValue.RelativeWeight,
+                    initialSequenceNumber + sequenceNumberOffset));
             }
-            catch (Exception ex) when (ExceptionFilter(ex))
+#pragma warning disable CA1031 // Do not catch general exception types
+            catch
+#pragma warning restore CA1031 // Do not catch general exception types
             {
-                return Task.FromException(ex);
+                return (message, false, null);
             }
         }
     }
