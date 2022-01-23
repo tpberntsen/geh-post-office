@@ -45,7 +45,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         }
 
         [Fact]
-        public async Task Handle_WithData_DataIsVerified()
+        public async Task Handle_WithNotifications_DataIsSaved()
         {
             // Arrangem
             var repository = new Mock<IDataAvailableNotificationRepository>();

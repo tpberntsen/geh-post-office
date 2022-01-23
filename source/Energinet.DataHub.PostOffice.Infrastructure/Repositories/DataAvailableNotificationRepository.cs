@@ -107,9 +107,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     .Take(Math.Min(itemsLeft, spaceLeft));
 
                 var itemsInserted = await FillCabinetDrawerAsync(nextDrawer, itemsToFill).ConfigureAwait(false);
-                nextDrawerItemCount += itemsInserted;
                 i += itemsInserted;
-
+                nextDrawerItemCount += itemsInserted;
                 nextDrawerItemCount++;
 
                 Debug.Assert(nextDrawerItemCount <= MaximumCabinetDrawerItemCount, "Too many items were inserted into a single drawer.");

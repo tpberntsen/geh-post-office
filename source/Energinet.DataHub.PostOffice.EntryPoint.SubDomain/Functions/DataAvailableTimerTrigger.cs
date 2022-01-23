@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Model.DataAvailable;
 using Energinet.DataHub.PostOffice.Application.Commands;
-using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
@@ -28,37 +31,79 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
 {
     public class DataAvailableTimerTrigger
     {
+        private const string FunctionName = nameof(DataAvailableTimerTrigger);
+
+        private readonly ILogger<DataAvailableTimerTrigger> _logger;
         private readonly IMediator _mediator;
         private readonly IDataAvailableMessageReceiver _messageReceiver;
         private readonly IDataAvailableNotificationParser _dataAvailableNotificationParser;
 
         public DataAvailableTimerTrigger(
+            ILogger<DataAvailableTimerTrigger> logger,
             IMediator mediator,
             IDataAvailableMessageReceiver messageReceiver,
             IDataAvailableNotificationParser dataAvailableNotificationParser)
         {
+            _logger = logger;
             _mediator = mediator;
             _messageReceiver = messageReceiver;
             _dataAvailableNotificationParser = dataAvailableNotificationParser;
         }
 
-        [Function(nameof(DataAvailableTimerTrigger))]
-        public async Task RunAsync([TimerTrigger("* */1 * * * *")] FunctionContext context)
+        [Function(FunctionName)]
+        public async Task RunAsync([TimerTrigger("*/20 * * * * *")] FunctionContext context)
         {
-            var logger = context.GetLogger<DataAvailableTimerTrigger>();
-            logger.LogInformation("Begins processing DataAvailableTimerTrigger.");
+            _logger.LogInformation("Begins processing DataAvailableTimerTrigger.");
 
             var messages = await _messageReceiver
                 .ReceiveAsync()
                 .ConfigureAwait(false);
 
-            logger.LogInformation("Received a DataAvailableNotification batch of size {0}.", messages.Count);
+            _logger.LogInformation("Received a batch of size {0}.", messages.Count);
 
-            if (messages.Count < 0)
+            if (messages.Count == 0)
                 return;
 
+            var sw = Stopwatch.StartNew();
+
+            var internalSequenceNumber = await _mediator
+                .Send(new GetMaximumSequenceNumberCommand())
+                .ConfigureAwait(false);
+
+            var complete = new List<Message>();
+            var deadletter = new List<Message>();
+
+            await ProcessMessagesAsync(
+                messages,
+                internalSequenceNumber + 1,
+                complete,
+                deadletter).ConfigureAwait(false);
+
+            var newMaximumSequenceNumber = internalSequenceNumber + messages.Count;
+            await _mediator
+                .Send(new UpdateMaximumSequenceNumberCommand(newMaximumSequenceNumber))
+                .ConfigureAwait(false);
+
+            _logger.LogInformation("Ready to complete messages after {0} ms.", sw.ElapsedMilliseconds);
+
+            await _messageReceiver.CompleteAsync(complete).ConfigureAwait(false);
+            await _messageReceiver.DeadLetterAsync(deadletter).ConfigureAwait(false);
+        }
+
+        protected virtual long GetSequenceNumber(Message message)
+        {
+            Guard.ThrowIfNull(message, nameof(message));
+            return message.SystemProperties.SequenceNumber;
+        }
+
+        private async Task ProcessMessagesAsync(
+            IEnumerable<Message> messages,
+            long sequenceNumberOffset,
+            List<Message> complete,
+            List<Message> deadletter)
+        {
             var notifications = messages
-                .Select(TryParse)
+                .Select((m, i) => TryParse(m, sequenceNumberOffset, i))
                 .ToList();
 
             var commandTasks = notifications
@@ -68,24 +113,24 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
                 {
                     try
                     {
-                        var items = grouping.Select(x => x.Value!);
-                        var request = new InsertDataAvailableNotificationsCommand(items);
-
-                        await _mediator.Send(request).ConfigureAwait(false);
+                        await ProcessGroupAsync(grouping.Key, grouping.Select(x => x.Value!)).ConfigureAwait(false);
                         return new { grouping, deadletter = false };
                     }
 #pragma warning disable CA1031 // Do not catch general exception types
-                    catch
+                    catch (Exception ex)
 #pragma warning restore CA1031 // Do not catch general exception types
                     {
+                        _logger.LogWarning(
+                            "{0} will be deadletted ({1} messages).\nReason:\n{2}",
+                            grouping.Key,
+                            grouping.Count(),
+                            ex);
+
                         return new { grouping, deadletter = true };
                     }
                 });
 
-            var complete = new List<Message>();
-            var deadletter = new List<Message>();
-
-            foreach (var commandTask in commandTasks)
+            foreach (var commandTask in commandTasks.ToList())
             {
                 var result = await commandTask.ConfigureAwait(false);
                 if (result.deadletter)
@@ -99,23 +144,38 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
             }
 
             deadletter.AddRange(notifications.Where(x => !x.CouldBeParsed).Select(x => x.Message));
-
-            await _messageReceiver.CompleteAsync(complete).ConfigureAwait(false);
-            await _messageReceiver.DeadLetterAsync(deadletter).ConfigureAwait(false);
-
-            var newMaximumSequenceNumber = messages.Max(GetSequenceNumber);
-            await _mediator
-                .Send(new UpdateMaximumSequenceNumberCommand(new SequenceNumber(newMaximumSequenceNumber)))
-                .ConfigureAwait(false);
         }
 
-        protected virtual long GetSequenceNumber(Message message)
+        private async Task ProcessGroupAsync(string key, IEnumerable<DataAvailableNotificationDto> group)
         {
-            Guard.ThrowIfNull(message, nameof(message));
-            return message.SystemProperties.SequenceNumber;
+            var items = group.ToList();
+            var retry = 0;
+
+            while (true)
+            {
+                try
+                {
+                    var request = new InsertDataAvailableNotificationsCommand(items);
+                    await _mediator.Send(request).ConfigureAwait(false);
+                    return;
+                }
+                catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests)
+                {
+                    if (++retry == 3)
+                    {
+                        throw;
+                    }
+
+                    _logger.LogWarning("{0} will be retried ({1} messages).\nReason:\nTMR", key, items.Count);
+                    await Task.Delay(1500).ConfigureAwait(false);
+                }
+            }
         }
 
-        private (Message Message, bool CouldBeParsed, DataAvailableNotificationDto? Value) TryParse(Message message)
+        private (Message Message, bool CouldBeParsed, DataAvailableNotificationDto? Value) TryParse(
+            Message message,
+            long initialSequenceNumber,
+            long sequenceNumberOffset)
         {
             try
             {
@@ -127,7 +187,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
                     parsedValue.Origin.ToString(),
                     parsedValue.SupportsBundling,
                     parsedValue.RelativeWeight,
-                    GetSequenceNumber(message)));
+                    initialSequenceNumber + sequenceNumberOffset));
             }
 #pragma warning disable CA1031 // Do not catch general exception types
             catch

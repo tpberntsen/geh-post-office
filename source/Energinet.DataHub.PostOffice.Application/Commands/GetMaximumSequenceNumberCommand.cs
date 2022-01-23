@@ -12,17 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Application.Commands;
-using FluentValidation;
+using MediatR;
 
-namespace Energinet.DataHub.PostOffice.Application.Validation
+namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public sealed class UpdateMaximumSequenceNumberCommandRuleSet : AbstractRuleSet<UpdateMaximumSequenceNumberCommand>
-    {
-        public UpdateMaximumSequenceNumberCommandRuleSet()
-        {
-            RuleFor(command => command.SequenceNumber)
-                .GreaterThan(0);
-        }
-    }
+    public sealed record GetMaximumSequenceNumberCommand : IRequest<long>;
 }

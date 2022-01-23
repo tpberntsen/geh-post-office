@@ -84,7 +84,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var reader = (AsyncCabinetReader)cabinetReader;
 
             var cosmosBundleDocument = BundleMapper.Map(bundle, reader.GetChanges());
-            var requestOptions = new ItemRequestOptions { PostTriggers = new[] { "EnsureSingleUnacknowledgedBundle" } };
+            var requestOptions = new ItemRequestOptions
+            {
+                PostTriggers = new[] { "EnsureSingleUnacknowledgedBundle" }
+            };
 
             try
             {

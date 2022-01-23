@@ -26,6 +26,7 @@ using Energinet.DataHub.PostOffice.Tests.Common;
 using Google.Protobuf;
 using MediatR;
 using Microsoft.Azure.ServiceBus;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using Xunit.Categories;
@@ -125,7 +126,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain
                     return 1;
 
                 if (m.Body == goodMessageB.Body)
-                    return 10;
+                    return 2;
 
                 return -1;
             };
@@ -136,7 +137,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain
             // Assert
             mediator.Verify(
                 x => x.Send(
-                    It.Is<UpdateMaximumSequenceNumberCommand>(c => c.SequenceNumber.Value == 10), default),
+                    It.Is<UpdateMaximumSequenceNumberCommand>(c => c.SequenceNumber == 2), default),
                 Times.Once);
         }
 
@@ -253,7 +254,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain
                 IMediator mediator,
                 IDataAvailableMessageReceiver messageReceiver,
                 IDataAvailableNotificationParser dataAvailableNotificationParser)
-                : base(mediator, messageReceiver, dataAvailableNotificationParser)
+                : base(
+                    new Mock<ILogger<DataAvailableTimerTrigger>>().Object,
+                    mediator,
+                    messageReceiver,
+                    dataAvailableNotificationParser)
             {
             }
 

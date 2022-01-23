@@ -15,19 +15,31 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
-    public sealed class UpdateMaximumSequenceNumberCommandHandler : IRequestHandler<UpdateMaximumSequenceNumberCommand>
+    public sealed class MaximumSequenceNumberCommandHandler :
+        IRequestHandler<GetMaximumSequenceNumberCommand, long>,
+        IRequestHandler<UpdateMaximumSequenceNumberCommand>
     {
         private readonly ISequenceNumberRepository _sequenceNumberRepository;
 
-        public UpdateMaximumSequenceNumberCommandHandler(ISequenceNumberRepository sequenceNumberRepository)
+        public MaximumSequenceNumberCommandHandler(ISequenceNumberRepository sequenceNumberRepository)
         {
             _sequenceNumberRepository = sequenceNumberRepository;
+        }
+
+        public async Task<long> Handle(GetMaximumSequenceNumberCommand request, CancellationToken cancellationToken)
+        {
+            var number = await _sequenceNumberRepository
+                .GetMaximumSequenceNumberAsync()
+                .ConfigureAwait(false);
+
+            return number.Value;
         }
 
         public async Task<Unit> Handle(UpdateMaximumSequenceNumberCommand request, CancellationToken cancellationToken)
@@ -35,7 +47,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             Guard.ThrowIfNull(request, nameof(request));
 
             await _sequenceNumberRepository
-                .AdvanceSequenceNumberAsync(request.SequenceNumber)
+                .AdvanceSequenceNumberAsync(new SequenceNumber(request.SequenceNumber))
                 .ConfigureAwait(false);
 
             return Unit.Value;

@@ -15,7 +15,6 @@
 using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
-using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
 using FluentValidation;
@@ -94,6 +93,26 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
         }
 
         [Fact]
+        public async Task GetMaximumSequenceNumberCommand_ValidCommand_ReturnsNumber()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var command = new GetMaximumSequenceNumberCommand();
+
+            // Act
+            var actual = await mediator.Send(command).ConfigureAwait(false);
+
+            // Assert
+            Assert.True(actual >= 0);
+        }
+
+        [Fact]
         public async Task UpdateMaximumSequenceNumberCommand_InvalidCommand_ThrowsException()
         {
             // Arrange
@@ -104,7 +123,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
             await using var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
 
-            var command = new UpdateMaximumSequenceNumberCommand(null!);
+            var command = new UpdateMaximumSequenceNumberCommand(-10);
 
             // Act + Assert
             await Assert
@@ -125,7 +144,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
             await using var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
 
-            var command = new UpdateMaximumSequenceNumberCommand(new SequenceNumber(sequenceNumber));
+            var command = new UpdateMaximumSequenceNumberCommand(sequenceNumber);
 
             // Act
             await mediator.Send(command).ConfigureAwait(false);

@@ -34,6 +34,7 @@ namespace Energinet.DataHub.PostOffice.Common
             container.Register<IValidator<PeekAggregationsCommand>, PeekAggregationsCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<DequeueCommand>, DequeueCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<InsertDataAvailableNotificationsCommand>, InsertDataAvailableNotificationsCommandRuleSet>(Lifestyle.Scoped);
+            container.Register<IValidator<GetMaximumSequenceNumberCommand>, GetMaximumSequenceNumberCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<UpdateMaximumSequenceNumberCommand>, UpdateMaximumSequenceNumberCommandRuleSet>(Lifestyle.Scoped);
 
             container.Register<IDataAvailableNotificationParser, DataAvailableNotificationParser>(Lifestyle.Singleton);

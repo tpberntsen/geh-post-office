@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Domain.Model;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public sealed record UpdateMaximumSequenceNumberCommand(SequenceNumber SequenceNumber) : IRequest;
+    public sealed record UpdateMaximumSequenceNumberCommand(long SequenceNumber) : IRequest;
 }

@@ -24,21 +24,39 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
     [UnitTest]
     public sealed class UpdateMaximumSequenceNumberCommandRuleSetTests
     {
-        [Fact]
-        public async Task Validate_NullSequenceNumber_ValidatesProperty()
+        [Theory]
+        [InlineData(0, false)]
+        [InlineData(-1, false)]
+        [InlineData(-10, false)]
+        [InlineData(int.MinValue, false)]
+        [InlineData(1, true)]
+        [InlineData(10, true)]
+        [InlineData(int.MaxValue, true)]
+        [InlineData(10000000000, true)]
+        [InlineData(100000000000, true)]
+        [InlineData(long.MaxValue, true)]
+        public async Task Validate_SequenceNumber_ValidatesProperty(long value, bool isValid)
         {
             // Arrange
             const string propertyName = nameof(UpdateMaximumSequenceNumberCommand.SequenceNumber);
 
             var target = new UpdateMaximumSequenceNumberCommandRuleSet();
-            var command = new UpdateMaximumSequenceNumberCommand(null!);
+            var command = new UpdateMaximumSequenceNumberCommand(value);
 
             // Act
             var result = await target.ValidateAsync(command).ConfigureAwait(false);
 
             // Assert
-            Assert.False(result.IsValid);
-            Assert.Contains(propertyName, result.Errors.Select(x => x.PropertyName));
+            if (isValid)
+            {
+                Assert.True(result.IsValid);
+                Assert.DoesNotContain(propertyName, result.Errors.Select(x => x.PropertyName));
+            }
+            else
+            {
+                Assert.False(result.IsValid);
+                Assert.Contains(propertyName, result.Errors.Select(x => x.PropertyName));
+            }
         }
     }
 }
