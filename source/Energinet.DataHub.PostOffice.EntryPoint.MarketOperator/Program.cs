@@ -36,6 +36,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
                     .ConfigureFunctionsWorkerDefaults(options =>
                     {
                         options.UseMiddleware<JwtTokenMiddleware>();
+                        options.UseMiddleware<ActorMiddleware>();
                         options.UseMiddleware<SimpleInjectorScopedRequest>();
                         options.UseMiddleware<CorrelationIdMiddleware>();
                         options.UseMiddleware<EntryPointTelemetryScopeMiddleware>();

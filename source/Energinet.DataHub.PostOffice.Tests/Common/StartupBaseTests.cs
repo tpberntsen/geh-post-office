@@ -15,6 +15,8 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
+using Energinet.DataHub.Core.FunctionApp.Common;
+using Energinet.DataHub.Core.FunctionApp.Common.Abstractions.Actor;
 using Energinet.DataHub.Core.Logging.RequestResponseMiddleware.Storage;
 using Energinet.DataHub.MessageHub.Core;
 using Energinet.DataHub.MessageHub.Core.Factories;
@@ -72,6 +74,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
         {
             Environment.SetEnvironmentVariable("B2C_TENANT_ID", "test-tenant-id");
             Environment.SetEnvironmentVariable("BACKEND_SERVICE_APP_ID", "test-backend-service-id");
+            Environment.SetEnvironmentVariable("SQL_ACTOR_DB_CONNECTION_STRING", "SQL_ACTOR_DB_CONNECTION_STRING");
             return new ConfigurationBuilder().AddEnvironmentVariables().Build();
         }
 
@@ -99,6 +102,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
                 container.RegisterSingleton<IServiceBusClientFactory>(() => new MockedServiceBusClientFactory(new MockedServiceBusClient()));
                 container.RegisterSingleton<IStorageServiceClientFactory>(() => new MockedStorageServiceClientFactory());
                 container.RegisterSingleton<IRequestResponseLogging>(() => new RequestResponseLoggingBlobStorage("fake_value", "fake_value", logStorageLogger));
+                container.RegisterSingleton<IActorContext>(() => new ActorContext());
             }
         }
     }

@@ -44,6 +44,7 @@ module "func_marketoperator" {
     RequestResponseLogContainerName           = data.azurerm_key_vault_secret.st_market_operator_logs_container_name.value
     B2C_TENANT_ID                             = data.azurerm_key_vault_secret.b2c_tenant_id.value
     BACKEND_SERVICE_APP_ID                    = data.azurerm_key_vault_secret.backend_service_app_id.value
+    SQL_ACTOR_DB_CONNECTION_STRING            = local.sql_actor_db_connection_string
   }
   
   tags                                      = azurerm_resource_group.this.tags
