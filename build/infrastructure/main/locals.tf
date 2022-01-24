@@ -13,5 +13,5 @@
 # limitations under the License.
 locals {
   message_db_connection_string    = "AccountEndpoint=${azurerm_cosmosdb_account.post_office.endpoint}/;AccountKey=${azurerm_cosmosdb_account.post_office.primary_key};"
-  sql_actor_db_connection_string  = "Server=tcp:${data.azurerm_key_vault_secret.sql_data_url.value},1433;Initial Catalog=${data.azurerm_key_vault_secret.sql_actor_register_database_name.value};Persist Security Info=False;User ID=${data.azurerm_key_vault_secret.sql_data_admin_user_name.value};Password=${data.azurerm_key_vault_secret.sql_data_admin_password.value};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+  sql_actor_db_connection_string  = "Server=tcp:${azurerm_key_vault_secret.sql_data_url.value},1433;Initial Catalog=${azurerm_key_vault_secret.sql_actor_register_database_name.value};Persist Security Info=False;User ID=${azurerm_key_vault_secret.sql_data_admin_user_name.value};Password=${azurerm_key_vault_secret.sql_data_admin_password.value};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 }
