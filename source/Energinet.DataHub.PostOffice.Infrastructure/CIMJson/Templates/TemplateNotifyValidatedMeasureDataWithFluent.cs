@@ -38,6 +38,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.Templates
                         .WithValueWrappedInProperty())
                     .AddString(builder => builder
                         .WithName(ElementNames.BusinessSectorType)
+                        .IsOptional()
                         .WithValueWrappedInProperty())
                     .AddString(builder => builder
                         .WithName(ElementNames.SenderMarketParticipantmRid)
@@ -61,26 +62,41 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.Templates
                         .WithName(ElementNames.CreatedDateTime))
                     .AddArray(abuilder => abuilder
                         .WithName(ElementNames.Series)
+                        .IsOptional()
                         .AddString(s => s
                             .WithName(ElementNames.MRid))
                         .AddString(s => s
-                            .WithName(ElementNames.OriginalTransactionIdReferenceSeriesmRid))
+                            .WithName(ElementNames.OriginalTransactionIdReferenceSeriesmRid)
+                            .IsOptional())
                         .AddString(s => s
-                            .WithName(ElementNames.RegistrationDateAndOrTimedateTime))
+                            .WithName(ElementNames.MarketEvaluationPointmRid)
+                            .WithAttributes(a => a
+                                .AddString(ab => ab
+                                    .WithName(ElementNames.CodingScheme)))
+                            .WithValueWrappedInProperty())
+                        .AddString(s => s
+                            .WithName(ElementNames.MarketEvaluationPointtype)
+                            .WithValueWrappedInProperty())
+                        .AddString(s => s
+                            .WithName(ElementNames.RegistrationDateAndOrTimedateTime)
+                            .IsOptional())
                         .AddString(s => s
                             .WithName(ElementNames.InDomainmRid)
+                            .IsOptional()
                             .WithAttributes(a => a
                                 .AddString(ab => ab
                                     .WithName(ElementNames.CodingScheme)))
                             .WithValueWrappedInProperty())
                         .AddString(s => s
                             .WithName(ElementNames.OutDomainmRid)
+                            .IsOptional()
                             .WithAttributes(a => a
                                 .AddString(ab => ab
                                     .WithName(ElementNames.CodingScheme)))
                             .WithValueWrappedInProperty())
                         .AddString(s => s
-                            .WithName(ElementNames.Product))
+                            .WithName(ElementNames.Product)
+                            .IsOptional())
                         .AddString(s => s
                             .WithName(ElementNames.MeasureUnitname)
                             .WithValueWrappedInProperty())
@@ -102,19 +118,12 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.Templates
                                     .WithName(ElementNames.Position)
                                     .WithValueWrappedInProperty())
                                 .AddInteger(s2 => s2
-                                    .WithName(ElementNames.Quantity))
+                                    .WithName(ElementNames.Quantity)
+                                    .IsOptional())
                                 .AddString(s2 => s2
                                     .WithName(ElementNames.Quality)
-                                    .WithValueWrappedInProperty())))
-                        .AddString(s => s
-                            .WithName(ElementNames.MarketEvaluationPointmRid)
-                            .WithAttributes(a => a
-                                .AddString(ab => ab
-                                    .WithName(ElementNames.CodingScheme)))
-                            .WithValueWrappedInProperty())
-                        .AddString(s => s
-                            .WithName(ElementNames.MarketEvaluationPointtype)
-                            .WithValueWrappedInProperty()))
+                                    .WithValueWrappedInProperty()
+                                    .IsOptional()))))
                     .AddString(s => s
                         .WithName("jjtest")),
                     reader)

@@ -24,10 +24,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Fact
         private static readonly ObjectPool<CimJsonString> _stringElementsPool = new DefaultObjectPool<CimJsonString>(new DefaultPooledObjectPolicy<CimJsonString>());
         private static readonly ObjectPool<CimJsonInteger> _integerElementsPool = new DefaultObjectPool<CimJsonInteger>(new DefaultPooledObjectPolicy<CimJsonInteger>());
 
-        public static CimJsonString CreateString(string name, bool requiresValueProperty, List<ICimJsonAttributeDescriptor> attributeDescriptors)
+        public static CimJsonString CreateString(string name, bool requiresValueProperty, bool isOptional, List<ICimJsonAttributeDescriptor> attributeDescriptors)
         {
             var pooledElement = _stringElementsPool.Get();
             pooledElement.Name = name;
+            pooledElement.IsOptional = isOptional;
             pooledElement.Attributes.Clear();
             pooledElement.AttributeDescriptors = attributeDescriptors;
             pooledElement.RequiresValueProperty = requiresValueProperty;
@@ -39,10 +40,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Fact
             _stringElementsPool.Return(element);
         }
 
-        public static CimJsonInteger CreateInteger(string name, bool requiresValueProperty, List<ICimJsonAttributeDescriptor> attributeDescriptors)
+        public static CimJsonInteger CreateInteger(string name, bool requiresValueProperty, bool isOptional, List<ICimJsonAttributeDescriptor> attributeDescriptors)
         {
             var pooledElement = _integerElementsPool.Get();
             pooledElement.Name = name;
+            pooledElement.IsOptional = isOptional;
             pooledElement.Attributes.Clear();
             pooledElement.AttributeDescriptors = attributeDescriptors;
             pooledElement.RequiresValueProperty = requiresValueProperty;

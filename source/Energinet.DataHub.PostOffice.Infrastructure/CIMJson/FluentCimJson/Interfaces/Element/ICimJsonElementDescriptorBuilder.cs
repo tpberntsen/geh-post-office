@@ -35,5 +35,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Inte
         /// <param name="configure"></param>
         /// <returns>An Element descriptor describing the attributes fot this element</returns>
         ICimJsonElementDescriptorBuilder WithAttributes(Action<ICimJsonAttributeDescriptorBuilder> configure);
+
+        /// <summary>
+        /// Marks the array as optional
+        /// </summary>
+        ICimJsonElementDescriptorBuilder IsOptional();
     }
 }

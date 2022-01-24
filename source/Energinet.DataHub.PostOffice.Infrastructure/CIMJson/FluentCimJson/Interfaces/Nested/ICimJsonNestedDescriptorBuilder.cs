@@ -12,18 +12,18 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
-namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Interfaces.Array
+using Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Interfaces.General;
+
+namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Interfaces.Nested
 {
     /// <summary>
-    /// Ensures that elements added to an array all have a name
+    /// Interface used to ensure that a name is selected for the elements in the builder
     /// </summary>
-    internal interface ICimJsonArrayDescriptorBuilderSelectName
+    internal interface ICimJsonNestedDescriptorBuilder : ICimJsonConfigureElementDescriptor
     {
         /// <summary>
-        /// Method to name an element
+        /// Marks the array as optional
         /// </summary>
-        /// <param name="name"></param>
-        /// <returns>The element builder currently being configured</returns>
-        ICimJsonArrayElementDescriptorBuilder WithName(string name);
+        ICimJsonNestedDescriptorBuilder IsOptional();
     }
 }

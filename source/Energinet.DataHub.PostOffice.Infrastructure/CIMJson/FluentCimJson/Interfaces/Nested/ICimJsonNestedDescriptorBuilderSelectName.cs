@@ -12,8 +12,6 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Interfaces.General;
-
 namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Interfaces.Nested
 {
     /// <summary>
@@ -26,6 +24,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Inte
         /// </summary>
         /// <param name="name"></param>
         /// <returns>The builder that is currently being configured</returns>
-        ICimJsonAddElementDescriptors WithName(string name);
+        ICimJsonNestedDescriptorBuilder WithName(string name);
     }
 }

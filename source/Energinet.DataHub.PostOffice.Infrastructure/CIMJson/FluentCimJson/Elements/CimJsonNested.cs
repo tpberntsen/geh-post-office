@@ -24,31 +24,42 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Elem
     {
         private readonly List<ICimJsonElement> _elements;
         private readonly List<ICimJsonElementDescriptor> _elementsDescriptors;
-
+        private bool _nestedElementFound;
         public CimJsonNested(
             string name,
+            bool isOptional,
             List<ICimJsonElementDescriptor> elementsDescriptors)
         {
             _elements = new List<ICimJsonElement>(elementsDescriptors.Count);
             _elementsDescriptors = elementsDescriptors;
             Name = name;
+            IsOptional = isOptional;
+            _nestedElementFound = true;
         }
 
         public string Name { get; }
+        public bool IsOptional { get; }
         public void ReadData(XmlReader reader)
         {
-            ReadToElement(reader, Name);
-            foreach (var elementDescriptor in _elementsDescriptors)
+            if (ReadToElement(reader, Name, IsOptional))
             {
-                var element = elementDescriptor.CreateElement();
-                ReadToElement(reader, element.Name);
-                element.ReadData(reader);
-                _elements.Add(element);
+                foreach (var elementDescriptor in _elementsDescriptors)
+                {
+                    var element = elementDescriptor.CreateElement();
+                    if (!ReadToElement(reader, element.Name, element.IsOptional)) continue;
+                    element.ReadData(reader);
+                    _elements.Add(element);
+                }
+            }
+            else
+            {
+                _nestedElementFound = false;
             }
         }
 
         public void WriteJson(Utf8JsonWriter writer)
         {
+            if (!_nestedElementFound) return;
             writer.WriteStartObject(Name);
             _elements.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase));
             foreach (var element in _elements)
@@ -69,20 +80,25 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Elem
             }
         }
 
-        private static void ReadToElement(XmlReader reader, string elementName)
+        private static bool ReadToElement(XmlReader reader, string elementName, bool isOptional)
         {
             if (reader.IsStartElement() && reader.LocalName == elementName)
             {
-                return;
+                return true;
             }
 
             while (reader.Read())
             {
-                if (reader.NodeType == XmlNodeType.Element && reader.LocalName == elementName)
+                switch (reader.NodeType)
                 {
-                    return;
+                    case XmlNodeType.Element when reader.LocalName == elementName:
+                        return true;
+                    case XmlNodeType.Element when isOptional && reader.LocalName != elementName:
+                        return false;
                 }
             }
+
+            return false;
         }
     }
 }

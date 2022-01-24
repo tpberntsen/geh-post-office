@@ -32,6 +32,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Elem
         }
 
         public string Name { get; set; }
+        public bool IsOptional { get; set; }
         public bool RequiresValueProperty { get; set; }
         public List<ICimJsonAttributeFromXml> Attributes { get; }
         public List<ICimJsonAttributeDescriptor> AttributeDescriptors { get; set; }

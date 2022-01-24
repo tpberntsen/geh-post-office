@@ -25,7 +25,7 @@ using Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Interfac
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Builders.General
 {
-    internal class CimJsonElementDescriptorBuilder : ICimJsonAddElementDescriptors
+    internal class CimJsonElementDescriptorBuilder : ICimJsonConfigureElementDescriptor
     {
         private readonly List<ICimJsonElementDescriptor> _elementDescriptors;
 
@@ -34,7 +34,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
             _elementDescriptors = new List<ICimJsonElementDescriptor>();
         }
 
-        public ICimJsonAddElementDescriptors AddString(Action<ICimJsonElementDescriptorSelectNameBuilder> configure)
+        public ICimJsonConfigureElementDescriptor AddString(Action<ICimJsonElementDescriptorSelectNameBuilder> configure)
         {
             var builder = new CimJsonStringElementDescriptorBuilder();
             configure(builder);
@@ -43,7 +43,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
             return this;
         }
 
-        public ICimJsonAddElementDescriptors AddInteger(Action<ICimJsonElementDescriptorSelectNameBuilder> configure)
+        public ICimJsonConfigureElementDescriptor AddInteger(Action<ICimJsonElementDescriptorSelectNameBuilder> configure)
         {
             var builder = new CimJsonIntegerElementDescriptorBuilder();
             configure(builder);
@@ -52,7 +52,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
             return this;
         }
 
-        public ICimJsonAddElementDescriptors AddArray(Action<ICimJsonArrayDescriptorBuilderSelectName> configure)
+        public ICimJsonConfigureElementDescriptor AddArray(Action<ICimJsonArrayDescriptorBuilderSelectName> configure)
         {
             var builder = new CimJsonArrayElementDescriptorBuilder();
             configure(builder);
@@ -61,7 +61,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
             return this;
         }
 
-        public ICimJsonAddElementDescriptors AddNested(Action<ICimJsonNestedDescriptorBuilderSelectName> configure)
+        public ICimJsonConfigureElementDescriptor AddNested(Action<ICimJsonNestedDescriptorBuilderSelectName> configure)
         {
             var builder = new CimJsonNestedDescriptorBuilder();
             configure(builder);

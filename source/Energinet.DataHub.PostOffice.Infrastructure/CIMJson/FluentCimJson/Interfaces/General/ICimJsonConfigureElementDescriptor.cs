@@ -22,34 +22,34 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Inte
     /// <summary>
     /// Interface used to describe the possible elements that can be added from an XML and converted to JSON
     /// </summary>
-    internal interface ICimJsonAddElementDescriptors
+    internal interface ICimJsonConfigureElementDescriptor
     {
         /// <summary>
         /// Adds an string element to the JSON file
         /// </summary>
         /// <param name="configure"></param>
         /// <returns>The builder that is currently being configured</returns>
-        ICimJsonAddElementDescriptors AddString(Action<ICimJsonElementDescriptorSelectNameBuilder> configure);
+        ICimJsonConfigureElementDescriptor AddString(Action<ICimJsonElementDescriptorSelectNameBuilder> configure);
 
         /// <summary>
         /// Adds an Integer element to the JSON file
         /// </summary>
         /// <param name="configure"></param>
         /// <returns>The builder that is currently being configured</returns>
-        ICimJsonAddElementDescriptors AddInteger(Action<ICimJsonElementDescriptorSelectNameBuilder> configure);
+        ICimJsonConfigureElementDescriptor AddInteger(Action<ICimJsonElementDescriptorSelectNameBuilder> configure);
 
         /// <summary>
         /// Adds an array to the JSON file
         /// </summary>
         /// <param name="configure"></param>
         /// <returns>The builder that is currently being configured</returns>
-        ICimJsonAddElementDescriptors AddArray(Action<ICimJsonArrayDescriptorBuilderSelectName> configure);
+        ICimJsonConfigureElementDescriptor AddArray(Action<ICimJsonArrayDescriptorBuilderSelectName> configure);
 
         /// <summary>
         /// Adds an object to the JSON file, usually used to handle nested XML elements
         /// </summary>
         /// <param name="configure"></param>
         /// <returns>The builder that is currently being configured</returns>
-        ICimJsonAddElementDescriptors AddNested(Action<ICimJsonNestedDescriptorBuilderSelectName> configure);
+        ICimJsonConfigureElementDescriptor AddNested(Action<ICimJsonNestedDescriptorBuilderSelectName> configure);
     }
 }

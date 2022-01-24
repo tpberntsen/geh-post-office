@@ -31,10 +31,12 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
         private readonly List<ICimJsonAttributeDescriptor> _attributes;
         private bool _wrapValueInProperty;
         private string _name;
+        private bool _isOptional;
 
         public CimJsonStringElementDescriptorBuilder()
         {
             _name = string.Empty;
+            _isOptional = false;
             _wrapValueInProperty = false;
             _attributes = new List<ICimJsonAttributeDescriptor>();
         }
@@ -53,9 +55,15 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
             return this;
         }
 
+        public ICimJsonElementDescriptorBuilder IsOptional()
+        {
+            _isOptional = true;
+            return this;
+        }
+
         public ICimJsonElement CreateElement()
         {
-            return CimJsonElementFactory.CreateString(_name, _wrapValueInProperty, _attributes);
+            return CimJsonElementFactory.CreateString(_name, _wrapValueInProperty, _isOptional, _attributes);
         }
 
         public ICimJsonElementDescriptorBuilder WithName(string name)

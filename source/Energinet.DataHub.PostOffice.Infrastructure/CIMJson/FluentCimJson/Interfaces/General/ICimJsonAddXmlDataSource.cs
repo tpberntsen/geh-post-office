@@ -30,7 +30,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Inte
         /// <param name="reader"></param>
         /// <returns>The CimJsonBuilder that can be used to construct the template for conversion</returns>
         CimJsonBuilder WithXmlReader(
-            Action<ICimJsonAddElementDescriptors> configure,
+            Action<ICimJsonConfigureElementDescriptor> configure,
             XmlReader reader);
     }
 }

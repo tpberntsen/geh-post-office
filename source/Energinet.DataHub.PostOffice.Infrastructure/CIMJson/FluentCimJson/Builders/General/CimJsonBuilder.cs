@@ -33,7 +33,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
 
         public static ICimJsonAddXmlDataSource Create() => new CimJsonBuilder();
 
-        public CimJsonBuilder WithXmlReader(Action<ICimJsonAddElementDescriptors> configure, XmlReader reader)
+        public CimJsonBuilder WithXmlReader(Action<ICimJsonConfigureElementDescriptor> configure, XmlReader reader)
         {
             var builder = new CimJsonElementDescriptorBuilder();
             configure(builder);
@@ -50,9 +50,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
                 foreach (var elementDescriptor in _elementDescriptors)
                 {
                     var element = elementDescriptor.CreateElement();
-                    ReadToElement(element.Name);
-                    element.ReadData(_xmlReader);
-                    elementsToWrite.Add(element);
+                    if (ReadToElement(element.Name, element.IsOptional))
+                    {
+                        element.ReadData(_xmlReader);
+                        elementsToWrite.Add(element);
+                    }
                 }
 
                 elementsToWrite.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase));
@@ -69,21 +71,26 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
             }
         }
 
-        private void ReadToElement(string name)
+        private bool ReadToElement(string name, bool isOptional)
         {
-            if (_xmlReader is null) return;
+            if (_xmlReader is null) return false;
             if (_xmlReader.IsStartElement() && _xmlReader.LocalName == name)
             {
-                return;
+                return true;
             }
 
             while (_xmlReader.Read())
             {
-                if (_xmlReader.NodeType == XmlNodeType.Element && _xmlReader.LocalName == name)
+                switch (_xmlReader.NodeType)
                 {
-                    return;
+                    case XmlNodeType.Element when _xmlReader.LocalName == name:
+                        return true;
+                    case XmlNodeType.Element when isOptional && _xmlReader.LocalName != name:
+                        return false;
                 }
             }
+
+            return false;
         }
     }
 }

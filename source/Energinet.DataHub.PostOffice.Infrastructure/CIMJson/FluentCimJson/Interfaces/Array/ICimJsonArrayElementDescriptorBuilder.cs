@@ -21,34 +21,39 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Inte
     /// <summary>
     /// Interface to handle adding elements to a JSON array
     /// </summary>
-    internal interface ICimJsonAddElementTypeFromWithinArray
+    internal interface ICimJsonArrayElementDescriptorBuilder
     {
         /// <summary>
         /// Adds an string element to the Array
         /// </summary>
         /// <param name="configure"></param>
         /// <returns>The array builder currently being configured</returns>
-        ICimJsonAddElementTypeFromWithinArray AddString(Action<ICimJsonElementDescriptorSelectNameBuilder> configure);
+        ICimJsonArrayElementDescriptorBuilder AddString(Action<ICimJsonElementDescriptorSelectNameBuilder> configure);
 
         /// <summary>
         /// Adds an integer element to the Array
         /// </summary>
         /// <param name="configure"></param>
         /// <returns>The array builder currently being configured</returns>
-        ICimJsonAddElementTypeFromWithinArray AddInteger(Action<ICimJsonElementDescriptorSelectNameBuilder> configure);
+        ICimJsonArrayElementDescriptorBuilder AddInteger(Action<ICimJsonElementDescriptorSelectNameBuilder> configure);
 
         /// <summary>
         /// Adds a nested array to the current array
         /// </summary>
         /// <param name="configure"></param>
         /// <returns>The array builder currently being configured</returns>
-        ICimJsonAddElementTypeFromWithinArray AddArray(Action<ICimJsonArrayDescriptorBuilderSelectName> configure);
+        ICimJsonArrayElementDescriptorBuilder AddArray(Action<ICimJsonArrayDescriptorBuilderSelectName> configure);
 
         /// <summary>
         /// Ads an JSON object to the current array
         /// </summary>
         /// <param name="configure"></param>
         /// <returns>The array builder currently being configured</returns>
-        ICimJsonAddElementTypeFromWithinArray AddNested(Action<ICimJsonNestedDescriptorBuilderSelectName> configure);
+        ICimJsonArrayElementDescriptorBuilder AddNested(Action<ICimJsonNestedDescriptorBuilderSelectName> configure);
+
+        /// <summary>
+        /// Marks the array as optional
+        /// </summary>
+        ICimJsonArrayElementDescriptorBuilder IsOptional();
     }
 }

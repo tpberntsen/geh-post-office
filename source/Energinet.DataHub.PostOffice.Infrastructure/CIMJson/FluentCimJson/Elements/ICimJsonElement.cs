@@ -28,6 +28,12 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Elem
         public string Name { get; }
 
         /// <summary>
+        /// Is this element Optional
+        /// if it is, the parser will only try reading until the next starting element, and check if that is a match
+        /// </summary>
+        public bool IsOptional { get; }
+
+        /// <summary>
         /// Read data of the XML Reader
         /// </summary>
         /// <param name="reader"></param>

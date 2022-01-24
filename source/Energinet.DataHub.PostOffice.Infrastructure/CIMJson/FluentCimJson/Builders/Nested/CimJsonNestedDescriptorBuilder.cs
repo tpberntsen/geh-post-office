@@ -26,12 +26,13 @@ using Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Interfac
 namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Builders.Nested
 {
     internal class CimJsonNestedDescriptorBuilder :
-        ICimJsonAddElementDescriptors,
+        ICimJsonNestedDescriptorBuilder,
         ICimJsonNestedDescriptorBuilderSelectName,
         ICimJsonElementDescriptor
     {
         private readonly List<ICimJsonElementDescriptor> _elements;
         private string _name;
+        private bool _isOptional;
 
         public CimJsonNestedDescriptorBuilder()
         {
@@ -44,7 +45,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
             return this;
         }
 
-        public ICimJsonAddElementDescriptors AddString(Action<ICimJsonElementDescriptorSelectNameBuilder> configure)
+        public ICimJsonConfigureElementDescriptor AddString(Action<ICimJsonElementDescriptorSelectNameBuilder> configure)
         {
             var builder = new CimJsonStringElementDescriptorBuilder();
             configure(builder);
@@ -53,7 +54,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
             return this;
         }
 
-        public ICimJsonAddElementDescriptors AddInteger(Action<ICimJsonElementDescriptorSelectNameBuilder> configure)
+        public ICimJsonConfigureElementDescriptor AddInteger(Action<ICimJsonElementDescriptorSelectNameBuilder> configure)
         {
             var builder = new CimJsonIntegerElementDescriptorBuilder();
             configure(builder);
@@ -62,7 +63,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
             return this;
         }
 
-        public ICimJsonAddElementDescriptors AddArray(Action<ICimJsonArrayDescriptorBuilderSelectName> configure)
+        public ICimJsonConfigureElementDescriptor AddArray(Action<ICimJsonArrayDescriptorBuilderSelectName> configure)
         {
             var builder = new CimJsonArrayElementDescriptorBuilder();
             configure(builder);
@@ -71,7 +72,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
             return this;
         }
 
-        public ICimJsonAddElementDescriptors AddNested(Action<ICimJsonNestedDescriptorBuilderSelectName> configure)
+        public ICimJsonConfigureElementDescriptor AddNested(Action<ICimJsonNestedDescriptorBuilderSelectName> configure)
         {
             var builder = new CimJsonNestedDescriptorBuilder();
             configure(builder);
@@ -80,7 +81,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
             return this;
         }
 
-        public ICimJsonAddElementDescriptors WithName(string name)
+        public ICimJsonNestedDescriptorBuilder WithName(string name)
         {
             _name = name;
             return this;
@@ -88,7 +89,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
 
         public ICimJsonElement CreateElement()
         {
-            return new CimJsonNested(_name, _elements);
+            return new CimJsonNested(_name, _isOptional, _elements);
+        }
+
+        public ICimJsonNestedDescriptorBuilder IsOptional()
+        {
+            _isOptional = true;
+            return this;
         }
     }
 }
