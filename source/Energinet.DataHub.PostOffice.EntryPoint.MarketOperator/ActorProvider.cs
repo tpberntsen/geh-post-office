@@ -15,6 +15,7 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Threading.Tasks;
 using Energinet.DataHub.Core.FunctionApp.Common.Abstractions.Actor;
 
@@ -55,7 +56,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
 
                 return new Actor(
                     record.GetGuid(0),
-                    record.GetInt32(1).ToString(),
+                    record.GetInt32(1).ToString(CultureInfo.InvariantCulture),
                     record.GetString(2),
                     record.GetString(3));
             }

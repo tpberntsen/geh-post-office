@@ -19,19 +19,21 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
     /// <summary>
     /// Provides access to the CosmosDB container to use with DataAvailableNotificationRepository.
     /// </summary>
-    /// <returns>Bundle</returns>
     public interface IDataAvailableNotificationRepositoryContainer
     {
         /// <summary>
-        /// The CosmosDB container to use with DataAvailableNotificationRepository.
+        /// The CosmosDB cabinet container to use with DataAvailableNotificationRepository.
         /// </summary>
-        /// <returns>Bundle</returns>
-        public Container Container { get; }
+        public Container Cabinet { get; }
 
         /// <summary>
-        /// The CosmosDB container to use with DataAvailableNotification Archive Repository.
+        /// The CosmosDB catalog container to use with DataAvailableNotificationRepository.
         /// </summary>
-        /// <returns>Bundle</returns>
-        public Container ArchiveContainer { get; }
+        public Container Catalog { get; }
+
+        /// <summary>
+        /// The CosmosDB idempotency container to use with DataAvailableNotificationRepository.
+        /// </summary>
+        public Container Idempotency { get; }
     }
 }

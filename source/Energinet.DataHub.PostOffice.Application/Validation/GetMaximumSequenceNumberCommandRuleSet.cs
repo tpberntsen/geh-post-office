@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Domain.Model;
-using MediatR;
+using Energinet.DataHub.PostOffice.Application.Commands;
 
-namespace Energinet.DataHub.PostOffice.Application.Commands
+namespace Energinet.DataHub.PostOffice.Application.Validation
 {
-    public sealed record DequeueCleanUpCommand(string BundleId, string MarketOperator) : IRequest<OperationResponse>;
+    public sealed class GetMaximumSequenceNumberCommandRuleSet : AbstractRuleSet<GetMaximumSequenceNumberCommand>
+    {
+    }
 }

@@ -12,20 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
-using Energinet.DataHub.PostOffice.Domain.Model;
+using MediatR;
 
-namespace Energinet.DataHub.PostOffice.Domain.Services
+namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    /// <summary>
-    /// Abstraction for operation services
-    /// </summary>
-    public interface IDequeueCleanUpSchedulingService
-    {
-        /// <summary>
-        /// Triggers DequeueCleanUp operation
-        /// </summary>
-        /// <param name="bundle"></param>
-        Task TriggerDequeueCleanUpOperationAsync(Bundle bundle);
-    }
+    public sealed record GetMaximumSequenceNumberCommand : IRequest<long>;
 }

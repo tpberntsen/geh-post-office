@@ -24,7 +24,6 @@ namespace Energinet.DataHub.PostOffice.Common
         {
             container.Register<IBundleContentRequestService, BundleContentRequestService>(Lifestyle.Scoped);
             container.Register<IMarketOperatorDataStorageService, MarketOperatorDataStorageService>(Lifestyle.Scoped);
-            container.Register<IDequeueCleanUpSchedulingService, DequeueCleanUpSchedulingService>(Lifestyle.Scoped);
         }
     }
 }

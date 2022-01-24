@@ -34,7 +34,7 @@ limitations under the License.
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.5.0" />
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.5.1" />
     <PackageReference Include="Energinet.DataHub.Core.FunctionApp.Common" Version="1.0.3" />
     <PackageReference Include="Energinet.DataHub.Core.FunctionApp.Common.Abstractions" Version="1.0.3" />
     <PackageReference Include="Energinet.DataHub.Core.Logging" Version="1.0.6" />
@@ -42,7 +42,7 @@ limitations under the License.
     <PackageReference Include="NodaTime.Serialization.JsonNet" Version="3.0.0" />
     <PackageReference Include="NodaTime.Serialization.SystemTextJson" Version="1.0.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="FluentAssertions" Version="6.4.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="xunit.categories" Version="2.0.5" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">

@@ -24,6 +24,25 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
     public sealed class BundleTests
     {
         [Fact]
+        public void Dequeue_NotDequeue_SetsDequeueToTrue()
+        {
+            // Arrange
+            var target = new Bundle(
+                new Uuid(Guid.NewGuid()),
+                new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.TimeSeries,
+                new ContentType("fake_value"),
+                Array.Empty<Uuid>(),
+                new Mock<IBundleContent>().Object);
+
+            // Act
+            target.Dequeue();
+
+            // Assert
+            Assert.True(target.Dequeued);
+        }
+
+        [Fact]
         public void TryGetContent_HasContent_ReturnsTrue()
         {
             // Arrange

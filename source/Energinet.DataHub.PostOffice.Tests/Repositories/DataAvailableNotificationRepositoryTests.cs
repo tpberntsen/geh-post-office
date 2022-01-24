@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
@@ -29,44 +28,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
     public sealed class DataAvailableNotificationRepositoryTests
     {
         [Fact]
-        public async Task ReadCatalogForNextUnacknowledgedAsync_NullRecipient_ThrowsException()
-        {
-            // Arrange
-            var target = CreateTarget();
-
-            // Act + Assert
-            await Assert
-                .ThrowsAsync<ArgumentNullException>(() =>
-                    target.ReadCatalogForNextUnacknowledgedAsync(null!, Array.Empty<DomainOrigin>()))
-                .ConfigureAwait(false);
-        }
-
-        [Fact]
-        public async Task ReadCatalogForNextUnacknowledgedAsync_NullDomains_ThrowsException()
-        {
-            // Arrange
-            var target = CreateTarget();
-
-            // Act + Assert
-            await Assert
-                .ThrowsAsync<ArgumentNullException>(() =>
-                    target.ReadCatalogForNextUnacknowledgedAsync(new MarketOperator(null!), null!))
-                .ConfigureAwait(false);
-        }
-
-        [Fact]
-        public async Task GetCabinetReaderAsync_NullKey_ThrowsException()
-        {
-            // Arrange
-            var target = CreateTarget();
-
-            // Act + Assert
-            await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.GetCabinetReaderAsync(null!))
-                .ConfigureAwait(false);
-        }
-
-        [Fact]
         public async Task GetNextUnacknowledgedAsync_NullRecipient_ThrowsException()
         {
             // Arrange
@@ -74,12 +35,13 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.GetNextUnacknowledgedAsync(null!))
+                .ThrowsAsync<ArgumentNullException>(() =>
+                    target.GetNextUnacknowledgedAsync(null!))
                 .ConfigureAwait(false);
         }
 
         [Fact]
-        public async Task GetNextUnacknowledgedAsync_NullRecipientNotContent_ThrowsException()
+        public async Task GetNextUnacknowledgedAsync_NullDomains_ThrowsException()
         {
             // Arrange
             var target = CreateTarget();
@@ -87,16 +49,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
             // Act + Assert
             await Assert
                 .ThrowsAsync<ArgumentNullException>(() =>
-                    target.GetNextUnacknowledgedAsync(
-                        null!,
-                        DomainOrigin.TimeSeries,
-                        new ContentType("fake_value"),
-                        new Weight(1)))
+                    target.GetNextUnacknowledgedAsync(new MarketOperator(null!), null!))
                 .ConfigureAwait(false);
         }
 
         [Fact]
-        public async Task GetNextUnacknowledgedAsync_NullContentNotRecipient_ThrowsException()
+        public async Task SaveAsync_NullKey_ThrowsException()
         {
             // Arrange
             var target = CreateTarget();
@@ -104,39 +62,24 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
             // Act + Assert
             await Assert
                 .ThrowsAsync<ArgumentNullException>(() =>
-                    target.GetNextUnacknowledgedAsync(
-                        new MarketOperator(null!),
-                        DomainOrigin.Aggregations,
-                        null!,
-                        new Weight(1)))
+                    target.SaveAsync(null!, Array.Empty<DataAvailableNotification>()))
                 .ConfigureAwait(false);
         }
 
         [Fact]
-        public async Task AcknowledgeAsync_NullRecipient_ThrowsException()
+        public async Task SaveAsync_NullNotifications_ThrowsException()
         {
             // Arrange
             var target = CreateTarget();
+            var cabinetKey = new CabinetKey(
+                new MarketOperator(new GlobalLocationNumber("fake_value")),
+                DomainOrigin.Charges,
+                new ContentType("fake_value"));
 
             // Act + Assert
             await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.AcknowledgeAsync(
-                    null!,
-                    Enumerable.Empty<Uuid>()))
-                .ConfigureAwait(false);
-        }
-
-        [Fact]
-        public async Task AcknowledgeAsync_NullCollection_ThrowsException()
-        {
-            // Arrange
-            var target = CreateTarget();
-
-            // Act + Assert
-            await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.AcknowledgeAsync(
-                    new MarketOperator(new GlobalLocationNumber("fake_value")),
-                    null!))
+                .ThrowsAsync<ArgumentNullException>(() =>
+                    target.SaveAsync(cabinetKey, null!))
                 .ConfigureAwait(false);
         }
 
@@ -149,19 +92,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
             // Act + Assert
             await Assert
                 .ThrowsAsync<ArgumentNullException>(() => target.AcknowledgeAsync(null!))
-                .ConfigureAwait(false);
-        }
-
-        [Fact]
-        public async Task SaveAsync_NullNotification_ThrowsException()
-        {
-            // Arrange
-            var target = CreateTarget();
-            DataAvailableNotification dataAvailableNotification = null!;
-
-            // Act + Assert
-            await Assert
-                .ThrowsAsync<ArgumentNullException>(() => target.SaveAsync(dataAvailableNotification))
                 .ConfigureAwait(false);
         }
 

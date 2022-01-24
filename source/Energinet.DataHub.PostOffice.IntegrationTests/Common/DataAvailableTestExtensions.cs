@@ -19,12 +19,26 @@ using Azure.Storage.Blobs;
 using Energinet.DataHub.MessageHub.Core;
 using Energinet.DataHub.MessageHub.Core.Factories;
 using Energinet.DataHub.MessageHub.Model.Model;
+using Energinet.DataHub.PostOffice.Domain.Model;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.IntegrationTests.Common
 {
     internal static class DataAvailableTestExtensions
     {
+        public static async Task<IReadOnlyList<DataAvailableNotification>> ReadToEndAsync(this ICabinetReader reader)
+        {
+            var items = new List<DataAvailableNotification>();
+
+            while (reader.CanPeek)
+            {
+                items.Add(await reader.TakeAsync().ConfigureAwait(false));
+            }
+
+            return items;
+        }
+
         public static Task<IReadOnlyList<Guid>> GetDataAvailableIdsAsync(this DataBundleRequestDto request, Scope scope)
         {
             var currentConfig = scope.GetInstance<StorageConfig>();

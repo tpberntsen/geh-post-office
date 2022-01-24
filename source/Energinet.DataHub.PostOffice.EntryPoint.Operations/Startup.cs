@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using Energinet.DataHub.PostOffice.Common;
-using Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.Operations
@@ -22,7 +21,6 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations
     {
         protected override void Configure(Container container)
         {
-            container.Register<DequeueCleanUpFunction>(Lifestyle.Scoped);
         }
     }
 }

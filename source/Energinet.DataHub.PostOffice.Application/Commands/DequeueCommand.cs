@@ -16,5 +16,5 @@ using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public record DequeueCommand(string MarketOperator, string BundleId) : IRequest<DequeueResponse>;
+    public sealed record DequeueCommand(string MarketOperator, string BundleId) : IRequest<DequeueResponse>;
 }

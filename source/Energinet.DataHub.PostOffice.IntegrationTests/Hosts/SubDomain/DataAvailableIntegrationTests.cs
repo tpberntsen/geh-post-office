@@ -15,6 +15,7 @@
 using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
 using FluentValidation;
 using MediatR;
@@ -28,7 +29,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
     public sealed class DataAvailableIntegrationTests
     {
         [Fact]
-        public async Task DataAvailable_InvalidCommand_ThrowsException()
+        public async Task InsertDataAvailableNotificationsCommand_InvalidCommand_ThrowsException()
         {
             // Arrange
             const string blankValue = "  ";
@@ -40,7 +41,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
             await using var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
 
-            var dataAvailableNotificationCommand = new DataAvailableNotificationCommand(
+            var dataAvailableNotification = new DataAvailableNotificationDto(
                 blankValue,
                 blankValue,
                 blankValue,
@@ -49,14 +50,16 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 1,
                 1);
 
+            var command = new InsertDataAvailableNotificationsCommand(new[] { dataAvailableNotification });
+
             // Act + Assert
             await Assert
-                .ThrowsAsync<ValidationException>(() => mediator.Send(dataAvailableNotificationCommand))
+                .ThrowsAsync<ValidationException>(() => mediator.Send(command))
                 .ConfigureAwait(false);
         }
 
         [Fact]
-        public async Task DataAvailable_WithData_CanBePeekedBack()
+        public async Task InsertDataAvailableNotificationsCommand_WithData_CanBePeekedBack()
         {
             // Arrange
             var recipientGln = new MockedGln();
@@ -69,7 +72,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
             await using var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
 
-            var dataAvailableNotificationCommand = new DataAvailableNotificationCommand(
+            var dataAvailableNotification = new DataAvailableNotificationDto(
                 Guid.NewGuid().ToString(),
                 recipientGln,
                 "timeseries",
@@ -78,15 +81,78 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 1,
                 1);
 
+            var command = new InsertDataAvailableNotificationsCommand(new[] { dataAvailableNotification });
+
             // Act
-            var response = await mediator.Send(dataAvailableNotificationCommand).ConfigureAwait(false);
+            await mediator.Send(command).ConfigureAwait(false);
 
             // Assert
-            Assert.NotNull(response);
-
             var peekResponse = await mediator.Send(new PeekCommand(recipientGln, bundleId)).ConfigureAwait(false);
             Assert.NotNull(peekResponse);
             Assert.True(peekResponse.HasContent);
+        }
+
+        [Fact]
+        public async Task GetMaximumSequenceNumberCommand_ValidCommand_ReturnsNumber()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var command = new GetMaximumSequenceNumberCommand();
+
+            // Act
+            var actual = await mediator.Send(command).ConfigureAwait(false);
+
+            // Assert
+            Assert.True(actual >= 0);
+        }
+
+        [Fact]
+        public async Task UpdateMaximumSequenceNumberCommand_InvalidCommand_ThrowsException()
+        {
+            // Arrange
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var command = new UpdateMaximumSequenceNumberCommand(-10);
+
+            // Act + Assert
+            await Assert
+                .ThrowsAsync<ValidationException>(() => mediator.Send(command))
+                .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task UpdateMaximumSequenceNumberCommand_WithNewNumber_CanReadNumberBack()
+        {
+            // Arrange
+            const long sequenceNumber = int.MaxValue + 1L;
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var command = new UpdateMaximumSequenceNumberCommand(sequenceNumber);
+
+            // Act
+            await mediator.Send(command).ConfigureAwait(false);
+
+            // Assert
+            var sequenceNumberRepository = scope.GetInstance<ISequenceNumberRepository>();
+            var actual = await sequenceNumberRepository.GetMaximumSequenceNumberAsync().ConfigureAwait(false);
+            Assert.Equal(sequenceNumber, actual.Value);
         }
     }
 }

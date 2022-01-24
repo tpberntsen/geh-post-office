@@ -14,5 +14,5 @@
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public record GlobalLocationNumber(string Value);
+    public sealed record GlobalLocationNumber(string Value);
 }

@@ -19,6 +19,7 @@ using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
 using Energinet.DataHub.PostOffice.Tests.Common;
 using Energinet.DataHub.PostOffice.Tests.Common.Auth;
+using FluentValidation;
 using MediatR;
 using Moq;
 using Xunit;
@@ -81,16 +82,54 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        //[Fact]
-        //public void Run_InvalidInput_IsHandled()
-        //{
-        //    // TODO: Error handling not defined.
-        //}
+        [Fact]
+        public async Task Run_InvalidInput_IsHandled()
+        {
+            // Arrange
+            var mockedRequestData = new MockedHttpRequestData(new MockedFunctionContext());
+            mockedRequestData.HttpRequestDataMock
+                .Setup(x => x.Url)
+                .Returns(_functionRoute);
 
-        //[Fact]
-        //public void Run_HandlerException_IsHandled()
-        //{
-        //    // TODO: Error handling not defined.
-        //}
+            var mockedMediator = new Mock<IMediator>();
+            var mockedIdentity = new MockedMarketOperatorIdentity("fake_value");
+
+            mockedMediator
+                .Setup(x => x.Send(It.IsAny<DequeueCommand>(), default))
+                .ThrowsAsync(new ValidationException("test"));
+
+            var target = new DequeueFunction(mockedMediator.Object, mockedIdentity);
+
+            // Act
+            var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Run_HandlerException_IsHandled()
+        {
+            // Arrange
+            var mockedRequestData = new MockedHttpRequestData(new MockedFunctionContext());
+            mockedRequestData.HttpRequestDataMock
+                .Setup(x => x.Url)
+                .Returns(_functionRoute);
+
+            var mockedMediator = new Mock<IMediator>();
+            var mockedIdentity = new MockedMarketOperatorIdentity("fake_value");
+
+            mockedMediator
+                .Setup(x => x.Send(It.IsAny<DequeueCommand>(), default))
+                .ThrowsAsync(new InvalidOperationException("test"));
+
+            var target = new DequeueFunction(mockedMediator.Object, mockedIdentity);
+
+            // Act
+            var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
     }
 }

@@ -14,5 +14,5 @@
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public record SupportsBundling(bool Value);
+    public sealed record SupportsBundling(bool Value);
 }
