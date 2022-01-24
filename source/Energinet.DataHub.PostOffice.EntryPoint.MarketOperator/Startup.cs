@@ -29,7 +29,17 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
             container.Register<PeekMasterDataFunction>(Lifestyle.Scoped);
             container.Register<PeekAggregationsFunction>(Lifestyle.Scoped);
             container.Register<DequeueFunction>(Lifestyle.Scoped);
+
+            RegisterJwt(container);
             RegisterActor(container);
+        }
+
+        private static void RegisterJwt(Container container)
+        {
+            var tenantId = Environment.GetEnvironmentVariable("B2C_TENANT_ID") ?? throw new InvalidOperationException("B2C tenant id not found.");
+            var audience = Environment.GetEnvironmentVariable("BACKEND_SERVICE_APP_ID") ?? throw new InvalidOperationException("Backend service app id not found.");
+
+            container.AddJwtTokenSecurity($"https://login.microsoftonline.com/{tenantId}/v2.0/.well-known/openid-configuration", audience);
         }
 
         private static void RegisterActor(Container container)
