@@ -47,7 +47,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
             exception.Log(logger);
 
             // assert
-            Assert.Equal(1, logger.LogCallCount);
+            Assert.Equal(2, logger.LogCallCount);
         }
 
         [Fact]
@@ -121,7 +121,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common.Extensions
             // assert
             Assert.Equal(HttpStatusCode.InternalServerError, actual.StatusCode);
             Assert.Equal("INTERNAL_ERROR", error.Code);
-            Assert.Equal("An error occured while processing the request", error.Message);
+            Assert.Equal("An error occured while processing the request.", error.Message);
             Assert.Null(error.Target);
             Assert.Null(error.Details);
         }

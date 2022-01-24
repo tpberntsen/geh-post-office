@@ -72,11 +72,5 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         /// </summary>
         /// <param name="bundle">The bundle that is being acknowledged.</param>
         Task AcknowledgeAsync(Bundle bundle);
-
-        /// <summary>
-        /// Acknowledges the current bundle, as returned by <see cref="GetNextUnacknowledgedAsync" />.
-        /// </summary>
-        /// <param name="bundle">The bundle that is being acknowledged.</param>
-        Task Acknowledge2Async(Bundle bundle);
     }
 }

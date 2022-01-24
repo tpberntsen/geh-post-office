@@ -14,5 +14,5 @@
 
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public record ContentType(string Value);
+    public sealed record ContentType(string Value);
 }

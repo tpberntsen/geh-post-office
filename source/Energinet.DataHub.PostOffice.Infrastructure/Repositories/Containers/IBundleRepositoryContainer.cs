@@ -19,13 +19,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories.Containers
     /// <summary>
     /// Provides access to the CosmosDB container to use with BundleRepository.
     /// </summary>
-    /// <returns>Bundle</returns>
     public interface IBundleRepositoryContainer
     {
         /// <summary>
         /// The CosmosDB container to use with BundleRepository.
         /// </summary>
-        /// <returns>Bundle</returns>
         public Container Container { get; }
     }
 }

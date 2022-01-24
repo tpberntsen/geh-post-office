@@ -15,11 +15,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
@@ -53,75 +54,117 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             _sequenceNumberRepository = sequenceNumberRepository;
         }
 
-        public async Task SaveAsync(IEnumerable<DataAvailableNotification> dataAvailableNotifications, CabinetKey key)
+        public async Task SaveAsync(CabinetKey key, IReadOnlyList<DataAvailableNotification> notifications)
         {
             Guard.ThrowIfNull(key, nameof(key));
-            Guard.ThrowIfNull(dataAvailableNotifications, nameof(dataAvailableNotifications));
+            Guard.ThrowIfNull(notifications, nameof(notifications));
 
-            var nextDrawer = await FindNextAvailableDrawerAsync(key).ConfigureAwait(false);
+            var nextDrawer = await FindExistingDrawerWithFreeSpaceAsync(key).ConfigureAwait(false);
+            var nextDrawerItemCount = nextDrawer != null
+                ? await CountItemsInDrawerAsync(nextDrawer).ConfigureAwait(false)
+                : 0;
 
-            var nextDrawerSize = nextDrawer is null ? 0 : await GetDrawerSizeAsync(nextDrawer.Id).ConfigureAwait(false);
-
-            foreach (var notification in dataAvailableNotifications)
+            for (var i = 0; i < notifications.Count; i++)
             {
+                var notification = notifications[i];
+
+                Debug.Assert(key == new CabinetKey(notification), "All notifications should belong to the provided key.");
+
+                if (await CheckIdempotencyAsync(notification).ConfigureAwait(false))
+                    continue;
+
                 if (nextDrawer is null)
                 {
-                    nextDrawer = CreateNewDrawer(key, notification);
-                    nextDrawerSize = 0;
+                    nextDrawer = CreateEmptyDrawer(notification);
+                    nextDrawerItemCount = 0;
 
-                    await _repositoryContainer.Container.CreateItemAsync(nextDrawer).ConfigureAwait(false);
+                    await _repositoryContainer
+                        .Cabinet
+                        .CreateItemAsync(nextDrawer)
+                        .ConfigureAwait(false);
                 }
 
-                if (nextDrawer.Position == nextDrawerSize)
+                if (nextDrawer.Position == nextDrawerItemCount)
                 {
                     var catalogEntry = CreateCatalogEntry(notification);
-                    await _repositoryContainer.Container.CreateItemAsync(catalogEntry).ConfigureAwait(false);
+                    await _repositoryContainer
+                        .Catalog
+                        .CreateItemAsync(catalogEntry)
+                        .ConfigureAwait(false);
                 }
 
-                var cosmosDataAvailable = DataAvailableNotificationMapper.Map(notification, nextDrawer.Id);
-                await _repositoryContainer.Container.CreateItemAsync(cosmosDataAvailable).ConfigureAwait(false);
-                nextDrawerSize++;
+                var cosmosDataAvailable = CosmosDataAvailableMapper.Map(notification, nextDrawer.Id);
+                await _repositoryContainer
+                    .Cabinet
+                    .CreateItemAsync(cosmosDataAvailable)
+                    .ConfigureAwait(false);
 
-                if (nextDrawerSize.Equals(10000))
+                var itemsLeft = notifications.Count - (i + 1);
+                var spaceLeft = MaximumCabinetDrawerItemCount - (nextDrawerItemCount + 1);
+
+                var itemsToFill = notifications
+                    .Skip(i + 1)
+                    .Take(Math.Min(itemsLeft, spaceLeft));
+
+                var itemsInserted = await FillCabinetDrawerAsync(nextDrawer, itemsToFill).ConfigureAwait(false);
+                i += itemsInserted;
+                nextDrawerItemCount += itemsInserted;
+                nextDrawerItemCount++;
+
+                Debug.Assert(nextDrawerItemCount <= MaximumCabinetDrawerItemCount, "Too many items were inserted into a single drawer.");
+
+                if (nextDrawerItemCount == MaximumCabinetDrawerItemCount)
                 {
                     nextDrawer = null;
                 }
             }
         }
 
-        public async Task<CabinetKey?> ReadCatalogForNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
+        public async Task<ICabinetReader?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
         {
             Guard.ThrowIfNull(recipient, nameof(recipient));
             Guard.ThrowIfNull(domains, nameof(domains));
 
             if (domains.Length == 0)
-            {
                 domains = Enum.GetValues<DomainOrigin>();
-            }
 
-            var catalogTasks = domains
-                .Where(origin => origin != DomainOrigin.Unknown)
-                .Select(async origin =>
+            var entryLookups = domains
+                .Where(domain => domain != DomainOrigin.Unknown)
+                .Select(domain =>
                 {
-                    var entry = await ReadFromCatalogAsync(recipient, origin).ConfigureAwait(false);
-                    return new { domainOrigin = origin, entry };
-                }).ToList();
+                    var asLinq = _repositoryContainer
+                        .Catalog
+                        .GetItemLinqQueryable<CosmosCatalogEntry>();
 
-            await Task.WhenAll(catalogTasks).ConfigureAwait(false);
+                    var partitionKey = string.Join('_', recipient.Gln.Value, domain);
 
-            var entryDomain = DomainOrigin.Unknown;
+                    var query =
+                        from catalogEntry in asLinq
+                        where catalogEntry.PartitionKey == partitionKey
+                        orderby catalogEntry.NextSequenceNumber
+                        select catalogEntry;
+
+                    var task = query
+                        .Take(1)
+                        .AsCosmosIteratorAsync()
+                        .FirstOrDefaultAsync();
+
+                    return new { domain, task };
+                });
+
+            var smallestDomain = DomainOrigin.Unknown;
             CosmosCatalogEntry? smallestEntry = null;
 
-            foreach (var catalogTask in catalogTasks)
+            foreach (var entryLookup in entryLookups.ToList())
             {
-                var result = await catalogTask.ConfigureAwait(false);
-                if (result.entry == null)
+                var catalogEntry = await entryLookup.task.ConfigureAwait(false);
+                if (catalogEntry == null)
                     continue;
 
-                if (smallestEntry == null || smallestEntry.NextSequenceNumber > result.entry.NextSequenceNumber)
+                if (smallestEntry == null || smallestEntry.NextSequenceNumber > catalogEntry.NextSequenceNumber)
                 {
-                    smallestEntry = result.entry;
-                    entryDomain = result.domainOrigin;
+                    smallestEntry = catalogEntry;
+                    smallestDomain = entryLookup.domain;
                 }
             }
 
@@ -129,216 +172,26 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 .GetMaximumSequenceNumberAsync()
                 .ConfigureAwait(false);
 
-            return smallestEntry == null || smallestEntry.NextSequenceNumber > maximumSequenceNumber.Value
-                ? null
-                : new CabinetKey(recipient, entryDomain, new ContentType(smallestEntry.ContentType));
-        }
+            if (smallestEntry == null || smallestEntry.NextSequenceNumber > maximumSequenceNumber.Value)
+                return null;
 
-        public async Task<ICabinetReader> GetCabinetReaderAsync(CabinetKey cabinetKey)
-        {
-            Guard.ThrowIfNull(cabinetKey, nameof(cabinetKey));
+            var cabinetKey = new CabinetKey(
+                recipient,
+                smallestDomain,
+                new ContentType(smallestEntry.ContentType));
 
-            var drawers = new List<CosmosCabinetDrawer>();
-            var content = new List<Task<IEnumerable<CosmosDataAvailable>>>();
-
-            await foreach (var drawer in GetCabinetDrawersAsync(cabinetKey).ConfigureAwait(false))
+            var cabinetReader = await GetCabinetReaderAsync(cabinetKey).ConfigureAwait(false);
+            if (cabinetReader.CanPeek)
             {
-                var drawerContent = GetCabinetDrawerContentsAsync(drawer);
-                drawers.Add(drawer);
-                content.Add(drawerContent);
+                var nextItem = cabinetReader.Peek();
+                if (nextItem.SequenceNumber.Value == smallestEntry.NextSequenceNumber)
+                    return cabinetReader;
             }
 
-            var cabinetReader = new AsyncCabinetReader(cabinetKey, drawers, content);
-            await cabinetReader.InitializeAsync().ConfigureAwait(false);
-            return cabinetReader;
-        }
-
-        public async Task SaveAsync(DataAvailableNotification dataAvailableNotification)
-        {
-            Guard.ThrowIfNull(dataAvailableNotification, nameof(dataAvailableNotification));
-
-            var uniqueId = new CosmosUniqueId
-            {
-                Id = dataAvailableNotification.NotificationId.ToString(),
-                PartitionKey = (dataAvailableNotification.NotificationId.AsGuid().GetHashCode() % 10).ToString(CultureInfo.InvariantCulture),
-                Content = Base64Content(dataAvailableNotification)
-            };
-
-            try
-            {
-                await _repositoryContainer.Container.CreateItemAsync(uniqueId).ConfigureAwait(false);
-            }
-            catch (CosmosException e) when (e.StatusCode == HttpStatusCode.Conflict)
-            {
-                var query =
-                    from uniqueIdQuery in _repositoryContainer.Container.GetItemLinqQueryable<CosmosUniqueId>()
-                    where
-                        uniqueIdQuery.Id == uniqueId.Id &&
-                        uniqueIdQuery.PartitionKey == uniqueId.PartitionKey
-                    select uniqueIdQuery;
-
-                await foreach (var existingUniqueId in query.AsCosmosIteratorAsync<CosmosUniqueId>())
-                {
-                    if (existingUniqueId.Content == uniqueId.Content)
-                    {
-                        return;
-                    }
-
-                    throw new ValidationException("ID already in use", e);
-                }
-            }
-
-            var cosmosDocument = new CosmosDataAvailable
-            {
-                Id = dataAvailableNotification.NotificationId.ToString(),
-                Recipient = dataAvailableNotification.Recipient.Gln.Value,
-                ContentType = dataAvailableNotification.ContentType.Value,
-                Origin = dataAvailableNotification.Origin.ToString(),
-                SupportsBundling = dataAvailableNotification.SupportsBundling.Value,
-                RelativeWeight = dataAvailableNotification.Weight.Value,
-                Acknowledge = false,
-                PartitionKey = dataAvailableNotification.Recipient.Gln.Value + dataAvailableNotification.Origin + dataAvailableNotification.ContentType.Value
-            };
-
-            await _repositoryContainer.Container.CreateItemAsync(cosmosDocument).ConfigureAwait(false);
-
-            static string Base64Content(DataAvailableNotification dataAvailableNotification)
-            {
-                using var ms = new MemoryStream();
-                ms.Write(Encoding.UTF8.GetBytes(dataAvailableNotification.ContentType.Value));
-                ms.Write(BitConverter.GetBytes((int)dataAvailableNotification.Origin));
-                ms.Write(Encoding.UTF8.GetBytes(dataAvailableNotification.Recipient.Gln.Value));
-                ms.Write(BitConverter.GetBytes(dataAvailableNotification.SupportsBundling.Value));
-                ms.Write(BitConverter.GetBytes(dataAvailableNotification.Weight.Value));
-                return Convert.ToBase64String(ms.ToArray());
-            }
-        }
-
-        public Task<DataAvailableNotification?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
-        {
-            Guard.ThrowIfNull(recipient, nameof(recipient));
-
-            var asLinq = _repositoryContainer
-                .Container
-                .GetItemLinqQueryable<CosmosDataAvailable>();
-
-            IQueryable<CosmosDataAvailable> domainFiltered = asLinq;
-
-            if (domains is { Length: > 0 })
-            {
-                var selectedDomains = domains.Select(x => x.ToString());
-                domainFiltered = asLinq.Where(x => selectedDomains.Contains(x.Origin));
-            }
-
-            var query =
-                from dataAvailable in domainFiltered
-                where
-                    dataAvailable.Recipient == recipient.Gln.Value &&
-                    !dataAvailable.Acknowledge
-                orderby dataAvailable.Timestamp
-                select dataAvailable;
-
-            return ExecuteQueryAsync(query).FirstOrDefaultAsync();
-        }
-
-        public async Task<IEnumerable<DataAvailableNotification>> GetNextUnacknowledgedAsync(
-            MarketOperator recipient,
-            DomainOrigin domainOrigin,
-            ContentType contentType,
-            Weight maxWeight)
-        {
-            Guard.ThrowIfNull(recipient, nameof(recipient));
-            Guard.ThrowIfNull(contentType, nameof(contentType));
-
-            var asLinq = _repositoryContainer
-                .Container
-                .GetItemLinqQueryable<CosmosDataAvailable>();
-
-            var query =
-                from dataAvailable in asLinq
-                where
-                    dataAvailable.Recipient == recipient.Gln.Value &&
-                    dataAvailable.ContentType == contentType.Value &&
-                    dataAvailable.Origin == domainOrigin.ToString() &&
-                    !dataAvailable.Acknowledge
-                orderby dataAvailable.Timestamp
-                select dataAvailable;
-
-            var currentWeight = new Weight(0);
-            var allUnacknowledged = new List<DataAvailableNotification>();
-
-            await foreach (var item in ExecuteBatchAsync(query).ConfigureAwait(false))
-            {
-                if (allUnacknowledged.Count == 0 || (currentWeight + item.Weight <= maxWeight && item.SupportsBundling.Value))
-                {
-                    currentWeight += item.Weight;
-                    allUnacknowledged.Add(item);
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return allUnacknowledged;
-        }
-
-        public async Task AcknowledgeAsync(MarketOperator recipient, IEnumerable<Uuid> dataAvailableNotificationUuids)
-        {
-            Guard.ThrowIfNull(recipient, nameof(recipient));
-            Guard.ThrowIfNull(dataAvailableNotificationUuids, nameof(dataAvailableNotificationUuids));
-
-            var stringIds = dataAvailableNotificationUuids
-                .Select(x => x.ToString());
-
-            var container = _repositoryContainer.Container;
-            var asLinq = container
-                .GetItemLinqQueryable<CosmosDataAvailable>();
-
-            var query =
-                from dataAvailable in asLinq
-                where dataAvailable.Recipient == recipient.Gln.Value && stringIds.Contains(dataAvailable.Id)
-                select dataAvailable;
-
-            TransactionalBatch? batch = null;
-
-            var batchSize = 0;
-
-            await foreach (var document in query.AsCosmosIteratorAsync().ConfigureAwait(false))
-            {
-                var updatedDocument = document with { Acknowledge = true };
-
-                batch ??= container.CreateTransactionalBatch(new PartitionKey(updatedDocument.PartitionKey));
-                batch.ReplaceItem(updatedDocument.Id, updatedDocument);
-
-                batchSize++;
-
-                // Microsoft decided on an arbitrary batch limit of 100.
-                if (batchSize == 100)
-                {
-                    using var innerResult = await batch.ExecuteAsync().ConfigureAwait(false);
-
-                    // As written in docs, _this_ API does not throw exceptions and has to be checked.
-                    if (!innerResult.IsSuccessStatusCode)
-                    {
-                        throw new InvalidOperationException(innerResult.ErrorMessage);
-                    }
-
-                    batch = null;
-                    batchSize = 0;
-                }
-            }
-
-            if (batch != null)
-            {
-                using var outerResult = await batch.ExecuteAsync().ConfigureAwait(false);
-
-                // As written in docs, _this_ API does not throw exceptions and has to be checked.
-                if (!outerResult.IsSuccessStatusCode)
-                {
-                    throw new InvalidOperationException(outerResult.ErrorMessage);
-                }
-            }
+            // If SaveAsync fails to insert DataAvailable, for example due to crash/timeout,
+            // there will be a catalog entry pointing to a non-existent item.
+            await DeleteOldCatalogEntryAsync(smallestEntry).ConfigureAwait(false);
+            return null;
         }
 
         public async Task AcknowledgeAsync(Bundle bundle)
@@ -347,7 +200,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var asLinq = _bundleRepositoryContainer
                 .Container
-                .GetItemLinqQueryable<CosmosBundleDocument2>();
+                .GetItemLinqQueryable<CosmosBundleDocument>();
 
             var recipient = bundle.Recipient.Gln.Value;
             var bundleId = bundle.BundleId.ToString();
@@ -368,107 +221,34 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 .Select(changes => Task.WhenAll(
                     UpdateDrawerAsync(changes),
                     UpdateCatalogAsync(changes),
-                    DeleteOldCatalogEntriesAsync(fetchedBundle, changes)));
+                    DeleteOldCatalogEntryAsync(fetchedBundle, changes)));
 
             await Task.WhenAll(updateTasks).ConfigureAwait(false);
         }
 
-        public async Task WriteToArchiveAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
-        {
-            Guard.ThrowIfNull(partitionKey, nameof(partitionKey));
-
-            var documentPartitionKey = new PartitionKey(partitionKey);
-            var documentsToRead = dataAvailableNotifications.Select(e => (e.ToString(), documentPartitionKey)).ToList();
-
-            var documentsToArchive = await _repositoryContainer
-                .Container
-                .ReadManyItemsAsync<CosmosDataAvailable>(documentsToRead).ConfigureAwait(false);
-
-            if (documentsToArchive.StatusCode != HttpStatusCode.OK)
-            {
-                throw new CosmosException("ReadManyItemsAsync failed", documentsToArchive.StatusCode, -1, documentsToArchive.ActivityId, documentsToArchive.RequestCharge);
-            }
-
-            var archiveWriteTasks = documentsToArchive.Select(ArchiveDocumentAsync);
-            await Task.WhenAll(archiveWriteTasks).ConfigureAwait(false);
-        }
-
-        public Task DeleteAsync(IEnumerable<Uuid> dataAvailableNotifications, string partitionKey)
-        {
-            var documentPartitionKey = new PartitionKey(partitionKey);
-            var deleteTasks = dataAvailableNotifications
-                .Select(dataAvailableNotification =>
-                    _repositoryContainer.Container.DeleteItemStreamAsync(dataAvailableNotification.ToString(), documentPartitionKey)).ToList();
-
-            return Task.WhenAll(deleteTasks);
-        }
-
-        private static async IAsyncEnumerable<DataAvailableNotification> ExecuteBatchAsync(IQueryable<CosmosDataAvailable> query)
-        {
-            const int batchSize = 10000;
-
-            var batchStart = 0;
-            bool canHaveMoreItems;
-
-            do
-            {
-                var nextBatchQuery = query.Skip(batchStart).Take(batchSize);
-                var returnedItems = 0;
-
-                await foreach (var item in ExecuteQueryAsync(nextBatchQuery).ConfigureAwait(false))
-                {
-                    yield return item;
-                    returnedItems++;
-                }
-
-                batchStart += batchSize;
-                canHaveMoreItems = returnedItems == batchSize;
-            }
-            while (canHaveMoreItems);
-        }
-
-        private static async IAsyncEnumerable<DataAvailableNotification> ExecuteQueryAsync(IQueryable<CosmosDataAvailable> query)
-        {
-            await foreach (var document in query.AsCosmosIteratorAsync().ConfigureAwait(false))
-            {
-                yield return new DataAvailableNotification(
-                    new Uuid(document.Id),
-                    new MarketOperator(new GlobalLocationNumber(document.Recipient)),
-                    new ContentType(document.ContentType),
-                    Enum.Parse<DomainOrigin>(document.Origin, true),
-                    new SupportsBundling(document.SupportsBundling),
-                    new Weight(document.RelativeWeight),
-                    new SequenceNumber(document.SequenceNumber));
-            }
-        }
-
-        private static async IAsyncEnumerable<T> ExecuteQueryAsync<T>(IQueryable<T> query)
-        {
-            await foreach (var document in query.AsCosmosIteratorAsync().ConfigureAwait(false))
-            {
-                yield return document;
-            }
-        }
-
         private static CosmosCatalogEntry CreateCatalogEntry(DataAvailableNotification notification)
         {
-            return new CosmosCatalogEntry()
+            var partitionKey = string.Join(
+                '_',
+                notification.Recipient.Gln.Value,
+                notification.Origin);
+
+            return new CosmosCatalogEntry
             {
                 Id = Guid.NewGuid().ToString(),
                 ContentType = notification.ContentType.Value,
                 NextSequenceNumber = notification.SequenceNumber.Value,
-                PartitionKey = string.Join("_", notification.Recipient.Gln.Value, notification.Origin)
+                PartitionKey = partitionKey
             };
         }
 
-        private static CosmosCabinetDrawer CreateNewDrawer(CabinetKey key, DataAvailableNotification notification)
+        private static CosmosCabinetDrawer CreateEmptyDrawer(DataAvailableNotification notification)
         {
-            if (key is null)
-                throw new ArgumentNullException(nameof(key));
-            if (notification is null)
-                throw new ArgumentNullException(nameof(notification));
-
-            var partitionKey = string.Join('_', key.Recipient.Gln.Value, key.Origin, key.ContentType.Value);
+            var partitionKey = string.Join(
+                '_',
+                notification.Recipient.Gln.Value,
+                notification.Origin,
+                notification.ContentType.Value);
 
             return new CosmosCabinetDrawer
             {
@@ -479,24 +259,81 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             };
         }
 
-        private Task<CosmosCatalogEntry?> ReadFromCatalogAsync(MarketOperator recipient, DomainOrigin domain)
+        private Task<CosmosCabinetDrawer?> FindExistingDrawerWithFreeSpaceAsync(CabinetKey cabinetKey)
         {
             var asLinq = _repositoryContainer
-                    .Container
-                    .GetItemLinqQueryable<CosmosCatalogEntry>();
+                .Cabinet
+                .GetItemLinqQueryable<CosmosCabinetDrawer>();
 
-            var partitionKey = string.Join('_', recipient.Gln.Value, domain);
+            var partitionKey = string.Join(
+                '_',
+                cabinetKey.Recipient.Gln.Value,
+                cabinetKey.Origin,
+                cabinetKey.ContentType.Value);
 
             var query =
-                from catalogEntry in asLinq
-                where catalogEntry.PartitionKey == partitionKey
-                orderby catalogEntry.NextSequenceNumber
-                select catalogEntry;
+                from cabinetDrawer in asLinq
+                where
+                    cabinetDrawer.PartitionKey == partitionKey &&
+                    cabinetDrawer.Position < MaximumCabinetDrawerItemCount
+                orderby cabinetDrawer.OrderBy descending
+                select cabinetDrawer;
 
             return query
-                .Take(1)
                 .AsCosmosIteratorAsync()
                 .FirstOrDefaultAsync();
+        }
+
+        private async Task<int> CountItemsInDrawerAsync(CosmosCabinetDrawer drawer)
+        {
+            var asLinq = _repositoryContainer
+                .Cabinet
+                .GetItemLinqQueryable<CosmosDataAvailable>();
+
+            var query =
+                from dataAvailable in asLinq
+                where dataAvailable.PartitionKey == drawer.PartitionKey
+                select dataAvailable;
+
+            return await query.CountAsync().ConfigureAwait(false);
+        }
+
+        private async Task<int> FillCabinetDrawerAsync(CosmosCabinetDrawer drawer, IEnumerable<DataAvailableNotification> notifications)
+        {
+            var count = 0;
+            var tasks = notifications.Select(async x =>
+            {
+                if (await CheckIdempotencyAsync(x).ConfigureAwait(false))
+                    return;
+
+                var cosmosDataAvailable = CosmosDataAvailableMapper.Map(x, drawer.Id);
+                await _repositoryContainer
+                    .Cabinet
+                    .CreateItemAsync(cosmosDataAvailable)
+                    .ConfigureAwait(false);
+
+                Interlocked.Increment(ref count);
+            });
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+            return count;
+        }
+
+        private async Task<ICabinetReader> GetCabinetReaderAsync(CabinetKey cabinetKey)
+        {
+            var drawers = new List<CosmosCabinetDrawer>();
+            var content = new List<Task<IEnumerable<CosmosDataAvailable>>>();
+
+            await foreach (var drawer in GetCabinetDrawersAsync(cabinetKey).ConfigureAwait(false))
+            {
+                var drawerContent = GetCabinetDrawerContentsAsync(drawer);
+                drawers.Add(drawer);
+                content.Add(drawerContent);
+            }
+
+            var cabinetReader = new AsyncCabinetReader(cabinetKey, drawers, content);
+            await cabinetReader.InitializeAsync().ConfigureAwait(false);
+            return cabinetReader;
         }
 
         private IAsyncEnumerable<CosmosCabinetDrawer> GetCabinetDrawersAsync(CabinetKey cabinetKey)
@@ -508,7 +345,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 cabinetKey.ContentType.Value);
 
             var asLinq = _repositoryContainer
-                .Container
+                .Cabinet
                 .GetItemLinqQueryable<CosmosCabinetDrawer>();
 
             var query =
@@ -529,7 +366,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 .ConfigureAwait(false);
 
             var asLinq = _repositoryContainer
-                .Container
+                .Cabinet
                 .GetItemLinqQueryable<CosmosDataAvailable>();
 
             var query =
@@ -559,7 +396,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             try
             {
                 await _repositoryContainer
-                     .Container
+                     .Cabinet
                      .ReplaceItemAsync(updatedDrawer, updatedDrawer.Id, requestOptions: options)
                      .ConfigureAwait(false);
             }
@@ -577,26 +414,26 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 return;
 
             await _repositoryContainer
-                .Container
+                .Catalog
                 .UpsertItemAsync(updatedCatalogEntry)
                 .ConfigureAwait(false);
         }
 
-        private async Task DeleteOldCatalogEntriesAsync(CosmosBundleDocument2 bundle, CosmosCabinetDrawerChanges changes)
+        private async Task DeleteOldCatalogEntryAsync(CosmosBundleDocument bundle, CosmosCabinetDrawerChanges changes)
         {
             var asLinq = _repositoryContainer
-                .Container
+                .Catalog
                 .GetItemLinqQueryable<CosmosCatalogEntry>();
 
             var partitionKey = string.Join('_', bundle.Recipient, bundle.Origin);
-            var contentType = bundle.MessageType;
+            var contentType = bundle.ContentType;
 
             var query =
                 from catalogEntry in asLinq
                 where catalogEntry.PartitionKey == partitionKey &&
                       catalogEntry.ContentType == contentType &&
                       catalogEntry.NextSequenceNumber == changes.InitialCatalogEntrySequenceNumber
-                select new { catalogEntry.Id, catalogEntry.PartitionKey };
+                select catalogEntry;
 
             var entry = await query
                 .AsCosmosIteratorAsync()
@@ -607,59 +444,71 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             // The null-check handles case of two concurrent Acknowledge.
             if (entry != null)
             {
-                try
-                {
-                    await _repositoryContainer
-                         .Container
-                         .DeleteItemAsync<CosmosCatalogEntry>(entry.Id, new PartitionKey(entry.PartitionKey))
-                         .ConfigureAwait(false);
-                }
-                catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
-                {
-                    // Concurrent Acknowledge already removed the file.
-                }
+                await DeleteOldCatalogEntryAsync(entry).ConfigureAwait(false);
             }
         }
 
-        private async Task<CosmosCabinetDrawer?> FindNextAvailableDrawerAsync(CabinetKey cabinetKey)
+        private async Task DeleteOldCatalogEntryAsync(CosmosCatalogEntry entry)
         {
-            var asLinq = _repositoryContainer
-                .Container
-                .GetItemLinqQueryable<CosmosCabinetDrawer>();
-
-            var partitionKey = string.Join(cabinetKey.Recipient.Gln.Value, cabinetKey.Origin, cabinetKey.ContentType.Value);
-
-            var query =
-                from cabinetDrawer in asLinq
-                where
-                    cabinetDrawer.PartitionKey == partitionKey && cabinetDrawer.Position < 10000
-                orderby cabinetDrawer.OrderBy descending
-                select cabinetDrawer;
-
-            return await ExecuteQueryAsync(query)
-                .FirstOrDefaultAsync()
-                .ConfigureAwait(false);
+            try
+            {
+                await _repositoryContainer
+                    .Catalog
+                    .DeleteItemAsync<CosmosCatalogEntry>(entry.Id, new PartitionKey(entry.PartitionKey))
+                    .ConfigureAwait(false);
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                // Concurrent calls may have removed the file.
+            }
         }
 
-        private async Task<int> GetDrawerSizeAsync(string partitionKey)
+        private async Task<bool> CheckIdempotencyAsync(DataAvailableNotification notification)
         {
-            var asLinq = _repositoryContainer
-                .Container
-                .GetItemLinqQueryable<CosmosDataAvailable>();
+            var documentId = notification.NotificationId.ToString();
+            var uniqueId = new CosmosUniqueId
+            {
+                Id = documentId,
+                PartitionKey = $"{documentId.GetHashCode(StringComparison.InvariantCultureIgnoreCase) % 10}",
+                Content = Base64Content(notification)
+            };
 
-            var query =
-                from dataAvailable in asLinq
-                where
-                    dataAvailable.PartitionKey == partitionKey
-                select dataAvailable;
+            try
+            {
+                await _repositoryContainer
+                    .Idempotency
+                    .CreateItemAsync(uniqueId)
+                    .ConfigureAwait(false);
 
-            return await query.CountAsync().ConfigureAwait(false);
-        }
+                return false;
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.Conflict)
+            {
+                var conflictingItem = await _repositoryContainer
+                    .Idempotency
+                    .ReadItemAsync<CosmosUniqueId>(
+                        uniqueId.Id,
+                        new PartitionKey(uniqueId.PartitionKey))
+                    .ConfigureAwait(false);
 
-        private Task ArchiveDocumentAsync(CosmosDataAvailable documentToWrite)
-        {
-            return _repositoryContainer
-                .ArchiveContainer.UpsertItemAsync(documentToWrite, new PartitionKey(documentToWrite.PartitionKey));
+                if (string.Equals(conflictingItem.Resource.Content, uniqueId.Content, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+
+                throw new ValidationException($"Idempotency check failed for DataAvailable {documentId}.", ex);
+            }
+
+            static string Base64Content(DataAvailableNotification notification)
+            {
+                using var ms = new MemoryStream();
+                ms.Write(Encoding.UTF8.GetBytes(notification.ContentType.Value));
+                ms.Write(BitConverter.GetBytes((int)notification.Origin));
+                ms.Write(Encoding.UTF8.GetBytes(notification.Recipient.Gln.Value));
+                ms.Write(BitConverter.GetBytes(notification.SupportsBundling.Value));
+                ms.Write(BitConverter.GetBytes(notification.Weight.Value));
+                return Convert.ToBase64String(ms.ToArray());
+            }
         }
     }
 }

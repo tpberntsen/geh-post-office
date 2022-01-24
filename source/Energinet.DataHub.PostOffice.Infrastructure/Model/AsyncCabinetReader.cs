@@ -54,7 +54,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Model
 
         public Task InitializeAsync()
         {
-            return FillQueueFromCurrentIndexAsync();
+            return _index < _items.Count
+                ? FillQueueFromCurrentIndexAsync()
+                : Task.CompletedTask;
         }
 
         public DataAvailableNotification Peek()
@@ -65,7 +67,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Model
                 return _mappedDataAvailableNotification;
 
             var dataAvailableNotification = _drawerQueue.Peek();
-            return _mappedDataAvailableNotification = DataAvailableNotificationMapper.Map(dataAvailableNotification);
+            return _mappedDataAvailableNotification = CosmosDataAvailableMapper.Map(dataAvailableNotification);
         }
 
         public async Task<DataAvailableNotification> TakeAsync()
@@ -99,7 +101,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Model
                 return mappedNotification;
             }
 
-            return DataAvailableNotificationMapper.Map(document);
+            return CosmosDataAvailableMapper.Map(document);
         }
 
         public IEnumerable<CosmosCabinetDrawerChanges> GetChanges()

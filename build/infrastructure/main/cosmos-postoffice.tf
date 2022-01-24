@@ -46,33 +46,41 @@ resource "azurerm_cosmosdb_sql_database" "db" {
   account_name        = azurerm_cosmosdb_account.post_office.name
 }
 
-resource "azurerm_cosmosdb_sql_container" "collection_dataavailable" {
-  name                = "dataavailable"
+resource "azurerm_cosmosdb_sql_container" "collection_catalog" {
+  name                = "catalog"
   resource_group_name = var.resource_group_name
   account_name        = azurerm_cosmosdb_account.post_office.name
   database_name       = azurerm_cosmosdb_sql_database.db.name
   partition_key_path  = "/partitionKey"
 }
 
-resource "azurerm_cosmosdb_sql_container" "collection_bundles" {
-  name                = "bundles"
+resource "azurerm_cosmosdb_sql_container" "collection_cabinet" {
+  name                = "cabinet"
+  resource_group_name = var.resource_group_name
+  account_name        = azurerm_cosmosdb_account.post_office.name
+  database_name       = azurerm_cosmosdb_sql_database.db.name
+  partition_key_path  = "/partitionKey"
+}
+
+resource "azurerm_cosmosdb_sql_container" "collection_idempotency" {
+  name                = "idempotency"
+  resource_group_name = var.resource_group_name
+  account_name        = azurerm_cosmosdb_account.post_office.name
+  database_name       = azurerm_cosmosdb_sql_database.db.name
+  partition_key_path  = "/partitionKey"
+}
+
+resource "azurerm_cosmosdb_sql_container" "collection_bundle" {
+  name                = "bundle"
   resource_group_name = var.resource_group_name
   account_name        = azurerm_cosmosdb_account.post_office.name
   database_name       = azurerm_cosmosdb_sql_database.db.name
   partition_key_path  = "/recipient"
 }
 
-resource "azurerm_cosmosdb_sql_container" "collection_dataavailablearchive" {
-  name                = "dataavailable-archive"
-  resource_group_name = var.resource_group_name
-  account_name        = azurerm_cosmosdb_account.post_office.name
-  database_name       = azurerm_cosmosdb_sql_database.db.name
-  partition_key_path  = "/partitionKey"
-}
-
 resource "azurerm_cosmosdb_sql_trigger" "triggers_ensuresingleunacknowledgedbundle" {
   name         = "EnsureSingleUnacknowledgedBundle"
-  container_id = azurerm_cosmosdb_sql_container.collection_bundles.id
+  container_id = azurerm_cosmosdb_sql_container.collection_bundle.id
   body         = <<EOT
     function trigger() {
 
@@ -82,7 +90,7 @@ resource "azurerm_cosmosdb_sql_trigger" "triggers_ensuresingleunacknowledgedbund
     var createdItem = response.getBody();
 
     var filterQuery = `
-    SELECT * FROM bundles b
+    SELECT * FROM bundle b
     WHERE b.recipient = '$${createdItem.recipient}' AND
           b.dequeued = false AND (
           b.origin = '$${createdItem.origin}' OR

@@ -18,7 +18,7 @@ using Energinet.DataHub.PostOffice.Infrastructure.Documents;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
-    internal static class DataAvailableNotificationMapper
+    internal static class CosmosDataAvailableMapper
     {
         public static DataAvailableNotification Map(CosmosDataAvailable document)
         {
