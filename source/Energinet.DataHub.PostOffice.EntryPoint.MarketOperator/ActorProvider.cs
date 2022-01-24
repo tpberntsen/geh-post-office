@@ -40,15 +40,15 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
                         FROM  [dbo].[ActorInfo]
                         WHERE Id = @" + param;
 
-            using var connection = new SqlConnection(_actorDbConfig.ConnectionString);
+            await using var connection = new SqlConnection(_actorDbConfig.ConnectionString);
             await connection.OpenAsync().ConfigureAwait(false);
 
-            using var command = new SqlCommand(query, connection)
+            await using var command = new SqlCommand(query, connection)
             {
                 Parameters = { new SqlParameter(param, actorId) }
             };
 
-            using var reader = await command.ExecuteReaderAsync().ConfigureAwait(false);
+            await using var reader = await command.ExecuteReaderAsync().ConfigureAwait(false);
 
             while (await reader.ReadAsync().ConfigureAwait(false))
             {
