@@ -76,12 +76,12 @@ data "azurerm_key_vault_secret" "sql_data_url" {
   key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
 }
 
-data "azurerm_key_vault_secret" "sql_data_admin_user_name" {
+data "azurerm_key_vault_secret" "sql_data_admin_name" {
   name         = "sql-data-admin-user-name"
   key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
 }
 
-data "azurerm_key_vault_secret" "sql_data_admin_user_password" {
+data "azurerm_key_vault_secret" "sql_data_admin_password" {
   name         = "sql-data-admin-user-password"
   key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
 }
