@@ -22,13 +22,31 @@ using Xunit.Categories;
 namespace Energinet.DataHub.PostOffice.Tests.Validation
 {
     [UnitTest]
-    public sealed class DataAvailableNotificationCommandRuleSetTests
+    public sealed class InsertDataAvailableNotificationsCommandRuleSetTests
     {
         private const int ValidWeight = 1;
+        private const long ValidSequenceNumber = 1;
         private const string ValidUuid = "169B53A2-0A17-47D7-9603-4E41854E4181";
         private const string ValidOrigin = "Charges";
         private const string ValidRecipient = "5790000555550";
         private const string ValidContentType = "TimeSeries";
+
+        [Fact]
+        public async Task Validate_NullNotifications_ValidatesProperty()
+        {
+            // Arrange
+            const string propertyName = nameof(InsertDataAvailableNotificationsCommand.Notifications);
+
+            var target = new InsertDataAvailableNotificationsCommandRuleSet();
+            var command = new InsertDataAvailableNotificationsCommand(null!);
+
+            // Act
+            var result = await target.ValidateAsync(command).ConfigureAwait(false);
+
+            // Assert
+            Assert.False(result.IsValid);
+            Assert.Contains(propertyName, result.Errors.Select(x => x.PropertyName));
+        }
 
         [Theory]
         [InlineData("", false)]
@@ -39,20 +57,21 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
         public async Task Validate_Uuid_ValidatesProperty(string value, bool isValid)
         {
             // Arrange
-            const string propertyName = nameof(DataAvailableNotificationCommand.Uuid);
+            const string propertyName = "Notifications[0]." + nameof(DataAvailableNotificationDto.Uuid);
 
-            var target = new DataAvailableNotificationCommandRuleSet();
-            var command = new DataAvailableNotificationCommand(
+            var target = new InsertDataAvailableNotificationsCommandRuleSet();
+            var dto = new DataAvailableNotificationDto(
                 value,
                 ValidRecipient,
                 ValidContentType,
                 ValidOrigin,
                 false,
                 ValidWeight,
-                1);
+                ValidSequenceNumber);
 
             // Act
-            var result = await target.ValidateAsync(command).ConfigureAwait(false);
+            var items = new[] { dto };
+            var result = await target.ValidateAsync(new InsertDataAvailableNotificationsCommand(items)).ConfigureAwait(false);
 
             // Assert
             if (isValid)
@@ -75,20 +94,21 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
         public async Task Validate_Recipient_ValidatesProperty(string value, bool isValid)
         {
             // Arrange
-            const string propertyName = nameof(DataAvailableNotificationCommand.Recipient);
+            const string propertyName = "Notifications[0]." + nameof(DataAvailableNotificationDto.Recipient);
 
-            var target = new DataAvailableNotificationCommandRuleSet();
-            var command = new DataAvailableNotificationCommand(
+            var target = new InsertDataAvailableNotificationsCommandRuleSet();
+            var dto = new DataAvailableNotificationDto(
                 ValidUuid,
                 value,
                 ValidContentType,
                 ValidOrigin,
                 false,
                 ValidWeight,
-                1);
+                ValidSequenceNumber);
 
             // Act
-            var result = await target.ValidateAsync(command).ConfigureAwait(false);
+            var items = new[] { dto };
+            var result = await target.ValidateAsync(new InsertDataAvailableNotificationsCommand(items)).ConfigureAwait(false);
 
             // Assert
             if (isValid)
@@ -113,20 +133,21 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
         public async Task Validate_ContentType_ValidatesProperty(string value, bool isValid)
         {
             // Arrange
-            const string propertyName = nameof(DataAvailableNotificationCommand.ContentType);
+            const string propertyName = "Notifications[0]." + nameof(DataAvailableNotificationDto.ContentType);
 
-            var target = new DataAvailableNotificationCommandRuleSet();
-            var command = new DataAvailableNotificationCommand(
+            var target = new InsertDataAvailableNotificationsCommandRuleSet();
+            var dto = new DataAvailableNotificationDto(
                 ValidUuid,
                 ValidRecipient,
                 value,
                 ValidOrigin,
                 false,
                 ValidWeight,
-                1);
+                ValidSequenceNumber);
 
             // Act
-            var result = await target.ValidateAsync(command).ConfigureAwait(false);
+            var items = new[] { dto };
+            var result = await target.ValidateAsync(new InsertDataAvailableNotificationsCommand(items)).ConfigureAwait(false);
 
             // Assert
             if (isValid)
@@ -152,20 +173,21 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
         public async Task Validate_Origin_ValidatesProperty(string value, bool isValid)
         {
             // Arrange
-            const string propertyName = nameof(DataAvailableNotificationCommand.Origin);
+            const string propertyName = "Notifications[0]." + nameof(DataAvailableNotificationDto.Origin);
 
-            var target = new DataAvailableNotificationCommandRuleSet();
-            var command = new DataAvailableNotificationCommand(
+            var target = new InsertDataAvailableNotificationsCommandRuleSet();
+            var dto = new DataAvailableNotificationDto(
                 ValidUuid,
                 ValidRecipient,
                 ValidContentType,
                 value,
                 false,
                 ValidWeight,
-                1);
+                ValidSequenceNumber);
 
             // Act
-            var result = await target.ValidateAsync(command).ConfigureAwait(false);
+            var items = new[] { dto };
+            var result = await target.ValidateAsync(new InsertDataAvailableNotificationsCommand(items)).ConfigureAwait(false);
 
             // Assert
             if (isValid)
@@ -191,20 +213,61 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
         public async Task Validate_Weight_ValidatesProperty(int value, bool isValid)
         {
             // Arrange
-            const string propertyName = nameof(DataAvailableNotificationCommand.Weight);
+            const string propertyName = "Notifications[0]." + nameof(DataAvailableNotificationDto.Weight);
 
-            var target = new DataAvailableNotificationCommandRuleSet();
-            var command = new DataAvailableNotificationCommand(
+            var target = new InsertDataAvailableNotificationsCommandRuleSet();
+            var dto = new DataAvailableNotificationDto(
                 ValidUuid,
                 ValidRecipient,
                 ValidContentType,
                 ValidOrigin,
                 false,
                 value,
-                1);
+                ValidSequenceNumber);
 
             // Act
-            var result = await target.ValidateAsync(command).ConfigureAwait(false);
+            var items = new[] { dto };
+            var result = await target.ValidateAsync(new InsertDataAvailableNotificationsCommand(items)).ConfigureAwait(false);
+
+            // Assert
+            if (isValid)
+            {
+                Assert.True(result.IsValid);
+                Assert.DoesNotContain(propertyName, result.Errors.Select(x => x.PropertyName));
+            }
+            else
+            {
+                Assert.False(result.IsValid);
+                Assert.Contains(propertyName, result.Errors.Select(x => x.PropertyName));
+            }
+        }
+
+        [Theory]
+        [InlineData(0, false)]
+        [InlineData(-1, false)]
+        [InlineData(-10, false)]
+        [InlineData(int.MinValue, false)]
+        [InlineData(1, true)]
+        [InlineData(10, true)]
+        [InlineData(int.MaxValue, true)]
+        public async Task Validate_SequenceNumber_ValidatesProperty(int value, bool isValid)
+        {
+            // Arrange
+            const string propertyName = "Notifications[0]." + nameof(DataAvailableNotificationDto.SequenceNumber);
+
+            var target = new InsertDataAvailableNotificationsCommandRuleSet();
+            var dto = new DataAvailableNotificationDto(
+                ValidUuid,
+                ValidRecipient,
+                ValidContentType,
+                ValidOrigin,
+                false,
+                ValidWeight,
+                value);
+
+            // Act
+            var items = new[] { dto };
+            var result = await target.ValidateAsync(new InsertDataAvailableNotificationsCommand(items)).ConfigureAwait(false);
 
             // Assert
             if (isValid)

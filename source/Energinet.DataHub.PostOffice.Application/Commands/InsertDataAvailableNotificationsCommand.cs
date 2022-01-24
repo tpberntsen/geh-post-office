@@ -13,18 +13,9 @@
 // limitations under the License.
 
 using System.Collections.Generic;
-using Energinet.DataHub.PostOffice.Domain.Model;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public class DataAvailableNotificationsForRecipientCommand : IRequest<DataAvailableNotificationResponse>
-    {
-        public DataAvailableNotificationsForRecipientCommand(IEnumerable<DataAvailableNotificationCommand> notifications)
-        {
-            Notifications = notifications;
-        }
-
-        public IEnumerable<DataAvailableNotificationCommand> Notifications { get; }
-    }
+    public sealed record InsertDataAvailableNotificationsCommand(IEnumerable<DataAvailableNotificationDto> Notifications) : IRequest;
 }

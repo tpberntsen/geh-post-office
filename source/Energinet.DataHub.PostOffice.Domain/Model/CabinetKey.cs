@@ -12,7 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Energinet.DataHub.PostOffice.Utilities;
+
 namespace Energinet.DataHub.PostOffice.Domain.Model
 {
-    public sealed record CabinetKey(MarketOperator Recipient, DomainOrigin Origin, ContentType ContentType);
+    public sealed record CabinetKey
+    {
+        public CabinetKey(MarketOperator recipient, DomainOrigin origin, ContentType contentType)
+        {
+            Recipient = recipient;
+            Origin = origin;
+            ContentType = contentType;
+        }
+
+        public CabinetKey(DataAvailableNotification notification)
+        {
+            Guard.ThrowIfNull(notification, nameof(notification));
+
+            Recipient = notification.Recipient;
+            Origin = notification.Origin;
+            ContentType = notification.ContentType;
+        }
+
+        public MarketOperator Recipient { get; }
+        public DomainOrigin Origin { get; }
+        public ContentType ContentType { get; }
+    }
 }

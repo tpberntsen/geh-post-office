@@ -18,12 +18,15 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 {
     // JsonProperty is required for all properties, as the object is
     // used in CosmosDbFixture where naming rules are not yet configured,
-    public sealed record CosmosSequenceNumber
+    internal sealed record CosmosSequenceNumber
     {
+        public const string CosmosSequenceNumberIdentifier = "CosmosSequenceNumberIdentifier";
+        public const string CosmosSequenceNumberPartitionKey = "SequenceNumber";
+
         public CosmosSequenceNumber(long sequenceNumber)
         {
-            Id = "1";
-            PartitionKey = "SequenceNumber";
+            Id = CosmosSequenceNumberIdentifier;
+            PartitionKey = CosmosSequenceNumberPartitionKey;
             SequenceNumber = sequenceNumber;
         }
 

@@ -23,35 +23,12 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
     public interface IBundleRepository
     {
         /// <summary>
-        /// Get bundle by bundle id
-        /// </summary>
-        /// <param name="bundleId"></param>
-        /// <param name="marketOperator"></param>
-        /// <returns>Complete bundle</returns>
-        Task<Bundle?> GetBundleAsync(Uuid bundleId, MarketOperator marketOperator);
-
-        /// <summary>
         /// Gets the next bundle for the given recipient and domains that has yet to be acknowledged.
         /// </summary>
         /// <param name="recipient">The market operator to retrieve the next bundle for.</param>
         /// <param name="domains">The domains the retrieved bundle must belong to.</param>
         /// <returns>The next unacknowledged bundle; or null, if none is available.</returns>
         Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains);
-
-        /// <summary>
-        /// Acknowledges the bundle with the specified bundle id.
-        /// </summary>
-        /// <param name="recipient">The market operator owning the bundle.</param>
-        /// <param name="bundleId">The bundle id to acknowledge.</param>
-        Task AcknowledgeAsync(MarketOperator recipient, Uuid bundleId);
-
-        /// <summary>
-        /// Adds the specified bundle as the next unacknowledged bundle,
-        /// ensuring that only one bundle can be unacknowledged at a time.
-        /// </summary>
-        /// <param name="bundle">The bundle to add.</param>
-        /// <returns>Returns true if the bundle was successfully added; false, if another bundle aready exists.</returns>
-        Task<BundleCreatedResponse> TryAddNextUnacknowledgedAsync(Bundle bundle);
 
         /// <summary>
         /// Adds the specified bundle as the next unacknowledged bundle,
@@ -61,6 +38,13 @@ namespace Energinet.DataHub.PostOffice.Domain.Repositories
         /// <param name="cabinetReader">The reader used to retrieve the notifications for the bundle.</param>
         /// <returns>Returns a value indicating whether the bundle was successfully added.</returns>
         Task<BundleCreatedResponse> TryAddNextUnacknowledgedAsync(Bundle bundle, ICabinetReader cabinetReader);
+
+        /// <summary>
+        /// Acknowledges the bundle with the specified bundle id.
+        /// </summary>
+        /// <param name="recipient">The market operator owning the bundle.</param>
+        /// <param name="bundleId">The bundle id to acknowledge.</param>
+        Task AcknowledgeAsync(MarketOperator recipient, Uuid bundleId);
 
         /// <summary>
         /// Saves the bundle.

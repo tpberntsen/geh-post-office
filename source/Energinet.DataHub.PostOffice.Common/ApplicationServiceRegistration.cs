@@ -28,13 +28,14 @@ namespace Energinet.DataHub.PostOffice.Common
     {
         public static void AddApplicationServices(this Container container)
         {
-            container.Register<IValidator<DataAvailableNotificationCommand>, DataAvailableNotificationCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<PeekCommand>, PeekCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<PeekTimeSeriesCommand>, PeekTimeSeriesCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<PeekMasterDataCommand>, PeekMasterDataCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<PeekAggregationsCommand>, PeekAggregationsCommandRuleSet>(Lifestyle.Scoped);
             container.Register<IValidator<DequeueCommand>, DequeueCommandRuleSet>(Lifestyle.Scoped);
-            container.Register<IValidator<DequeueCleanUpCommand>, DequeueCleanUpCommandRuleSet>(Lifestyle.Scoped);
+            container.Register<IValidator<InsertDataAvailableNotificationsCommand>, InsertDataAvailableNotificationsCommandRuleSet>(Lifestyle.Scoped);
+            container.Register<IValidator<GetMaximumSequenceNumberCommand>, GetMaximumSequenceNumberCommandRuleSet>(Lifestyle.Scoped);
+            container.Register<IValidator<UpdateMaximumSequenceNumberCommand>, UpdateMaximumSequenceNumberCommandRuleSet>(Lifestyle.Scoped);
 
             container.Register<IDataAvailableNotificationParser, DataAvailableNotificationParser>(Lifestyle.Singleton);
             container.Register<IRequestBundleParser, RequestBundleParser>(Lifestyle.Singleton);

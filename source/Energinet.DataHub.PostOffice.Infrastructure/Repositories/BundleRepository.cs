@@ -32,9 +32,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 {
     public sealed class BundleRepository : IBundleRepository
     {
-        private readonly IStorageHandler _storageHandler;
-        private readonly IBundleRepositoryContainer _repositoryContainer;
         private readonly IMarketOperatorDataStorageService _marketOperatorDataStorageService;
+        private readonly IBundleRepositoryContainer _repositoryContainer;
+        private readonly IStorageHandler _storageHandler;
 
         public BundleRepository(
             IStorageHandler storageHandler,
@@ -46,24 +46,10 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             _marketOperatorDataStorageService = marketOperatorDataStorageService;
         }
 
-        public async Task<Bundle?> GetBundleAsync(Uuid bundleId, MarketOperator marketOperator)
-        {
-            var asLinq = _repositoryContainer
-                .Container
-                .GetItemLinqQueryable<CosmosBundleDocument>();
-
-            var cosmosBundleDocuments = asLinq.Where(document => document.Id == bundleId.ToString() && document.Recipient == marketOperator.Gln.Value);
-            var bundleDocument = await cosmosBundleDocuments.AsCosmosIteratorAsync().FirstOrDefaultAsync().ConfigureAwait(false);
-
-            return
-                bundleDocument is null
-                    ? null
-                    : BundleMapper.MapToBundle(bundleDocument);
-        }
-
         public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, params DomainOrigin[] domains)
         {
             Guard.ThrowIfNull(recipient, nameof(recipient));
+            Guard.ThrowIfNull(domains, nameof(domains));
 
             var asLinq = _repositoryContainer
                 .Container
@@ -79,44 +65,11 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var query =
                 from bundle in domainFiltered
-                where
-                    bundle.Recipient == recipient.Gln.Value &&
-                    (!bundle.Dequeued || !bundle.NotificationsArchived)
+                where bundle.Recipient == recipient.Gln.Value && !bundle.Dequeued
                 orderby bundle.Timestamp
                 select bundle;
 
             return GetNextUnacknowledgedAsync(query);
-        }
-
-        public async Task<BundleCreatedResponse> TryAddNextUnacknowledgedAsync(Bundle bundle)
-        {
-            Guard.ThrowIfNull(bundle, nameof(bundle));
-
-            await _storageHandler
-                .AddDataAvailableNotificationIdsToStorageAsync(bundle.ProcessId.ToString(), bundle.NotificationIds.Select(x => x.AsGuid()))
-                .ConfigureAwait(false);
-
-            var messageDocument = BundleMapper.MapToDocument(bundle);
-            var requestOptions = new ItemRequestOptions
-            {
-                PostTriggers = new[] { "EnsureSingleUnacknowledgedBundle" }
-            };
-
-            try
-            {
-                await _repositoryContainer.Container
-                    .CreateItemAsync(messageDocument, requestOptions: requestOptions)
-                    .ConfigureAwait(false);
-                return BundleCreatedResponse.Success;
-            }
-            catch (CosmosException ex) when (IsConcurrencyError(ex))
-            {
-                return BundleCreatedResponse.AnotherBundleExists;
-            }
-            catch (CosmosException ex) when (IsBundleIdDuplicateError(ex))
-            {
-                return BundleCreatedResponse.BundleIdAlreadyInUse;
-            }
         }
 
         public async Task<BundleCreatedResponse> TryAddNextUnacknowledgedAsync(Bundle bundle, ICabinetReader cabinetReader)
@@ -130,7 +83,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var reader = (AsyncCabinetReader)cabinetReader;
 
-            var messageDocument = BundleMapper.Map(bundle, reader.GetChanges());
+            var cosmosBundleDocument = BundleMapper.Map(bundle, reader.GetChanges());
             var requestOptions = new ItemRequestOptions
             {
                 PostTriggers = new[] { "EnsureSingleUnacknowledgedBundle" }
@@ -139,8 +92,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             try
             {
                 await _repositoryContainer.Container
-                    .CreateItemAsync(messageDocument, requestOptions: requestOptions)
+                    .CreateItemAsync(cosmosBundleDocument, requestOptions: requestOptions)
                     .ConfigureAwait(false);
+
                 return BundleCreatedResponse.Success;
             }
             catch (CosmosException ex) when (IsConcurrencyError(ex))
@@ -178,12 +132,31 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                 .ConfigureAwait(false);
         }
 
-        public Task SaveAsync(Bundle bundle)
+        public async Task SaveAsync(Bundle bundle)
         {
             Guard.ThrowIfNull(bundle, nameof(bundle));
 
-            var messageDocument = BundleMapper.MapToDocument(bundle);
-            return _repositoryContainer.Container.ReplaceItemAsync(messageDocument, messageDocument.Id);
+            var asLinq = _repositoryContainer
+                .Container
+                .GetItemLinqQueryable<CosmosBundleDocument>();
+
+            var query =
+                from cosmosBundleDocument in asLinq
+                where
+                    cosmosBundleDocument.Id == bundle.BundleId.ToString() &&
+                    cosmosBundleDocument.Recipient == bundle.Recipient.Gln.Value
+                select new { cosmosBundleDocument.AffectedDrawers };
+
+            var changes = await query
+                .AsCosmosIteratorAsync()
+                .SingleAsync()
+                .ConfigureAwait(false);
+
+            var updatedBundle = BundleMapper.Map(bundle, changes.AffectedDrawers);
+
+            await _repositoryContainer.Container
+                .ReplaceItemAsync(updatedBundle, updatedBundle.Id)
+                .ConfigureAwait(false);
         }
 
         private static bool IsConcurrencyError(CosmosException ex)
@@ -205,11 +178,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             IBundleContent? bundleContent = null;
 
             if (!string.IsNullOrWhiteSpace(bundleDocument.ContentPath))
-            {
                 bundleContent = new AzureBlobBundleContent(_marketOperatorDataStorageService, new Uri(bundleDocument.ContentPath));
-            }
 
-            return BundleMapper.MapToBundle(bundleDocument, bundleContent);
+            return BundleMapper.Map(bundleDocument, bundleContent);
         }
     }
 }

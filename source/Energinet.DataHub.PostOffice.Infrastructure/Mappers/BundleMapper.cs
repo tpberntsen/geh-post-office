@@ -13,7 +13,9 @@
 // limitations under the License.
 
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Infrastructure.Documents;
@@ -23,62 +25,59 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 {
     internal static class BundleMapper
     {
-        public static CosmosBundleDocument MapToDocument(Bundle source)
+        public static Bundle Map(CosmosBundleDocument bundleDocument, IBundleContent? bundleContent = null)
         {
-            return new CosmosBundleDocument
+            var notificationIds = new List<Uuid>();
+            var fromBase64 = Convert.FromBase64String(bundleDocument.NotificationIdsBase64);
+
+            using var stream = new MemoryStream(fromBase64);
+            using var binaryReader = new BinaryReader(stream);
+
+            while (stream.Position < stream.Length)
             {
-                Id = source.BundleId.ToString(),
-                ProcessId = source.ProcessId.ToString(),
+                var guidBytes = binaryReader.ReadBytes(16);
+                notificationIds.Add(new Uuid(new Guid(guidBytes)));
+            }
 
-                Dequeued = source.Dequeued,
-                NotificationsArchived = source.NotificationsArchived,
-
-                Recipient = source.Recipient.Gln.Value,
-                Origin = source.Origin.ToString(),
-                MessageType = source.ContentType.Value,
-
-                NotificationIds = source.NotificationIds.Select(id => id.ToString()).ToList(),
-                ContentPath = MapBundleContent(source)
-            };
-        }
-
-        public static CosmosBundleDocument2 Map(Bundle source, IEnumerable<CosmosCabinetDrawerChanges> changes)
-        {
-            return new CosmosBundleDocument2
-            {
-                Id = source.BundleId.ToString(),
-                ProcessId = source.ProcessId.ToString(),
-
-                Dequeued = source.Dequeued,
-
-                Recipient = source.Recipient.Gln.Value,
-                Origin = source.Origin.ToString(),
-                MessageType = source.ContentType.Value,
-
-                AffectedDrawers = changes.ToList(),
-
-                NotificationIds = source.NotificationIds.Select(id => id.ToString()).ToList(),
-                ContentPath = MapBundleContent(source)
-            };
-        }
-
-        public static Bundle MapToBundle(CosmosBundleDocument bundleDocument, IBundleContent? bundleContent = null)
-        {
             var bundle = new Bundle(
                 new Uuid(bundleDocument.Id),
                 new MarketOperator(new GlobalLocationNumber(bundleDocument.Recipient)),
                 Enum.Parse<DomainOrigin>(bundleDocument.Origin),
-                new ContentType(bundleDocument.MessageType),
-                bundleDocument.NotificationIds.Select(x => new Uuid(x)).ToList(),
+                new ContentType(bundleDocument.ContentType),
+                notificationIds,
                 bundleContent);
 
             if (bundleDocument.Dequeued)
                 bundle.Dequeue();
 
-            if (bundleDocument.NotificationsArchived)
-                bundle.ArchiveNotifications();
-
             return bundle;
+        }
+
+        public static CosmosBundleDocument Map(Bundle source, IEnumerable<CosmosCabinetDrawerChanges> changes)
+        {
+            using var stream = new MemoryStream();
+
+            foreach (var uuid in source.NotificationIds)
+            {
+                stream.Write(uuid.AsGuid().ToByteArray());
+            }
+
+            var toBase64 = Convert.ToBase64String(stream.ToArray());
+
+            return new CosmosBundleDocument
+            {
+                Id = source.BundleId.ToString(),
+                ProcessId = source.ProcessId.ToString(),
+                Recipient = source.Recipient.Gln.Value,
+                Origin = source.Origin.ToString(),
+                ContentType = source.ContentType.Value,
+
+                Dequeued = source.Dequeued,
+
+                NotificationIdsBase64 = toBase64,
+                AffectedDrawers = changes.ToList(),
+                ContentPath = MapBundleContent(source)
+            };
         }
 
         private static string MapBundleContent(Bundle bundle)

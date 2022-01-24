@@ -27,7 +27,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             MarketOperator recipient,
             DomainOrigin origin,
             ContentType contentType,
-            IReadOnlyCollection<Uuid> notificationIds)
+            IEnumerable<Uuid> notificationIds)
         {
             BundleId = bundleId;
             Origin = origin;
@@ -42,7 +42,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             MarketOperator recipient,
             DomainOrigin origin,
             ContentType contentType,
-            IReadOnlyCollection<Uuid> notificationIds,
+            IEnumerable<Uuid> notificationIds,
             IBundleContent? bundleContent)
         {
             BundleId = bundleId;
@@ -57,15 +57,13 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
         public Uuid BundleId { get; }
         public ProcessId ProcessId { get; }
 
-        public bool Dequeued { get; private set; }
-        public bool NotificationsArchived { get; private set; }
-        public bool WaitingForDequeueCleanup => Dequeued && !NotificationsArchived;
-
         public MarketOperator Recipient { get; }
         public DomainOrigin Origin { get; }
         public ContentType ContentType { get; }
 
-        public IReadOnlyCollection<Uuid> NotificationIds { get; }
+        public bool Dequeued { get; private set; }
+
+        public IEnumerable<Uuid> NotificationIds { get; }
 
         public bool TryGetContent([NotNullWhen(true)] out IBundleContent? bundleContent)
         {
@@ -79,11 +77,6 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
                 throw new InvalidOperationException("Content has already been set.");
 
             _bundleContent = bundleContent;
-        }
-
-        public void ArchiveNotifications()
-        {
-            NotificationsArchived = true;
         }
 
         public void Dequeue()
