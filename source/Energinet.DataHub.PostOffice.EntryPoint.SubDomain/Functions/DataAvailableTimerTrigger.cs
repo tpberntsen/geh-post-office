@@ -51,7 +51,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
         }
 
         [Function(FunctionName)]
-        public async Task RunAsync([TimerTrigger("*/20 * * * * *")] FunctionContext context)
+        public async Task RunAsync([TimerTrigger("*/5 * * * * *")] FunctionContext context)
         {
             _logger.LogInformation("Begins processing DataAvailableTimerTrigger.");
 
