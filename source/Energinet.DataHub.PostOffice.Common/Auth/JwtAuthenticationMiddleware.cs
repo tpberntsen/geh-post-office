@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Energinet.DataHub.Core.FunctionApp.Common.Abstractions.Actor;
 using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
@@ -24,12 +22,13 @@ namespace Energinet.DataHub.PostOffice.Common.Auth
 {
     public sealed class JwtAuthenticationMiddleware : IFunctionsWorkerMiddleware
     {
-        private static readonly JwtSecurityTokenHandler _tokenHandler = new();
         private readonly IMarketOperatorIdentity _identity;
+        private readonly IActorContext _actorContext;
 
-        public JwtAuthenticationMiddleware(IMarketOperatorIdentity identity)
+        public JwtAuthenticationMiddleware(IMarketOperatorIdentity identity, IActorContext actorContext)
         {
             _identity = identity;
+            _actorContext = actorContext;
         }
 
         public Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
@@ -37,27 +36,9 @@ namespace Energinet.DataHub.PostOffice.Common.Auth
             Guard.ThrowIfNull(context, nameof(context));
             Guard.ThrowIfNull(next, nameof(next));
 
-            if (!_identity.HasIdentity)
+            if (!_identity.HasIdentity && !string.IsNullOrWhiteSpace(_actorContext.CurrentActor?.Identifier))
             {
-                try
-                {
-                    // This abomination is temporary, while MS is working on something nicer.
-                    // https://github.com/Azure/azure-functions-dotnet-worker/issues/414
-                    if (context.BindingContext.BindingData["headers"] is string headers)
-                    {
-                        var headerMatch = Regex.Match(headers, "\"[aA]uthorization\"\\s*:\\s*\"Bearer (.*?)\"");
-                        if (headerMatch.Success && headerMatch.Groups.Count == 2)
-                        {
-                            var token = headerMatch.Groups[1].Value;
-                            var parsed = _tokenHandler.ReadJwtToken(token);
-                            _identity.AssignGln(parsed.Subject);
-                        }
-                    }
-                }
-                catch (Exception ex) when (ex is ArgumentException or FormatException or InvalidOperationException)
-                {
-                    // If token not parsable, do not auth.
-                }
+                _identity.AssignGln(_actorContext.CurrentActor.Identifier);
             }
 
             return next(context);

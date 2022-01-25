@@ -34,6 +34,8 @@
     "CHARGES_DEQUEUE_QUEUE_NAME": "",
     "MARKETROLES_DEQUEUE_QUEUE_NAME": "",
     "METERINGPOINTS_DEQUEUE_QUEUE_NAME": "",
-    "AGGREGATIONS_DEQUEUE_QUEUE_NAME": ""
+    "AGGREGATIONS_DEQUEUE_QUEUE_NAME": "",
+    "B2C_TENANT_ID": "<Azure B2C tenant id>",
+    "BACKEND_SERVICE_APP_ID": "<Backend service application id>"
   }
 }
