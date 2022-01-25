@@ -465,11 +465,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
         private async Task<bool> CheckIdempotencyAsync(DataAvailableNotification notification)
         {
-            var documentId = notification.NotificationId.ToString();
+            var documentId = notification.NotificationId.AsGuid();
+            var partitionKey = documentId.ToByteArray()[0];
+
             var uniqueId = new CosmosUniqueId
             {
-                Id = documentId,
-                PartitionKey = $"{documentId.GetHashCode(StringComparison.InvariantCultureIgnoreCase) % 10}",
+                Id = $"{documentId}",
+                PartitionKey = $"{partitionKey}",
                 Content = Base64Content(notification)
             };
 
