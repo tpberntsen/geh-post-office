@@ -112,7 +112,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.Templates
                                 .AddString(s2 => s2
                                     .WithName(ElementNames.End)
                                     .WithValueWrappedInProperty()))
-                            .AddNested(n2 => n2
+                            .AddArray(n2 => n2
                                 .WithName(ElementNames.Point)
                                 .AddInteger(s2 => s2
                                     .WithName(ElementNames.Position)

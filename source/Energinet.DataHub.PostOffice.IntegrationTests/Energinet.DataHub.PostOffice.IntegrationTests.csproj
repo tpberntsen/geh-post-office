@@ -54,4 +54,15 @@ limitations under the License.
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="CimJson\TestData\RSM-012 - Notify validated measure data.xml" />
+    <Content Include="CimJson\TestData\RSM-012 - Notify validated measure data.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="CimJson\TestData\Notify validated measure data 2 series.xml" />
+    <Content Include="CimJson\TestData\Notify validated measure data 2 series.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

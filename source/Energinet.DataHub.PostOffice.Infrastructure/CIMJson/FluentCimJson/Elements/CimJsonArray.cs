@@ -25,11 +25,13 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Elem
     {
         private readonly List<ICimJsonElementDescriptor> _elementsDescriptors;
         private ArraySegment<byte> _arrayFragment;
+        private bool _arrayElementFound;
         public CimJsonArray(string name, bool isOptional, List<ICimJsonElementDescriptor> elementDescriptors)
         {
             Name = name;
             IsOptional = isOptional;
             _elementsDescriptors = elementDescriptors;
+            _arrayElementFound = false;
         }
 
         public string Name { get; }
@@ -42,16 +44,17 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Elem
             using Utf8JsonWriter jsonWriter = new(jsonStream, new JsonWriterOptions { Indented = false, SkipValidation = true });
             while (!reader.EOF)
             {
-                var singleArrayElement = new List<ICimJsonElement>(_elementsDescriptors.Count);
+                var singleArrayElements = new List<ICimJsonElement>(_elementsDescriptors.Count);
                 if (reader.IsStartElement() && reader.LocalName == Name)
                 {
                     if (shouldWriteStartArrayElement)
                     {
                         jsonWriter.WriteStartArray();
                         shouldWriteStartArrayElement = false;
+                        _arrayElementFound = true;
                     }
 
-                    singleArrayElement.Clear();
+                    singleArrayElements.Clear();
                     foreach (var elementDescriptor in _elementsDescriptors)
                     {
                         var element = elementDescriptor.CreateElement();
@@ -61,12 +64,12 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Elem
                             continue;
 
                         element.ReadData(reader);
-                        singleArrayElement.Add(element);
+                        singleArrayElements.Add(element);
                     }
 
                     jsonWriter.WriteStartObject();
-                    singleArrayElement.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase));
-                    foreach (var jsonElement in singleArrayElement)
+                    singleArrayElements.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase));
+                    foreach (var jsonElement in singleArrayElements)
                     {
                         jsonElement.WriteJson(jsonWriter);
                         jsonElement.ReturnElementToPool();
@@ -74,9 +77,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Elem
 
                     jsonWriter.WriteEndObject();
                 }
-                else if (reader.NodeType == XmlNodeType.Element && reader.LocalName != Name)
+                else if (reader.NodeType is XmlNodeType.EndElement or XmlNodeType.Element && reader.LocalName != Name)
                 {
-                    if (IsOptional)
+                    if (IsOptional && !_arrayElementFound)
                         break;
 
                     jsonWriter.WriteEndArray();
@@ -86,16 +89,19 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Elem
                         _arrayFragment = buffer;
                     }
 
-                    _elementsDescriptors.Clear();
                     break;
                 }
 
-                reader.Read();
+                if (!reader.IsStartElement())
+                {
+                    reader.Read();
+                }
             }
         }
 
         public void WriteJson(Utf8JsonWriter writer)
         {
+            if (!_arrayElementFound) return;
             writer.WritePropertyName(Name);
             writer.WriteRawValue(_arrayFragment);
         }
@@ -118,15 +124,18 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Elem
                 return true;
             }
 
+            if (isOptional && reader.IsStartElement() && reader.LocalName != elementName)
+                return false;
+
             while (reader.Read())
             {
-                switch (reader.NodeType)
+                if (reader.NodeType == XmlNodeType.Element && reader.LocalName == elementName)
                 {
-                    case XmlNodeType.Element when reader.LocalName == elementName:
-                        return true;
-                    case XmlNodeType.Element when isOptional && reader.LocalName != elementName:
-                        return false;
+                    return true;
                 }
+
+                if (isOptional && (reader.IsStartElement() || reader.NodeType is XmlNodeType.EndElement) && reader.LocalName != elementName)
+                    return false;
             }
 
             return false;

@@ -87,15 +87,18 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Elem
                 return true;
             }
 
+            if (isOptional && reader.IsStartElement() && reader.LocalName != elementName)
+                return false;
+
             while (reader.Read())
             {
-                switch (reader.NodeType)
+                if (reader.NodeType == XmlNodeType.Element && reader.LocalName == elementName)
                 {
-                    case XmlNodeType.Element when reader.LocalName == elementName:
-                        return true;
-                    case XmlNodeType.Element when isOptional && reader.LocalName != elementName:
-                        return false;
+                    return true;
                 }
+
+                if (isOptional && reader.IsStartElement() && reader.LocalName != elementName)
+                    return false;
             }
 
             return false;
