@@ -13,6 +13,9 @@
 // limitations under the License.
 
 using System;
+using Energinet.DataHub.Core.FunctionApp.Common.Abstractions.Identity;
+using Energinet.DataHub.Core.FunctionApp.Common.Identity;
+using Energinet.DataHub.Core.FunctionApp.Common.Middleware;
 using Energinet.DataHub.Core.FunctionApp.Common.SimpleInjector;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
@@ -36,10 +39,16 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
 
         private static void RegisterJwt(Container container)
         {
-            var tenantId = Environment.GetEnvironmentVariable("B2C_TENANT_ID") ?? throw new InvalidOperationException("B2C tenant id not found.");
-            var audience = Environment.GetEnvironmentVariable("BACKEND_SERVICE_APP_ID") ?? throw new InvalidOperationException("Backend service app id not found.");
+            container.Register<JwtTokenMiddleware>(Lifestyle.Scoped);
+            container.Register<IClaimsPrincipalAccessor, ClaimsPrincipalAccessor>(Lifestyle.Scoped);
+            container.Register<ClaimsPrincipalContext>(Lifestyle.Scoped);
+            container.Register(() =>
+            {
+                var tenantId = Environment.GetEnvironmentVariable("B2C_TENANT_ID") ?? throw new InvalidOperationException("B2C tenant id not found.");
+                var audience = Environment.GetEnvironmentVariable("BACKEND_SERVICE_APP_ID") ?? throw new InvalidOperationException("Backend service app id not found.");
 
-            container.AddJwtTokenSecurity($"https://login.microsoftonline.com/{tenantId}/v2.0/.well-known/openid-configuration", audience);
+                return new OpenIdSettings($"https://login.microsoftonline.com/{tenantId}/v2.0/.well-known/openid-configuration", audience);
+            });
         }
 
         private static void RegisterActor(Container container)
