@@ -14,6 +14,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Common.Auth;
@@ -30,7 +31,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
     public class BundledIdTests
     {
         [Fact]
-        public async Task Given_BundledId_WhenPeeked_ShouldSetBundledIdHeader()
+        public async Task Given_PeekAggregations_WhenBundledIdIsPresentInQuery_ShouldSetBundledIdHeader()
         {
             // Arrange
             var bundledId = Guid.NewGuid().ToString("N");
@@ -50,7 +51,10 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert
-            response.Headers.Should().ContainKey("Bundled-Id");
+            response.Headers.Should()
+                .ContainSingle(header =>
+                    header.Key.Equals(PeekAggregationsFunction.BundleIdHeaderName, StringComparison.Ordinal) &&
+                    header.Value.Equals(bundledId));
         }
     }
 }
