@@ -49,7 +49,6 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
                 var configuration = container.GetService<IConfiguration>();
                 var tenantId = configuration.GetValue<string>("B2C_TENANT_ID") ?? throw new InvalidOperationException("B2C tenant id not found.");
                 var audience = configuration.GetValue<string>("BACKEND_SERVICE_APP_ID") ?? throw new InvalidOperationException("Backend service app id not found.");
-
                 return new OpenIdSettings($"https://login.microsoftonline.com/{tenantId}/v2.0/.well-known/openid-configuration", audience);
             });
         }
