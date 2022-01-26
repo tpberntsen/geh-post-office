@@ -29,16 +29,14 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.CimJson
         public async Task ConvertXmlToJson_TemplateNotifyValidatedMeasureDataWithFluent_ReturnsNotNull()
         {
             // Arrange
-            using var testTemplate2 = new TemplateNotifyValidatedMeasureDataWithFluent();
-            await using var testFile = new FileStream(@"CimJson/TestData/Notify validated measure data 2 series.xml", FileMode.Open);
-            // await File.WriteAllTextAsync(@$"{Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)}..\..\..\..\..\data\Converted-template2.json", json2);
+            using var testTemplate2 = new NotifyValidatedMeasureDataWithFluentTemplate();
+            await using var testFile = new FileStream(@"CimJson/TestData/RSM-012 - Notify validated measure data.xml", FileMode.Open);
 
             // Act
-            var result2 = await testTemplate2.ParseXmlAsync(testFile).ConfigureAwait(false);
-            var json2 = Encoding.UTF8.GetString(result2.ToArray());
+            var result = await testTemplate2.ParseXmlAsync(testFile).ConfigureAwait(false);
 
             // Assert
-            Assert.NotNull(json2);
+            Assert.NotNull(result);
         }
     }
 }

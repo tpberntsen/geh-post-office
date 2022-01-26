@@ -18,9 +18,9 @@ using Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Builders
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.Templates
 {
-    internal class TemplateNotifyValidatedMeasureDataWithFluent : BaseJsonTemplateFluent
+    internal class NotifyValidatedMeasureDataWithFluentTemplate : BaseJsonTemplateFluent
     {
-        public TemplateNotifyValidatedMeasureDataWithFluent()
+        public NotifyValidatedMeasureDataWithFluentTemplate()
             : base("NotifyValidatedMeasureData_MarketDocument") { }
         protected override void Generate(Utf8JsonWriter jsonWriter, XmlReader reader)
         {
