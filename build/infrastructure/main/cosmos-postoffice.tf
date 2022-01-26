@@ -17,6 +17,8 @@ resource "azurerm_cosmosdb_account" "post_office" {
   location            = azurerm_resource_group.this.location
   offer_type          = "Standard"
   kind                = "GlobalDocumentDB"
+  public_network_access_enabled = false
+  is_virtual_network_filter_enabled = true
   # To enable global failover change to true and uncomment second geo_location
   enable_automatic_failover = false
 
@@ -39,6 +41,44 @@ resource "azurerm_cosmosdb_account" "post_office" {
     ]
   }
 }
+
+resource "azurerm_private_endpoint" "cosmos-pe" {
+    name                = "cosmos-pe-${lower(var.domain_name_short)}-${lower(var.environment_short)}-${lower(var.environment_instance)}"
+    location            = azurerm_resource_group.this.location
+    resource_group_name = azurerm_resource_group.this.name
+    subnet_id           = azurerm_subnet.this_private_endpoints_subnet.id # ********* ADD THIS WHEN KNOWN ***********
+    private_service_connection {
+        is_manual_connection       = false
+        name                       = "cosmos-psc"
+        private_connection_resource_id = azurerm_cosmosdb_account.post_office.id
+        subresource_names          = ["sql"]
+  }
+}
+
+# Create an A record pointing to the  private endpoint
+resource "azurerm_private_dns_a_record" "cosmosdb_sql" {
+  name                = azurerm_cosmosdb_account.post_office.name
+  zone_name           = "privatelink.documents.azure.com"
+  resource_group_name = azurerm_resource_group.this.name
+  ttl                 = 3600
+  records             = [azurerm_private_endpoint.cosmos-pe.private_service_connection[0].private_ip_address]
+}
+
+# Create an A record pointing to the private endpoint with region location
+resource "azurerm_private_dns_a_record" "cosmosdb_sql_location" {
+  name                = "${azurerm_cosmosdb_account.post_office.name}-${azurerm_resource_group.this.location}"
+  zone_name           = "privatelink.documents.azure.com"
+  resource_group_name = azurerm_resource_group.this.name
+  ttl                 = 3600
+  records             = [azurerm_private_endpoint.cosmos-pe.private_service_connection[0].private_ip_address]
+}
+
+resource "azurerm_cosmosdb_sql_database" "db" {
+  name                = "post-office"
+  resource_group_name = azurerm_resource_group.this.name
+  account_name        = azurerm_cosmosdb_account.post_office.name
+}
+
 
 resource "azurerm_cosmosdb_sql_database" "db" {
   name                = "post-office"
