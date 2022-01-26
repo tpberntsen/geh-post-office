@@ -26,7 +26,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
     public sealed class PeekAggregationsFunction
     {
-        private const string BundleIdQueryName = "bundleId";
+        public const string BundleIdQueryName = "bundleId";
 
         private readonly IMediator _mediator;
         private readonly IMarketOperatorIdentity _operatorIdentity;
