@@ -27,6 +27,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
     public sealed class PeekAggregationsFunction
     {
         public const string BundleIdQueryName = "bundleId";
+        public const string BundleIdHeaderName = "Bundled-Id";
 
         private readonly IMediator _mediator;
         private readonly IMarketOperatorIdentity _operatorIdentity;
@@ -46,9 +47,13 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
             {
                 var command = new PeekAggregationsCommand(_operatorIdentity.Gln, request.Url.GetQueryValue(BundleIdQueryName));
                 var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
-                return hasContent
+
+                var response = hasContent
                     ? request.CreateResponse(stream, MediaTypeNames.Application.Xml)
                     : request.CreateResponse(HttpStatusCode.NoContent);
+
+                response.Headers.Add(BundleIdHeaderName, command.BundleId);
+                return response;
             });
         }
     }
