@@ -29,11 +29,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.Templates
                 .WithXmlReader(
                     x => x
                             .AddString(sb => sb
-                                .WithName(ElementNames.MarketDocument.MRid)
-                                .WithAttributes(ab => ab
-                                    .AddString(asb => asb
-                                        .WithName(ElementNames.Attributes.CodingScheme)))
-                                .IsOptional()),
+                                .WithName(ElementNames.MarketDocument.MRid)),
                     reader)
                 .Build(jsonWriter);
         }
