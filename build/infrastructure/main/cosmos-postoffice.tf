@@ -79,13 +79,6 @@ resource "azurerm_cosmosdb_sql_database" "db" {
   account_name        = azurerm_cosmosdb_account.post_office.name
 }
 
-
-resource "azurerm_cosmosdb_sql_database" "db" {
-  name                = "post-office"
-  resource_group_name = azurerm_resource_group.this.name
-  account_name        = azurerm_cosmosdb_account.post_office.name
-}
-
 resource "azurerm_cosmosdb_sql_container" "collection_catalog" {
   name                = "catalog"
   resource_group_name = var.resource_group_name
