@@ -292,7 +292,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var query =
                 from dataAvailable in asLinq
-                where dataAvailable.PartitionKey == drawer.PartitionKey
+                where dataAvailable.PartitionKey == drawer.Id
                 select dataAvailable;
 
             return await query.CountAsync().ConfigureAwait(false);
