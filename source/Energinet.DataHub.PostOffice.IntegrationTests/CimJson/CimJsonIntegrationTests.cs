@@ -26,14 +26,30 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.CimJson
     public sealed class CimJsonIntegrationTests
     {
         [Fact]
-        public async Task ConvertXmlToJson_TemplateNotifyValidatedMeasureDataWithFluent_ReturnsNotNull()
+        public async Task ConvertXmlToJson_NotifyValidatedMeasureDataTemplate_ReturnsNotNull()
         {
             // Arrange
-            using var testTemplate2 = new NotifyValidatedMeasureDataWithFluentTemplate();
+            using var testTemplate2 = new NotifyValidatedMeasureDataTemplate();
             await using var testFile = new FileStream(@"CimJson/TestData/RSM-012 - Notify validated measure data.xml", FileMode.Open);
 
             // Act
             var result = await testTemplate2.ParseXmlAsync(testFile).ConfigureAwait(false);
+            var json = Encoding.UTF8.GetString(result.ToArray());
+
+            // Assert
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task ConvertXmlToJson_RejectRequestValidatedMeasureData_ReturnsNotNull()
+        {
+            // Arrange
+            using var testTemplate2 = new RejectRequestValidatedMeasureDataTemplate();
+            await using var testFile = new FileStream(@"CimJson/TestData/RSM-012 - Reject request validated measure data.xml", FileMode.Open);
+
+            // Act
+            var result = await testTemplate2.ParseXmlAsync(testFile).ConfigureAwait(false);
+            var json = Encoding.UTF8.GetString(result.ToArray());
 
             // Assert
             Assert.NotNull(result);

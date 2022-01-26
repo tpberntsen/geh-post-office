@@ -61,5 +61,9 @@ limitations under the License.
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Remove="CimJson\TestData\Notify validated measure data 2 series.xml" />
+    <None Remove="CimJson\TestData\RSM-012 - Reject request validated measure data.xml" />
+    <Content Include="CimJson\TestData\RSM-012 - Reject request validated measure data.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
