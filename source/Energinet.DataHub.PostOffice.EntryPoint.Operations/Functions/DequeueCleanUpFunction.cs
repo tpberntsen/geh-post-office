@@ -18,16 +18,13 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
 {
-    public class DequeueCleanUpFunction
+    public sealed class DequeueCleanUpFunction
     {
         private const string FunctionName = "DequeueCleanUp";
 
         [Function(FunctionName)]
-        public Task RunAsync(
-            [ServiceBusTrigger(
-                "%" + ServiceBusConfig.DequeueCleanUpQueueNameKey + "%",
-                Connection = "ServiceBusConnectionString")]
-            string message,
+        public static Task RunAsync(
+            [ServiceBusTrigger("%" + ServiceBusConfig.DequeueCleanUpQueueNameKey + "%", Connection = "ServiceBusConnectionString")]
             FunctionContext context)
         {
             // TODO: This function will become GC at some point.
