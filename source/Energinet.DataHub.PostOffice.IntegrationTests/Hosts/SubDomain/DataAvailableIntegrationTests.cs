@@ -93,6 +93,87 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
         }
 
         [Fact]
+        public async Task InsertDataAvailableNotificationsCommand_PeekDequeuePeekSequence_CanBePeekedBack()
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var bundleIdA = Guid.NewGuid().ToString();
+            var bundleIdB = Guid.NewGuid().ToString();
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var dataAvailableNotificationA = new DataAvailableNotificationDto(
+                Guid.NewGuid().ToString(),
+                recipientGln,
+                "MeteringPoints",
+                "MeteringPoints",
+                true,
+                1,
+                1);
+
+            var dataAvailableNotificationB = new DataAvailableNotificationDto(
+                Guid.NewGuid().ToString(),
+                dataAvailableNotificationA.Recipient,
+                dataAvailableNotificationA.ContentType,
+                dataAvailableNotificationA.Origin,
+                dataAvailableNotificationA.SupportsBundling,
+                dataAvailableNotificationA.Weight,
+                2);
+
+            var dataAvailableNotificationC = new DataAvailableNotificationDto(
+                Guid.NewGuid().ToString(),
+                dataAvailableNotificationA.Recipient,
+                dataAvailableNotificationA.ContentType,
+                dataAvailableNotificationA.Origin,
+                dataAvailableNotificationA.SupportsBundling,
+                dataAvailableNotificationA.Weight,
+                3);
+
+            var insert3 = new InsertDataAvailableNotificationsCommand(new[]
+            {
+                dataAvailableNotificationA,
+                dataAvailableNotificationB,
+                dataAvailableNotificationC
+            });
+
+            await mediator.Send(insert3).ConfigureAwait(false);
+            await mediator.Send(new UpdateMaximumSequenceNumberCommand(3)).ConfigureAwait(false);
+
+            // Act
+            await mediator.Send(new PeekCommand(recipientGln, bundleIdA)).ConfigureAwait(false);
+            await mediator.Send(new DequeueCommand(recipientGln, bundleIdA)).ConfigureAwait(false);
+
+            var dataAvailableNotificationD = new DataAvailableNotificationDto(
+                Guid.NewGuid().ToString(),
+                dataAvailableNotificationA.Recipient,
+                dataAvailableNotificationA.ContentType,
+                dataAvailableNotificationA.Origin,
+                dataAvailableNotificationA.SupportsBundling,
+                dataAvailableNotificationA.Weight,
+                4);
+
+            var insert1 = new InsertDataAvailableNotificationsCommand(new[]
+            {
+                dataAvailableNotificationD
+            });
+
+            await mediator.Send(insert1).ConfigureAwait(false);
+            await mediator.Send(new UpdateMaximumSequenceNumberCommand(4)).ConfigureAwait(false);
+
+            var peekResponse = await mediator
+                .Send(new PeekCommand(recipientGln, bundleIdB))
+                .ConfigureAwait(false);
+
+            // Assert
+            Assert.True(peekResponse.HasContent);
+        }
+
+        [Fact]
         public async Task GetMaximumSequenceNumberCommand_ValidCommand_ReturnsNumber()
         {
             // Arrange
