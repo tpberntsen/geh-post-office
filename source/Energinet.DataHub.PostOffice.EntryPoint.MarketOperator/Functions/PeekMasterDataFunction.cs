@@ -27,7 +27,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
     public sealed class PeekMasterDataFunction
     {
         public const string BundleIdQueryName = "bundleId";
-        public const string BundleIdHeaderName = "Bundle-Id";
+        public const string BundleIdHeaderName = "BundleId";
 
         private readonly IMediator _mediator;
         private readonly IMarketOperatorIdentity _operatorIdentity;
