@@ -35,7 +35,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         {
             // Arrange
             var bundleId = Guid.NewGuid().ToString("N");
-            var path = $"https://localhost?{PeekAggregationsFunction.BundleIdQueryName}={bundleId}";
+            Uri path = new($"https://localhost?{PeekAggregationsFunction.BundleIdQueryName}={bundleId}");
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
@@ -58,7 +58,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         {
             // Arrange
             var bundleId = Guid.NewGuid().ToString("N");
-            var path = $"https://localhost?{PeekFunction.BundleIdQueryName}={bundleId}";
+            Uri path = new($"https://localhost?{PeekFunction.BundleIdQueryName}={bundleId}");
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
@@ -81,7 +81,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         {
             // Arrange
             var bundleId = Guid.NewGuid().ToString("N");
-            var path = $"https://localhost?{PeekMasterDataFunction.BundleIdQueryName}={bundleId}";
+            Uri path = new($"https://localhost?{PeekMasterDataFunction.BundleIdQueryName}={bundleId}");
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
@@ -104,7 +104,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         {
             // Arrange
             var bundleId = Guid.NewGuid().ToString("N");
-            var path = $"https://localhost?{PeekTimeSeriesFunction.BundleIdQueryName}={bundleId}";
+            Uri path = new($"https://localhost?{PeekTimeSeriesFunction.BundleIdQueryName}={bundleId}");
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
