@@ -78,10 +78,10 @@ jobs:
   #     DOTNET_VERSION: '5.0'
   #     ARTIFACT_NAME: operations
 
-  # create_prerelease:
-  #   needs: [market_operator_ci, subdomain_ci, operations_ci]
-  #   uses: Energinet-DataHub/.github/.github/workflows/create-prerelease.yml@2.1.0
-  #   with:
-  #     CALLER_REPOSITORY_PATH: Energinet-DataHub/geh-post-office
-  #   secrets:
-  #     PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+  create_prerelease:
+    needs: [market_operator_ci, subdomain_ci, operations_ci]
+    uses: Energinet-DataHub/.github/.github/workflows/create-prerelease.yml@2.1.0
+    with:
+      CALLER_REPOSITORY_PATH: Energinet-DataHub/geh-post-office
+    secrets:
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
