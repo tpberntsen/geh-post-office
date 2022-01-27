@@ -85,3 +85,19 @@ data "azurerm_key_vault_secret" "sql_data_admin_password" {
   name         = "sql-data-admin-user-password"
   key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
 }
+
+data "azurerm_key_vault_secret" "vnet_shared_name" {
+  name         = "vnet-shared-name"
+  key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
+}
+
+data "azurerm_key_vault_secret" "vnet_shared_id" {
+  name         = "vnet-shared-id"
+  key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
+}
+
+data "azurerm_key_vault_secret" "vnet_shared_rg_name" {
+  name         = "vnet-shared-rg-name"
+  key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
+}
+

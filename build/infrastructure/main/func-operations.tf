@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 module "func_operations" {
-  source                                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/function-app?ref=5.1.0"
+  source                                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/function-app?ref=6.0.0"
 
   name                                      = "operations"
   project_name                              = var.domain_name_short
@@ -22,6 +22,9 @@ module "func_operations" {
   location                                  = azurerm_resource_group.this.location
   app_service_plan_id                       = module.plan_shared.id
   application_insights_instrumentation_key  = data.azurerm_key_vault_secret.appi_instrumentation_key.value
+  vnet_integration_subnet_id                = module.vnet_integrations.id
+  private_endpoint_subnet_id                = module.private_endpoints_subnet.id
+  vnet_resource_group_name                  = data.azurerm_key_vault_secret.vnet_shared_rg_name
   always_on                                 = true
   app_settings                              = {
     # Region: Default Values
