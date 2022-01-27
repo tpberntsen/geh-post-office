@@ -16,7 +16,7 @@ using System;
 using Energinet.DataHub.PostOffice.Common.Extensions;
 using Microsoft.Azure.Functions.Worker.Http;
 
-namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
+namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
 {
     public abstract class BundleIdProvider
     {
