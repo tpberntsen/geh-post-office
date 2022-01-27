@@ -19,7 +19,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
-using Energinet.DataHub.PostOffice.Tests.Common;
 using Energinet.DataHub.PostOffice.Tests.Common.Auth;
 using FluentValidation;
 using MediatR;
