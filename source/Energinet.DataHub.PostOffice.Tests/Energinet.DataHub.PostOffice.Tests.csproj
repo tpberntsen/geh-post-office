@@ -31,6 +31,7 @@ limitations under the License.
     <ProjectReference Include="..\Energinet.DataHub.PostOffice.EntryPoint.SubDomain\Energinet.DataHub.PostOffice.EntryPoint.SubDomain.csproj" />
     <ProjectReference Include="..\Energinet.DataHub.PostOffice.EntryPoint.MarketOperator\Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.csproj" />
     <ProjectReference Include="..\Energinet.DataHub.PostOffice.Infrastructure\Energinet.DataHub.PostOffice.Infrastructure.csproj" />
+    <ProjectReference Include="..\Microsoft.Azure.Functions.Isolated.TestDoubles\Microsoft.Azure.Functions.Isolated.TestDoubles.csproj" />
   </ItemGroup>
 
   <ItemGroup>
