@@ -174,6 +174,60 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
         }
 
         [Fact]
+        public async Task InsertDataAvailableNotificationsCommand_PeekInsertDequeueSequence_CanBePeekedBack()
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var bundleIdA = Guid.NewGuid().ToString();
+            var bundleIdB = Guid.NewGuid().ToString();
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var dataAvailableNotificationA = new DataAvailableNotificationDto(
+                Guid.NewGuid().ToString(),
+                recipientGln,
+                "MeteringPoints",
+                "MeteringPoints",
+                true,
+                1,
+                1);
+
+            var dataAvailableNotificationB = new DataAvailableNotificationDto(
+                Guid.NewGuid().ToString(),
+                dataAvailableNotificationA.Recipient,
+                dataAvailableNotificationA.ContentType,
+                dataAvailableNotificationA.Origin,
+                dataAvailableNotificationA.SupportsBundling,
+                dataAvailableNotificationA.Weight,
+                2);
+
+            await mediator
+                .Send(new InsertDataAvailableNotificationsCommand(new[] { dataAvailableNotificationA }))
+                .ConfigureAwait(false);
+
+            // Act
+            await mediator.Send(new PeekCommand(recipientGln, bundleIdA)).ConfigureAwait(false);
+
+            await mediator
+                .Send(new InsertDataAvailableNotificationsCommand(new[] { dataAvailableNotificationB }))
+                .ConfigureAwait(false);
+
+            await mediator.Send(new DequeueCommand(recipientGln, bundleIdA)).ConfigureAwait(false);
+
+            // Assert
+            var peekResponse = await mediator
+                .Send(new PeekCommand(recipientGln, bundleIdB))
+                .ConfigureAwait(false);
+
+            Assert.True(peekResponse.HasContent);
+        }
+
+        [Fact]
         public async Task GetMaximumSequenceNumberCommand_ValidCommand_ReturnsNumber()
         {
             // Arrange
