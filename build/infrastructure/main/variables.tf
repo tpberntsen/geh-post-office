@@ -16,7 +16,7 @@ variable subscription_id {
   description = "Subscription that the infrastructure code is deployed into."
 }
 
-variable project_name{
+variable project_name {
     type        = string
     description = "Name of the project that the infrastructure code is deployed into."
 }
