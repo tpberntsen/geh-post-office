@@ -20,11 +20,11 @@ using System.Xml;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.Templates
 {
-    internal abstract class BaseJsonTemplateFluent : IDisposable
+    internal abstract class BaseJsonTemplate : IDisposable
     {
         private readonly string _jsonRootElementName;
         private XmlReader? _reader;
-        protected BaseJsonTemplateFluent(string jsonRootElementName)
+        protected BaseJsonTemplate(string jsonRootElementName)
         {
             _jsonRootElementName = jsonRootElementName;
         }
