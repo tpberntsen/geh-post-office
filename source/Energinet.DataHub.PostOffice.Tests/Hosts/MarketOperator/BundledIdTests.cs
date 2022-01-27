@@ -38,16 +38,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             var path = $"https://localhost?{PeekAggregationsFunction.BundleIdQueryName}={bundledId}";
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
-
-            var mediator = new Mock<IMediator>();
-            mediator
-                .Setup(p => p.Send(It.IsAny<PeekAggregationsCommand>(), default))
-                .ReturnsAsync(new PeekResponse(false, Stream.Null));
-
+            var mediator = SetupMediator();
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
-            var sut = new PeekAggregationsFunction(mediator.Object, identifier);
+            var sut = new PeekAggregationsFunction(mediator, identifier);
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert
@@ -55,6 +50,15 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .ContainSingle(header =>
                     header.Key.Equals(PeekAggregationsFunction.BundleIdHeaderName, StringComparison.Ordinal) &&
                     header.Value.Equals(bundledId));
+        }
+
+        private static IMediator SetupMediator()
+        {
+            var mediator = new Mock<IMediator>();
+            mediator
+                .Setup(p => p.Send(It.IsAny<PeekAggregationsCommand>(), default))
+                .ReturnsAsync(new PeekResponse(false, Stream.Null));
+            return mediator.Object;
         }
     }
 }
