@@ -18,7 +18,7 @@ using Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Builders
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.Templates
 {
-    internal class RequestChangeAccountingPointCharacteristicsTemplate : BaseJsonTemplateFluent
+    internal class RequestChangeAccountingPointCharacteristicsTemplate : BaseJsonTemplate
     {
         public RequestChangeAccountingPointCharacteristicsTemplate()
             : base("RequestChangeAccountingPointCharacteristics_MarketDocument") { }
@@ -29,7 +29,205 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.Templates
                 .WithXmlReader(
                     x => x
                             .AddString(sb => sb
-                                .WithName(ElementNames.MarketDocument.MRid)),
+                                .WithName(ElementNames.MarketDocument.MRid))
+                            .AddString(sb => sb
+                                .WithName(ElementNames.MarketDocument.Type)
+                                .WithValueWrappedInProperty())
+                            .AddString(sb => sb
+                                .WithName(ElementNames.MarketDocument.ProcessProcessType)
+                                .WithValueWrappedInProperty())
+                            .AddString(sb => sb
+                                .WithName(ElementNames.MarketDocument.BusinessSectorType)
+                                .WithValueWrappedInProperty()
+                                .IsOptional())
+                            .AddString(sb => sb
+                                .WithName(ElementNames.MarketDocument.SenderMarketParticipantmRid)
+                                .WithAttributes(ab => ab
+                                    .AddString(asb => asb
+                                        .WithName(ElementNames.Attributes.CodingScheme))))
+                            .AddString(sb => sb
+                                .WithName(ElementNames.MarketDocument.SenderMarketParticipantmarketRoletype)
+                                .WithValueWrappedInProperty())
+                            .AddString(sb => sb
+                                .WithName(ElementNames.MarketDocument.ReceiverMarketParticipantmRid)
+                                .WithAttributes(ab => ab
+                                    .AddString(asb => asb
+                                        .WithName(ElementNames.Attributes.CodingScheme))))
+                            .AddString(sb => sb
+                                .WithName(ElementNames.MarketDocument.ReceiverMarketParticipantmarketRoletype)
+                                .WithValueWrappedInProperty())
+                            .AddString(sb => sb
+                                .WithName(ElementNames.MarketDocument.CreatedDateTime))
+                            .AddArray(arb => arb
+                                .WithName(ElementNames.MarketDocument.MktActivityRecordElement)
+                                .AddString(sb => sb
+                                    .WithName(ElementNames.MktActivityRecord.MRid)
+                                    .WithAttributes(ab => ab
+                                        .AddString(asb => asb
+                                            .WithName(ElementNames.Attributes.CodingScheme))))
+                                .AddString(sb => sb
+                                    .WithName(ElementNames.MktActivityRecord.BusinessProcessReferenceMktActivityRecordmRid)
+                                    .IsOptional()
+                                    .WithValueWrappedInProperty())
+                                .AddString(sb => sb
+                                    .WithName(ElementNames.MktActivityRecord.ValidityStartDateAndOrTimedateTime))
+                                .AddNested(nb => nb
+                                    .WithName(ElementNames.MktActivityRecord.MarketEvaluationPoint)
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.MRid)
+                                        .WithAttributes(ab => ab
+                                            .AddString(asb => asb
+                                                .WithName(ElementNames.Attributes.CodingScheme))))
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.Type)
+                                        .IsOptional())
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.SettlementMethod)
+                                        .IsOptional())
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.MeteringMethod)
+                                        .IsOptional())
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.ConnectionState)
+                                        .IsOptional())
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.ReadCycle)
+                                        .IsOptional())
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.NetSettlementGroup)
+                                        .IsOptional())
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.NextReadingDate)
+                                        .IsOptional())
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.MeteringGridAreaDomainmRid)
+                                        .IsOptional()
+                                        .WithAttributes(ab => ab
+                                            .AddString(asb => asb
+                                                .WithName(ElementNames.Attributes.CodingScheme))))
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.InMeteringGridAreaDomainmRid)
+                                        .IsOptional()
+                                        .WithAttributes(ab => ab
+                                            .AddString(asb => asb
+                                                .WithName(ElementNames.Attributes.CodingScheme))))
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.OutMeteringGridAreaDomainmRid)
+                                        .IsOptional()
+                                        .WithAttributes(ab => ab
+                                            .AddString(asb => asb
+                                                .WithName(ElementNames.Attributes.CodingScheme))))
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.LinkedMarketEvaluationPointmRid)
+                                        .IsOptional()
+                                        .WithAttributes(ab => ab
+                                            .AddString(asb => asb
+                                                .WithName(ElementNames.Attributes.CodingScheme))))
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.PhysicalConnectionCapacity)
+                                        .IsOptional()
+                                        .WithAttributes(ab => ab
+                                            .AddString(asb => asb
+                                                .WithName(ElementNames.Attributes.Unit))))
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.MPConnectionType)
+                                        .IsOptional())
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.DisconnectionMethod)
+                                        .IsOptional())
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.AssetMktPsrTypepsrType)
+                                        .IsOptional())
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.ProductionObligation)
+                                        .IsOptional())
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.ContractedConnectionCapacity)
+                                        .IsOptional()
+                                        .WithAttributes(ab => ab
+                                            .AddString(asb => asb
+                                                .WithName(ElementNames.Attributes.Unit))))
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.RatedCurrent)
+                                        .IsOptional()
+                                        .WithAttributes(ab => ab
+                                            .AddString(asb => asb
+                                                .WithName(ElementNames.Attributes.Unit))))
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.MetermRid)
+                                        .IsOptional())
+                                    .AddArray(narrb => narrb
+                                        .WithName(ElementNames.MarketEvaluationPoint.SeriesElement)
+                                        .IsOptional()
+                                        .AddString(sb => sb
+                                            .WithName(ElementNames.Series.Product)
+                                            .IsOptional())
+                                        .AddString(sb => sb
+                                            .WithName(ElementNames.Series.EstimatedAnnualVolumeQuantityquantity)
+                                            .IsOptional())
+                                        .AddString(sb => sb
+                                            .WithName(ElementNames.Series.QuantityMeasureUnitname)
+                                            .IsOptional()))
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.Description)
+                                        .IsOptional())
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.UsagePointLocationgeoInfoReference)
+                                        .IsOptional())
+                                    .AddNested(nnb => nnb
+                                        .WithName(ElementNames.MarketEvaluationPoint.UsagePointLocationmainAddress)
+                                        .IsOptional()
+                                        .AddNested(streetdetail => streetdetail
+                                            .WithName(ElementNames.StreetAddress.StreetDetailElement)
+                                            .IsOptional()
+                                            .AddString(sb => sb
+                                                .WithName(ElementNames.StreetDetail.Code)
+                                                .IsOptional())
+                                            .AddString(sb => sb
+                                                .WithName(ElementNames.StreetDetail.Name)
+                                                .IsOptional())
+                                            .AddString(sb => sb
+                                                .WithName(ElementNames.StreetDetail.Number)
+                                                .IsOptional())
+                                            .AddString(sb => sb
+                                                .WithName(ElementNames.StreetDetail.FloorIdentification)
+                                                .IsOptional())
+                                            .AddString(sb => sb
+                                                .WithName(ElementNames.StreetDetail.SuiteNumber)
+                                                .IsOptional()))
+                                        .AddNested(towndetail => towndetail
+                                            .WithName(ElementNames.StreetAddress.TownDetailElement)
+                                            .IsOptional()
+                                            .AddString(sb => sb
+                                                .WithName(ElementNames.TownDetail.Code)
+                                                .IsOptional())
+                                            .AddString(sb => sb
+                                                .WithName(ElementNames.TownDetail.Name)
+                                                .IsOptional())
+                                            .AddString(sb => sb
+                                                .WithName(ElementNames.TownDetail.Section)
+                                                .IsOptional())
+                                            .AddString(sb => sb
+                                                .WithName(ElementNames.TownDetail.Country)
+                                                .IsOptional()))
+                                        .AddString(sb => sb
+                                            .WithName(ElementNames.StreetAddress.PostalCode)
+                                            .IsOptional())
+                                        .AddString(sb => sb
+                                            .WithName(ElementNames.StreetAddress.POBox)
+                                            .IsOptional())
+                                        .AddString(sb => sb
+                                            .WithName(ElementNames.StreetAddress.Language)
+                                            .IsOptional()))
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.UsagePointLocationactualAddressIndicator)
+                                        .IsOptional())
+                                    .AddString(sb => sb
+                                        .WithName(ElementNames.MarketEvaluationPoint.ParentMarketEvaluationPointmRid)
+                                        .IsOptional()
+                                        .WithAttributes(ab => ab
+                                            .AddString(asb => asb
+                                                .WithName(ElementNames.Attributes.CodingScheme)))))),
                     reader)
                 .Build(jsonWriter);
         }
@@ -39,6 +237,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.Templates
             public static class Attributes
             {
                 public const string CodingScheme = "codingScheme";
+                public const string Unit = "unit";
             }
 
             public static class MarketDocument
@@ -67,6 +266,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.Templates
             public static class MarketEvaluationPoint
             {
                 public const string MRid = "mRID";
+                public const string Type = "type";
                 public const string SettlementMethod = "settlementMethod";
                 public const string MeteringMethod = "meteringMethod";
                 public const string ConnectionState = "connectionState";

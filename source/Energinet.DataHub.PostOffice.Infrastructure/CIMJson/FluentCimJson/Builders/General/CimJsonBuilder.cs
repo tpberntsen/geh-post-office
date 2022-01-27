@@ -84,6 +84,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Buil
 
             while (_xmlReader.Read())
             {
+                _xmlReader.MoveToContent();
                 if (_xmlReader.NodeType == XmlNodeType.Element && _xmlReader.LocalName == elementName)
                 {
                     return true;

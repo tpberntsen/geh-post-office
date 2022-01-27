@@ -18,7 +18,7 @@ using Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Builders
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.Templates
 {
-    internal class RejectRequestValidatedMeasureDataTemplate : BaseJsonTemplateFluent
+    internal class RejectRequestValidatedMeasureDataTemplate : BaseJsonTemplate
     {
         public RejectRequestValidatedMeasureDataTemplate()
             : base("RejectRequestValidatedMeasureData_MarketDocument") { }

@@ -45,7 +45,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Elem
             {
                 jsonWriter.WriteStartArray();
                 _arrayElementFound = true;
-
                 // Parse all array elements
                 while (ReadToElement(reader, Name, IsOptional, true))
                 {
@@ -111,11 +110,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Elem
                 return true;
             }
 
-            if (isOptional && reader.IsStartElement() && reader.LocalName != elementName)
-                return false;
-
             while (reader.Read())
             {
+                reader.MoveToContent();
                 if (reader.NodeType == XmlNodeType.Element && reader.LocalName == elementName)
                 {
                     return true;

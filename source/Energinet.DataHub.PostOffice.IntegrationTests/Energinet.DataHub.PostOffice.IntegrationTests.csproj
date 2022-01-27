@@ -65,5 +65,9 @@ limitations under the License.
     <Content Include="CimJson\TestData\RSM-012 - Reject request validated measure data.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Remove="CimJson\TestData\RSM-021 - Request change AP characteristics.xml" />
+    <Content Include="CimJson\TestData\RSM-021 - Request change AP characteristics.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
