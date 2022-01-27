@@ -24,7 +24,7 @@ module "func_marketoperator" {
   application_insights_instrumentation_key  = data.azurerm_key_vault_secret.appi_instrumentation_key.value
   vnet_integration_subnet_id                = module.vnet_integrations.id
   private_endpoint_subnet_id                = module.private_endpoints_subnet.id
-  vnet_resource_group_name                  = data.azurerm_key_vault_secret.vnet_shared_rg_name
+  private_dns_resource_group_name           = data.azurerm_key_vault_secret.vnet_shared_rg_name
   always_on                                 = true
   app_settings                              = {
     # Region: Default Values
