@@ -46,7 +46,7 @@ resource "azurerm_private_endpoint" "cosmos-pe" {
     name                = "cosmos-pe-${lower(var.domain_name_short)}-${lower(var.environment_short)}-${lower(var.environment_instance)}"
     location            = azurerm_resource_group.this.location
     resource_group_name = azurerm_resource_group.this.name
-    subnet_id           = azurerm_subnet.this_private_endpoints_subnet.id
+    subnet_id           = module.private_endpoints_subnet.id
     private_service_connection {
         is_manual_connection       = false
         name                       = "cosmos-psc"
