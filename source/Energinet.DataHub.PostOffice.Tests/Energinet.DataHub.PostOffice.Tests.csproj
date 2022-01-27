@@ -37,7 +37,7 @@ limitations under the License.
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.5.1" />
     <PackageReference Include="Energinet.DataHub.Core.FunctionApp.Common" Version="2.0.1" />
     <PackageReference Include="Energinet.DataHub.Core.FunctionApp.Common.Abstractions" Version="2.0.1" />
-    <PackageReference Include="Energinet.DataHub.Core.Logging" Version="1.0.6" />
+    <PackageReference Include="Energinet.DataHub.Core.Logging" Version="1.0.7" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="NodaTime.Serialization.JsonNet" Version="3.0.0" />
     <PackageReference Include="NodaTime.Serialization.SystemTextJson" Version="1.0.0" />
