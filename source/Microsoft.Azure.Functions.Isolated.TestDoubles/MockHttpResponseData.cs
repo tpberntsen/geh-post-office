@@ -28,7 +28,7 @@ namespace Microsoft.Azure.Functions.Isolated.TestDoubles
         }
 
         public override HttpStatusCode StatusCode { get; set; }
-        public override HttpHeadersCollection Headers { get; set; } = new HttpHeadersCollection();
+        public override HttpHeadersCollection Headers { get; set; } = new();
         public override Stream Body { get; set; } = new MemoryStream();
         public override HttpCookies Cookies { get; } = new MockedHttpCookies();
     }

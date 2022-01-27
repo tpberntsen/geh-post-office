@@ -25,10 +25,7 @@ namespace Microsoft.Azure.Functions.Isolated.TestDoubles.Extensions
             if (response == null) throw new ArgumentNullException(nameof(response));
             var stream = response.Body;
             if (stream is not MemoryStream) return string.Empty;
-            if (stream.Position != 0)
-            {
-                stream.Position = 0;
-            }
+            if (stream.Position != 0) stream.Position = 0;
 
             using var reader = new StreamReader(stream);
             return reader.ReadToEnd();

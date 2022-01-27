@@ -38,10 +38,7 @@ namespace Microsoft.Azure.Functions.Isolated.TestDoubles
                 url: url,
                 body: new MemoryStream(Encoding.UTF8.GetBytes(input)));
             request.Headers.Add("Content-Type", "application/json");
-            if (token != null)
-            {
-                request.Headers.Add("Authorization", $"Bearer {token}");
-            }
+            if (token != null) request.Headers.Add("Authorization", $"Bearer {token}");
 
             return request;
         }

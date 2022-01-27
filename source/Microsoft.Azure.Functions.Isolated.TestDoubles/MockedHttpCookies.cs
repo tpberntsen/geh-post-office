@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using Microsoft.Azure.Functions.Worker.Http;
 
 namespace Microsoft.Azure.Functions.Isolated.TestDoubles
@@ -20,17 +21,17 @@ namespace Microsoft.Azure.Functions.Isolated.TestDoubles
     {
         public override void Append(string name, string value)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override void Append(IHttpCookie cookie)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override IHttpCookie CreateNew()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

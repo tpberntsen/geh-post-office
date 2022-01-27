@@ -21,15 +21,9 @@ namespace Microsoft.Azure.Functions.Isolated.TestDoubles
     {
         public MockFunctionInvocation(string id = "", string functionId = "")
         {
-            if (!string.IsNullOrWhiteSpace(id))
-            {
-                Id = id;
-            }
+            if (!string.IsNullOrWhiteSpace(id)) Id = id;
 
-            if (!string.IsNullOrWhiteSpace(functionId))
-            {
-                FunctionId = functionId;
-            }
+            if (!string.IsNullOrWhiteSpace(functionId)) FunctionId = functionId;
         }
 
         public override string Id { get; } = Guid.NewGuid().ToString();
