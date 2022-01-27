@@ -26,9 +26,6 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
     public sealed class PeekMasterDataFunction
     {
-        public const string BundleIdQueryName = "bundleId";
-        public const string BundleIdHeaderName = "BundleId";
-
         private readonly IMediator _mediator;
         private readonly IMarketOperatorIdentity _operatorIdentity;
 
@@ -45,13 +42,13 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
         {
             return request.ProcessAsync(async () =>
             {
-                var command = new PeekMasterDataCommand(_operatorIdentity.Gln, request.Url.GetQueryValue(BundleIdQueryName));
+                var command = new PeekMasterDataCommand(_operatorIdentity.Gln, request.Url.GetQueryValue(Constants.BundleIdQueryName));
                 var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
                 var response = hasContent
                     ? request.CreateResponse(stream, MediaTypeNames.Application.Xml)
                     : request.CreateResponse(HttpStatusCode.NoContent);
 
-                response.Headers.Add(BundleIdHeaderName, command.BundleId);
+                response.Headers.Add(Constants.BundleIdHeaderName, command.BundleId);
                 return response;
             });
         }
