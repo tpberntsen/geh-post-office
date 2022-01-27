@@ -43,7 +43,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
-            var sut = new PeekAggregationsFunction(mediator.Object, identifier);
+            var sut = new PeekAggregationsFunction(mediator.Object, identifier, BundleIdProvider.Default);
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert
@@ -66,7 +66,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
-            var sut = new PeekFunction(mediator.Object, identifier);
+            var sut = new PeekFunction(mediator.Object, identifier, BundleIdProvider.Default);
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert
@@ -89,7 +89,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
-            var sut = new PeekMasterDataFunction(mediator.Object, identifier);
+            var sut = new PeekMasterDataFunction(mediator.Object, identifier, BundleIdProvider.Default);
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert
@@ -112,7 +112,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
-            var sut = new PeekTimeSeriesFunction(mediator.Object, identifier);
+            var sut = new PeekTimeSeriesFunction(mediator.Object, identifier, BundleIdProvider.Default);
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert

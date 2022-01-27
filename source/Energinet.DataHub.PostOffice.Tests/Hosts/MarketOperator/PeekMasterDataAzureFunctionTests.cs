@@ -49,7 +49,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekMasterDataCommand>(), default))
                 .ReturnsAsync(new PeekResponse(true, new MemoryStream(Encoding.ASCII.GetBytes(expectedData))));
 
-            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity);
+            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, BundleIdProvider.Default);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -74,7 +74,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekMasterDataCommand>(), default))
                 .ReturnsAsync(new PeekResponse(false, Stream.Null));
 
-            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity);
+            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, BundleIdProvider.Default);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -96,7 +96,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekMasterDataCommand>(), default))
                 .ThrowsAsync(new ValidationException("test"));
 
-            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity);
+            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, BundleIdProvider.Default);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -118,7 +118,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekMasterDataCommand>(), default))
                 .ThrowsAsync(new InvalidOperationException("test"));
 
-            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity);
+            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, BundleIdProvider.Default);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
