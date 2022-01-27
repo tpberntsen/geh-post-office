@@ -29,13 +29,13 @@ namespace Microsoft.Azure.Functions.Isolated.TestDoubles
             FunctionContext functionContext,
             Stream? body = null,
             string method = "GET",
-            string? url = null)
+            Uri? url = null)
             : base(functionContext)
         {
             Body = body ?? new MemoryStream();
             Headers = new HttpHeadersCollection();
             Cookies = new List<IHttpCookie>();
-            Url = new Uri(url ?? "https://localhost");
+            Url = url ?? new Uri("https://localhost");
             Identities = new List<ClaimsIdentity>();
             Method = method;
         }

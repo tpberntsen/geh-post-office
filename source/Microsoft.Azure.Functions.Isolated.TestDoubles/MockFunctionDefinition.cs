@@ -65,6 +65,8 @@ namespace Microsoft.Azure.Functions.Isolated.TestDoubles
     /// <returns>The generated <see cref="FunctionDefinition"/>.</returns>
     public static FunctionDefinition Generate(int inputBindingCount = 0, int outputBindingCount = 0, params Type[] paramTypes)
     {
+        if (paramTypes == null) throw new ArgumentNullException(nameof(paramTypes));
+
         var inputs = new Dictionary<string, BindingMetadata>();
         var outputs = new Dictionary<string, BindingMetadata>();
         var parameters = new List<FunctionParameter>();

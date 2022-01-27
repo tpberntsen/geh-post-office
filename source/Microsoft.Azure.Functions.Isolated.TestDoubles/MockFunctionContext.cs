@@ -18,7 +18,7 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace Microsoft.Azure.Functions.Isolated.TestDoubles
 {
-    public class MockFunctionContext : FunctionContext, IDisposable
+    public sealed class MockFunctionContext : FunctionContext, IDisposable
     {
         private readonly FunctionInvocation _invocation;
 

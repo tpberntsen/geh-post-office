@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.IO;
 using System.Text;
 using Azure.Core.Serialization;
@@ -27,7 +28,7 @@ namespace Microsoft.Azure.Functions.Isolated.TestDoubles
             string? payload = null,
             string? token = null,
             string method = "GET",
-            string? url = null)
+            Uri? url = null)
         {
             var input = payload ?? string.Empty;
             var functionContext = CreateContext(new NewtonsoftJsonObjectSerializer());

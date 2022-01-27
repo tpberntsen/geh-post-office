@@ -12,26 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.IO;
 using Microsoft.Azure.Functions.Worker.Http;
 
-namespace Microsoft.Azure.Functions.Isolated.TestDoubles.Extensions
+namespace Microsoft.Azure.Functions.Isolated.TestDoubles
 {
-    public static class HttpResponseDataExtensions
+    public class MockedHttpCookies : HttpCookies
     {
-        public static string ReadHttpResponseData(this HttpResponseData response)
+        public override void Append(string name, string value)
         {
-            if (response == null) throw new ArgumentNullException(nameof(response));
-            var stream = response.Body;
-            if (stream is not MemoryStream) return string.Empty;
-            if (stream.Position != 0)
-            {
-                stream.Position = 0;
-            }
+            throw new System.NotImplementedException();
+        }
 
-            using var reader = new StreamReader(stream);
-            return reader.ReadToEnd();
+        public override void Append(IHttpCookie cookie)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override IHttpCookie CreateNew()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
