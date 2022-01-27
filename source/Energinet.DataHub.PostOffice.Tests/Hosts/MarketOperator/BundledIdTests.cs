@@ -17,6 +17,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
 using Energinet.DataHub.PostOffice.Tests.Common.Auth;
 using FluentAssertions;
@@ -34,7 +35,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         {
             // Arrange
             var bundleId = Guid.NewGuid().ToString("N");
-            Uri path = new($"https://localhost?{PeekAggregationsFunction.BundleIdQueryName}={bundleId}");
+            Uri path = new($"https://localhost?{Constants.BundleIdQueryName}={bundleId}");
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
@@ -48,7 +49,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             // Assert
             response.Headers.Should()
                 .ContainSingle(header =>
-                    header.Key.Equals(PeekAggregationsFunction.BundleIdHeaderName, StringComparison.Ordinal) &&
+                    header.Key.Equals(Constants.BundleIdHeaderName, StringComparison.Ordinal) &&
                     header.Value.Single().Equals(bundleId, StringComparison.Ordinal));
         }
 
@@ -57,7 +58,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         {
             // Arrange
             var bundleId = Guid.NewGuid().ToString("N");
-            Uri path = new($"https://localhost?{PeekFunction.BundleIdQueryName}={bundleId}");
+            Uri path = new($"https://localhost?{Constants.BundleIdQueryName}={bundleId}");
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
@@ -71,7 +72,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             // Assert
             response.Headers.Should()
                 .ContainSingle(header =>
-                    header.Key.Equals(PeekFunction.BundleIdHeaderName, StringComparison.Ordinal) &&
+                    header.Key.Equals(Constants.BundleIdHeaderName, StringComparison.Ordinal) &&
                     header.Value.Single().Equals(bundleId, StringComparison.Ordinal));
         }
 
@@ -80,7 +81,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         {
             // Arrange
             var bundleId = Guid.NewGuid().ToString("N");
-            Uri path = new($"https://localhost?{PeekMasterDataFunction.BundleIdQueryName}={bundleId}");
+            Uri path = new($"https://localhost?{Constants.BundleIdQueryName}={bundleId}");
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
@@ -94,7 +95,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             // Assert
             response.Headers.Should()
                 .ContainSingle(header =>
-                    header.Key.Equals(PeekMasterDataFunction.BundleIdHeaderName, StringComparison.Ordinal) &&
+                    header.Key.Equals(Constants.BundleIdHeaderName, StringComparison.Ordinal) &&
                     header.Value.Single().Equals(bundleId, StringComparison.Ordinal));
         }
 
@@ -103,7 +104,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         {
             // Arrange
             var bundleId = Guid.NewGuid().ToString("N");
-            Uri path = new($"https://localhost?{PeekTimeSeriesFunction.BundleIdQueryName}={bundleId}");
+            Uri path = new($"https://localhost?{Constants.BundleIdQueryName}={bundleId}");
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
@@ -117,22 +118,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             // Assert
             response.Headers.Should()
                 .ContainSingle(header =>
-                    header.Key.Equals(PeekTimeSeriesFunction.BundleIdHeaderName, StringComparison.Ordinal) &&
+                    header.Key.Equals(Constants.BundleIdHeaderName, StringComparison.Ordinal) &&
                     header.Value.Single().Equals(bundleId, StringComparison.Ordinal));
-        }
-
-        [Fact]
-        public void Given_AllPeekTypes_When_ComparingBundleIdHeaderName_Then_AllShouldBeEqual()
-        {
-            var headers = new[]
-            {
-                PeekFunction.BundleIdHeaderName,
-                PeekAggregationsFunction.BundleIdHeaderName,
-                PeekMasterDataFunction.BundleIdHeaderName,
-                PeekTimeSeriesFunction.BundleIdHeaderName
-            };
-
-            headers.Should().AllBe(PeekFunction.BundleIdHeaderName);
         }
     }
 }
