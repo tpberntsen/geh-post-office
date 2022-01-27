@@ -28,11 +28,13 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
     {
         private readonly IMediator _mediator;
         private readonly IMarketOperatorIdentity _operatorIdentity;
+        private readonly BundleIdProvider _bundleIdProvider;
 
-        public PeekMasterDataFunction(IMediator mediator, IMarketOperatorIdentity operatorIdentity)
+        public PeekMasterDataFunction(IMediator mediator, IMarketOperatorIdentity operatorIdentity, BundleIdProvider bundleIdProvider)
         {
             _mediator = mediator;
             _operatorIdentity = operatorIdentity;
+            _bundleIdProvider = bundleIdProvider;
         }
 
         [Function("PeekMasterData")]
@@ -42,7 +44,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
         {
             return request.ProcessAsync(async () =>
             {
-                var command = new PeekMasterDataCommand(_operatorIdentity.Gln, request.Url.GetQueryValue(Constants.BundleIdQueryName));
+                var command = new PeekMasterDataCommand(_operatorIdentity.Gln, _bundleIdProvider.GetBundleId(request));
                 var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
                 var response = hasContent
                     ? request.CreateResponse(stream, MediaTypeNames.Application.Xml)
