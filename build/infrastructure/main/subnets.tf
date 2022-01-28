@@ -14,7 +14,7 @@
 
 module "vnet_integrations" {
   source                                        = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/subnet?ref=6.0.0"
-  name                                          = "vnet-integrations"
+  name                                          = "postoffice-vnet-integrations"
   project_name                                  = var.project_name
   environment_short                             = var.environment_short
   environment_instance                          = var.environment_instance
@@ -33,7 +33,7 @@ module "vnet_integrations" {
 
 module "private_endpoints_subnet" {
   source                                        = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/subnet?ref=6.0.0"
-  name                                          = "private-endpoints-subnet"
+  name                                          = "postoffice-private-endpoints-subnet"
   project_name                                  = var.project_name
   environment_short                             = var.environment_short
   environment_instance                          = var.environment_instance
@@ -46,7 +46,7 @@ module "private_endpoints_subnet" {
 
 module "external_endpoints_subnet" {
   source                                        = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/subnet?ref=6.0.0"
-  name                                          = "external-endpoints-subnet"
+  name                                          = "postoffice-external-endpoints-subnet"
   project_name                                  = var.project_name
   environment_short                             = var.environment_short
   environment_instance                          = var.environment_instance
