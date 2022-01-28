@@ -92,7 +92,7 @@ data "azurerm_key_vault_secret" "vnet_shared_name" {
 }
 
 data "azurerm_key_vault_secret" "vnet_shared_rg_name" {
-  name         = "vnet-shared-rg-name"
+  name         = "vnet-shared-resource-group-name"
   key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
 }
 
