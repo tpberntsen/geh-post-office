@@ -59,7 +59,7 @@ resource "azurerm_private_endpoint" "cosmos-pe" {
 resource "azurerm_private_dns_a_record" "cosmosdb_sql" {
   name                = azurerm_cosmosdb_account.post_office.name
   zone_name           = "privatelink.documents.azure.com"
-  resource_group_name = data.pdns_resource_group_name.value
+  resource_group_name = data.azurerm_key_vault_secret.pdns_resource_group_name.value
   ttl                 = 3600
   records             = [azurerm_private_endpoint.cosmos-pe.private_service_connection[0].private_ip_address]
 }
