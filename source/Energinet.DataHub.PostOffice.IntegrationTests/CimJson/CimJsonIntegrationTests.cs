@@ -69,5 +69,20 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.CimJson
             // Assert
             Assert.NotNull(result);
         }
+
+        [Fact]
+        public async Task ConvertXmlToJson_RejectRequestChangeAccountingPointCharacteristicsTemplate_ReturnsNotNull()
+        {
+            // Arrange
+            using var testTemplate2 = new RejectRequestChangeAccountingPointCharacteristicsTemplate();
+            await using var testFile = new FileStream(@"CimJson/TestData/RSM-021 - Reject request change of AP characteristics.xml", FileMode.Open);
+
+            // Act
+            var result = await testTemplate2.ParseXmlAsync(testFile).ConfigureAwait(false);
+            var json = Encoding.UTF8.GetString(result.ToArray());
+
+            // Assert
+            Assert.NotNull(result);
+        }
     }
 }

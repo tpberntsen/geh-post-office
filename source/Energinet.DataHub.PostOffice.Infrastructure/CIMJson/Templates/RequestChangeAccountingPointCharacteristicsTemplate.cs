@@ -251,7 +251,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.Templates
                 public const string ReceiverMarketParticipantmRid = "receiver_MarketParticipant.mRID";
                 public const string ReceiverMarketParticipantmarketRoletype = "receiver_MarketParticipant.marketRole.type";
                 public const string CreatedDateTime = "createdDateTime";
-                public const string ReasonCode = "reason.code";
                 public const string MktActivityRecordElement = "MktActivityRecord";
             }
 
