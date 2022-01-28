@@ -48,7 +48,8 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
                 Origin = dataAvailableNotificationDto.Origin.ToString(),
                 Recipient = dataAvailableNotificationDto.Recipient.Value,
                 SupportsBundling = dataAvailableNotificationDto.SupportsBundling,
-                RelativeWeight = dataAvailableNotificationDto.RelativeWeight
+                RelativeWeight = dataAvailableNotificationDto.RelativeWeight,
+                DocumentType = dataAvailableNotificationDto.DocumentType
             };
 
             var messageId = Guid.NewGuid().ToString();
