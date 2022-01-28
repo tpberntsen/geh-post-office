@@ -24,4 +24,5 @@ message DataAvailableNotificationContract {
     string origin = 4; // Identification for where the dataset can be queried
     bool supportsBundling = 5; // Flag to indicate if message is capable of being bundled with similar messages
     int32 relativeWeight = 6; // The relative weight of the dataset
+    string documentType = 7; // Document type
 }

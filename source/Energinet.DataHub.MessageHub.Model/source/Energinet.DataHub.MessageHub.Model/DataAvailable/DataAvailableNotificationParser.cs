@@ -34,7 +34,8 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
                     MessageType: new MessageTypeDto(dataAvailable.MessageType),
                     Origin: Enum.Parse<DomainOrigin>(dataAvailable.Origin),
                     SupportsBundling: dataAvailable.SupportsBundling,
-                    RelativeWeight: dataAvailable.RelativeWeight);
+                    RelativeWeight: dataAvailable.RelativeWeight,
+                    DocumentType: dataAvailable.DocumentType);
             }
             catch (Exception ex) when (ex is InvalidProtocolBufferException or FormatException)
             {

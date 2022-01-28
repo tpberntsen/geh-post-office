@@ -46,11 +46,15 @@ namespace Energinet.DataHub.MessageHub.Model.Model
     /// The weight and maximum weight are used to ensure
     /// that the resulting bundle stays within the data size limit.
     /// </param>
+    /// <param name="DocumentType">
+    /// The RSM message type.
+    /// </param>
     public sealed record DataAvailableNotificationDto(
         Guid Uuid,
         GlobalLocationNumberDto Recipient,
         MessageTypeDto MessageType,
         DomainOrigin Origin,
         bool SupportsBundling,
-        int RelativeWeight);
+        int RelativeWeight,
+        string DocumentType);
 }
