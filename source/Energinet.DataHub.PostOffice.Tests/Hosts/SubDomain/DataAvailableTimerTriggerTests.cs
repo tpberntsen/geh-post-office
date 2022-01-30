@@ -225,7 +225,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.SubDomain
                 new MessageTypeDto("fake_value"),
                 DomainOrigin.Charges,
                 false,
-                10);
+                10,
+                "RSM???");
         }
 
         private static Expression<Func<InsertDataAvailableNotificationsCommand, bool>> ExpectedUuid(DataAvailableNotificationDto badDto)

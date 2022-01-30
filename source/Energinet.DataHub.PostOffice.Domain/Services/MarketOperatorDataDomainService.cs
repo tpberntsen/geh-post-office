@@ -152,6 +152,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             var maxWeight = _weightCalculatorDomainService.CalculateMaxWeight(cabinetKey.Origin);
 
             var notificationIds = new List<Uuid>();
+            var documentTypes = new HashSet<string>();
 
             while (cabinetReader.CanPeek)
             {
@@ -163,6 +164,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
                     weight += notification.Weight;
                     notificationIds.Add(notification.NotificationId);
+                    documentTypes.Add(notification.DocumentType.Value);
 
                     if (!notification.SupportsBundling.Value)
                         break;
@@ -178,6 +180,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
                         weight += dequeued.Weight;
                         notificationIds.Add(dequeued.NotificationId);
+                        documentTypes.Add(dequeued.DocumentType.Value);
                     }
                     else
                     {
@@ -191,7 +194,8 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 cabinetKey.Recipient,
                 cabinetKey.Origin,
                 cabinetKey.ContentType,
-                notificationIds);
+                notificationIds,
+                documentTypes);
         }
     }
 }

@@ -48,7 +48,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
             return request.ProcessAsync(async () =>
             {
                 var command = new PeekCommand(_operatorIdentity.Gln, _bundleIdProvider.GetBundleId(request));
-                var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
+                var (hasContent, stream, documentTypes) = await _mediator.Send(command).ConfigureAwait(false);
                 var response = hasContent
                     ? request.CreateResponse(stream, MediaTypeNames.Application.Xml)
                     : request.CreateResponse(HttpStatusCode.NoContent);

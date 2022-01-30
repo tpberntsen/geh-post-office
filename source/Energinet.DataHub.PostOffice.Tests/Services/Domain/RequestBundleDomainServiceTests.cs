@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Services;
@@ -36,7 +37,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             bundleContentRequestServiceMock
                 .Setup(x => x.WaitForBundleContentFromSubDomainAsync(bundle))
@@ -61,7 +63,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             bundleContentRequestServiceMock
                 .Setup(x => x.WaitForBundleContentFromSubDomainAsync(bundle))
