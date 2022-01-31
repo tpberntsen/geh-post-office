@@ -288,5 +288,43 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
                 Assert.Contains(propertyName, result.Errors.Select(x => x.PropertyName));
             }
         }
+
+        [Theory]
+        [InlineData("", false)]
+        [InlineData(null, false)]
+        [InlineData("  ", false)]
+        [InlineData("RSM??", true)]
+        public async Task Validate_DocumentType_ValidatesProperty(string value, bool isValid)
+        {
+            // Arrange
+            const string propertyName = "Notifications[0]." + nameof(DataAvailableNotificationDto.DocumentType);
+
+            var target = new InsertDataAvailableNotificationsCommandRuleSet();
+            var dto = new DataAvailableNotificationDto(
+                ValidUuid,
+                ValidRecipient,
+                ValidContentType,
+                ValidOrigin,
+                false,
+                ValidWeight,
+                ValidSequenceNumber,
+                value);
+
+            // Act
+            var items = new[] { dto };
+            var result = await target.ValidateAsync(new InsertDataAvailableNotificationsCommand(items)).ConfigureAwait(false);
+
+            // Assert
+            if (isValid)
+            {
+                Assert.True(result.IsValid);
+                Assert.DoesNotContain(propertyName, result.Errors.Select(x => x.PropertyName));
+            }
+            else
+            {
+                Assert.False(result.IsValid);
+                Assert.Contains(propertyName, result.Errors.Select(x => x.PropertyName));
+            }
+        }
     }
 }
