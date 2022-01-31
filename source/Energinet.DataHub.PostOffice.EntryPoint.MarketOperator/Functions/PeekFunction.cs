@@ -52,7 +52,10 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
                 var response = hasContent
                     ? request.CreateResponse(stream, MediaTypeNames.Application.Xml)
                     : request.CreateResponse(HttpStatusCode.NoContent);
+
+                response.Headers.Add(Constants.MessageTypeName, string.Join(",", documentTypes));
                 response.Headers.Add(Constants.BundleIdHeaderName, command.BundleId);
+
                 return response;
             });
         }

@@ -51,6 +51,8 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
                     : request.CreateResponse(HttpStatusCode.NoContent);
 
                 response.Headers.Add(Constants.BundleIdHeaderName, command.BundleId);
+                response.Headers.Add(Constants.MessageTypeName, string.Join(",", documentTypes));
+
                 return response;
             });
         }
