@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
@@ -256,7 +257,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                bundleContentMock.Object);
+                bundleContentMock.Object,
+                Enumerable.Empty<string>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -291,7 +293,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 recipient,
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -332,7 +335,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 recipient,
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -374,7 +378,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.TimeSeries,
                 new SupportsBundling(false),
                 new Weight(1),
-                new SequenceNumber(1));
+                new SequenceNumber(1),
+                new DocumentType("RSM??"));
 
             var dataAvailableNotificationB = new DataAvailableNotification(
                 new Uuid(Guid.NewGuid()),
@@ -383,7 +388,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.TimeSeries,
                 new SupportsBundling(true),
                 new Weight(1),
-                new SequenceNumber(1));
+                new SequenceNumber(1),
+                new DocumentType("RSM??"));
 
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotificationA, dataAvailableNotificationB });
 
@@ -448,7 +454,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.TimeSeries,
                 new SupportsBundling(true),
                 new Weight(int.MaxValue),
-                new SequenceNumber(1));
+                new SequenceNumber(1),
+                new DocumentType("RSM??"));
 
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
 
@@ -666,7 +673,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                bundleContentMock.Object);
+                bundleContentMock.Object,
+                Enumerable.Empty<string>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -700,7 +708,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 recipient,
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -741,7 +750,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 recipient,
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -783,7 +793,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.TimeSeries,
                 new SupportsBundling(false),
                 new Weight(1),
-                new SequenceNumber(1));
+                new SequenceNumber(1),
+                new DocumentType("RSM??"));
 
             var dataAvailableNotificationB = new DataAvailableNotification(
                 new Uuid(Guid.NewGuid()),
@@ -792,7 +803,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.TimeSeries,
                 new SupportsBundling(true),
                 new Weight(1),
-                new SequenceNumber(1));
+                new SequenceNumber(1),
+                new DocumentType("RSM??"));
 
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotificationA, dataAvailableNotificationB });
 
@@ -858,7 +870,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.TimeSeries,
                 new SupportsBundling(true),
                 new Weight(int.MaxValue),
-                new SequenceNumber(1));
+                new SequenceNumber(1),
+                new DocumentType("RSM??"));
 
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
 
@@ -1078,7 +1091,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.Aggregations,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                bundleContentMock.Object);
+                bundleContentMock.Object,
+                Enumerable.Empty<string>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1114,7 +1128,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 recipient,
                 DomainOrigin.Aggregations,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1155,7 +1170,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 recipient,
                 DomainOrigin.Aggregations,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1197,7 +1213,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.Aggregations,
                 new SupportsBundling(false),
                 new Weight(1),
-                new SequenceNumber(1));
+                new SequenceNumber(1),
+                new DocumentType("RSM??"));
 
             var dataAvailableNotificationB = new DataAvailableNotification(
                 new Uuid(Guid.NewGuid()),
@@ -1206,7 +1223,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.Aggregations,
                 new SupportsBundling(true),
                 new Weight(1),
-                new SequenceNumber(1));
+                new SequenceNumber(1),
+                new DocumentType("RSM??"));
 
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotificationA, dataAvailableNotificationB });
 
@@ -1272,7 +1290,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.Aggregations,
                 new SupportsBundling(true),
                 new Weight(int.MaxValue),
-                new SequenceNumber(1));
+                new SequenceNumber(1),
+                new DocumentType("RSM??"));
 
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
 
@@ -1584,7 +1603,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.MarketRoles,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                bundleContentMock.Object);
+                bundleContentMock.Object,
+                Enumerable.Empty<string>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1624,7 +1644,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 recipient,
                 DomainOrigin.MarketRoles,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1670,7 +1691,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 recipient,
                 DomainOrigin.MarketRoles,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1717,7 +1739,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.Charges,
                 new SupportsBundling(false),
                 new Weight(1),
-                new SequenceNumber(1));
+                new SequenceNumber(1),
+                new DocumentType("RSM??"));
 
             var dataAvailableNotificationB = new DataAvailableNotification(
                 new Uuid(Guid.NewGuid()),
@@ -1726,7 +1749,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.Charges,
                 new SupportsBundling(true),
                 new Weight(1),
-                new SequenceNumber(1));
+                new SequenceNumber(1),
+                new DocumentType("RSM??"));
 
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotificationA, dataAvailableNotificationB });
 
@@ -1800,7 +1824,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.Charges,
                 new SupportsBundling(true),
                 new Weight(int.MaxValue),
-                new SequenceNumber(1));
+                new SequenceNumber(1),
+                new DocumentType("RSM??"));
 
             var cabinetReader = CreateReaderMock(new[] { dataAvailableNotification });
 
@@ -1877,7 +1902,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 recipient,
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                idsInBundle);
+                idsInBundle,
+                Enumerable.Empty<string>());
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
 
@@ -1943,7 +1969,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 recipient,
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             var bundleRepositoryMock = new Mock<IBundleRepository>();
             bundleRepositoryMock
@@ -1984,7 +2011,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 recipient,
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                idsInBundle);
+                idsInBundle,
+                Enumerable.Empty<string>());
 
             var dataAvailableNotificationRepositoryMock = new Mock<IDataAvailableNotificationRepository>();
             var bundleRepositoryMock = new Mock<IBundleRepository>();
@@ -2038,7 +2066,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 domainOrigin,
                 new SupportsBundling(true),
                 new Weight(1),
-                new SequenceNumber(1));
+                new SequenceNumber(1),
+                new DocumentType("RSM??"));
         }
 
         private static ICabinetReader CreateReaderMock(IEnumerable<DataAvailableNotification> notifications)

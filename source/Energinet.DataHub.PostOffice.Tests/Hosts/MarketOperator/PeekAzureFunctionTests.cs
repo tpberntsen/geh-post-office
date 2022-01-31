@@ -14,6 +14,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -48,7 +49,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             mockedMediator
                 .Setup(x => x.Send(It.IsAny<PeekCommand>(), default))
-                .ReturnsAsync(new PeekResponse(true, new MemoryStream(Encoding.ASCII.GetBytes(expectedData))));
+                .ReturnsAsync(new PeekResponse(true, new MemoryStream(Encoding.ASCII.GetBytes(expectedData)), Enumerable.Empty<string>()));
 
             var target = new PeekFunction(mockedMediator.Object, mockedIdentity, BundleIdProvider.Default);
 
@@ -73,7 +74,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             mockedMediator
                 .Setup(x => x.Send(It.IsAny<PeekCommand>(), default))
-                .ReturnsAsync(new PeekResponse(false, Stream.Null));
+                .ReturnsAsync(new PeekResponse(false, Stream.Null, Enumerable.Empty<string>()));
 
             var target = new PeekFunction(mockedMediator.Object, mockedIdentity, BundleIdProvider.Default);
 

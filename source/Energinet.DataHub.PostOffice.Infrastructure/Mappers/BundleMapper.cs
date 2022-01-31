@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Buffers.Text;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -45,7 +44,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 Enum.Parse<DomainOrigin>(bundleDocument.Origin),
                 new ContentType(bundleDocument.ContentType),
                 notificationIds,
-                bundleContent);
+                bundleContent,
+                bundleDocument.DocumentTypes == null ? Enumerable.Empty<string>() : bundleDocument.DocumentTypes.Split(',', StringSplitOptions.RemoveEmptyEntries));
 
             if (bundleDocument.Dequeued)
                 bundle.Dequeue();
@@ -76,7 +76,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
 
                 NotificationIdsBase64 = toBase64,
                 AffectedDrawers = changes.ToList(),
-                ContentPath = MapBundleContent(source)
+                ContentPath = MapBundleContent(source),
+                DocumentTypes = string.Join(',', source.DocumentTypes)
             };
         }
 

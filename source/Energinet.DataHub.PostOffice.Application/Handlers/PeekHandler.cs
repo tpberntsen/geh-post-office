@@ -14,6 +14,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
@@ -91,10 +92,10 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 var peekLog = logProvider(bundle.ProcessId, bundleContent);
                 await _log.SavePeekLogOccurrenceAsync(peekLog).ConfigureAwait(false);
 
-                return new PeekResponse(true, await bundleContent.OpenAsync().ConfigureAwait(false));
+                return new PeekResponse(true, await bundleContent.OpenAsync().ConfigureAwait(false), bundle.DocumentTypes);
             }
 
-            return new PeekResponse(false, Stream.Null);
+            return new PeekResponse(false, Stream.Null, Enumerable.Empty<string>());
         }
     }
 }

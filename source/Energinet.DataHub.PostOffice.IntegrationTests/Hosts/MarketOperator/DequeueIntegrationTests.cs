@@ -167,7 +167,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 "timeseries",
                 false,
                 1,
-                1);
+                1,
+                "RSM??");
 
             await using var host = await SubDomainIntegrationTestHost
                 .InitializeAsync()

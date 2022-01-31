@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Core.Storage;
 using Energinet.DataHub.PostOffice.Domain.Model;
@@ -159,7 +160,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
                 new MarketOperator(new GlobalLocationNumber(null!)),
                 DomainOrigin.Aggregations,
                 null!,
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             // Act + Assert
             await Assert
