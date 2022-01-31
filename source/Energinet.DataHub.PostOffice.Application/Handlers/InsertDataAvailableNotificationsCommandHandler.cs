@@ -56,7 +56,8 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 Enum.Parse<DomainOrigin>(notificationDto.Origin, true),
                 new SupportsBundling(notificationDto.SupportsBundling),
                 new Weight(notificationDto.Weight),
-                new SequenceNumber(notificationDto.SequenceNumber));
+                new SequenceNumber(notificationDto.SequenceNumber),
+                new DocumentType(notificationDto.DocumentType));
         }
 
         private Task HandleGroupAsync(IGrouping<CabinetKey, DataAvailableNotification> group)
