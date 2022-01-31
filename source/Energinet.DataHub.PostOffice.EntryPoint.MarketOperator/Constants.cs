@@ -27,7 +27,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
         public const string BundleIdHeaderName = "BundleId";
 
         /// <summary>
-        /// Hame of HttpHeader that contains the message types found in a given bundle
+        /// Name of HttpHeader that contains the message types found in a given bundle
         /// </summary>
         public const string MessageTypeName = "MessageType";
     }
