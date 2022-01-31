@@ -190,7 +190,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
                     parsedValue.SupportsBundling,
                     parsedValue.RelativeWeight,
                     initialSequenceNumber + sequenceNumberOffset,
-                    parsedValue.DocumentType));
+                    string.IsNullOrWhiteSpace(parsedValue.DocumentType) ? parsedValue.MessageType.Value : parsedValue.DocumentType));
             }
 #pragma warning disable CA1031 // Do not catch general exception types
             catch
