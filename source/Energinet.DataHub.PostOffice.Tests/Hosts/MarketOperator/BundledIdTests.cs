@@ -39,7 +39,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
-            mediator.Setup(p => p.Send(It.IsAny<PeekAggregationsCommand>(), default)).ReturnsAsync(new PeekResponse(false, Stream.Null));
+            mediator.Setup(p => p.Send(It.IsAny<PeekAggregationsCommand>(), default)).ReturnsAsync(new PeekResponse(false, Stream.Null, Enumerable.Empty<string>()));
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
@@ -62,7 +62,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
-            mediator.Setup(p => p.Send(It.IsAny<PeekCommand>(), default)).ReturnsAsync(new PeekResponse(false, Stream.Null));
+            mediator.Setup(p => p.Send(It.IsAny<PeekCommand>(), default)).ReturnsAsync(new PeekResponse(false, Stream.Null, Enumerable.Empty<string>()));
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
@@ -85,7 +85,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
-            mediator.Setup(p => p.Send(It.IsAny<PeekMasterDataCommand>(), default)).ReturnsAsync(new PeekResponse(false, Stream.Null));
+            mediator.Setup(p => p.Send(It.IsAny<PeekMasterDataCommand>(), default)).ReturnsAsync(new PeekResponse(false, Stream.Null, Enumerable.Empty<string>()));
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
@@ -108,7 +108,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
-            mediator.Setup(p => p.Send(It.IsAny<PeekTimeSeriesCommand>(), default)).ReturnsAsync(new PeekResponse(false, Stream.Null));
+            mediator.Setup(p => p.Send(It.IsAny<PeekTimeSeriesCommand>(), default)).ReturnsAsync(new PeekResponse(false, Stream.Null, Enumerable.Empty<string>()));
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act

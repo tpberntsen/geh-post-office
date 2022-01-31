@@ -30,6 +30,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
         private const string ValidOrigin = "Charges";
         private const string ValidRecipient = "5790000555550";
         private const string ValidContentType = "TimeSeries";
+        private const string ValidDocumentType = "RSM??";
 
         [Fact]
         public async Task Validate_NullNotifications_ValidatesProperty()
@@ -67,7 +68,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
                 ValidOrigin,
                 false,
                 ValidWeight,
-                ValidSequenceNumber);
+                ValidSequenceNumber,
+                ValidDocumentType);
 
             // Act
             var items = new[] { dto };
@@ -104,7 +106,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
                 ValidOrigin,
                 false,
                 ValidWeight,
-                ValidSequenceNumber);
+                ValidSequenceNumber,
+                ValidDocumentType);
 
             // Act
             var items = new[] { dto };
@@ -143,7 +146,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
                 ValidOrigin,
                 false,
                 ValidWeight,
-                ValidSequenceNumber);
+                ValidSequenceNumber,
+                ValidDocumentType);
 
             // Act
             var items = new[] { dto };
@@ -183,7 +187,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
                 value,
                 false,
                 ValidWeight,
-                ValidSequenceNumber);
+                ValidSequenceNumber,
+                ValidDocumentType);
 
             // Act
             var items = new[] { dto };
@@ -223,7 +228,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
                 ValidOrigin,
                 false,
                 value,
-                ValidSequenceNumber);
+                ValidSequenceNumber,
+                ValidDocumentType);
 
             // Act
             var items = new[] { dto };
@@ -263,7 +269,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
                 ValidOrigin,
                 false,
                 ValidWeight,
-                value);
+                value,
+                ValidDocumentType);
 
             // Act
             var items = new[] { dto };

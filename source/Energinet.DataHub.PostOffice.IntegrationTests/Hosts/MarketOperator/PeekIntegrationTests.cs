@@ -811,7 +811,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 "TimeSeries",
                 false,
                 1,
-                1);
+                1,
+                "RSM??");
 
             await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
         }
@@ -826,7 +827,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 "Aggregations",
                 false,
                 1,
-                1);
+                1,
+                "RSM??");
 
             await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
         }
@@ -841,7 +843,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 "MarketRoles",
                 false,
                 1,
-                1);
+                1,
+                "RSM??");
 
             await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
             return dataAvailableUuid;
@@ -857,7 +860,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 "MeteringPoints",
                 false,
                 1,
-                1);
+                1,
+                "RSM??");
 
             await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
             return dataAvailableUuid;
@@ -873,7 +877,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 "Charges",
                 false,
                 1,
-                1);
+                1,
+                "RSM??");
 
             await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
             return dataAvailableUuid;
@@ -889,7 +894,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
                 origin,
                 supportsBundling,
                 1,
-                1);
+                1,
+                "RSM??");
 
             await AddNotificationAsync(dataAvailableCommand).ConfigureAwait(false);
             return dataAvailableUuid;

@@ -48,7 +48,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 blankValue,
                 false,
                 1,
-                1);
+                1,
+                "RSM??");
 
             var command = new InsertDataAvailableNotificationsCommand(new[] { dataAvailableNotification });
 
@@ -79,7 +80,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 "timeseries",
                 false,
                 1,
-                1);
+                1,
+                "RSM??");
 
             var command = new InsertDataAvailableNotificationsCommand(new[] { dataAvailableNotification });
 
@@ -114,7 +116,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 "MeteringPoints",
                 true,
                 1,
-                1);
+                1,
+                "RSM??");
 
             var dataAvailableNotificationB = new DataAvailableNotificationDto(
                 Guid.NewGuid().ToString(),
@@ -123,7 +126,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 dataAvailableNotificationA.Origin,
                 dataAvailableNotificationA.SupportsBundling,
                 dataAvailableNotificationA.Weight,
-                2);
+                2,
+                dataAvailableNotificationA.DocumentType);
 
             var dataAvailableNotificationC = new DataAvailableNotificationDto(
                 Guid.NewGuid().ToString(),
@@ -132,7 +136,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 dataAvailableNotificationA.Origin,
                 dataAvailableNotificationA.SupportsBundling,
                 dataAvailableNotificationA.Weight,
-                3);
+                3,
+                dataAvailableNotificationA.DocumentType);
 
             var insert3 = new InsertDataAvailableNotificationsCommand(new[]
             {
@@ -155,7 +160,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 dataAvailableNotificationA.Origin,
                 dataAvailableNotificationA.SupportsBundling,
                 dataAvailableNotificationA.Weight,
-                4);
+                4,
+                dataAvailableNotificationA.DocumentType);
 
             var insert1 = new InsertDataAvailableNotificationsCommand(new[]
             {
@@ -195,7 +201,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 "MeteringPoints",
                 true,
                 1,
-                1);
+                1,
+                "RSM??");
 
             var dataAvailableNotificationB = new DataAvailableNotificationDto(
                 Guid.NewGuid().ToString(),
@@ -204,7 +211,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 dataAvailableNotificationA.Origin,
                 dataAvailableNotificationA.SupportsBundling,
                 dataAvailableNotificationA.Weight,
-                2);
+                2,
+                dataAvailableNotificationA.DocumentType);
 
             await mediator
                 .Send(new InsertDataAvailableNotificationsCommand(new[] { dataAvailableNotificationA }))

@@ -137,7 +137,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 DomainOrigin.Charges,
                 new SupportsBundling(true),
                 new Weight(1),
-                new SequenceNumber(1));
+                new SequenceNumber(1),
+                new DocumentType("RSM??"));
             var notification2 = new DataAvailableNotification(
                 notification1.NotificationId,
                 notification1.Recipient,
@@ -145,7 +146,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 notification1.Origin,
                 notification1.SupportsBundling,
                 notification1.Weight,
-                new SequenceNumber(2));
+                new SequenceNumber(2),
+                new DocumentType("RSM??"));
 
             var notifications = new[] { notification1, notification2 };
 
@@ -351,7 +353,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 notifications[0].Recipient,
                 notifications[0].Origin,
                 notifications[0].ContentType,
-                new[] { notifications[0].NotificationId });
+                new[] { notifications[0].NotificationId },
+                Enumerable.Empty<string>());
 
             await bundleRepository
                 .TryAddNextUnacknowledgedAsync(bundle, readForBundle)
@@ -417,7 +420,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 notifications[0].Recipient,
                 notifications[0].Origin,
                 notifications[0].ContentType,
-                new[] { notifications[0].NotificationId });
+                new[] { notifications[0].NotificationId },
+                Enumerable.Empty<string>());
 
             await bundleRepository
                 .TryAddNextUnacknowledgedAsync(bundle, readForBundle!)
@@ -453,7 +457,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                     domainOrigin,
                     new SupportsBundling(supportsBundling),
                     new Weight(weight),
-                    new SequenceNumber(initialSequenceNumber++));
+                    new SequenceNumber(initialSequenceNumber++),
+                    new DocumentType("RSM??"));
             }
         }
     }

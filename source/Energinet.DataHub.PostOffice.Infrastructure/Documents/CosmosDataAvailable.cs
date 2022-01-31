@@ -23,6 +23,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
             Origin = null!;
             Recipient = null!;
             PartitionKey = null!;
+            DocumentType = null!;
         }
 
         public string Id { get; init; }
@@ -35,5 +36,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 
         public bool SupportsBundling { get; init; }
         public int RelativeWeight { get; init; }
+        public string DocumentType { get; init; }
     }
 }

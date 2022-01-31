@@ -75,7 +75,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 recipient,
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                new[] { new Uuid(Guid.NewGuid()) });
+                new[] { new Uuid(Guid.NewGuid()) },
+                Enumerable.Empty<string>());
 
             await target.TryAddNextUnacknowledgedAsync(setupBundle, reader).ConfigureAwait(false);
 
@@ -107,7 +108,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 recipient,
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                new[] { new Uuid(Guid.NewGuid()) });
+                new[] { new Uuid(Guid.NewGuid()) },
+                Enumerable.Empty<string>());
 
             await target.TryAddNextUnacknowledgedAsync(setupBundle, reader).ConfigureAwait(false);
 
@@ -207,7 +209,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 recipientA,
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                new[] { commonGuid });
+                new[] { commonGuid },
+                Enumerable.Empty<string>());
 
             // Everything should match to detect change of partition key.
             var bundleB = new Bundle(
@@ -215,7 +218,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 recipientB,
                 bundleA.Origin,
                 new ContentType("fake_value"),
-                bundleA.NotificationIds);
+                bundleA.NotificationIds,
+                Enumerable.Empty<string>());
 
             await target.TryAddNextUnacknowledgedAsync(bundleA, CreateMockedReader()).ConfigureAwait(false);
             await target.TryAddNextUnacknowledgedAsync(bundleB, CreateMockedReader()).ConfigureAwait(false);
@@ -439,7 +443,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 domainOrigin,
                 new ContentType("fake_value"),
                 new[] { new Uuid(Guid.NewGuid()) },
-                bundleContent);
+                bundleContent,
+                Enumerable.Empty<string>());
         }
 
         private static Bundle CreateBundle(Guid bundleId, MarketOperator recipient, IBundleContent? bundleContent = null)
@@ -450,7 +455,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 new[] { new Uuid(Guid.NewGuid()) },
-                bundleContent);
+                bundleContent,
+                Enumerable.Empty<string>());
         }
 
         private static AsyncCabinetReader CreateMockedReader()

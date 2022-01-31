@@ -63,7 +63,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                     origin,
                     true,
                     1,
-                    1),
+                    1,
+                    "RSM??"),
                 new DataAvailableNotificationDto(
                     "70469BE2-EFA3-4CBA-ABAF-AAE573BF057E",
                     recipient,
@@ -71,7 +72,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                     origin,
                     true,
                     2,
-                    2),
+                    2,
+                    "RSM??"),
                 new DataAvailableNotificationDto(
                     "F8FC4D49-5245-4924-80D3-F1FB81FA3903",
                     recipient,
@@ -79,7 +81,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                     origin,
                     false,
                     3,
-                    3),
+                    3,
+                    "RSM??"),
             };
 
             var request = new InsertDataAvailableNotificationsCommand(dataAvailableNotifications);

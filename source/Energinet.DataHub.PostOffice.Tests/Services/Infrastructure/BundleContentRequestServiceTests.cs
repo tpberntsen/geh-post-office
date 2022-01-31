@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Core.Peek;
 using Energinet.DataHub.MessageHub.Model.Model;
@@ -44,7 +45,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             dataBundleRequestSenderMock
                 .Setup(x => x.SendAsync(It.IsAny<DataBundleRequestDto>(), MessageHub.Model.Model.DomainOrigin.TimeSeries))
@@ -70,7 +72,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             var contentUri = new Uri("https://test.test.dk");
             var response = new DataBundleResponseDto(
