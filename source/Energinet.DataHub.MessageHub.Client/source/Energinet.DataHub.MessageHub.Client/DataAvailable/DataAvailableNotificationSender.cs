@@ -54,7 +54,7 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
 
             var messageId = Guid.NewGuid().ToString();
 
-            var message = new ServiceBusMessage(new BinaryData(contract.ToByteArray())) { MessageId = messageId }
+            var message = new ServiceBusMessage(new BinaryData(contract.ToByteArray())) { MessageId = messageId, PartitionKey = dataAvailableNotificationDto.Origin.ToString() }
                 .AddDataAvailableIntegrationEvents(correlationId);
 
             return sender.PublishMessageAsync<ServiceBusMessage>(message);
