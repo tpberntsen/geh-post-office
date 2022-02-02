@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Core.Dequeue;
@@ -65,7 +66,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                bundleContentMock.Object);
+                bundleContentMock.Object,
+                Enumerable.Empty<string>());
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock.Setup(x => x.CanAcknowledgeAsync(
@@ -138,7 +140,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                bundleContentMock.Object);
+                bundleContentMock.Object,
+                Enumerable.Empty<string>());
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock.Setup(x => x.CanAcknowledgeAsync(

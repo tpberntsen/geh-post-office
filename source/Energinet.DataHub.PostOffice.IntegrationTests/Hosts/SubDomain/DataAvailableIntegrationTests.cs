@@ -48,7 +48,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 blankValue,
                 false,
                 1,
-                1);
+                1,
+                "RSM??");
 
             var command = new InsertDataAvailableNotificationsCommand(new[] { dataAvailableNotification });
 
@@ -79,7 +80,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 "timeseries",
                 false,
                 1,
-                1);
+                1,
+                "RSM??");
 
             var command = new InsertDataAvailableNotificationsCommand(new[] { dataAvailableNotification });
 
@@ -114,7 +116,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 "MeteringPoints",
                 true,
                 1,
-                1);
+                1,
+                "RSM??");
 
             var dataAvailableNotificationB = new DataAvailableNotificationDto(
                 Guid.NewGuid().ToString(),
@@ -123,7 +126,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 dataAvailableNotificationA.Origin,
                 dataAvailableNotificationA.SupportsBundling,
                 dataAvailableNotificationA.Weight,
-                2);
+                2,
+                dataAvailableNotificationA.DocumentType);
 
             var dataAvailableNotificationC = new DataAvailableNotificationDto(
                 Guid.NewGuid().ToString(),
@@ -132,7 +136,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 dataAvailableNotificationA.Origin,
                 dataAvailableNotificationA.SupportsBundling,
                 dataAvailableNotificationA.Weight,
-                3);
+                3,
+                dataAvailableNotificationA.DocumentType);
 
             var insert3 = new InsertDataAvailableNotificationsCommand(new[]
             {
@@ -155,7 +160,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 dataAvailableNotificationA.Origin,
                 dataAvailableNotificationA.SupportsBundling,
                 dataAvailableNotificationA.Weight,
-                4);
+                4,
+                dataAvailableNotificationA.DocumentType);
 
             var insert1 = new InsertDataAvailableNotificationsCommand(new[]
             {
@@ -170,6 +176,62 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 .ConfigureAwait(false);
 
             // Assert
+            Assert.True(peekResponse.HasContent);
+        }
+
+        [Fact]
+        public async Task InsertDataAvailableNotificationsCommand_PeekInsertDequeueSequence_CanBePeekedBack()
+        {
+            // Arrange
+            var recipientGln = new MockedGln();
+            var bundleIdA = Guid.NewGuid().ToString();
+            var bundleIdB = Guid.NewGuid().ToString();
+
+            await using var host = await MarketOperatorIntegrationTestHost
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            await using var scope = host.BeginScope();
+            var mediator = scope.GetInstance<IMediator>();
+
+            var dataAvailableNotificationA = new DataAvailableNotificationDto(
+                Guid.NewGuid().ToString(),
+                recipientGln,
+                "MeteringPoints",
+                "MeteringPoints",
+                true,
+                1,
+                1,
+                "RSM??");
+
+            var dataAvailableNotificationB = new DataAvailableNotificationDto(
+                Guid.NewGuid().ToString(),
+                dataAvailableNotificationA.Recipient,
+                dataAvailableNotificationA.ContentType,
+                dataAvailableNotificationA.Origin,
+                dataAvailableNotificationA.SupportsBundling,
+                dataAvailableNotificationA.Weight,
+                2,
+                dataAvailableNotificationA.DocumentType);
+
+            await mediator
+                .Send(new InsertDataAvailableNotificationsCommand(new[] { dataAvailableNotificationA }))
+                .ConfigureAwait(false);
+
+            // Act
+            await mediator.Send(new PeekCommand(recipientGln, bundleIdA)).ConfigureAwait(false);
+
+            await mediator
+                .Send(new InsertDataAvailableNotificationsCommand(new[] { dataAvailableNotificationB }))
+                .ConfigureAwait(false);
+
+            await mediator.Send(new DequeueCommand(recipientGln, bundleIdA)).ConfigureAwait(false);
+
+            // Assert
+            var peekResponse = await mediator
+                .Send(new PeekCommand(recipientGln, bundleIdB))
+                .ConfigureAwait(false);
+
             Assert.True(peekResponse.HasContent);
         }
 

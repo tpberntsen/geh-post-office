@@ -218,10 +218,25 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
 
             var updateTasks = fetchedBundle
                 .AffectedDrawers
-                .Select(changes => Task.WhenAll(
-                    UpdateDrawerAsync(changes),
-                    UpdateCatalogAsync(changes),
-                    DeleteOldCatalogEntryAsync(fetchedBundle, changes)));
+                .Select(async changes =>
+                {
+                    // This must happen first, before UpdateCatalogAsync.
+                    // When SaveAsync checks the drawer, the changes are not
+                    // yet known and so the catalog entry will be missing.
+                    // When acknowledging, update the drawer, so that:
+                    // a) If an item is inserted before UpdateDrawerAsync,
+                    //    a catalog entry will be added in UpdateCatalogAsync.
+                    // b) If an item is inserted after UpdateDrawerAsync,
+                    //    a catalog entry will be added in UpdateCatalogAsync AND SaveAsync.
+                    // c) If an item is inserted after UpdateDrawerAsync and UpdateCatalogAsync,
+                    //    a catalog entry will be added in SaveAsync, if necessary.
+                    await UpdateDrawerAsync(changes).ConfigureAwait(false);
+                    await Task
+                        .WhenAll(
+                            UpdateCatalogAsync(fetchedBundle, changes),
+                            DeleteOldCatalogEntryAsync(fetchedBundle, changes))
+                        .ConfigureAwait(false);
+                });
 
             await Task.WhenAll(updateTasks).ConfigureAwait(false);
         }
@@ -407,15 +422,56 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             }
         }
 
-        private async Task UpdateCatalogAsync(CosmosCabinetDrawerChanges changes)
+        private async Task UpdateCatalogAsync(CosmosBundleDocument bundle, CosmosCabinetDrawerChanges changes)
         {
             var updatedCatalogEntry = changes.UpdatedCatalogEntry;
-            if (updatedCatalogEntry == null)
+            if (updatedCatalogEntry != null)
+            {
+                await _repositoryContainer
+                    .Catalog
+                    .UpsertItemAsync(updatedCatalogEntry)
+                    .ConfigureAwait(false);
+
                 return;
+            }
+
+            if (changes.UpdatedDrawer.Position == MaximumCabinetDrawerItemCount)
+                return;
+
+            var asLinq = _repositoryContainer
+                .Cabinet
+                .GetItemLinqQueryable<CosmosDataAvailable>();
+
+            var query =
+                from dataAvailable in asLinq
+                where dataAvailable.PartitionKey == changes.UpdatedDrawer.Id
+                orderby dataAvailable.SequenceNumber
+                select (long?)dataAvailable.SequenceNumber;
+
+            var nextSequenceNumber = await query
+                .Skip(changes.UpdatedDrawer.Position)
+                .Take(1)
+                .AsCosmosIteratorAsync()
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
+
+            if (!nextSequenceNumber.HasValue)
+                return;
+
+            var partitionKey = string.Join('_', bundle.Recipient, bundle.Origin);
+            var contentType = bundle.ContentType;
+
+            var nextCatalogEntry = new CosmosCatalogEntry
+            {
+                Id = Guid.NewGuid().ToString(),
+                PartitionKey = partitionKey,
+                ContentType = contentType,
+                NextSequenceNumber = nextSequenceNumber.Value,
+            };
 
             await _repositoryContainer
                 .Catalog
-                .UpsertItemAsync(updatedCatalogEntry)
+                .UpsertItemAsync(nextCatalogEntry)
                 .ConfigureAwait(false);
         }
 
@@ -435,14 +491,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                       catalogEntry.NextSequenceNumber == changes.InitialCatalogEntrySequenceNumber
                 select catalogEntry;
 
-            var entry = await query
-                .AsCosmosIteratorAsync()
-                .SingleOrDefaultAsync()
-                .ConfigureAwait(false);
-
-            // The entry will always be present initially.
-            // The null-check handles case of two concurrent Acknowledge.
-            if (entry != null)
+            await foreach (var entry in query.AsCosmosIteratorAsync())
             {
                 await DeleteOldCatalogEntryAsync(entry).ConfigureAwait(false);
             }

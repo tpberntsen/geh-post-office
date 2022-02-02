@@ -26,15 +26,15 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
     public sealed class PeekTimeSeriesFunction
     {
-        private const string BundleIdQueryName = "bundleId";
-
         private readonly IMediator _mediator;
         private readonly IMarketOperatorIdentity _operatorIdentity;
+        private readonly BundleIdProvider _bundleIdProvider;
 
-        public PeekTimeSeriesFunction(IMediator mediator, IMarketOperatorIdentity operatorIdentity)
+        public PeekTimeSeriesFunction(IMediator mediator, IMarketOperatorIdentity operatorIdentity, BundleIdProvider bundleIdProvider)
         {
             _mediator = mediator;
             _operatorIdentity = operatorIdentity;
+            _bundleIdProvider = bundleIdProvider;
         }
 
         [Function("PeekTimeSeries")]
@@ -44,11 +44,16 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
         {
             return request.ProcessAsync(async () =>
             {
-                var command = new PeekTimeSeriesCommand(_operatorIdentity.Gln, request.Url.GetQueryValue(BundleIdQueryName));
-                var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
-                return hasContent
+                var command = new PeekTimeSeriesCommand(_operatorIdentity.Gln, _bundleIdProvider.GetBundleId(request));
+                var (hasContent, stream, documentTypes) = await _mediator.Send(command).ConfigureAwait(false);
+                var response = hasContent
                     ? request.CreateResponse(stream, MediaTypeNames.Application.Xml)
                     : request.CreateResponse(HttpStatusCode.NoContent);
+
+                response.Headers.Add(Constants.BundleIdHeaderName, command.BundleId);
+                response.Headers.Add(Constants.MessageTypeName, string.Join(",", documentTypes));
+
+                return response;
             });
         }
     }

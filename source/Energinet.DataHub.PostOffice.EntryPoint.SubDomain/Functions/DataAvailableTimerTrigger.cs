@@ -51,7 +51,9 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
         }
 
         [Function(FunctionName)]
+#pragma warning disable CA1801
         public async Task RunAsync([TimerTrigger("*/5 * * * * *")] FunctionContext context)
+#pragma warning restore CA1801
         {
             _logger.LogInformation("Begins processing DataAvailableTimerTrigger.");
 
@@ -187,7 +189,8 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
                     parsedValue.Origin.ToString(),
                     parsedValue.SupportsBundling,
                     parsedValue.RelativeWeight,
-                    initialSequenceNumber + sequenceNumberOffset));
+                    initialSequenceNumber + sequenceNumberOffset,
+                    string.IsNullOrWhiteSpace(parsedValue.DocumentType) ? parsedValue.MessageType.Value : parsedValue.DocumentType));
             }
 #pragma warning disable CA1031 // Do not catch general exception types
             catch

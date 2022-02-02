@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Linq;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Moq;
 using Xunit;
@@ -33,7 +34,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                new Mock<IBundleContent>().Object);
+                new Mock<IBundleContent>().Object,
+                Enumerable.Empty<string>());
 
             // Act
             target.Dequeue();
@@ -52,7 +54,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                new Mock<IBundleContent>().Object);
+                new Mock<IBundleContent>().Object,
+                Enumerable.Empty<string>());
 
             // Act
             var actual = target.TryGetContent(out var actualContent);
@@ -71,7 +74,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             // Act
             var actual = target.TryGetContent(out var actualContent);
@@ -91,7 +95,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
                 new MarketOperator(new GlobalLocationNumber("fake_value")),
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
-                Array.Empty<Uuid>());
+                Array.Empty<Uuid>(),
+                Enumerable.Empty<string>());
 
             // Act
             target.AssignContent(bundleContentMock.Object);
@@ -112,7 +117,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                bundleContentMock.Object);
+                bundleContentMock.Object,
+                Enumerable.Empty<string>());
 
             // Act + Assert
             Assert.Throws<InvalidOperationException>(() => target.AssignContent(bundleContentMock.Object));

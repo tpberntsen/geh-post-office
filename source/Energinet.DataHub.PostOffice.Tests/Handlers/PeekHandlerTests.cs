@@ -14,6 +14,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
@@ -64,7 +65,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                bundleContentMock.Object);
+                bundleContentMock.Object,
+                Enumerable.Empty<string>());
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock
@@ -78,7 +80,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var target = new PeekHandler(warehouseDomainServiceMock.Object, logRepositoryMock.Object);
 
             // Act
-            var (hasContent, stream) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
+            var (hasContent, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             Assert.True(hasContent);
@@ -110,7 +112,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var target = new PeekHandler(warehouseDomainServiceMock.Object, logRepositoryMock.Object);
 
             // Act
-            var (hasContent, stream) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
+            var (hasContent, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             Assert.False(hasContent);
@@ -151,7 +153,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                bundleContentMock.Object);
+                bundleContentMock.Object,
+                Enumerable.Empty<string>());
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock
@@ -165,7 +168,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var target = new PeekHandler(warehouseDomainServiceMock.Object, logRepositoryMock.Object);
 
             // Act
-            var (hasContent, stream) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
+            var (hasContent, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             Assert.True(hasContent);
@@ -193,7 +196,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var target = new PeekHandler(warehouseDomainServiceMock.Object, logRepositoryMock.Object);
 
             // Act
-            var (hasContent, stream) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
+            var (hasContent, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             Assert.False(hasContent);
@@ -233,7 +236,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 DomainOrigin.Charges,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                bundleContentMock.Object);
+                bundleContentMock.Object,
+                Enumerable.Empty<string>());
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock
@@ -247,7 +251,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var target = new PeekHandler(warehouseDomainServiceMock.Object, logMock.Object);
 
             // Act
-            var (hasContent, stream) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
+            var (hasContent, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             Assert.True(hasContent);
@@ -276,7 +280,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var target = new PeekHandler(warehouseDomainServiceMock.Object, logMock.Object);
 
             // Act
-            var (hasContent, stream) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
+            var (hasContent, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             Assert.False(hasContent);
@@ -316,7 +320,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 DomainOrigin.MarketRoles,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                bundleContentMock.Object);
+                bundleContentMock.Object,
+                Enumerable.Empty<string>());
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock
@@ -330,7 +335,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var target = new PeekHandler(warehouseDomainServiceMock.Object, logMock.Object);
 
             // Act
-            var (hasContent, stream) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
+            var (hasContent, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             Assert.True(hasContent);
@@ -359,7 +364,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var target = new PeekHandler(warehouseDomainServiceMock.Object, logMock.Object);
 
             // Act
-            var (hasContent, stream) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
+            var (hasContent, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             Assert.False(hasContent);
@@ -386,7 +391,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 DomainOrigin.MarketRoles,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                bundleContentMock.Object);
+                bundleContentMock.Object,
+                Enumerable.Empty<string>());
 
             dataDomainServiceMock.Setup(x => x.GetNextUnacknowledgedAsync(
                         It.IsAny<MarketOperator>(), It.IsAny<Uuid>()))

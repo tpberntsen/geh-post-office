@@ -43,6 +43,9 @@ namespace Energinet.DataHub.PostOffice.Application.Validation
                     dto.RuleFor(x => x.ContentType)
                         .NotEmpty();
 
+                    dto.RuleFor(x => x.DocumentType)
+                        .NotEmpty();
+
                     dto.RuleFor(x => x.Origin)
                         .NotEmpty()
                         .IsEnumName(typeof(DomainOrigin), false)
