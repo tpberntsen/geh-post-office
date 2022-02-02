@@ -127,11 +127,22 @@ resource "azurerm_private_endpoint" "cosmos_sql" {
     location            = azurerm_resource_group.this.location
     resource_group_name = azurerm_resource_group.this.name
     subnet_id           = module.snet_internal_private_endpoints.id
-    private_service_connection {
-        is_manual_connection       = false
-        name                       = "psc-01"
-        private_connection_resource_id = azurerm_cosmosdb_account.post_office.id
-        subresource_names          = ["sql"]
+
+  private_service_connection {
+    is_manual_connection       = false
+    name                       = "psc-01"
+    private_connection_resource_id = azurerm_cosmosdb_account.post_office.id
+    subresource_names          = ["sql"]
+  }
+
+  tags                           = merge(var.tags, local.module_tags)
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to tags, e.g. because a management agent
+      # updates these based on some ruleset managed elsewhere.
+      tags,
+    ]
   }
 }
 
@@ -144,11 +155,12 @@ resource "azurerm_private_dns_a_record" "cosmosdb_sql" {
   records             = [azurerm_private_endpoint.cosmos_sql.private_service_connection[0].private_ip_address]
 }
 
-# Create an A record pointing to the private endpoint with region location
-resource "azurerm_private_dns_a_record" "cosmosdb_sql_location" {
-  name                = "${azurerm_cosmosdb_account.post_office.name}-${azurerm_resource_group.this.location}"
-  zone_name           = "privatelink.documents.azure.com"
-  resource_group_name = azurerm_resource_group.this.name
-  ttl                 = 3600
-  records             = [azurerm_private_endpoint.cosmos_sql.private_service_connection[0].private_ip_address]
-}
+# TODO: Disabled for now as we only have one region (testing if it will work)
+# # Create an A record pointing to the private endpoint with region location
+# resource "azurerm_private_dns_a_record" "cosmosdb_sql_location" {
+#   name                = "${azurerm_cosmosdb_account.post_office.name}-${azurerm_resource_group.this.location}"
+#   zone_name           = "privatelink.documents.azure.com"
+#   resource_group_name = azurerm_resource_group.this.name
+#   ttl                 = 3600
+#   records             = [azurerm_private_endpoint.cosmos_sql.private_service_connection[0].private_ip_address]
+# }
