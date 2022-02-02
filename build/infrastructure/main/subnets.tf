@@ -38,7 +38,7 @@ module "snet_internal_private_endpoints" {
 
 }
 
-module "vnet_integrations" {
+module "vnet_integrations_functions" {
   source                                        = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/subnet?ref=6.0.0"
   name                                          = "vnet-integrations-functions"
   project_name                                  = var.project_name
