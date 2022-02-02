@@ -11,15 +11,42 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-module "vnet_integrations" {
+
+module "snet_external_private_endpoints" {
   source                                        = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/subnet?ref=6.0.0"
-  name                                          = "postoffice-vnet-integrations"
+  name                                          = "external-private-endpoints"
   project_name                                  = var.project_name
   environment_short                             = var.environment_short
   environment_instance                          = var.environment_instance
   resource_group_name                           = azurerm_resource_group.this.name
   virtual_network_name                          = data.azurerm_key_vault_secret.vnet_shared_name.value
-  address_prefixes                              = ["10.42.0.144/28"]
+  address_prefixes                              = ["10.42.0.240/28"]
+  enforce_private_link_endpoint_network_policies  = true
+}
+
+module "snet_internal_private_endpoints" {
+  source                                        = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/subnet?ref=6.0.0"
+  name                                          = "internal-private-endpoints"
+  project_name                                  = var.project_name
+  environment_short                             = var.environment_short
+  environment_instance                          = var.environment_instance
+  resource_group_name                           = azurerm_resource_group.this.name
+  virtual_network_name                          = data.azurerm_key_vault_secret.vnet_shared_name.value
+  address_prefixes                              = ["10.42.1.0/28"]
+  enforce_private_link_endpoint_network_policies  = true
+  enforce_private_link_service_network_policies = true
+
+}
+
+module "vnet_integrations" {
+  source                                        = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/subnet?ref=6.0.0"
+  name                                          = "vnet-integrations-functions"
+  project_name                                  = var.project_name
+  environment_short                             = var.environment_short
+  environment_instance                          = var.environment_instance
+  resource_group_name                           = azurerm_resource_group.this.name
+  virtual_network_name                          = data.azurerm_key_vault_secret.vnet_shared_name.value
+  address_prefixes                              = ["10.42.1.16/28"]
   enforce_private_link_service_network_policies = true
 
   # Delegate the subnet to "Microsoft.Web/serverFarms"
@@ -28,30 +55,4 @@ module "vnet_integrations" {
    service_delegation_name    = "Microsoft.Web/serverFarms"
    service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
   }]
-}
-
-module "private_endpoints_subnet" {
-  source                                        = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/subnet?ref=6.0.0"
-  name                                          = "postoffice-private-endpoints-subnet"
-  project_name                                  = var.project_name
-  environment_short                             = var.environment_short
-  environment_instance                          = var.environment_instance
-  resource_group_name                           = azurerm_resource_group.this.name
-  virtual_network_name                          = data.azurerm_key_vault_secret.vnet_shared_name.value
-  address_prefixes                              = ["10.42.0.160/28"]
-  enforce_private_link_endpoint_network_policies  = true
-  enforce_private_link_service_network_policies = true
-
-}
-
-module "external_endpoints_subnet" {
-  source                                        = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/subnet?ref=6.0.0"
-  name                                          = "postoffice-external-endpoints-subnet"
-  project_name                                  = var.project_name
-  environment_short                             = var.environment_short
-  environment_instance                          = var.environment_instance
-  resource_group_name                           = azurerm_resource_group.this.name
-  virtual_network_name                          = data.azurerm_key_vault_secret.vnet_shared_name.value
-  address_prefixes                              = ["10.42.0.176/28"]
-  enforce_private_link_endpoint_network_policies  = true
 }

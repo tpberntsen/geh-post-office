@@ -25,7 +25,7 @@ resource "azurerm_cosmosdb_account" "post_office" {
   consistency_policy {
     consistency_level = "Session"
   }
-  
+
   geo_location {
     location          = azurerm_resource_group.this.location
     failover_priority = 0
@@ -40,37 +40,6 @@ resource "azurerm_cosmosdb_account" "post_office" {
       tags,
     ]
   }
-}
-
-resource "azurerm_private_endpoint" "cosmos-pe" {
-    name                = "cosmos-pe-${lower(var.domain_name_short)}-${lower(var.environment_short)}-${lower(var.environment_instance)}"
-    location            = azurerm_resource_group.this.location
-    resource_group_name = azurerm_resource_group.this.name
-    subnet_id           = module.private_endpoints_subnet.id
-    private_service_connection {
-        is_manual_connection       = false
-        name                       = "cosmos-psc"
-        private_connection_resource_id = azurerm_cosmosdb_account.post_office.id
-        subresource_names          = ["sql"]
-  }
-}
-
-# Create an A record pointing to the  private endpoint
-resource "azurerm_private_dns_a_record" "cosmosdb_sql" {
-  name                = azurerm_cosmosdb_account.post_office.name
-  zone_name           = "privatelink.documents.azure.com"
-  resource_group_name = data.azurerm_key_vault_secret.pdns_resource_group_name.value
-  ttl                 = 3600
-  records             = [azurerm_private_endpoint.cosmos-pe.private_service_connection[0].private_ip_address]
-}
-
-# Create an A record pointing to the private endpoint with region location
-resource "azurerm_private_dns_a_record" "cosmosdb_sql_location" {
-  name                = "${azurerm_cosmosdb_account.post_office.name}-${azurerm_resource_group.this.location}"
-  zone_name           = "privatelink.documents.azure.com"
-  resource_group_name = azurerm_resource_group.this.name
-  ttl                 = 3600
-  records             = [azurerm_private_endpoint.cosmos-pe.private_service_connection[0].private_ip_address]
 }
 
 resource "azurerm_cosmosdb_sql_database" "db" {
@@ -141,4 +110,45 @@ resource "azurerm_cosmosdb_sql_trigger" "triggers_ensuresingleunacknowledgedbund
       EOT
   operation    = "Create"
   type         = "Post"
+}
+
+#
+# Private Endpoint for SQL subresource
+#
+
+resource "random_string" "sql" {
+  length  = 5
+  special = false
+  upper   = false
+}
+
+resource "azurerm_private_endpoint" "cosmos_sql" {
+    name                = "pe-cosmos${random_string.sql.result}-${lower(var.domain_name_short)}-${lower(var.environment_short)}-${lower(var.environment_instance)}"
+    location            = azurerm_resource_group.this.location
+    resource_group_name = azurerm_resource_group.this.name
+    subnet_id           = module.snet_internal_private_endpoints.id
+    private_service_connection {
+        is_manual_connection       = false
+        name                       = "psc-01"
+        private_connection_resource_id = azurerm_cosmosdb_account.post_office.id
+        subresource_names          = ["sql"]
+  }
+}
+
+# Create an A record pointing to the Cosmos SQL private endpoint
+resource "azurerm_private_dns_a_record" "cosmosdb_sql" {
+  name                = azurerm_cosmosdb_account.post_office.name
+  zone_name           = "privatelink.documents.azure.com"
+  resource_group_name = data.azurerm_key_vault_secret.pdns_resource_group_name.value
+  ttl                 = 3600
+  records             = [azurerm_private_endpoint.cosmos-pe.private_service_connection[0].private_ip_address]
+}
+
+# Create an A record pointing to the private endpoint with region location
+resource "azurerm_private_dns_a_record" "cosmosdb_sql_location" {
+  name                = "${azurerm_cosmosdb_account.post_office.name}-${azurerm_resource_group.this.location}"
+  zone_name           = "privatelink.documents.azure.com"
+  resource_group_name = azurerm_resource_group.this.name
+  ttl                 = 3600
+  records             = [azurerm_private_endpoint.cosmos-pe.private_service_connection[0].private_ip_address]
 }

@@ -22,9 +22,9 @@ module "func_operations" {
   location                                  = azurerm_resource_group.this.location
   app_service_plan_id                       = module.plan_shared.id
   application_insights_instrumentation_key  = data.azurerm_key_vault_secret.appi_instrumentation_key.value
-  vnet_integration_subnet_id                = module.vnet_integrations.id
-  private_endpoint_subnet_id                = module.private_endpoints_subnet.id
-  private_dns_resource_group_name           = data.azurerm_key_vault_secret.vnet_shared_rg_name.value
+  vnet_integration_subnet_id                = module.vnet_integrations_functions.id
+  private_endpoint_subnet_id                = module.snet_internal_private_endpoints.id
+  private_dns_resource_group_name           = data.azurerm_key_vault_secret.pdns_resource_group_name.value
   always_on                                 = true
   app_settings                              = {
     # Region: Default Values
