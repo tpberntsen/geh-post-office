@@ -33,7 +33,7 @@ module "func_marketoperator" {
     WEBSITES_ENABLE_APP_SERVICE_STORAGE       = true
     FUNCTIONS_WORKER_RUNTIME                  = "dotnet-isolated"
     # Endregion
-    MESSAGES_DB_CONNECTION_STRING             = local.message_db_connection_string
+    MESSAGES_DB_CONNECTION_STRING             = local.MESSAGES_DB_CONNECTION_STRING
     MESSAGES_DB_NAME                          = azurerm_cosmosdb_sql_database.db.name
     BlobStorageConnectionString               = data.azurerm_key_vault_secret.st_market_operator_response_primary_connection_string.value
     BlobStorageContainerName                  = data.azurerm_key_vault_secret.st_market_operator_response_postofficereply_container_name.value
@@ -47,8 +47,8 @@ module "func_marketoperator" {
     RequestResponseLogContainerName           = data.azurerm_key_vault_secret.st_market_operator_logs_container_name.value
     B2C_TENANT_ID                             = data.azurerm_key_vault_secret.b2c_tenant_id.value
     BACKEND_SERVICE_APP_ID                    = data.azurerm_key_vault_secret.backend_service_app_id.value
-    SQL_ACTOR_DB_CONNECTION_STRING            = local.sql_actor_db_connection_string
+    SQL_ACTOR_DB_CONNECTION_STRING            = local.SQL_ACTOR_DB_CONNECTION_STRING
   }
-  
+
   tags                                      = azurerm_resource_group.this.tags
 }

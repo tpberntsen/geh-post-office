@@ -33,7 +33,7 @@ module "func_operations" {
     WEBSITES_ENABLE_APP_SERVICE_STORAGE       = true
     FUNCTIONS_WORKER_RUNTIME                  = "dotnet-isolated"
     # Endregion
-    MESSAGES_DB_CONNECTION_STRING             = local.message_db_connection_string
+    MESSAGES_DB_CONNECTION_STRING             = local.MESSAGES_DB_CONNECTION_STRING
     MESSAGES_DB_NAME                          = azurerm_cosmosdb_sql_database.db.name
     DATAAVAILABLE_QUEUE_CONNECTION_STRING     = data.azurerm_key_vault_secret.sb_domain_relay_transceiver_connection_string.value
     DATAAVAILABLE_QUEUE_NAME                  = data.azurerm_key_vault_secret.sbq_data_available_name.value
@@ -46,6 +46,6 @@ module "func_operations" {
     RequestResponseLogConnectionString        = data.azurerm_key_vault_secret.st_market_operator_logs_primary_connection_string.value
     RequestResponseLogContainerName           = data.azurerm_key_vault_secret.st_market_operator_logs_container_name.value
   }
-  
+
   tags                                      = azurerm_resource_group.this.tags
 }
