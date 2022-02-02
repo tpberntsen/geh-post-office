@@ -30,6 +30,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
             NotificationIdsBase64 = null!;
             AffectedDrawers = new List<CosmosCabinetDrawerChanges>();
             ContentPath = null!;
+            DocumentTypes = null!;
         }
 
         public string Id { get; init; }
@@ -43,6 +44,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
         // TODO: We are running out of space, so I have converted ids to Base64.
         // We should be able to remove this property, since we have ids in Blob Storage anyway (cos ServiceBus also ran out of space).
         public string NotificationIdsBase64 { get; init; }
+
+        public string DocumentTypes { get; init; }
 
         public ICollection<CosmosCabinetDrawerChanges> AffectedDrawers { get; init; }
 

@@ -79,7 +79,8 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
                 new MessageTypeDto("fake_value"),
                 DomainOrigin.TimeSeries,
                 true,
-                1);
+                1,
+                "RSM??");
 
             // Act + Assert
             await Assert
@@ -114,7 +115,8 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
                 new MessageTypeDto("fake_value"),
                 DomainOrigin.TimeSeries,
                 true,
-                1);
+                1,
+                "RSM??");
 
             // Act
             await target.SendAsync("F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E", dataAvailable).ConfigureAwait(false);
@@ -150,7 +152,8 @@ namespace Energinet.DataHub.MessageHub.Client.Tests.DataAvailable
                 new MessageTypeDto("fake_value"),
                 DomainOrigin.TimeSeries,
                 true,
-                1);
+                1,
+                "RSM??");
 
             // Act
             await target.SendAsync("F9A5115D-44EB-4AD4-BC7E-E8E8A0BC425E", dataAvailable).ConfigureAwait(false);

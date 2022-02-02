@@ -27,13 +27,15 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             MarketOperator recipient,
             DomainOrigin origin,
             ContentType contentType,
-            IEnumerable<Uuid> notificationIds)
+            IEnumerable<Uuid> notificationIds,
+            IEnumerable<string> documentTypes)
         {
             BundleId = bundleId;
             Origin = origin;
             ContentType = contentType;
             Recipient = recipient;
             NotificationIds = notificationIds;
+            DocumentTypes = documentTypes;
             ProcessId = new ProcessId(bundleId, recipient);
         }
 
@@ -43,7 +45,8 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             DomainOrigin origin,
             ContentType contentType,
             IEnumerable<Uuid> notificationIds,
-            IBundleContent? bundleContent)
+            IBundleContent? bundleContent,
+            IEnumerable<string> documentTypes)
         {
             BundleId = bundleId;
             Origin = origin;
@@ -51,6 +54,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             Recipient = recipient;
             NotificationIds = notificationIds;
             _bundleContent = bundleContent;
+            DocumentTypes = documentTypes;
             ProcessId = new ProcessId(bundleId, recipient);
         }
 
@@ -64,6 +68,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
         public bool Dequeued { get; private set; }
 
         public IEnumerable<Uuid> NotificationIds { get; }
+        public IEnumerable<string> DocumentTypes { get; }
 
         public bool TryGetContent([NotNullWhen(true)] out IBundleContent? bundleContent)
         {

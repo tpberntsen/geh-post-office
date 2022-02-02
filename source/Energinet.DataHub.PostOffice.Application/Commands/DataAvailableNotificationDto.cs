@@ -23,7 +23,8 @@ namespace Energinet.DataHub.PostOffice.Application.Commands
             string origin,
             bool supportsBundling,
             int weight,
-            long sequenceNumber)
+            long sequenceNumber,
+            string documentType)
         {
             Uuid = uuid;
             Recipient = recipient;
@@ -32,6 +33,7 @@ namespace Energinet.DataHub.PostOffice.Application.Commands
             SupportsBundling = supportsBundling;
             Weight = weight;
             SequenceNumber = sequenceNumber;
+            DocumentType = documentType;
         }
 
         public string Uuid { get; }
@@ -41,5 +43,6 @@ namespace Energinet.DataHub.PostOffice.Application.Commands
         public bool SupportsBundling { get; }
         public int Weight { get; }
         public long SequenceNumber { get; }
+        public string DocumentType { get; }
     }
 }

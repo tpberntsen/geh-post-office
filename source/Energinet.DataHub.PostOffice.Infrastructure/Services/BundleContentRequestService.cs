@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Core.Peek;
 using Energinet.DataHub.MessageHub.Model.Model;
@@ -45,25 +46,32 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
         {
             Guard.ThrowIfNull(bundle, nameof(bundle));
 
+            var sw = Stopwatch.StartNew();
             var request = new DataBundleRequestDto(
                 Guid.NewGuid(),
                 bundle.ProcessId.ToString(),
                 bundle.ProcessId.ToString(),
                 bundle.ContentType.Value);
 
+            _logger.LogInformation("Requesting bundle from domain {0}.\n", bundle.Origin);
+
             var response = await _dataBundleRequestSender.SendAsync(request, (DomainOrigin)bundle.Origin).ConfigureAwait(false);
             if (response == null)
+            {
+                _logger.LogInformation("No response received (within allowed time).\n");
                 return null;
+            }
 
             if (response.IsErrorResponse)
             {
                 _logger.LogError(
-                    "[{0}] Domain returned an error:\n{1}",
+                    "Domain returned an error {0}.\nDescription: {1}",
                     response.ResponseError.Reason,
                     response.ResponseError.FailureDescription);
                 return null;
             }
 
+            _logger.LogInformation("Response received in {0} ms.\n", sw.ElapsedMilliseconds);
             return new AzureBlobBundleContent(_marketOperatorDataStorageService, response.ContentUri);
         }
     }

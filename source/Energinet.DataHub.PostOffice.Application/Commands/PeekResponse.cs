@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Collections.Generic;
 using System.IO;
 
 namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public sealed record PeekResponse(bool HasContent, Stream Data);
+    public sealed record PeekResponse(bool HasContent, Stream Data, IEnumerable<string> DocumentTypes);
 }
