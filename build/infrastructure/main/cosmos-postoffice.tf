@@ -154,13 +154,3 @@ resource "azurerm_private_dns_a_record" "cosmosdb_sql" {
   ttl                 = 3600
   records             = [azurerm_private_endpoint.cosmos_sql.private_service_connection[0].private_ip_address]
 }
-
-# TODO: Disabled for now as we only have one region (testing if it will work)
-# # Create an A record pointing to the private endpoint with region location
-# resource "azurerm_private_dns_a_record" "cosmosdb_sql_location" {
-#   name                = "${azurerm_cosmosdb_account.post_office.name}-${azurerm_resource_group.this.location}"
-#   zone_name           = "privatelink.documents.azure.com"
-#   resource_group_name = azurerm_resource_group.this.name
-#   ttl                 = 3600
-#   records             = [azurerm_private_endpoint.cosmos_sql.private_service_connection[0].private_ip_address]
-# }
