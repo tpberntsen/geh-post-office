@@ -135,7 +135,7 @@ resource "azurerm_private_endpoint" "cosmos_sql" {
     subresource_names          = ["sql"]
   }
 
-  tags                           = merge(var.tags, local.module_tags)
+  tags                           = azurerm_resource_group.this.tags
 
   lifecycle {
     ignore_changes = [
