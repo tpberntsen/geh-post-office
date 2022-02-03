@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Energinet.DataHub.PostOffice.Utilities;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.Common.Auth
 {
-    internal static class AuthRegistrations
+    public static class HttpAuthenticationRegistrations
     {
-        public static void AddAuthentication(this Container container)
+        public static void AddHttpAuthentication(this Container container)
         {
+            Guard.ThrowIfNull(container, nameof(container));
+
             container.Register<IMarketOperatorIdentity, MarketOperatorIdentity>(Lifestyle.Scoped);
             container.Register<JwtAuthenticationMiddleware>(Lifestyle.Scoped);
             container.Register<QueryAuthenticationMiddleware>(Lifestyle.Scoped);

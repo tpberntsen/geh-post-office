@@ -16,7 +16,6 @@ using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.Core.Logging.RequestResponseMiddleware;
 using Energinet.DataHub.PostOffice.Application;
-using Energinet.DataHub.PostOffice.Common.Auth;
 using Energinet.DataHub.PostOffice.Common.MediatR;
 using Energinet.DataHub.PostOffice.Common.SimpleInjector;
 using Energinet.DataHub.PostOffice.Infrastructure.Correlation;
@@ -53,9 +52,6 @@ namespace Energinet.DataHub.PostOffice.Common
                 x.DisposeContainerWithServiceProvider = !true;
                 x.AddLogging();
             });
-
-            // Auth
-            Container.AddAuthentication();
 
             // config
             var config = services.BuildServiceProvider().GetService<IConfiguration>()!;
