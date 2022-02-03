@@ -18,6 +18,7 @@ using Energinet.DataHub.Core.FunctionApp.Common.Identity;
 using Energinet.DataHub.Core.FunctionApp.Common.Middleware;
 using Energinet.DataHub.Core.FunctionApp.Common.SimpleInjector;
 using Energinet.DataHub.PostOffice.Common;
+using Energinet.DataHub.PostOffice.Common.Auth;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +30,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
     {
         protected override void Configure(Container container)
         {
+            container.AddHttpAuthentication();
             container.Register<PeekFunction>(Lifestyle.Scoped);
             container.Register<PeekTimeSeriesFunction>(Lifestyle.Scoped);
             container.Register<PeekMasterDataFunction>(Lifestyle.Scoped);
