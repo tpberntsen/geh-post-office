@@ -146,20 +146,17 @@ resource "azurerm_private_endpoint" "cosmos_sql" {
   }
 }
 
-# Create an A record pointing to the Cosmos SQL private endpoint
+# Create A records pointing to the Cosmos SQL private endpoint.
+# Multiple DNS records will be created as Cosmos must have a global FQDN and a local per region.
 resource "azurerm_private_dns_a_record" "cosmosdb_sql" {
-  name                = azurerm_cosmosdb_account.post_office.name
-  zone_name           = "privatelink.documents.azure.com"
-  resource_group_name = data.azurerm_key_vault_secret.pdns_resource_group_name.value
-  ttl                 = 3600
-  records             = [azurerm_private_endpoint.cosmos_sql.private_service_connection[0].private_ip_address]
-}
+  count               = length(azurerm_private_endpoint.cosmos_sql.custom_dns_configs)
 
-# Create an A record pointing to the private endpoint with region location
-resource "azurerm_private_dns_a_record" "cosmosdb_sql_location" {
-  name                = "${azurerm_cosmosdb_account.post_office.name}-${azurerm_resource_group.this.location}"
+  # azurerm_cosmosdb_account.post_office.name
+  name                = azurerm_private_endpoint.cosmos_sql.custom_dns_configs[count.index].fqdn
   zone_name           = "privatelink.documents.azure.com"
   resource_group_name = data.azurerm_key_vault_secret.pdns_resource_group_name.value
   ttl                 = 3600
-  records             = [azurerm_private_endpoint.cosmos_sql.private_service_connection[1].private_ip_address]
+
+  # [azurerm_private_endpoint.cosmos_sql.private_service_connection[0].private_ip_address]
+  records             = azurerm_private_endpoint.cosmos_sql.custom_dns_configs[count.index].ip_addresses[0]
 }
