@@ -174,7 +174,7 @@ resource "azurerm_private_dns_a_record" "cosmosdb_sql_global" {
   resource_group_name = data.azurerm_key_vault_secret.pdns_resource_group_name.value
   ttl                 = 3600
 
-  records             = azurerm_private_endpoint.cosmos_sql.custom_dns_configs[0].ip_addresses[0]
+  records             = [azurerm_private_endpoint.cosmos_sql.custom_dns_configs[0].ip_addresses[0]]
 
   depends_on = [
     azurerm_private_endpoint.cosmos_sql
@@ -187,7 +187,7 @@ resource "azurerm_private_dns_a_record" "cosmosdb_sql_region" {
   resource_group_name = data.azurerm_key_vault_secret.pdns_resource_group_name.value
   ttl                 = 3600
 
-  records             = azurerm_private_endpoint.cosmos_sql.custom_dns_configs[1].ip_addresses[0]
+  records             = [azurerm_private_endpoint.cosmos_sql.custom_dns_configs[1].ip_addresses[0]]
 
   depends_on = [
     azurerm_private_endpoint.cosmos_sql
