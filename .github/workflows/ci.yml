@@ -24,7 +24,7 @@ jobs:
     uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@2.6.1
 
   dotnet_solution_ci:
-    uses: Energinet-DataHub/.github/.github/workflows/dotnet-solution-ci.yml@2.6.1
+    uses: Energinet-DataHub/.github/.github/workflows/dotnet-solution-ci.yml@dstenroejl/cosmos-db-emulator
     with:
       SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.sln'
       DOTNET_VERSION: '5.0'
