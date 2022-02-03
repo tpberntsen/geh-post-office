@@ -27,13 +27,13 @@ module "cosmos_messages" {
 resource "azurerm_cosmosdb_sql_database" "db" {
   name                = "post-office"
   resource_group_name = azurerm_resource_group.this.name
-  account_name        = cosmos_messages.name
+  account_name        = module.cosmos_messages.name
 }
 
 resource "azurerm_cosmosdb_sql_container" "collection_catalog" {
   name                = "catalog"
   resource_group_name = azurerm_resource_group.this.name
-  account_name        = cosmos_messages.name
+  account_name        = module.cosmos_messages.name
   database_name       = azurerm_cosmosdb_sql_database.db.name
   partition_key_path  = "/partitionKey"
 }
@@ -41,7 +41,7 @@ resource "azurerm_cosmosdb_sql_container" "collection_catalog" {
 resource "azurerm_cosmosdb_sql_container" "collection_cabinet" {
   name                = "cabinet"
   resource_group_name = azurerm_resource_group.this.name
-  account_name        = cosmos_messages.name
+  account_name        = module.cosmos_messages.name
   database_name       = azurerm_cosmosdb_sql_database.db.name
   partition_key_path  = "/partitionKey"
 }
@@ -49,7 +49,7 @@ resource "azurerm_cosmosdb_sql_container" "collection_cabinet" {
 resource "azurerm_cosmosdb_sql_container" "collection_idempotency" {
   name                = "idempotency"
   resource_group_name = azurerm_resource_group.this.name
-  account_name        = cosmos_messages.name
+  account_name        = module.cosmos_messages.name
   database_name       = azurerm_cosmosdb_sql_database.db.name
   partition_key_path  = "/partitionKey"
 }
@@ -57,7 +57,7 @@ resource "azurerm_cosmosdb_sql_container" "collection_idempotency" {
 resource "azurerm_cosmosdb_sql_container" "collection_bundle" {
   name                = "bundle"
   resource_group_name = azurerm_resource_group.this.name
-  account_name        = cosmos_messages.name
+  account_name        = module.cosmos_messages.name
   database_name       = azurerm_cosmosdb_sql_database.db.name
   partition_key_path  = "/recipient"
 }
