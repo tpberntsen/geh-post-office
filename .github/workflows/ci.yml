@@ -24,6 +24,7 @@ jobs:
     uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@2.6.1
 
   dotnet_solution_ci:
+    # TODO: Update to use latest version instead of feature branch
     uses: Energinet-DataHub/.github/.github/workflows/dotnet-solution-ci.yml@dstenroejl/cosmos-db-emulator
     with:
       SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.sln'
