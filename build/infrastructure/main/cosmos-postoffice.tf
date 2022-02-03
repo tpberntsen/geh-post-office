@@ -11,71 +11,53 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-resource "azurerm_cosmosdb_account" "post_office" {
-  name                = "cosmos-messages-${lower(var.domain_name_short)}-${lower(var.environment_short)}-${lower(var.environment_instance)}"
-  resource_group_name = azurerm_resource_group.this.name
-  location            = azurerm_resource_group.this.location
-  offer_type          = "Standard"
-  kind                = "GlobalDocumentDB"
-  public_network_access_enabled = false
-  is_virtual_network_filter_enabled = true
-  # To enable global failover change to true and uncomment second geo_location
-  enable_automatic_failover = false
+module "cosmos_messages" {
+  source                                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/cosmos-db-account?ref=6.0.0-cosmos-db"
 
-  consistency_policy {
-    consistency_level = "Session"
-  }
-
-  geo_location {
-    location          = azurerm_resource_group.this.location
-    failover_priority = 0
-  }
-
-  tags                = azurerm_resource_group.this.tags
-
-  lifecycle {
-    ignore_changes = [
-      # Ignore changes to tags, e.g. because a management agent
-      # updates these based on some ruleset managed elsewhere.
-      tags,
-    ]
-  }
+  name                                      = "messages"
+  project_name                              = var.domain_name_short
+  environment_short                         = var.environment_short
+  environment_instance                      = var.environment_instance
+  resource_group_name                       = azurerm_resource_group.this.name
+  location                                  = azurerm_resource_group.this.location
+  private_endpoint_subnet_id                = module.snet_internal_private_endpoints.id
+  private_dns_resource_group_name           = data.azurerm_key_vault_secret.pdns_resource_group_name.value
 }
 
 resource "azurerm_cosmosdb_sql_database" "db" {
   name                = "post-office"
   resource_group_name = azurerm_resource_group.this.name
-  account_name        = azurerm_cosmosdb_account.post_office.name
+  account_name        = cosmos_messages.name
 }
 
 resource "azurerm_cosmosdb_sql_container" "collection_catalog" {
   name                = "catalog"
-  resource_group_name = var.resource_group_name
-  account_name        = azurerm_cosmosdb_account.post_office.name
+  resource_group_name = azurerm_resource_group.this.name
+  account_name        = cosmos_messages.name
   database_name       = azurerm_cosmosdb_sql_database.db.name
   partition_key_path  = "/partitionKey"
 }
 
 resource "azurerm_cosmosdb_sql_container" "collection_cabinet" {
   name                = "cabinet"
-  resource_group_name = var.resource_group_name
-  account_name        = azurerm_cosmosdb_account.post_office.name
+  resource_group_name = azurerm_resource_group.this.name
+  account_name        = cosmos_messages.name
   database_name       = azurerm_cosmosdb_sql_database.db.name
   partition_key_path  = "/partitionKey"
 }
 
 resource "azurerm_cosmosdb_sql_container" "collection_idempotency" {
   name                = "idempotency"
-  resource_group_name = var.resource_group_name
-  account_name        = azurerm_cosmosdb_account.post_office.name
+  resource_group_name = azurerm_resource_group.this.name
+  account_name        = cosmos_messages.name
   database_name       = azurerm_cosmosdb_sql_database.db.name
   partition_key_path  = "/partitionKey"
 }
 
 resource "azurerm_cosmosdb_sql_container" "collection_bundle" {
   name                = "bundle"
-  resource_group_name = var.resource_group_name
-  account_name        = azurerm_cosmosdb_account.post_office.name
+  resource_group_name = azurerm_resource_group.this.name
+  account_name        = cosmos_messages.name
   database_name       = azurerm_cosmosdb_sql_database.db.name
   partition_key_path  = "/recipient"
 }
@@ -110,55 +92,4 @@ resource "azurerm_cosmosdb_sql_trigger" "triggers_ensuresingleunacknowledgedbund
       EOT
   operation    = "Create"
   type         = "Post"
-}
-
-#
-# Private Endpoint for SQL subresource
-#
-
-resource "random_string" "sql" {
-  length  = 5
-  special = false
-  upper   = false
-}
-
-resource "azurerm_private_endpoint" "cosmos_sql" {
-    name                = "pe-cosmos${random_string.sql.result}-${lower(var.domain_name_short)}-${lower(var.environment_short)}-${lower(var.environment_instance)}"
-    location            = azurerm_resource_group.this.location
-    resource_group_name = azurerm_resource_group.this.name
-    subnet_id           = module.snet_internal_private_endpoints.id
-
-  private_service_connection {
-    is_manual_connection       = false
-    name                       = "psc-01"
-    private_connection_resource_id = azurerm_cosmosdb_account.post_office.id
-    subresource_names          = ["sql"]
-  }
-
-  tags                           = azurerm_resource_group.this.tags
-
-  lifecycle {
-    ignore_changes = [
-      # Ignore changes to tags, e.g. because a management agent
-      # updates these based on some ruleset managed elsewhere.
-      tags,
-    ]
-  }
-}
-
-# Create A records pointing to the Cosmos SQL private endpoint.
-# Multiple DNS records will be created as Cosmos must have a global FQDN and a local per region.
-resource "azurerm_private_dns_a_record" "cosmosdb_sql_global" {
-  count               = length(azurerm_private_endpoint.cosmos_sql.custom_dns_configs)
-
-  name                = split(".", azurerm_private_endpoint.cosmos_sql.custom_dns_configs[count.index].fqdn)[0]
-  zone_name           = "privatelink.documents.azure.com"
-  resource_group_name = data.azurerm_key_vault_secret.pdns_resource_group_name.value
-  ttl                 = 3600
-
-  records             = azurerm_private_endpoint.cosmos_sql.custom_dns_configs[count.index].ip_addresses
-
-  depends_on = [
-    azurerm_private_endpoint.cosmos_sql
-  ]
 }
