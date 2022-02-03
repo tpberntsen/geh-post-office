@@ -23,7 +23,7 @@ jobs:
   ci_base:
     uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@2.1.0
 
-  # TODO: Uncomment when TF is working
+  # TODO: Disabled for now
   # dotnet_solution_ci:
   #   uses: Energinet-DataHub/.github/.github/workflows/dotnet-solution-ci.yml@2.6.1
   #   with:
@@ -57,7 +57,9 @@ jobs:
       TERRAFORM_VERSION: '1.1.2'
 
   market_operator_ci:
-    needs: [ci_base, dotnet_solution_ci, package_ci, terraform_validate]
+    # TODO: Disabled for now
+    # needs: [ci_base, dotnet_solution_ci, package_ci, terraform_validate]
+    needs: [ci_base, package_ci, terraform_validate]
     uses: Energinet-DataHub/.github/.github/workflows/dotnet-create-function-artifact.yml@2.1.0
     with:
       CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.EntryPoint.MarketOperator/Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.csproj'
@@ -65,7 +67,9 @@ jobs:
       ARTIFACT_NAME: marketoperator
 
   subdomain_ci:
-    needs: [ci_base, dotnet_solution_ci, package_ci, terraform_validate]
+    # TODO: Disabled for now
+    # needs: [ci_base, dotnet_solution_ci, package_ci, terraform_validate]
+    needs: [ci_base, package_ci, terraform_validate]
     uses: Energinet-DataHub/.github/.github/workflows/dotnet-create-function-artifact.yml@2.1.0
     with:
       CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.EntryPoint.SubDomain/Energinet.DataHub.PostOffice.EntryPoint.SubDomain.csproj'
@@ -73,7 +77,9 @@ jobs:
       ARTIFACT_NAME: subdomain
 
   operations_ci:
-    needs: [ci_base, dotnet_solution_ci, package_ci, terraform_validate]
+    # TODO: Disabled for now
+    # needs: [ci_base, dotnet_solution_ci, package_ci, terraform_validate]
+    needs: [ci_base, package_ci, terraform_validate]
     uses: Energinet-DataHub/.github/.github/workflows/dotnet-create-function-artifact.yml@2.1.0
     with:
       CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.EntryPoint.Operations/Energinet.DataHub.PostOffice.EntryPoint.Operations.csproj'
