@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 module "cosmos_messages" {
-  source                                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/cosmos-db-account?ref=6.0.0-cosmos-db"
+  source                                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/cosmos-db-account?ref=6.0.0"
 
   name                                      = "messages"
   project_name                              = var.domain_name_short
