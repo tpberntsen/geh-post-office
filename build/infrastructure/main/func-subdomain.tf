@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 module "func_subdomain" {
-  source                                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/function-app?ref=5.1.0"
+  source                                    = "git::https://github.com/Energinet-DataHub/geh-terraform-modules.git//azure/function-app?ref=6.0.0"
 
   name                                      = "subdomain"
   project_name                              = var.domain_name_short
@@ -22,6 +22,9 @@ module "func_subdomain" {
   location                                  = azurerm_resource_group.this.location
   app_service_plan_id                       = module.plan_shared.id
   application_insights_instrumentation_key  = data.azurerm_key_vault_secret.appi_instrumentation_key.value
+  vnet_integration_subnet_id                = module.vnet_integrations_functions.id
+  private_endpoint_subnet_id                = module.snet_internal_private_endpoints.id
+  private_dns_resource_group_name           = data.azurerm_key_vault_secret.pdns_resource_group_name.value
   always_on                                 = true
   app_settings                              = {
     # Region: Default Values
@@ -30,7 +33,7 @@ module "func_subdomain" {
     WEBSITES_ENABLE_APP_SERVICE_STORAGE       = true
     FUNCTIONS_WORKER_RUNTIME                  = "dotnet-isolated"
     # Endregion
-    MESSAGES_DB_CONNECTION_STRING             = local.message_db_connection_string
+    MESSAGES_DB_CONNECTION_STRING             = local.MESSAGES_DB_CONNECTION_STRING
     MESSAGES_DB_NAME                          = azurerm_cosmosdb_sql_database.db.name
     DATAAVAILABLE_QUEUE_CONNECTION_STRING     = data.azurerm_key_vault_secret.sb_domain_relay_transceiver_connection_string.value
     DATAAVAILABLE_QUEUE_NAME                  = data.azurerm_key_vault_secret.sbq_data_available_name.value
@@ -45,6 +48,6 @@ module "func_subdomain" {
     RequestResponseLogConnectionString        = data.azurerm_key_vault_secret.st_market_operator_logs_primary_connection_string.value
     RequestResponseLogContainerName           = data.azurerm_key_vault_secret.st_market_operator_logs_container_name.value
   }
-  
+
   tags                                      = azurerm_resource_group.this.tags
 }
