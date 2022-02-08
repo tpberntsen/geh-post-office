@@ -66,8 +66,8 @@ data "azurerm_key_vault_secret" "backend_service_app_id" {
   key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
 }
 
-data "azurerm_key_vault_secret" "mssql_actor_register_database_name" {
-  name         = "mssql-actor-register-database-name"
+data "azurerm_key_vault_secret" "mssql_market_participant_database_name" {
+  name         = "mssql-market-participant-database-name"
   key_vault_id = data.azurerm_key_vault.kv_shared_resources.id
 }
 
