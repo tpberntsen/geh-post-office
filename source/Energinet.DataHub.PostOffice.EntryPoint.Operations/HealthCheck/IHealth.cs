@@ -12,18 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Utilities;
-
-namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
+namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.HealthCheck
 {
-    public class ActorDbConfig
+    public interface IHealth
     {
-        public ActorDbConfig(string connectionString)
-        {
-            Guard.ThrowIfNull(connectionString, nameof(connectionString));
-            ConnectionString = connectionString;
-        }
-
-        public string ConnectionString { get; }
+        IFluentHealth NewFluentHealthVerifier { get; }
     }
 }

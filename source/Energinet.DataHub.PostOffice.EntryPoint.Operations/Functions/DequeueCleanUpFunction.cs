@@ -25,9 +25,9 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
         [Function(FunctionName)]
         public static Task RunAsync(
             [ServiceBusTrigger("%" + ServiceBusConfig.DequeueCleanUpQueueNameKey + "%", Connection = "ServiceBusConnectionString")]
-#pragma warning disable SA1313
-            FunctionContext _)
-#pragma warning restore SA1313
+#pragma warning disable CA1801
+            FunctionContext context)
+#pragma warning restore CA1801
         {
             // TODO: This function will become GC at some point.
             return Task.CompletedTask;
