@@ -27,6 +27,9 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.HealthCheck
             _serviceBusVerifier = serviceBusVerifier;
         }
 
-        public IFluentHealth FluentValidator => new FluentHealth(_cosmosDatabaseVerifier, _sqlDatabaseVerifier, _serviceBusVerifier);
+        public IFluentHealth CreateFluentValidator()
+        {
+            return new FluentHealth(_cosmosDatabaseVerifier, _sqlDatabaseVerifier, _serviceBusVerifier);
+        }
     }
 }

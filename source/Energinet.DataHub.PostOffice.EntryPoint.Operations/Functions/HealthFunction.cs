@@ -53,7 +53,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
             var serviceBusConnectionString = _serviceBusConfig.DataAvailableQueueConnectionString;
 
             var results = await _health
-                .FluentValidator
+                .CreateFluentValidator()
                 .AddCosmosDatabase("MESSAGEHUB_COSMOS_DB", cosmosConnectionString, _cosmosDatabaseConfig.MessageHubDatabaseId)
                 .AddCosmosDatabase("MESSAGEHUB_COSMOS_LOG_DB", cosmosConnectionString, _cosmosDatabaseConfig.LogDatabaseId)
                 .AddMessageBus("MESSAGE_HUB_DATAAVAILABLE_QUEUE", serviceBusConnectionString, _serviceBusConfig.DataAvailableQueueName)
