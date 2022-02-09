@@ -12,18 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Utilities;
+using System.Threading.Tasks;
 
-namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
+namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.HealthCheck
 {
-    public class ActorDbConfig
+    public interface IServiceBusQueueVerifier
     {
-        public ActorDbConfig(string connectionString)
-        {
-            Guard.ThrowIfNull(connectionString, nameof(connectionString));
-            ConnectionString = connectionString;
-        }
-
-        public string ConnectionString { get; }
+        Task<bool> VerifyAsync(string connectionString, string name);
     }
 }

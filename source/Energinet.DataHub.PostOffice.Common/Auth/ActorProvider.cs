@@ -19,7 +19,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using Energinet.DataHub.Core.FunctionApp.Common.Abstractions.Actor;
 
-namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
+namespace Energinet.DataHub.PostOffice.Common.Auth
 {
     public sealed class ActorProvider : IActorProvider
     {
