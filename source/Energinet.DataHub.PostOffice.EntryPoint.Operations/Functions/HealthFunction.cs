@@ -52,12 +52,13 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
             var cosmosConnectionString = _cosmosDatabaseConfig.ConnectionsString;
             var serviceBusConnectionString = _serviceBusConfig.DataAvailableQueueConnectionString;
 
-            var results = await _health.NewFluentHealthVerifier
-                .VerifyCosmosDatabase("MESSAGEHUB_COSMOS_DB", cosmosConnectionString, _cosmosDatabaseConfig.MessageHubDatabaseId)
-                .VerifyCosmosDatabase("MESSAGEHUB_COSMOS_LOG_DB", cosmosConnectionString, _cosmosDatabaseConfig.LogDatabaseId)
-                .VerifyMessageBus("MESSAGE_HUB_DATAAVAILABLE_QUEUE", serviceBusConnectionString, _serviceBusConfig.DataAvailableQueueName)
-                .VerifyMessageBus("MESSAGE_HUB_DATAAVAILABLE_ARCHIVE_QUEUE", serviceBusConnectionString, _serviceBusConfig.DequeueCleanUpQueueName)
-                .VerifySqlDatabase("ACTOR_DB", _actorDbConfig.ConnectionString)
+            var results = await _health
+                .FluentValidator
+                .AddCosmosDatabase("MESSAGEHUB_COSMOS_DB", cosmosConnectionString, _cosmosDatabaseConfig.MessageHubDatabaseId)
+                .AddCosmosDatabase("MESSAGEHUB_COSMOS_LOG_DB", cosmosConnectionString, _cosmosDatabaseConfig.LogDatabaseId)
+                .AddMessageBus("MESSAGE_HUB_DATAAVAILABLE_QUEUE", serviceBusConnectionString, _serviceBusConfig.DataAvailableQueueName)
+                .AddMessageBus("MESSAGE_HUB_DATAAVAILABLE_ARCHIVE_QUEUE", serviceBusConnectionString, _serviceBusConfig.DequeueCleanUpQueueName)
+                .AddSqlDatabase("ACTOR_DB", _actorDbConfig.ConnectionString)
                 .RunInParallelAsync().ConfigureAwait(false);
 
             var response = request.CreateResponse();

@@ -34,19 +34,19 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.HealthCheck
             _serviceBusVerifier = serviceBusVerifier;
         }
 
-        public IFluentHealth VerifyCosmosDatabase(string verficationKey, string connectionString, string name)
+        public IFluentHealth AddCosmosDatabase(string verficationKey, string connectionString, string name)
         {
             Verify(verficationKey, () => _cosmosDatabaseVerifier.VerifyAsync(connectionString, name));
             return this;
         }
 
-        public IFluentHealth VerifySqlDatabase(string verficationKey, string connectionString)
+        public IFluentHealth AddSqlDatabase(string verficationKey, string connectionString)
         {
             Verify(verficationKey, () => _sqlDatabaseVerifier.VerifyAsync(connectionString));
             return this;
         }
 
-        public IFluentHealth VerifyMessageBus(string verficationKey, string connectionString, string name)
+        public IFluentHealth AddMessageBus(string verficationKey, string connectionString, string name)
         {
             Verify(verficationKey, () => _serviceBusVerifier.VerifyAsync(connectionString, name));
             return this;

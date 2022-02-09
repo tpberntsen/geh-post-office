@@ -16,6 +16,6 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.HealthCheck
 {
     public interface IHealth
     {
-        IFluentHealth NewFluentHealthVerifier { get; }
+        IFluentHealth FluentValidator { get; }
     }
 }
