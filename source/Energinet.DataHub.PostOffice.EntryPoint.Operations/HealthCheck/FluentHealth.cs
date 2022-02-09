@@ -52,7 +52,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.HealthCheck
             return this;
         }
 
-        public async Task<IDictionary<string, bool>> RunAsync()
+        public async Task<IEnumerable<(string Key, bool Result)>> RunAsync()
         {
             var results = new Dictionary<string, (int Order, bool Result)>();
 
@@ -64,7 +64,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.HealthCheck
             return MapResults(results);
         }
 
-        public async Task<IDictionary<string, bool>> RunInParallelAsync()
+        public async Task<IEnumerable<(string Key, bool Result)>> RunInParallelAsync()
         {
             var results = new ConcurrentDictionary<string, (int Order, bool Result)>();
 
@@ -73,9 +73,9 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.HealthCheck
             return MapResults(results);
         }
 
-        private static Dictionary<string, bool> MapResults(IDictionary<string, (int Order, bool Result)> results)
+        private static IEnumerable<(string Key, bool Result)> MapResults(IDictionary<string, (int Order, bool Result)> results)
         {
-            return results.OrderBy(x => x.Value.Order).ToDictionary(x => x.Key, x => x.Value.Result);
+            return results.OrderBy(x => x.Value.Order).Select(x => (x.Key, x.Value.Result));
         }
 
         private static async Task RunVerifierAsync(IDictionary<string, (int Order, bool Result)> results, string key, (int Order, Func<Task<bool>> Verifier) value)

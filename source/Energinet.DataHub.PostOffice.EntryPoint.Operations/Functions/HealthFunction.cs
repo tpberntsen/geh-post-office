@@ -68,18 +68,18 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions
             return response;
         }
 
-        private static HttpStatusCode CalculateStatusCode(IDictionary<string, bool> healthChecks)
+        private static HttpStatusCode CalculateStatusCode(IEnumerable<(string Key, bool Result)> healthChecks)
         {
-            return healthChecks.All(x => x.Value) ? HttpStatusCode.OK : HttpStatusCode.ServiceUnavailable;
+            return healthChecks.All(x => x.Result) ? HttpStatusCode.OK : HttpStatusCode.ServiceUnavailable;
         }
 
-        private static string Print(IDictionary<string, bool> healthChecks)
+        private static string Print(IEnumerable<(string Key, bool Result)> healthChecks)
         {
-            const string OKMessage = "OK";
-            const string unavailableMessage = "unavailable";
+            const string OkMessage = "OK";
+            const string UnavailableMessage = "unavailable";
 
-            var len = healthChecks.Any() ? healthChecks.Max(x => x.Key.Length + (x.Value ? OKMessage : unavailableMessage).Length + 2) : 0;
-            var grouped = healthChecks.OrderBy(x => x.Key).GroupBy(x => x.Value).ToDictionary(x => x.Key, x => string.Join("\n", x.Select(x => $"{x.Key}: {(x.Value ? OKMessage : unavailableMessage)}")));
+            var len = healthChecks.Any() ? healthChecks.Max(x => x.Key.Length + (x.Result ? OkMessage : UnavailableMessage).Length + 2) : 0;
+            var grouped = healthChecks.GroupBy(x => x.Result).ToDictionary(x => x.Key, x => string.Join("\n", x.Select(x => $"{x.Key}: {(x.Result ? OkMessage : UnavailableMessage)}")));
             var headerBar = new string('=', len);
             return
                 $"{(grouped.TryGetValue(false, out var f) ? $"Failed checks:\n{headerBar}\n{f}\n\n" : string.Empty)}" +

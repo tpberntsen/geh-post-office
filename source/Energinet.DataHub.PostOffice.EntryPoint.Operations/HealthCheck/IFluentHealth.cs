@@ -19,8 +19,8 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations.HealthCheck
 {
     public interface IFluentHealth
     {
-        Task<IDictionary<string, bool>> RunAsync();
-        Task<IDictionary<string, bool>> RunInParallelAsync();
+        Task<IEnumerable<(string Key, bool Result)>> RunAsync();
+        Task<IEnumerable<(string Key, bool Result)>> RunInParallelAsync();
         IFluentHealth AddCosmosDatabase(string verficationKey, string connectionString, string name);
         IFluentHealth AddSqlDatabase(string verficationKey, string connectionString);
         IFluentHealth AddMessageBus(string verficationKey, string connectionString, string queueName);
