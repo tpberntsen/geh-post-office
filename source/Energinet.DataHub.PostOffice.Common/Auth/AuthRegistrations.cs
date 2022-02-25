@@ -34,7 +34,22 @@ namespace Energinet.DataHub.PostOffice.Common.Auth
             container.Register<JwtAuthenticationMiddleware>(Lifestyle.Scoped);
             container.Register<QueryAuthenticationMiddleware>(Lifestyle.Scoped);
             RegisterJwt(container);
-            RegisterActor(container);
+
+            container.AddMarketParticipant();
+        }
+
+        public static void AddMarketParticipant(this Container container)
+        {
+            Guard.ThrowIfNull(container, nameof(container));
+
+            container.Register(() =>
+            {
+                const string connectionStringKey = "SQL_ACTOR_DB_CONNECTION_STRING";
+                var connectionString = Environment.GetEnvironmentVariable(connectionStringKey) ?? throw new InvalidOperationException($"{connectionStringKey} is required");
+                return new ActorDbConfig(connectionString);
+            });
+
+            container.AddActorContext<ActorProvider>();
         }
 
         private static void RegisterJwt(Container container)
@@ -49,18 +64,6 @@ namespace Energinet.DataHub.PostOffice.Common.Auth
                 var audience = configuration.GetValue<string>("BACKEND_SERVICE_APP_ID") ?? throw new InvalidOperationException("Backend service app id not found.");
                 return new OpenIdSettings($"https://login.microsoftonline.com/{tenantId}/v2.0/.well-known/openid-configuration", audience);
             });
-        }
-
-        private static void RegisterActor(Container container)
-        {
-            container.Register<ActorDbConfig>(() =>
-            {
-                const string ConnectionStringKey = "SQL_ACTOR_DB_CONNECTION_STRING";
-                var connectionString = Environment.GetEnvironmentVariable(ConnectionStringKey) ?? throw new InvalidOperationException($"{ConnectionStringKey} is required");
-                return new ActorDbConfig(connectionString);
-            });
-
-            container.AddActorContext<ActorProvider>();
         }
     }
 }
