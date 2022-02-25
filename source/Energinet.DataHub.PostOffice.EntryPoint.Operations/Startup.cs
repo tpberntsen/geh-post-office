@@ -25,7 +25,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations
         protected override void Configure(Container container)
         {
             // market participant
-            container.AddMarketParticipant();
+            container.AddMarketParticipantConfig();
 
             // health check
             container.Register<ICosmosDatabaseVerifier, CosmosDatabaseVerifier>(Lifestyle.Scoped);
