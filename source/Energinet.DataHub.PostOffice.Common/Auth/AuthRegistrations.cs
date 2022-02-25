@@ -35,10 +35,11 @@ namespace Energinet.DataHub.PostOffice.Common.Auth
             container.Register<QueryAuthenticationMiddleware>(Lifestyle.Scoped);
             RegisterJwt(container);
 
-            container.AddMarketParticipant();
+            container.AddMarketParticipantConfig();
+            container.AddActorContext<ActorProvider>();
         }
 
-        public static void AddMarketParticipant(this Container container)
+        public static void AddMarketParticipantConfig(this Container container)
         {
             Guard.ThrowIfNull(container, nameof(container));
 
@@ -48,8 +49,6 @@ namespace Energinet.DataHub.PostOffice.Common.Auth
                 var connectionString = Environment.GetEnvironmentVariable(connectionStringKey) ?? throw new InvalidOperationException($"{connectionStringKey} is required");
                 return new ActorDbConfig(connectionString);
             });
-
-            container.AddActorContext<ActorProvider>();
         }
 
         private static void RegisterJwt(Container container)
