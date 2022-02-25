@@ -21,15 +21,15 @@ on:
 
 jobs:
   ci_base:
-    uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@2.6.1
+    uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@5.0.1
 
   dotnet_solution_ci:
-    uses: Energinet-DataHub/.github/.github/workflows/dotnet-solution-ci.yml@4.0.1
+    uses: Energinet-DataHub/.github/.github/workflows/dotnet-solution-ci.yml@5.0.1
     with:
       SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.sln'
       DOTNET_VERSION: '5.0'
       USE_COSMOS_DB_EMULATOR: true
-      USE_AZURITE: true
+      USE_AZURE_FUNCTIONS_TOOLS: true
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -38,7 +38,7 @@ jobs:
       AZURE_KEYVAULT_URL: ${{ secrets.AZURE_KEYVAULT_URL }}
 
   package_ci:
-    uses: Energinet-DataHub/.github/.github/workflows/dotnet-solution-ci.yml@2.6.1
+    uses: Energinet-DataHub/.github/.github/workflows/dotnet-solution-ci.yml@5.0.1
     with:
       SOLUTION_FILE_PATH: 'source/Energinet.DataHub.PostOffice.Libraries.sln'
       DOTNET_VERSION: '5.0'
@@ -50,14 +50,14 @@ jobs:
       AZURE_KEYVAULT_URL: ${{ secrets.AZURE_KEYVAULT_URL }}
 
   terraform_validate:
-    uses: Energinet-DataHub/.github/.github/workflows/terraform-validate.yml@2.1.0
+    uses: Energinet-DataHub/.github/.github/workflows/terraform-validate.yml@5.0.1
     with:
       TERRAFORM_WORKING_DIR_PATH: './build/infrastructure/main'
       TERRAFORM_VERSION: '1.1.5'
 
   market_operator_ci:
     needs: [ci_base, dotnet_solution_ci, package_ci, terraform_validate]
-    uses: Energinet-DataHub/.github/.github/workflows/dotnet-create-function-artifact.yml@2.1.0
+    uses: Energinet-DataHub/.github/.github/workflows/dotnet-create-function-artifact.yml@5.0.1
     with:
       CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.EntryPoint.MarketOperator/Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.csproj'
       DOTNET_VERSION: '5.0'
@@ -65,7 +65,7 @@ jobs:
 
   subdomain_ci:
     needs: [ci_base, dotnet_solution_ci, package_ci, terraform_validate]
-    uses: Energinet-DataHub/.github/.github/workflows/dotnet-create-function-artifact.yml@2.1.0
+    uses: Energinet-DataHub/.github/.github/workflows/dotnet-create-function-artifact.yml@5.0.1
     with:
       CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.EntryPoint.SubDomain/Energinet.DataHub.PostOffice.EntryPoint.SubDomain.csproj'
       DOTNET_VERSION: '5.0'
@@ -73,7 +73,7 @@ jobs:
 
   operations_ci:
     needs: [ci_base, dotnet_solution_ci, package_ci, terraform_validate]
-    uses: Energinet-DataHub/.github/.github/workflows/dotnet-create-function-artifact.yml@2.1.0
+    uses: Energinet-DataHub/.github/.github/workflows/dotnet-create-function-artifact.yml@5.0.1
     with:
       CSPROJ_FILE_PATH: 'source/Energinet.DataHub.PostOffice.EntryPoint.Operations/Energinet.DataHub.PostOffice.EntryPoint.Operations.csproj'
       DOTNET_VERSION: '5.0'
@@ -81,7 +81,7 @@ jobs:
 
   create_prerelease:
     needs: [market_operator_ci, subdomain_ci, operations_ci]
-    uses: Energinet-DataHub/.github/.github/workflows/create-prerelease.yml@2.1.0
+    uses: Energinet-DataHub/.github/.github/workflows/create-prerelease.yml@5.0.1
     with:
       CALLER_REPOSITORY_PATH: Energinet-DataHub/geh-post-office
     secrets:

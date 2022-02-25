@@ -24,9 +24,6 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations
     {
         protected override void Configure(Container container)
         {
-            // auth
-            container.AddHttpAuthentication();
-
             // health check
             container.Register<ICosmosDatabaseVerifier, CosmosDatabaseVerifier>(Lifestyle.Scoped);
             container.Register<ISqlDatabaseVerifier, SqlDatabaseVerifier>(Lifestyle.Scoped);

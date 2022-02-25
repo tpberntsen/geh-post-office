@@ -20,7 +20,7 @@ module "func_marketoperator" {
   environment_instance                      = var.environment_instance
   resource_group_name                       = azurerm_resource_group.this.name
   location                                  = azurerm_resource_group.this.location
-  app_service_plan_id                       = module.plan_shared.id
+  app_service_plan_id                       = data.azurerm_key_vault_secret.plan_shared_id.value
   application_insights_instrumentation_key  = data.azurerm_key_vault_secret.appi_instrumentation_key.value
   vnet_integration_subnet_id                = module.vnet_integrations_functions.id
   private_endpoint_subnet_id                = module.snet_internal_private_endpoints.id
