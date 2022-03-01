@@ -14,15 +14,15 @@
 
 using System;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator;
-using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
 using FluentAssertions;
 using Microsoft.Azure.Functions.Isolated.TestDoubles;
-using Moq;
 using Xunit;
+using Xunit.Categories;
 
 namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 {
-    public class BundleIdProviderTests
+    [UnitTest]
+    public sealed class ExternalBundleIdProviderTests
     {
         [Fact]
         public void Given_Request_When_BundleIdIsPresent_Then_ItIsReturned()
@@ -33,41 +33,23 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             var request = MockHelpers.CreateHttpRequestData(url: uri);
 
             // Act
-            var sut = BundleIdProvider.Default;
-            var actualId = sut.GetBundleId(request);
+            var sut = new ExternalBundleIdProvider();
+            var actualId = sut.TryGetBundleId(request);
 
             // Assert
             actualId.Should().Be(expectedBundleId);
         }
 
         [Fact]
-        public void Given_Request_When_BundleIdIsNotInQuery_Then_NewBundleIdIsCreated()
+        public void Given_Request_When_BundleIdIsNotInQuery_Then_NullIsReturned()
         {
-            var expectedBundleId = Guid.NewGuid().ToString("N");
             Uri uri = new($"https://localhost/");
             var request = MockHelpers.CreateHttpRequestData(url: uri);
 
-            BundleIdProvider sut = new StaticBundleIdProvider(expectedBundleId);
-            var actualId = sut.GetBundleId(request);
+            var sut = new ExternalBundleIdProvider();
+            var actualId = sut.TryGetBundleId(request);
 
-            actualId.Should().Be(expectedBundleId);
-        }
-
-        private class StaticBundleIdProvider : BundleIdProvider
-        {
-            private readonly Func<string> _idProvider;
-
-            public StaticBundleIdProvider(string id)
-                : this(() => id)
-            { }
-
-            public StaticBundleIdProvider(Func<string> bundleIdProvider)
-            {
-                _idProvider = bundleIdProvider ?? throw new ArgumentNullException(nameof(bundleIdProvider));
-            }
-
-            protected override string CreateBundleId()
-                => _idProvider.Invoke();
+            actualId.Should().BeNull();
         }
     }
 }

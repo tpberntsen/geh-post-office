@@ -27,36 +27,36 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         /// Returns null when there is no new unacknowledged data to get.
         /// </summary>
         /// <param name="recipient">The market operator to get the next unacknowledged bundle for.</param>
-        /// <param name="bundleId">The bundleId used for the next bundle</param>
+        /// <param name="suggestedBundleId">The suggested bundle id to use for the next bundle.</param>
         /// <returns>The next unacknowledged bundle; or null, if there is no new data.</returns>
-        Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid bundleId);
+        Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid? suggestedBundleId);
 
         /// <summary>
         /// Get the next bundle of unacknowledged time series data for a given market operator.
         /// Returns null when there is no new unacknowledged data to get.
         /// </summary>
         /// <param name="recipient">The market operator to get the next unacknowledged bundle for.</param>
-        /// <param name="bundleId">The bundleId used for the next bundle</param>
+        /// <param name="suggestedBundleId">The suggested bundle id to use for the next bundle.</param>
         /// <returns>The next unacknowledged bundle; or null, if there is no new data.</returns>
-        Task<Bundle?> GetNextUnacknowledgedTimeSeriesAsync(MarketOperator recipient, Uuid bundleId);
+        Task<Bundle?> GetNextUnacknowledgedTimeSeriesAsync(MarketOperator recipient, Uuid? suggestedBundleId);
 
         /// <summary>
         /// Get the next bundle of unacknowledged master data for a given market operator.
         /// Returns null when there is no new unacknowledged data to get.
         /// </summary>
         /// <param name="recipient">The market operator to get the next unacknowledged bundle for.</param>
-        /// <param name="bundleId">The bundleId used for the next bundle</param>
+        /// <param name="suggestedBundleId">The suggested bundle id to use for the next bundle.</param>
         /// <returns>The next unacknowledged bundle; or null, if there is no new data.</returns>
-        Task<Bundle?> GetNextUnacknowledgedMasterDataAsync(MarketOperator recipient, Uuid bundleId);
+        Task<Bundle?> GetNextUnacknowledgedMasterDataAsync(MarketOperator recipient, Uuid? suggestedBundleId);
 
         /// <summary>
         /// Get the next bundle of unacknowledged aggregations data for a given market operator.
         /// Returns null when there is no new unacknowledged data to get.
         /// </summary>
         /// <param name="recipient">The market operator to get the next unacknowledged bundle for.</param>
-        /// <param name="bundleId">id for data response.</param>
+        /// <param name="suggestedBundleId">The suggested bundle id to use for the next bundle.</param>
         /// <returns>The next unacknowledged bundle; or null, if there is no new data.</returns>
-        Task<Bundle?> GetNextUnacknowledgedAggregationsAsync(MarketOperator recipient, Uuid bundleId);
+        Task<Bundle?> GetNextUnacknowledgedAggregationsAsync(MarketOperator recipient, Uuid? suggestedBundleId);
 
         /// <summary>
         /// Checks if the current bundle can be acknowledged.
