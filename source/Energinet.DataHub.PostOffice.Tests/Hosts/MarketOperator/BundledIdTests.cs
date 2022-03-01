@@ -39,11 +39,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
-            mediator.Setup(p => p.Send(It.IsAny<PeekAggregationsCommand>(), default)).ReturnsAsync(new PeekResponse(false, Stream.Null, Enumerable.Empty<string>()));
+            mediator.Setup(p => p.Send(It.IsAny<PeekAggregationsCommand>(), default)).ReturnsAsync(new PeekResponse(false, bundleId, Stream.Null, Enumerable.Empty<string>()));
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
-            var sut = new PeekAggregationsFunction(mediator.Object, identifier, BundleIdProvider.Default);
+            var sut = new PeekAggregationsFunction(mediator.Object, identifier, new ExternalBundleIdProvider());
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert
@@ -62,11 +62,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
-            mediator.Setup(p => p.Send(It.IsAny<PeekCommand>(), default)).ReturnsAsync(new PeekResponse(false, Stream.Null, Enumerable.Empty<string>()));
+            mediator.Setup(p => p.Send(It.IsAny<PeekCommand>(), default)).ReturnsAsync(new PeekResponse(false, bundleId, Stream.Null, Enumerable.Empty<string>()));
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
-            var sut = new PeekFunction(mediator.Object, identifier, BundleIdProvider.Default);
+            var sut = new PeekFunction(mediator.Object, identifier, new ExternalBundleIdProvider());
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert
@@ -85,11 +85,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
-            mediator.Setup(p => p.Send(It.IsAny<PeekMasterDataCommand>(), default)).ReturnsAsync(new PeekResponse(false, Stream.Null, Enumerable.Empty<string>()));
+            mediator.Setup(p => p.Send(It.IsAny<PeekMasterDataCommand>(), default)).ReturnsAsync(new PeekResponse(false, bundleId, Stream.Null, Enumerable.Empty<string>()));
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
-            var sut = new PeekMasterDataFunction(mediator.Object, identifier, BundleIdProvider.Default);
+            var sut = new PeekMasterDataFunction(mediator.Object, identifier, new ExternalBundleIdProvider());
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert
@@ -108,11 +108,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             var request = MockHelpers.CreateHttpRequestData(url: path);
             var mediator = new Mock<IMediator>();
-            mediator.Setup(p => p.Send(It.IsAny<PeekTimeSeriesCommand>(), default)).ReturnsAsync(new PeekResponse(false, Stream.Null, Enumerable.Empty<string>()));
+            mediator.Setup(p => p.Send(It.IsAny<PeekTimeSeriesCommand>(), default)).ReturnsAsync(new PeekResponse(false, bundleId, Stream.Null, Enumerable.Empty<string>()));
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
-            var sut = new PeekTimeSeriesFunction(mediator.Object, identifier, BundleIdProvider.Default);
+            var sut = new PeekTimeSeriesFunction(mediator.Object, identifier, new ExternalBundleIdProvider());
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert

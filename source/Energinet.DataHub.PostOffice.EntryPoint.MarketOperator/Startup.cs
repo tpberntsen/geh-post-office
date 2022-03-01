@@ -29,7 +29,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
             container.Register<PeekMasterDataFunction>(Lifestyle.Scoped);
             container.Register<PeekAggregationsFunction>(Lifestyle.Scoped);
             container.Register<DequeueFunction>(Lifestyle.Scoped);
-            container.Register(() => BundleIdProvider.Default, Lifestyle.Singleton);
+            container.Register(() => new ExternalBundleIdProvider(), Lifestyle.Singleton);
         }
     }
 }

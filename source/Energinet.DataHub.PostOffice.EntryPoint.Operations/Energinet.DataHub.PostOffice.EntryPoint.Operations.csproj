@@ -25,7 +25,6 @@ limitations under the License.
   <ItemGroup>
     <PackageReference Include="Energinet.DataHub.Core.FunctionApp.Common.Abstractions" Version="2.0.1" />
     <PackageReference Include="Energinet.DataHub.Core.FunctionApp.Common.SimpleInjector" Version="2.0.1" />
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.24.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.13" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="4.2.1" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.6.0" />
