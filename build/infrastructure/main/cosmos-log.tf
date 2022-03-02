@@ -14,13 +14,13 @@
 resource "azurerm_cosmosdb_sql_database" "log_db" {
   name                = "Log"
   resource_group_name = azurerm_resource_group.this.name
-  account_name        = azurerm_cosmosdb_account.post_office.name
+  account_name        = module.cosmos_messages.name
 }
 
 resource "azurerm_cosmosdb_sql_container" "collection_logs" {
   name                = "Logs"
-  resource_group_name = var.resource_group_name
-  account_name        = azurerm_cosmosdb_account.post_office.name
+  resource_group_name = azurerm_resource_group.this.name
+  account_name        = module.cosmos_messages.name
   database_name       = azurerm_cosmosdb_sql_database.log_db.name
   partition_key_path  = "/marketOperator"
 }
