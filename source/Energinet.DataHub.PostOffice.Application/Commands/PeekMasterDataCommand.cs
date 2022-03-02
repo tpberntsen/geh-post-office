@@ -14,5 +14,5 @@
 
 namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public sealed record PeekMasterDataCommand(string MarketOperator, string BundleId) : PeekCommandBase(MarketOperator, BundleId);
+    public sealed record PeekMasterDataCommand(string MarketOperator, string? BundleId) : PeekCommandBase(MarketOperator, BundleId);
 }

@@ -52,7 +52,7 @@ namespace Energinet.DataHub.PostOffice.Common.Auth
 
             while (await reader.ReadAsync().ConfigureAwait(false))
             {
-                var record = ((IDataRecord)reader)!;
+                var record = (IDataRecord)reader;
 
                 return new Actor(
                     record.GetGuid(0),
@@ -61,7 +61,7 @@ namespace Energinet.DataHub.PostOffice.Common.Auth
                     record.GetString(3));
             }
 
-            throw new InvalidOperationException("Actor not found");
+            throw new InvalidOperationException($"Actor with id {actorId} not found.");
         }
     }
 }

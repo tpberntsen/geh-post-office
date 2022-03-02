@@ -78,24 +78,36 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
         private async Task<PeekResponse> HandleAsync(
             PeekCommandBase request,
-            Func<MarketOperator, Uuid, Task<Bundle?>> requestHandler,
+            Func<MarketOperator, Uuid?, Task<Bundle?>> requestHandler,
             Func<ProcessId, IBundleContent, PeekLog> logProvider)
         {
             Guard.ThrowIfNull(request, nameof(request));
 
             var marketOperator = new MarketOperator(new GlobalLocationNumber(request.MarketOperator));
-            var uuid = new Uuid(request.BundleId);
-            var bundle = await requestHandler(marketOperator, uuid).ConfigureAwait(false);
+
+            var suggestedBundleId = request.BundleId != null
+                ? new Uuid(request.BundleId)
+                : null;
+
+            var bundle = await requestHandler(marketOperator, suggestedBundleId).ConfigureAwait(false);
 
             if (bundle != null && bundle.TryGetContent(out var bundleContent))
             {
                 var peekLog = logProvider(bundle.ProcessId, bundleContent);
                 await _log.SavePeekLogOccurrenceAsync(peekLog).ConfigureAwait(false);
 
-                return new PeekResponse(true, await bundleContent.OpenAsync().ConfigureAwait(false), bundle.DocumentTypes);
+                return new PeekResponse(
+                    true,
+                    bundle.BundleId.ToString(),
+                    await bundleContent.OpenAsync().ConfigureAwait(false),
+                    bundle.DocumentTypes);
             }
 
-            return new PeekResponse(false, Stream.Null, Enumerable.Empty<string>());
+            return new PeekResponse(
+                false,
+                string.Empty,
+                Stream.Null,
+                Enumerable.Empty<string>());
         }
     }
 }

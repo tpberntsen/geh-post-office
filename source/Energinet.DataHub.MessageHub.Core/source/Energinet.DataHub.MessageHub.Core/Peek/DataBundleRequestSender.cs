@@ -59,7 +59,8 @@ namespace Energinet.DataHub.MessageHub.Core.Peek
             {
                 SessionId = sessionId,
                 ReplyToSessionId = sessionId,
-                ReplyTo = replyQueue
+                ReplyTo = replyQueue,
+                TimeToLive = _peekRequestConfig.PeekTimeout ?? _defaultTimeout
             }.AddRequestDataBundleIntegrationEvents(dataBundleRequestDto.IdempotencyId);
 
             var serviceBusClient = _messageBusFactory.GetSenderClient(targetQueue);
