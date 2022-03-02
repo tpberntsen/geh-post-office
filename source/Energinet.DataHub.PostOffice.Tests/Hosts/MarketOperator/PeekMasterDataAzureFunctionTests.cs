@@ -49,9 +49,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             mockedMediator
                 .Setup(x => x.Send(It.IsAny<PeekMasterDataCommand>(), default))
-                .ReturnsAsync(new PeekResponse(true, new MemoryStream(Encoding.ASCII.GetBytes(expectedData)), Enumerable.Empty<string>()));
+                .ReturnsAsync(new PeekResponse(true, "A431EF1A-BEE3-4378-A3E7-639706691C63", new MemoryStream(Encoding.ASCII.GetBytes(expectedData)), Enumerable.Empty<string>()));
 
-            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, BundleIdProvider.Default);
+            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, new ExternalBundleIdProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -74,9 +74,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             mockedMediator
                 .Setup(x => x.Send(It.IsAny<PeekMasterDataCommand>(), default))
-                .ReturnsAsync(new PeekResponse(false, Stream.Null, Enumerable.Empty<string>()));
+                .ReturnsAsync(new PeekResponse(false, string.Empty, Stream.Null, Enumerable.Empty<string>()));
 
-            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, BundleIdProvider.Default);
+            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, new ExternalBundleIdProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -98,7 +98,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekMasterDataCommand>(), default))
                 .ThrowsAsync(new ValidationException("test"));
 
-            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, BundleIdProvider.Default);
+            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, new ExternalBundleIdProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -120,7 +120,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekMasterDataCommand>(), default))
                 .ThrowsAsync(new InvalidOperationException("test"));
 
-            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, BundleIdProvider.Default);
+            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, new ExternalBundleIdProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);

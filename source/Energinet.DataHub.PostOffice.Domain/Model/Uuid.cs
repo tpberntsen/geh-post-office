@@ -20,6 +20,11 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
     {
         private readonly Guid _id;
 
+        public Uuid()
+        {
+            _id = Guid.NewGuid();
+        }
+
         public Uuid(Guid id)
         {
             _id = id;

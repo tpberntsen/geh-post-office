@@ -49,9 +49,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             mockedMediator
                 .Setup(x => x.Send(It.IsAny<PeekAggregationsCommand>(), default))
-                .ReturnsAsync(new PeekResponse(true, new MemoryStream(Encoding.ASCII.GetBytes(expectedData)), Enumerable.Empty<string>()));
+                .ReturnsAsync(new PeekResponse(true, "6B685AA6-F281-4424-9DEA-B3EC08C27278", new MemoryStream(Encoding.ASCII.GetBytes(expectedData)), Enumerable.Empty<string>()));
 
-            var target = new PeekAggregationsFunction(mockedMediator.Object, mockedIdentity, BundleIdProvider.Default);
+            var target = new PeekAggregationsFunction(mockedMediator.Object, mockedIdentity, new ExternalBundleIdProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -74,9 +74,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
 
             mockedMediator
                 .Setup(x => x.Send(It.IsAny<PeekAggregationsCommand>(), default))
-                .ReturnsAsync(new PeekResponse(false, Stream.Null, Enumerable.Empty<string>()));
+                .ReturnsAsync(new PeekResponse(false, string.Empty, Stream.Null, Enumerable.Empty<string>()));
 
-            var target = new PeekAggregationsFunction(mockedMediator.Object, mockedIdentity, BundleIdProvider.Default);
+            var target = new PeekAggregationsFunction(mockedMediator.Object, mockedIdentity, new ExternalBundleIdProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -98,7 +98,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekAggregationsCommand>(), default))
                 .ThrowsAsync(new ValidationException("test"));
 
-            var target = new PeekAggregationsFunction(mockedMediator.Object, mockedIdentity, BundleIdProvider.Default);
+            var target = new PeekAggregationsFunction(mockedMediator.Object, mockedIdentity, new ExternalBundleIdProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -120,7 +120,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekAggregationsCommand>(), default))
                 .ThrowsAsync(new InvalidOperationException("test"));
 
-            var target = new PeekAggregationsFunction(mockedMediator.Object, mockedIdentity, BundleIdProvider.Default);
+            var target = new PeekAggregationsFunction(mockedMediator.Object, mockedIdentity, new ExternalBundleIdProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);

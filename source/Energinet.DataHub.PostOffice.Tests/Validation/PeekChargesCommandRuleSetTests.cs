@@ -29,7 +29,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
 
         [Theory]
         [InlineData("", false)]
-        [InlineData(null, false)]
+        [InlineData(null, true)]
         [InlineData("  ", false)]
         [InlineData("8F9B8218-BAE6-412B-B91B-0C78A55FF128", true)]
         [InlineData("8F9B8218-BAE6-412B-B91B-0C78A55FF1XX", false)]

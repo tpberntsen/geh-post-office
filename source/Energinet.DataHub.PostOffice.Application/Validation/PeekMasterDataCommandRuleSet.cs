@@ -28,7 +28,8 @@ namespace Energinet.DataHub.PostOffice.Application.Validation
 
             RuleFor(command => command.BundleId)
                 .NotEmpty()
-                .SetValidator(new UuidValidationRule());
+                .SetValidator(new UuidValidationRule())
+                .When(x => x.BundleId != null);
         }
     }
 }
