@@ -20,6 +20,7 @@ using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
 using Energinet.DataHub.PostOffice.Tests.Common.Auth;
+using Energinet.DataHub.PostOffice.Utilities;
 using FluentAssertions;
 using MediatR;
 using Microsoft.Azure.Functions.Isolated.TestDoubles;
@@ -43,7 +44,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
-            var sut = new PeekAggregationsFunction(mediator.Object, identifier, new ExternalBundleIdProvider());
+            var sut = new PeekAggregationsFunction(
+                mediator.Object,
+                identifier,
+                new Mock<IFeatureFlags>().Object,
+                new ExternalBundleIdProvider());
+
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert
@@ -66,7 +72,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
-            var sut = new PeekFunction(mediator.Object, identifier, new ExternalBundleIdProvider());
+            var sut = new PeekFunction(
+                mediator.Object,
+                identifier,
+                new Mock<IFeatureFlags>().Object,
+                new ExternalBundleIdProvider());
+
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert
@@ -89,7 +100,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
-            var sut = new PeekMasterDataFunction(mediator.Object, identifier, new ExternalBundleIdProvider());
+            var sut = new PeekMasterDataFunction(
+                mediator.Object,
+                identifier,
+                new Mock<IFeatureFlags>().Object,
+                new ExternalBundleIdProvider());
+
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert
@@ -112,7 +128,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
             var identifier = new MockedMarketOperatorIdentity("fake_value");
 
             // Act
-            var sut = new PeekTimeSeriesFunction(mediator.Object, identifier, new ExternalBundleIdProvider());
+            var sut = new PeekTimeSeriesFunction(
+                mediator.Object,
+                identifier,
+                new Mock<IFeatureFlags>().Object,
+                new ExternalBundleIdProvider());
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert
