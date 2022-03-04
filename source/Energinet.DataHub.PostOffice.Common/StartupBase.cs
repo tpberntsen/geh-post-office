@@ -19,6 +19,7 @@ using Energinet.DataHub.PostOffice.Application;
 using Energinet.DataHub.PostOffice.Common.MediatR;
 using Energinet.DataHub.PostOffice.Common.SimpleInjector;
 using Energinet.DataHub.PostOffice.Infrastructure.Correlation;
+using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -63,6 +64,9 @@ namespace Energinet.DataHub.PostOffice.Common
             Container.AddAzureBlobStorageConfig();
             Container.AddAzureBlobStorage();
             Container.AddQueueConfiguration();
+
+            // feature flags
+            Container.RegisterSingleton<IFeatureFlags, FeatureFlags>();
 
             // Add Application insights telemetry
             services.SetupApplicationInsightTelemetry(config);
