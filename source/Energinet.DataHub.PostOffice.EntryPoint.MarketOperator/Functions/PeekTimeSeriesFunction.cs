@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Common.Auth;
 using Energinet.DataHub.PostOffice.Common.Extensions;
+using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -28,12 +29,18 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
     {
         private readonly IMediator _mediator;
         private readonly IMarketOperatorIdentity _operatorIdentity;
+        private readonly IFeatureFlags _featureFlags;
         private readonly ExternalBundleIdProvider _bundleIdProvider;
 
-        public PeekTimeSeriesFunction(IMediator mediator, IMarketOperatorIdentity operatorIdentity, ExternalBundleIdProvider bundleIdProvider)
+        public PeekTimeSeriesFunction(
+            IMediator mediator,
+            IMarketOperatorIdentity operatorIdentity,
+            IFeatureFlags featureFlags,
+            ExternalBundleIdProvider bundleIdProvider)
         {
             _mediator = mediator;
             _operatorIdentity = operatorIdentity;
+            _featureFlags = featureFlags;
             _bundleIdProvider = bundleIdProvider;
         }
 
@@ -52,7 +59,11 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
                     : request.CreateResponse(HttpStatusCode.NoContent);
 
                 response.Headers.Add(Constants.BundleIdHeaderName, bundleId);
-                response.Headers.Add(Constants.MessageTypeName, string.Join(",", documentTypes));
+
+                if (_featureFlags.IsFeatureActive(Feature.SendMessageTypeHeader))
+                {
+                    response.Headers.Add(Constants.MessageTypeName, string.Join(",", documentTypes));
+                }
 
                 return response;
             });
