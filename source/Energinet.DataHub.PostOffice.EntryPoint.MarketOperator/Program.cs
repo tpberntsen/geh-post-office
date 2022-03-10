@@ -13,7 +13,7 @@
 // limitations under the License.
 
 using System.Threading.Tasks;
-using Energinet.DataHub.Core.FunctionApp.Common.Middleware;
+using Energinet.DataHub.Core.App.FunctionApp.Middleware;
 using Energinet.DataHub.Core.Logging.RequestResponseMiddleware;
 using Energinet.DataHub.PostOffice.Common;
 using Energinet.DataHub.PostOffice.Common.Auth;

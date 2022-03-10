@@ -25,7 +25,9 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
         /// </summary>
         /// <param name="request">The request to probe for the bundle id.</param>
         /// <returns>The bundle id, or null.</returns>
+#pragma warning disable CA1822 // Mark members as static
         public string? TryGetBundleId(HttpRequestData request)
+#pragma warning restore CA1822 // Mark members as static
         {
             Guard.ThrowIfNull(request, nameof(request));
 
