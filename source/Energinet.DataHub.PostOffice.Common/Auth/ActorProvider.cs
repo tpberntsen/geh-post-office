@@ -17,7 +17,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Threading.Tasks;
-using Energinet.DataHub.Core.FunctionApp.Common.Abstractions.Actor;
+using Energinet.DataHub.Core.App.Common.Abstractions.Actor;
 
 namespace Energinet.DataHub.PostOffice.Common.Auth
 {
