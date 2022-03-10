@@ -13,10 +13,11 @@
 // limitations under the License.
 
 using System;
-using Energinet.DataHub.Core.FunctionApp.Common.Abstractions.Identity;
-using Energinet.DataHub.Core.FunctionApp.Common.Identity;
-using Energinet.DataHub.Core.FunctionApp.Common.Middleware;
-using Energinet.DataHub.Core.FunctionApp.Common.SimpleInjector;
+using Energinet.DataHub.Core.App.Common.Abstractions.Identity;
+using Energinet.DataHub.Core.App.Common.Identity;
+using Energinet.DataHub.Core.App.Common.Security;
+using Energinet.DataHub.Core.App.FunctionApp.Middleware;
+using Energinet.DataHub.Core.App.FunctionApp.SimpleInjector;
 using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
