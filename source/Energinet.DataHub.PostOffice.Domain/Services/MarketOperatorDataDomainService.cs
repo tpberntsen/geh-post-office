@@ -41,26 +41,26 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             _weightCalculatorDomainService = weightCalculatorDomainService;
         }
 
-        public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid bundleId)
+        public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid? suggestedBundleId)
         {
-            return GetNextUnacknowledgedForDomainsAsync(recipient, bundleId);
+            return GetNextUnacknowledgedForDomainsAsync(recipient, suggestedBundleId);
         }
 
-        public Task<Bundle?> GetNextUnacknowledgedTimeSeriesAsync(MarketOperator recipient, Uuid bundleId)
+        public Task<Bundle?> GetNextUnacknowledgedTimeSeriesAsync(MarketOperator recipient, Uuid? suggestedBundleId)
         {
-            return GetNextUnacknowledgedForDomainsAsync(recipient, bundleId, DomainOrigin.TimeSeries);
+            return GetNextUnacknowledgedForDomainsAsync(recipient, suggestedBundleId, DomainOrigin.TimeSeries);
         }
 
-        public Task<Bundle?> GetNextUnacknowledgedAggregationsAsync(MarketOperator recipient, Uuid bundleId)
+        public Task<Bundle?> GetNextUnacknowledgedAggregationsAsync(MarketOperator recipient, Uuid? suggestedBundleId)
         {
-            return GetNextUnacknowledgedForDomainsAsync(recipient, bundleId, DomainOrigin.Aggregations);
+            return GetNextUnacknowledgedForDomainsAsync(recipient, suggestedBundleId, DomainOrigin.Aggregations);
         }
 
-        public Task<Bundle?> GetNextUnacknowledgedMasterDataAsync(MarketOperator recipient, Uuid bundleId)
+        public Task<Bundle?> GetNextUnacknowledgedMasterDataAsync(MarketOperator recipient, Uuid? suggestedBundleId)
         {
             return GetNextUnacknowledgedForDomainsAsync(
                 recipient,
-                bundleId,
+                suggestedBundleId,
                 DomainOrigin.MarketRoles,
                 DomainOrigin.MeteringPoints,
                 DomainOrigin.Charges);
@@ -87,7 +87,10 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 .ConfigureAwait(false);
         }
 
-        private async Task<Bundle?> GetNextUnacknowledgedForDomainsAsync(MarketOperator recipient, Uuid bundleId, params DomainOrigin[] domains)
+        private async Task<Bundle?> GetNextUnacknowledgedForDomainsAsync(
+            MarketOperator recipient,
+            Uuid? suggestedBundleId,
+            params DomainOrigin[] domains)
         {
             var existingBundle = await _bundleRepository
                 .GetNextUnacknowledgedAsync(recipient, domains)
@@ -95,7 +98,8 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
             if (existingBundle != null)
             {
-                if (existingBundle.BundleId != bundleId)
+                if (suggestedBundleId != null &&
+                    suggestedBundleId != existingBundle.BundleId)
                 {
                     throw new ValidationException(
                         $"The specified bundle id was rejected, as the current bundle {existingBundle.BundleId} is yet to be acknowledged.");
@@ -112,7 +116,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             if (cabinetReader == null)
                 return null;
 
-            var newBundle = await CreateNextBundleAsync(bundleId, cabinetReader).ConfigureAwait(false);
+            var newBundle = await CreateNextBundleAsync(suggestedBundleId, cabinetReader).ConfigureAwait(false);
 
             var bundleCreatedResponse = await _bundleRepository
                 .TryAddNextUnacknowledgedAsync(newBundle, cabinetReader)
@@ -144,7 +148,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             return bundle;
         }
 
-        private async Task<Bundle> CreateNextBundleAsync(Uuid bundleId, ICabinetReader cabinetReader)
+        private async Task<Bundle> CreateNextBundleAsync(Uuid? suggestedBundleId, ICabinetReader cabinetReader)
         {
             var cabinetKey = cabinetReader.Key;
 
@@ -152,6 +156,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             var maxWeight = _weightCalculatorDomainService.CalculateMaxWeight(cabinetKey.Origin);
 
             var notificationIds = new List<Uuid>();
+            var documentTypes = new HashSet<string>();
 
             while (cabinetReader.CanPeek)
             {
@@ -163,6 +168,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
                     weight += notification.Weight;
                     notificationIds.Add(notification.NotificationId);
+                    documentTypes.Add(notification.DocumentType.Value);
 
                     if (!notification.SupportsBundling.Value)
                         break;
@@ -178,6 +184,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 
                         weight += dequeued.Weight;
                         notificationIds.Add(dequeued.NotificationId);
+                        documentTypes.Add(dequeued.DocumentType.Value);
                     }
                     else
                     {
@@ -187,11 +194,12 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             }
 
             return new Bundle(
-                bundleId,
+                suggestedBundleId ?? new Uuid(),
                 cabinetKey.Recipient,
                 cabinetKey.Origin,
                 cabinetKey.ContentType,
-                notificationIds);
+                notificationIds,
+                documentTypes);
         }
     }
 }

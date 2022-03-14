@@ -15,8 +15,6 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Energinet.DataHub.Core.FunctionApp.Common;
-using Energinet.DataHub.Core.FunctionApp.Common.Abstractions.Actor;
 using Energinet.DataHub.Core.Logging.RequestResponseMiddleware.Storage;
 using Energinet.DataHub.MessageHub.Core;
 using Energinet.DataHub.MessageHub.Core.Factories;
@@ -42,7 +40,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
         {
             // Arrange
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddSingleton((IConfiguration)new ConfigurationBuilder().Build());
+            serviceCollection.AddSingleton((IConfiguration)BuildConfig());
             await using var target = new TestOfStartupBase();
 
             // Act
@@ -72,6 +70,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
 
         private static IConfigurationRoot BuildConfig()
         {
+            Environment.SetEnvironmentVariable("B2C_TENANT_ID", "fake_value");
+            Environment.SetEnvironmentVariable("BACKEND_SERVICE_APP_ID", "fake_value");
+            Environment.SetEnvironmentVariable("SQL_ACTOR_DB_CONNECTION_STRING", "fake_value");
             return new ConfigurationBuilder().AddEnvironmentVariables().Build();
         }
 
@@ -95,11 +96,10 @@ namespace Energinet.DataHub.PostOffice.Tests.Common
                 container.RegisterSingleton<ICosmosClient>(() => new CosmosClientProvider(new MockedCosmosClient()));
                 container.RegisterSingleton(() => new StorageConfig("fake_value"));
                 container.RegisterSingleton(() => new ServiceBusConfig("fake_value", "fake_value", "fake_value"));
-                container.RegisterSingleton(() => new CosmosDatabaseConfig("fake_value", "fake_value"));
+                container.RegisterSingleton(() => new CosmosDatabaseConfig("fake_value", "fake_value", "fake_value"));
                 container.RegisterSingleton<IServiceBusClientFactory>(() => new MockedServiceBusClientFactory(new MockedServiceBusClient()));
                 container.RegisterSingleton<IStorageServiceClientFactory>(() => new MockedStorageServiceClientFactory());
                 container.RegisterSingleton<IRequestResponseLogging>(() => new RequestResponseLoggingBlobStorage("fake_value", "fake_value", logStorageLogger));
-                container.RegisterSingleton<IActorContext>(() => new ActorContext());
             }
         }
     }

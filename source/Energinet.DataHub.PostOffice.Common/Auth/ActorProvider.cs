@@ -17,9 +17,9 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Threading.Tasks;
-using Energinet.DataHub.Core.FunctionApp.Common.Abstractions.Actor;
+using Energinet.DataHub.Core.App.Common.Abstractions.Actor;
 
-namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
+namespace Energinet.DataHub.PostOffice.Common.Auth
 {
     public sealed class ActorProvider : IActorProvider
     {
@@ -52,7 +52,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
 
             while (await reader.ReadAsync().ConfigureAwait(false))
             {
-                var record = ((IDataRecord)reader)!;
+                var record = (IDataRecord)reader;
 
                 return new Actor(
                     record.GetGuid(0),
@@ -61,7 +61,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
                     record.GetString(3));
             }
 
-            throw new InvalidOperationException("Actor not found");
+            throw new InvalidOperationException($"Actor with id {actorId} not found.");
         }
     }
 }

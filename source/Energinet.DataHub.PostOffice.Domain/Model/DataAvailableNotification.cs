@@ -23,7 +23,8 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             DomainOrigin origin,
             SupportsBundling supportsBundling,
             Weight weight,
-            SequenceNumber sequenceNumber)
+            SequenceNumber sequenceNumber,
+            DocumentType documentType)
         {
             NotificationId = notificationId;
             Recipient = recipient;
@@ -32,6 +33,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             SupportsBundling = supportsBundling;
             Weight = weight;
             SequenceNumber = sequenceNumber;
+            DocumentType = documentType;
         }
 
         public Uuid NotificationId { get; }
@@ -41,5 +43,6 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
         public SupportsBundling SupportsBundling { get; }
         public Weight Weight { get; }
         public SequenceNumber SequenceNumber { get; }
+        public DocumentType DocumentType { get; }
     }
 }

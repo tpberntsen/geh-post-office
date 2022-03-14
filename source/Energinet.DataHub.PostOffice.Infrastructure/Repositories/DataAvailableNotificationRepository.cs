@@ -229,7 +229,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
                     // b) If an item is inserted after UpdateDrawerAsync,
                     //    a catalog entry will be added in UpdateCatalogAsync AND SaveAsync.
                     // c) If an item is inserted after UpdateDrawerAsync and UpdateCatalogAsync,
-                    //    a catalog entry will be added in SaveAsync, in necessary.
+                    //    a catalog entry will be added in SaveAsync, if necessary.
                     await UpdateDrawerAsync(changes).ConfigureAwait(false);
                     await Task
                         .WhenAll(
@@ -445,6 +445,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Repositories
             var query =
                 from dataAvailable in asLinq
                 where dataAvailable.PartitionKey == changes.UpdatedDrawer.Id
+                orderby dataAvailable.SequenceNumber
                 select (long?)dataAvailable.SequenceNumber;
 
             var nextSequenceNumber = await query

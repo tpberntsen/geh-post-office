@@ -29,12 +29,13 @@ namespace Energinet.DataHub.MessageHub.Model.DataAvailable
                 var dataAvailable = DataAvailableNotificationContract.Parser.ParseFrom(dataAvailableContract);
 
                 return new DataAvailableNotificationDto(
-                    Uuid: Guid.Parse(dataAvailable.UUID),
-                    Recipient: new GlobalLocationNumberDto(dataAvailable.Recipient),
-                    MessageType: new MessageTypeDto(dataAvailable.MessageType),
-                    Origin: Enum.Parse<DomainOrigin>(dataAvailable.Origin),
-                    SupportsBundling: dataAvailable.SupportsBundling,
-                    RelativeWeight: dataAvailable.RelativeWeight);
+                    uuid: Guid.Parse(dataAvailable.UUID),
+                    recipient: new GlobalLocationNumberDto(dataAvailable.Recipient),
+                    messageType: new MessageTypeDto(dataAvailable.MessageType),
+                    origin: Enum.Parse<DomainOrigin>(dataAvailable.Origin),
+                    supportsBundling: dataAvailable.SupportsBundling,
+                    relativeWeight: dataAvailable.RelativeWeight,
+                    documentType: dataAvailable.DocumentType);
             }
             catch (Exception ex) when (ex is InvalidProtocolBufferException or FormatException)
             {

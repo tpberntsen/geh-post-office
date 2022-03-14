@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Common.Auth;
 using Energinet.DataHub.PostOffice.Common.Extensions;
+using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -28,15 +29,18 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
     {
         private readonly IMediator _mediator;
         private readonly IMarketOperatorIdentity _operatorIdentity;
-        private readonly BundleIdProvider _bundleIdProvider;
+        private readonly IFeatureFlags _featureFlags;
+        private readonly ExternalBundleIdProvider _bundleIdProvider;
 
         public PeekFunction(
             IMediator mediator,
             IMarketOperatorIdentity operatorIdentity,
-            BundleIdProvider bundleIdProvider)
+            IFeatureFlags featureFlags,
+            ExternalBundleIdProvider bundleIdProvider)
         {
             _mediator = mediator;
             _operatorIdentity = operatorIdentity;
+            _featureFlags = featureFlags;
             _bundleIdProvider = bundleIdProvider;
         }
 
@@ -47,12 +51,20 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
         {
             return request.ProcessAsync(async () =>
             {
-                var command = new PeekCommand(_operatorIdentity.Gln, _bundleIdProvider.GetBundleId(request));
-                var (hasContent, stream) = await _mediator.Send(command).ConfigureAwait(false);
+                var command = new PeekCommand(_operatorIdentity.Gln, _bundleIdProvider.TryGetBundleId(request));
+                var (hasContent, bundleId, stream, documentTypes) = await _mediator.Send(command).ConfigureAwait(false);
+
                 var response = hasContent
                     ? request.CreateResponse(stream, MediaTypeNames.Application.Xml)
                     : request.CreateResponse(HttpStatusCode.NoContent);
-                response.Headers.Add(Constants.BundleIdHeaderName, command.BundleId);
+
+                response.Headers.Add(Constants.BundleIdHeaderName, bundleId);
+
+                if (_featureFlags.IsFeatureActive(Feature.SendMessageTypeHeader))
+                {
+                    response.Headers.Add(Constants.MessageTypeName, string.Join(",", documentTypes));
+                }
+
                 return response;
             });
         }

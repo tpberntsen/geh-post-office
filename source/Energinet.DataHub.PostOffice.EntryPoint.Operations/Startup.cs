@@ -13,6 +13,9 @@
 // limitations under the License.
 
 using Energinet.DataHub.PostOffice.Common;
+using Energinet.DataHub.PostOffice.Common.Auth;
+using Energinet.DataHub.PostOffice.EntryPoint.Operations.Functions;
+using Energinet.DataHub.PostOffice.EntryPoint.Operations.HealthCheck;
 using SimpleInjector;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.Operations
@@ -21,6 +24,17 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.Operations
     {
         protected override void Configure(Container container)
         {
+            // market participant
+            container.AddMarketParticipantConfig();
+
+            // health check
+            container.Register<ICosmosDatabaseVerifier, CosmosDatabaseVerifier>(Lifestyle.Scoped);
+            container.Register<ISqlDatabaseVerifier, SqlDatabaseVerifier>(Lifestyle.Scoped);
+            container.Register<IServiceBusQueueVerifier, ServiceBusQueueVerifier>(Lifestyle.Scoped);
+            container.Register<IHealth, Health>(Lifestyle.Scoped);
+
+            // functions
+            container.Register<HealthFunction>(Lifestyle.Scoped);
         }
     }
 }

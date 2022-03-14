@@ -29,7 +29,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 Enum.Parse<DomainOrigin>(document.Origin),
                 new SupportsBundling(document.SupportsBundling),
                 new Weight(document.RelativeWeight),
-                new SequenceNumber(document.SequenceNumber));
+                new SequenceNumber(document.SequenceNumber),
+                new DocumentType(document.DocumentType));
         }
 
         public static CosmosDataAvailable Map(DataAvailableNotification notification, string partitionKey)
@@ -43,7 +44,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 SupportsBundling = notification.SupportsBundling.Value,
                 RelativeWeight = notification.Weight.Value,
                 SequenceNumber = notification.SequenceNumber.Value,
-                PartitionKey = partitionKey
+                PartitionKey = partitionKey,
+                DocumentType = notification.DocumentType.Value
             };
         }
     }

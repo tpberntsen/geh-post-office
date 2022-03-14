@@ -27,11 +27,13 @@ namespace Microsoft.Azure.Functions.Isolated.TestDoubles
         {
         }
 
+#pragma warning disable CS8618
         public MockFunctionContext(FunctionDefinition functionDefinition, FunctionInvocation invocation)
         {
             FunctionDefinition = functionDefinition;
             _invocation = invocation;
         }
+#pragma warning restore CS8618
 
         public bool IsDisposed { get; private set; }
 
@@ -39,7 +41,9 @@ namespace Microsoft.Azure.Functions.Isolated.TestDoubles
 
         public override FunctionDefinition FunctionDefinition { get; }
 
+#pragma warning disable CA2227
         public override IDictionary<object, object> Items { get; set; } = new Dictionary<object, object>();
+#pragma warning restore CA2227
 
         public override IInvocationFeatures Features { get; } /*= new InvocationFeatures(Enumerable.Empty<IInvocationFeatureProvider>());*/
 

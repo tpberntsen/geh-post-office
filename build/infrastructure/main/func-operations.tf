@@ -20,7 +20,7 @@ module "func_operations" {
   environment_instance                      = var.environment_instance
   resource_group_name                       = azurerm_resource_group.this.name
   location                                  = azurerm_resource_group.this.location
-  app_service_plan_id                       = module.plan_shared.id
+  app_service_plan_id                       = data.azurerm_key_vault_secret.plan_shared_id.value
   application_insights_instrumentation_key  = data.azurerm_key_vault_secret.appi_instrumentation_key.value
   always_on                                 = true
   app_settings                              = {
@@ -42,6 +42,9 @@ module "func_operations" {
     LOG_DB_CONTAINER                          = azurerm_cosmosdb_sql_container.collection_logs.name
     RequestResponseLogConnectionString        = data.azurerm_key_vault_secret.st_market_operator_logs_primary_connection_string.value
     RequestResponseLogContainerName           = data.azurerm_key_vault_secret.st_market_operator_logs_container_name.value
+    B2C_TENANT_ID                             = data.azurerm_key_vault_secret.b2c_tenant_id.value
+    BACKEND_SERVICE_APP_ID                    = data.azurerm_key_vault_secret.backend_service_app_id.value
+    SQL_ACTOR_DB_CONNECTION_STRING            = local.sql_actor_db_connection_string
   }
   
   tags                                      = azurerm_resource_group.this.tags

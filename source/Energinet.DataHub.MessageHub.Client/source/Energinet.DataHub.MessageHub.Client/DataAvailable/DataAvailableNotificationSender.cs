@@ -48,12 +48,13 @@ namespace Energinet.DataHub.MessageHub.Client.DataAvailable
                 Origin = dataAvailableNotificationDto.Origin.ToString(),
                 Recipient = dataAvailableNotificationDto.Recipient.Value,
                 SupportsBundling = dataAvailableNotificationDto.SupportsBundling,
-                RelativeWeight = dataAvailableNotificationDto.RelativeWeight
+                RelativeWeight = dataAvailableNotificationDto.RelativeWeight,
+                DocumentType = dataAvailableNotificationDto.DocumentType
             };
 
             var messageId = Guid.NewGuid().ToString();
 
-            var message = new ServiceBusMessage(new BinaryData(contract.ToByteArray())) { MessageId = messageId }
+            var message = new ServiceBusMessage(new BinaryData(contract.ToByteArray())) { MessageId = messageId, PartitionKey = dataAvailableNotificationDto.Origin.ToString() }
                 .AddDataAvailableIntegrationEvents(correlationId);
 
             return sender.PublishMessageAsync<ServiceBusMessage>(message);

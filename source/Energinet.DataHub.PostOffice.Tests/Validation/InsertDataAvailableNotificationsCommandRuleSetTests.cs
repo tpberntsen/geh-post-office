@@ -30,6 +30,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
         private const string ValidOrigin = "Charges";
         private const string ValidRecipient = "5790000555550";
         private const string ValidContentType = "TimeSeries";
+        private const string ValidDocumentType = "RSM??";
 
         [Fact]
         public async Task Validate_NullNotifications_ValidatesProperty()
@@ -67,7 +68,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
                 ValidOrigin,
                 false,
                 ValidWeight,
-                ValidSequenceNumber);
+                ValidSequenceNumber,
+                ValidDocumentType);
 
             // Act
             var items = new[] { dto };
@@ -104,7 +106,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
                 ValidOrigin,
                 false,
                 ValidWeight,
-                ValidSequenceNumber);
+                ValidSequenceNumber,
+                ValidDocumentType);
 
             // Act
             var items = new[] { dto };
@@ -143,7 +146,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
                 ValidOrigin,
                 false,
                 ValidWeight,
-                ValidSequenceNumber);
+                ValidSequenceNumber,
+                ValidDocumentType);
 
             // Act
             var items = new[] { dto };
@@ -183,7 +187,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
                 value,
                 false,
                 ValidWeight,
-                ValidSequenceNumber);
+                ValidSequenceNumber,
+                ValidDocumentType);
 
             // Act
             var items = new[] { dto };
@@ -223,7 +228,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
                 ValidOrigin,
                 false,
                 value,
-                ValidSequenceNumber);
+                ValidSequenceNumber,
+                ValidDocumentType);
 
             // Act
             var items = new[] { dto };
@@ -263,6 +269,45 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
                 ValidOrigin,
                 false,
                 ValidWeight,
+                value,
+                ValidDocumentType);
+
+            // Act
+            var items = new[] { dto };
+            var result = await target.ValidateAsync(new InsertDataAvailableNotificationsCommand(items)).ConfigureAwait(false);
+
+            // Assert
+            if (isValid)
+            {
+                Assert.True(result.IsValid);
+                Assert.DoesNotContain(propertyName, result.Errors.Select(x => x.PropertyName));
+            }
+            else
+            {
+                Assert.False(result.IsValid);
+                Assert.Contains(propertyName, result.Errors.Select(x => x.PropertyName));
+            }
+        }
+
+        [Theory]
+        [InlineData("", false)]
+        [InlineData(null, false)]
+        [InlineData("  ", false)]
+        [InlineData("RSM??", true)]
+        public async Task Validate_DocumentType_ValidatesProperty(string value, bool isValid)
+        {
+            // Arrange
+            const string propertyName = "Notifications[0]." + nameof(DataAvailableNotificationDto.DocumentType);
+
+            var target = new InsertDataAvailableNotificationsCommandRuleSet();
+            var dto = new DataAvailableNotificationDto(
+                ValidUuid,
+                ValidRecipient,
+                ValidContentType,
+                ValidOrigin,
+                false,
+                ValidWeight,
+                ValidSequenceNumber,
                 value);
 
             // Act
