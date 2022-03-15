@@ -116,7 +116,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                         bundle.DocumentTypes);
                 }
 
-                _logger.LogProcess("Peek", "Timeout", _correlationIdProvider.CorrelationId, request.MarketOperator, bundle.BundleId.ToString(), bundle.NotificationIds.Select(x => x.ToString()));
+                _logger.LogProcess("Peek", "TimeoutOrError", _correlationIdProvider.CorrelationId, request.MarketOperator, bundle.BundleId.ToString(), bundle.NotificationIds.Select(x => x.ToString()));
             }
 
             _logger.LogProcess("Peek", "NoContent", _correlationIdProvider.CorrelationId, request.MarketOperator, string.Empty);
