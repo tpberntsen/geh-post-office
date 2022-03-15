@@ -45,6 +45,8 @@ module "func_marketoperator" {
     B2C_TENANT_ID                             = data.azurerm_key_vault_secret.b2c_tenant_id.value
     BACKEND_SERVICE_APP_ID                    = data.azurerm_key_vault_secret.backend_service_app_id.value
     SQL_ACTOR_DB_CONNECTION_STRING            = local.sql_actor_db_connection_string
+    # feature flags
+    FEATURE_SENDMESSAGETYPEHEADER             = local.feature_send_messagetype_header
   }
   
   tags                                      = azurerm_resource_group.this.tags
