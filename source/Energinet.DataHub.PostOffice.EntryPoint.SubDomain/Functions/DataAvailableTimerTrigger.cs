@@ -150,7 +150,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
 
             deadletter.AddRange(notifications.Where(x => !x.CouldBeParsed).Select(x => x.Message));
 
-            void Log(bool error, IEnumerable<(Message message, DataAvailableNotificationDto? da)> das)
+            void Log(bool error, IEnumerable<(Message Message, DataAvailableNotificationDto? Da)> das)
             {
                 foreach (var (message, da) in das)
                 {

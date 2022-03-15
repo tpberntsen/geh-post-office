@@ -28,7 +28,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
-    public class PeekHandler :
+    public sealed class PeekHandler :
         IRequestHandler<PeekCommand, PeekResponse>,
         IRequestHandler<PeekTimeSeriesCommand, PeekResponse>,
         IRequestHandler<PeekMasterDataCommand, PeekResponse>,
