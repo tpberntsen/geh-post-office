@@ -24,6 +24,7 @@ using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Model.Logging;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using Xunit.Categories;
@@ -44,6 +45,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var target = new DequeueHandler(
                 warehouseDomainServiceMock.Object,
                 dequeueNotificationSenderMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object,
                 logRepositoryMock.Object);
 
             // Act + Assert
@@ -84,6 +87,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var target = new DequeueHandler(
                 warehouseDomainServiceMock.Object,
                 dequeueNotificationSenderMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object,
                 logRepositoryMock.Object);
 
             // Act
@@ -116,6 +121,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var target = new DequeueHandler(
                 warehouseDomainServiceMock.Object,
                 dequeueNotificationSenderMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object,
                 logRepositoryMock.Object);
 
             // Act
@@ -153,6 +160,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var target = new DequeueHandler(
                 warehouseDomainServiceMock.Object,
                 dequeueNotificationSenderMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object,
                 logRepositoryMock.Object);
 
             // Act
@@ -181,6 +190,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             var target = new DequeueHandler(
                 warehouseDomainServiceMock.Object,
                 dequeueNotificationSenderMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object,
                 logRepositoryMock.Object);
 
             // Act

@@ -23,6 +23,7 @@ using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Model.Logging;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using Xunit.Categories;
@@ -38,7 +39,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             // Arrange
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             var logRepositoryMock = new Mock<ILogRepository>();
-            var target = new PeekHandler(warehouseDomainServiceMock.Object, logRepositoryMock.Object);
+            var target = new PeekHandler(
+                warehouseDomainServiceMock.Object,
+                logRepositoryMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act + Assert
             await Assert
@@ -78,7 +83,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                         It.Is<Uuid>(r => BundleIdCheck(r, request))))
                 .ReturnsAsync(bundle);
 
-            var target = new PeekHandler(warehouseDomainServiceMock.Object, logRepositoryMock.Object);
+            var target = new PeekHandler(
+                warehouseDomainServiceMock.Object,
+                logRepositoryMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             var (hasContent, bid, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
@@ -111,7 +120,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                         bundleId))
                 .ReturnsAsync((Bundle?)null);
 
-            var target = new PeekHandler(warehouseDomainServiceMock.Object, logRepositoryMock.Object);
+            var target = new PeekHandler(
+                warehouseDomainServiceMock.Object,
+                logRepositoryMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             var (hasContent, _, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
@@ -128,7 +141,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             // Arrange
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             var logRepositoryMock = new Mock<ILogRepository>();
-            var target = new PeekHandler(warehouseDomainServiceMock.Object, logRepositoryMock.Object);
+            var target = new PeekHandler(
+                warehouseDomainServiceMock.Object,
+                logRepositoryMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act + Assert
             await Assert
@@ -168,7 +185,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                         It.Is<Uuid>(r => r.ToString().Equals(request.BundleId, StringComparison.OrdinalIgnoreCase))))
                 .ReturnsAsync(bundle);
 
-            var target = new PeekHandler(warehouseDomainServiceMock.Object, logRepositoryMock.Object);
+            var target = new PeekHandler(
+                warehouseDomainServiceMock.Object,
+                logRepositoryMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             var (hasContent, bid, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
@@ -197,7 +218,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                         It.Is<Uuid>(r => string.Equals(r.ToString(), request.BundleId, StringComparison.OrdinalIgnoreCase))))
                 .ReturnsAsync((Bundle?)null);
 
-            var target = new PeekHandler(warehouseDomainServiceMock.Object, logRepositoryMock.Object);
+            var target = new PeekHandler(
+                warehouseDomainServiceMock.Object,
+                logRepositoryMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             var (hasContent, _, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
@@ -214,7 +239,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             // Arrange
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             var logMock = new Mock<ILogRepository>();
-            var target = new PeekHandler(warehouseDomainServiceMock.Object, logMock.Object);
+            var target = new PeekHandler(
+                warehouseDomainServiceMock.Object,
+                logMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act + Assert
             await Assert
@@ -253,7 +282,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                         It.Is<Uuid>(r => BundleIdCheck(r, request))))
                 .ReturnsAsync(bundle);
 
-            var target = new PeekHandler(warehouseDomainServiceMock.Object, logMock.Object);
+            var target = new PeekHandler(
+                warehouseDomainServiceMock.Object,
+                logMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             var (hasContent, bid, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
@@ -283,7 +316,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                         It.Is<Uuid>(r => BundleIdCheck(r, request))))
                 .ReturnsAsync((Bundle?)null);
 
-            var target = new PeekHandler(warehouseDomainServiceMock.Object, logMock.Object);
+            var target = new PeekHandler(
+                warehouseDomainServiceMock.Object,
+                logMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             var (hasContent, _, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
@@ -300,7 +337,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             // Arrange
             var logMock = new Mock<ILogRepository>();
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
-            var target = new PeekHandler(warehouseDomainServiceMock.Object, logMock.Object);
+            var target = new PeekHandler(
+                warehouseDomainServiceMock.Object,
+                logMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act + Assert
             await Assert
@@ -339,7 +380,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                         It.Is<Uuid>(r => BundleIdCheck(r, request))))
                 .ReturnsAsync(bundle);
 
-            var target = new PeekHandler(warehouseDomainServiceMock.Object, logMock.Object);
+            var target = new PeekHandler(
+                warehouseDomainServiceMock.Object,
+                logMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             var (hasContent, bid, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
@@ -369,7 +414,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                         It.Is<Uuid>(r => BundleIdCheck(r, request))))
                 .ReturnsAsync((Bundle?)null);
 
-            var target = new PeekHandler(warehouseDomainServiceMock.Object, logMock.Object);
+            var target = new PeekHandler(
+                warehouseDomainServiceMock.Object,
+                logMock.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             var (hasContent, _, stream, _) = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
@@ -403,10 +452,14 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 Enumerable.Empty<string>());
 
             dataDomainServiceMock.Setup(x => x.GetNextUnacknowledgedAsync(
-                        It.IsAny<MarketOperator>(), It.IsAny<Uuid>()))
+                    It.IsAny<MarketOperator>(), It.IsAny<Uuid>()))
                 .ReturnsAsync(bundle);
 
-            var handler = new PeekHandler(dataDomainServiceMock.Object, target.Object);
+            var handler = new PeekHandler(
+                dataDomainServiceMock.Object,
+                target.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             await handler.Handle(peekCommand, CancellationToken.None).ConfigureAwait(false);
@@ -429,7 +482,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                     It.IsAny<MarketOperator>(), It.IsAny<Uuid>()))
                 .ReturnsAsync(bundle);
 
-            var handler = new PeekHandler(dataDomainServiceMock.Object, target.Object);
+            var handler = new PeekHandler(
+                dataDomainServiceMock.Object,
+                target.Object,
+                new Mock<ILogger>().Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             await handler.Handle(peekCommand, CancellationToken.None).ConfigureAwait(false);

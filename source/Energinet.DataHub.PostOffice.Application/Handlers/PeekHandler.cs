@@ -24,10 +24,11 @@ using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
-    public class PeekHandler :
+    public sealed class PeekHandler :
         IRequestHandler<PeekCommand, PeekResponse>,
         IRequestHandler<PeekTimeSeriesCommand, PeekResponse>,
         IRequestHandler<PeekMasterDataCommand, PeekResponse>,
@@ -35,13 +36,19 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
     {
         private readonly IMarketOperatorDataDomainService _marketOperatorDataDomainService;
         private readonly ILogRepository _log;
+        private readonly ILogger _logger;
+        private readonly ICorrelationIdProvider _correlationIdProvider;
 
         public PeekHandler(
             IMarketOperatorDataDomainService marketOperatorDataDomainService,
-            ILogRepository log)
+            ILogRepository log,
+            ILogger logger,
+            ICorrelationIdProvider correlationIdProvider)
         {
             _marketOperatorDataDomainService = marketOperatorDataDomainService;
             _log = log;
+            _logger = logger;
+            _correlationIdProvider = correlationIdProvider;
         }
 
         public Task<PeekResponse> Handle(PeekCommand request, CancellationToken cancellationToken)
@@ -83,6 +90,8 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
         {
             Guard.ThrowIfNull(request, nameof(request));
 
+            _logger.LogProcess("Peek", _correlationIdProvider.CorrelationId, request.MarketOperator);
+
             var marketOperator = new MarketOperator(new GlobalLocationNumber(request.MarketOperator));
 
             var suggestedBundleId = request.BundleId != null
@@ -91,17 +100,26 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
             var bundle = await requestHandler(marketOperator, suggestedBundleId).ConfigureAwait(false);
 
-            if (bundle != null && bundle.TryGetContent(out var bundleContent))
+            if (bundle != null)
             {
-                var peekLog = logProvider(bundle.ProcessId, bundleContent);
-                await _log.SavePeekLogOccurrenceAsync(peekLog).ConfigureAwait(false);
+                if (bundle.TryGetContent(out var bundleContent))
+                {
+                    var peekLog = logProvider(bundle.ProcessId, bundleContent);
+                    await _log.SavePeekLogOccurrenceAsync(peekLog).ConfigureAwait(false);
 
-                return new PeekResponse(
-                    true,
-                    bundle.BundleId.ToString(),
-                    await bundleContent.OpenAsync().ConfigureAwait(false),
-                    bundle.DocumentTypes);
+                    _logger.LogProcess("Peek", "HasContent", _correlationIdProvider.CorrelationId, request.MarketOperator, bundle.BundleId.ToString(), bundle.NotificationIds.Select(x => x.ToString()));
+
+                    return new PeekResponse(
+                        true,
+                        bundle.BundleId.ToString(),
+                        await bundleContent.OpenAsync().ConfigureAwait(false),
+                        bundle.DocumentTypes);
+                }
+
+                _logger.LogProcess("Peek", "TimeoutOrError", _correlationIdProvider.CorrelationId, request.MarketOperator, bundle.BundleId.ToString(), bundle.NotificationIds.Select(x => x.ToString()));
             }
+
+            _logger.LogProcess("Peek", "NoContent", _correlationIdProvider.CorrelationId, request.MarketOperator, string.Empty);
 
             return new PeekResponse(
                 false,

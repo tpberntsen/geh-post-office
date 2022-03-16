@@ -23,6 +23,7 @@ using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using DomainOrigin = Energinet.DataHub.MessageHub.Model.Model.DomainOrigin;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
@@ -31,21 +32,29 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
     {
         private readonly IMarketOperatorDataDomainService _marketOperatorDataDomainService;
         private readonly IDequeueNotificationSender _dequeueNotificationSender;
+        private readonly ILogger _logger;
+        private readonly ICorrelationIdProvider _correlationIdProvider;
         private readonly ILogRepository _log;
 
         public DequeueHandler(
             IMarketOperatorDataDomainService marketOperatorDataDomainService,
             IDequeueNotificationSender dequeueNotificationSender,
+            ILogger logger,
+            ICorrelationIdProvider correlationIdProvider,
             ILogRepository log)
         {
             _marketOperatorDataDomainService = marketOperatorDataDomainService;
             _dequeueNotificationSender = dequeueNotificationSender;
+            _logger = logger;
+            _correlationIdProvider = correlationIdProvider;
             _log = log;
         }
 
         public async Task<DequeueResponse> Handle(DequeueCommand request, CancellationToken cancellationToken)
         {
             Guard.ThrowIfNull(request, nameof(request));
+
+            _logger.LogProcess("Dequeue", _correlationIdProvider.CorrelationId, request.MarketOperator);
 
             var recipient = new MarketOperator(new GlobalLocationNumber(request.MarketOperator));
             var bundleId = new Uuid(request.BundleId);
@@ -55,7 +64,10 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 .ConfigureAwait(false);
 
             if (!canAcknowledge)
+            {
+                _logger.LogProcess("Dequeue", "Unacknowledged", _correlationIdProvider.CorrelationId, request.MarketOperator, request.BundleId);
                 return new DequeueResponse(false);
+            }
 
             var dequeueNotification = new DequeueNotificationDto(
                 bundle!.ProcessId.ToString(),
@@ -73,6 +85,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 .AcknowledgeAsync(bundle)
                 .ConfigureAwait(false);
 
+            _logger.LogProcess("Dequeue", "Acknowledged", _correlationIdProvider.CorrelationId, request.MarketOperator, request.BundleId);
             return new DequeueResponse(true);
         }
     }

@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
 namespace Energinet.DataHub.PostOffice.Common.Extensions
@@ -48,7 +47,6 @@ namespace Energinet.DataHub.PostOffice.Common.Extensions
 
             try
             {
-                logger.LogInformation($"Processing {callerClass}");
                 return await worker().ConfigureAwait(false);
             }
 #pragma warning disable CA1031
