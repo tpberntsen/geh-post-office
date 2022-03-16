@@ -31,17 +31,20 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
         private readonly IMarketOperatorIdentity _operatorIdentity;
         private readonly IFeatureFlags _featureFlags;
         private readonly ExternalBundleIdProvider _bundleIdProvider;
+        private readonly PeekReturnTypeProvider _peekReturnTypeProvider;
 
         public PeekTimeSeriesFunction(
             IMediator mediator,
             IMarketOperatorIdentity operatorIdentity,
             IFeatureFlags featureFlags,
-            ExternalBundleIdProvider bundleIdProvider)
+            ExternalBundleIdProvider bundleIdProvider,
+            PeekReturnTypeProvider peekReturnTypeProvider)
         {
             _mediator = mediator;
             _operatorIdentity = operatorIdentity;
             _featureFlags = featureFlags;
             _bundleIdProvider = bundleIdProvider;
+            _peekReturnTypeProvider = peekReturnTypeProvider;
         }
 
         [Function("PeekTimeSeries")]
@@ -51,9 +54,12 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
         {
             return request.ProcessAsync(async () =>
             {
-                var command = new PeekTimeSeriesCommand(_operatorIdentity.Gln, _bundleIdProvider.TryGetBundleId(request));
-                var (hasContent, bundleId, stream, documentTypes) = await _mediator.Send(command).ConfigureAwait(false);
+                var command = new PeekTimeSeriesCommand(
+                    _operatorIdentity.Gln,
+                    _bundleIdProvider.TryGetBundleId(request),
+                    _peekReturnTypeProvider.GetReturnType(request));
 
+                var (hasContent, bundleId, stream, documentTypes) = await _mediator.Send(command).ConfigureAwait(false);
                 var response = hasContent
                     ? request.CreateResponse(stream, MediaTypeNames.Application.Xml)
                     : request.CreateResponse(HttpStatusCode.NoContent);

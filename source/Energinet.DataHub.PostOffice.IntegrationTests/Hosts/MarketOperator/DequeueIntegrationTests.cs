@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Application.Enums;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
 using FluentValidation;
 using MediatR;
@@ -84,7 +85,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             await using var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
 
-            var peekResponse = await mediator.Send(new PeekCommand(recipientGln, bundleId)).ConfigureAwait(false);
+            var peekResponse = await mediator.Send(new PeekCommand(recipientGln, bundleId, PeekReturnType.Xml)).ConfigureAwait(false);
             var bundleUuid = await ReadBundleIdAsync(peekResponse).ConfigureAwait(false);
 
             var dequeueCommand = new DequeueCommand(recipientGln, bundleUuid);
@@ -112,7 +113,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             await using var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
 
-            var peekResponse = await mediator.Send(new PeekCommand(recipientGln, bundleId)).ConfigureAwait(false);
+            var peekResponse = await mediator.Send(new PeekCommand(recipientGln, bundleId, PeekReturnType.Xml)).ConfigureAwait(false);
             var bundleUuid = await ReadBundleIdAsync(peekResponse).ConfigureAwait(false);
 
             var dequeueCommand = new DequeueCommand(recipientGln, bundleUuid);
@@ -144,7 +145,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.MarketOperator
             await using var scope = host.BeginScope();
             var mediator = scope.GetInstance<IMediator>();
 
-            var peekResponse = await mediator.Send(new PeekCommand(recipientGln, bundleId)).ConfigureAwait(false);
+            var peekResponse = await mediator.Send(new PeekCommand(recipientGln, bundleId, PeekReturnType.Xml)).ConfigureAwait(false);
             var bundleUuid = await ReadBundleIdAsync(peekResponse).ConfigureAwait(false);
 
             var dequeueCommand = new DequeueCommand(unrelatedGln, bundleUuid);

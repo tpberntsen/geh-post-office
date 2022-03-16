@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Application.Enums;
 using Energinet.DataHub.PostOffice.Application.Validation;
 using Xunit;
 using Xunit.Categories;
@@ -41,7 +42,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
             var target = new PeekTimeSeriesCommandRuleSet();
             var command = new PeekTimeSeriesCommand(
                 ValidRecipient,
-                value);
+                value,
+                PeekReturnType.Xml);
 
             // Act
             var result = await target.ValidateAsync(command).ConfigureAwait(false);
@@ -70,7 +72,10 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
             const string propertyName = nameof(PeekTimeSeriesCommand.MarketOperator);
 
             var target = new PeekTimeSeriesCommandRuleSet();
-            var command = new PeekTimeSeriesCommand(value, Guid.NewGuid().ToString());
+            var command = new PeekTimeSeriesCommand(
+                value,
+                Guid.NewGuid().ToString(),
+                PeekReturnType.Xml);
 
             // Act
             var result = await target.ValidateAsync(command).ConfigureAwait(false);

@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Energinet.DataHub.PostOffice.Application.Enums;
+
 namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public sealed record PeekMasterDataCommand(string MarketOperator, string? BundleId) : PeekCommandBase(MarketOperator, BundleId);
+    public sealed record PeekMasterDataCommand(string MarketOperator, string? BundleId, PeekReturnType ReturnType) : PeekCommandBase(MarketOperator, BundleId, ReturnType);
 }

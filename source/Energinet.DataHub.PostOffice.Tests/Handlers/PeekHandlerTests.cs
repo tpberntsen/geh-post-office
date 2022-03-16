@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Application.Enums;
 using Energinet.DataHub.PostOffice.Application.Handlers;
 using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Domain.Model.Logging;
@@ -51,7 +52,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         {
             // Arrange
             var bundleId = Guid.NewGuid().ToString();
-            var request = new PeekCommand("fake_value", bundleId);
+            var request = new PeekCommand("fake_value", bundleId, PeekReturnType.Xml);
 
             var logRepositoryMock = new Mock<ILogRepository>();
 
@@ -96,7 +97,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         public async Task PeekCommandHandle_WithoutData_ReturnsNullStream()
         {
             // Arrange
-            var request = new PeekCommand("fake_value", Guid.NewGuid().ToString());
+            var request = new PeekCommand("fake_value", Guid.NewGuid().ToString(), PeekReturnType.Xml);
 
             var logRepositoryMock = new Mock<ILogRepository>();
 
@@ -141,7 +142,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         {
             // Arrange
             var bundleId = Guid.NewGuid().ToString();
-            var request = new PeekAggregationsCommand("fake_value", bundleId);
+            var request = new PeekAggregationsCommand("fake_value", bundleId, PeekReturnType.Xml);
 
             var logRepositoryMock = new Mock<ILogRepository>();
 
@@ -187,7 +188,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         {
             // Arrange
             var logRepositoryMock = new Mock<ILogRepository>();
-            var request = new PeekAggregationsCommand("fake_value", Guid.NewGuid().ToString());
+            var request = new PeekAggregationsCommand("fake_value", Guid.NewGuid().ToString(), PeekReturnType.Xml);
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock
@@ -228,7 +229,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             // Arrange
             var logMock = new Mock<ILogRepository>();
             var bundleId = Guid.NewGuid().ToString();
-            var request = new PeekTimeSeriesCommand("fake_value", bundleId);
+            var request = new PeekTimeSeriesCommand("fake_value", bundleId, PeekReturnType.Xml);
 
             var bundleContentMock = new Mock<IBundleContent>();
             bundleContentMock
@@ -272,7 +273,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         {
             // Arrange
             var logMock = new Mock<ILogRepository>();
-            var request = new PeekTimeSeriesCommand("fake_value", Guid.NewGuid().ToString());
+            var request = new PeekTimeSeriesCommand("fake_value", Guid.NewGuid().ToString(), PeekReturnType.Xml);
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock
@@ -314,7 +315,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             // Arrange
             var logMock = new Mock<ILogRepository>();
             var bundleId = Guid.NewGuid().ToString();
-            var request = new PeekMasterDataCommand("fake_value", bundleId);
+            var request = new PeekMasterDataCommand("fake_value", bundleId, PeekReturnType.Xml);
 
             var bundleContentMock = new Mock<IBundleContent>();
             bundleContentMock
@@ -358,7 +359,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         {
             // Arrange
             var logMock = new Mock<ILogRepository>();
-            var request = new PeekMasterDataCommand("fake_value", Guid.NewGuid().ToString());
+            var request = new PeekMasterDataCommand("fake_value", Guid.NewGuid().ToString(), PeekReturnType.Xml);
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock
@@ -386,7 +387,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             // Arrange
             var dataDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             var target = new Mock<ILogRepository>();
-            var peekCommand = new PeekCommand("fake_value", Guid.NewGuid().ToString());
+            var peekCommand = new PeekCommand("fake_value", Guid.NewGuid().ToString(), PeekReturnType.Xml);
 
             var bundleContentMock = new Mock<IBundleContent>();
             bundleContentMock
@@ -421,7 +422,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             // Arrange
             var dataDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             var target = new Mock<ILogRepository>();
-            var peekCommand = new PeekCommand("fake_value", Guid.NewGuid().ToString());
+            var peekCommand = new PeekCommand("fake_value", Guid.NewGuid().ToString(), PeekReturnType.Xml);
 
             Bundle bundle = null!;
 

@@ -15,6 +15,7 @@
 using System;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Application.Enums;
 using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.IntegrationTests.Common;
 using FluentValidation;
@@ -89,7 +90,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
             await mediator.Send(command).ConfigureAwait(false);
 
             // Assert
-            var peekResponse = await mediator.Send(new PeekCommand(recipientGln, bundleId)).ConfigureAwait(false);
+            var peekResponse = await mediator.Send(new PeekCommand(recipientGln, bundleId, PeekReturnType.Xml)).ConfigureAwait(false);
             Assert.NotNull(peekResponse);
             Assert.True(peekResponse.HasContent);
         }
@@ -150,7 +151,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
             await mediator.Send(new UpdateMaximumSequenceNumberCommand(3)).ConfigureAwait(false);
 
             // Act
-            await mediator.Send(new PeekCommand(recipientGln, bundleIdA)).ConfigureAwait(false);
+            await mediator.Send(new PeekCommand(recipientGln, bundleIdA, PeekReturnType.Xml)).ConfigureAwait(false);
             await mediator.Send(new DequeueCommand(recipientGln, bundleIdA)).ConfigureAwait(false);
 
             var dataAvailableNotificationD = new DataAvailableNotificationDto(
@@ -172,7 +173,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
             await mediator.Send(new UpdateMaximumSequenceNumberCommand(4)).ConfigureAwait(false);
 
             var peekResponse = await mediator
-                .Send(new PeekCommand(recipientGln, bundleIdB))
+                .Send(new PeekCommand(recipientGln, bundleIdB, PeekReturnType.Xml))
                 .ConfigureAwait(false);
 
             // Assert
@@ -219,7 +220,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
                 .ConfigureAwait(false);
 
             // Act
-            await mediator.Send(new PeekCommand(recipientGln, bundleIdA)).ConfigureAwait(false);
+            await mediator.Send(new PeekCommand(recipientGln, bundleIdA, PeekReturnType.Xml)).ConfigureAwait(false);
 
             await mediator
                 .Send(new InsertDataAvailableNotificationsCommand(new[] { dataAvailableNotificationB }))
@@ -229,7 +230,7 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Hosts.SubDomain
 
             // Assert
             var peekResponse = await mediator
-                .Send(new PeekCommand(recipientGln, bundleIdB))
+                .Send(new PeekCommand(recipientGln, bundleIdB, PeekReturnType.Xml))
                 .ConfigureAwait(false);
 
             Assert.True(peekResponse.HasContent);

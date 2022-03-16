@@ -30,5 +30,10 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
         /// Name of HttpHeader that contains the message types found in a given bundle
         /// </summary>
         public const string MessageTypeName = "MessageType";
+
+        /// <summary>
+        /// Name of query parameter
+        /// </summary>
+        public const string ReturnTypeQueryName = "returnType";
     }
 }

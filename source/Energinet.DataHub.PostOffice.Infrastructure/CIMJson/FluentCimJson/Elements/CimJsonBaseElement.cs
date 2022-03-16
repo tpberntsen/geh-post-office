@@ -40,7 +40,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.CIMJson.FluentCimJson.Elem
         public virtual void ReadData(XmlReader reader)
         {
             ParseAttributes(reader);
-            ParseString(reader.ReadElementContentAsString());
+            ParseString(reader.NodeType != XmlNodeType.None
+                ? reader.ReadElementContentAsString()
+                : string.Empty);
         }
 
         public abstract void WriteJson(Utf8JsonWriter writer);
