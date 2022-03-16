@@ -128,6 +128,8 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
                             grouping.Count(),
                             ex);
 
+                        Log(error: true, grouping.Select(x => (x.Message, x.Value)));
+
                         return new { grouping, deadletter = true };
                     }
                 });
@@ -142,10 +144,25 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.SubDomain.Functions
                 else
                 {
                     complete.AddRange(result.grouping.Select(x => x.Message));
+                    Log(error: false, result.grouping.Select(x => (x.Message, x.Value)));
                 }
             }
 
             deadletter.AddRange(notifications.Where(x => !x.CouldBeParsed).Select(x => x.Message));
+
+            void Log(bool error, IEnumerable<(Message Message, DataAvailableNotificationDto? Da)> das)
+            {
+                foreach (var (message, da) in das)
+                {
+                    _logger.LogInformation(
+                        "EntryPoint=DataAvailableTimerTrigger;Status={0};CorrelationID={1};DataAvailableId={2};Domain={3};Gln={4}",
+                        error ? "Failed" : "Success",
+                        message.CorrelationId,
+                        da?.Uuid,
+                        da?.Origin,
+                        da?.Recipient);
+                }
+            }
         }
 
         private async Task ProcessGroupAsync(string key, IEnumerable<DataAvailableNotificationDto> group)

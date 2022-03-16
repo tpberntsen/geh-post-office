@@ -16,11 +16,12 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
-using Energinet.DataHub.PostOffice.Tests.Common;
 using Energinet.DataHub.PostOffice.Tests.Common.Auth;
 using FluentValidation;
 using MediatR;
+using Microsoft.Azure.Functions.Isolated.TestDoubles;
 using Moq;
 using Xunit;
 using Xunit.Categories;
@@ -36,10 +37,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         public async Task Run_DidDequeue_ReturnsStatusOk()
         {
             // Arrange
-            var mockedRequestData = new MockedHttpRequestData(new MockedFunctionContext());
-            mockedRequestData.HttpRequestDataMock
-                .Setup(x => x.Url)
-                .Returns(_functionRoute);
+            var mockedRequestData = MockHelpers.CreateHttpRequestData(url: _functionRoute);
 
             var mockedMediator = new Mock<IMediator>();
             var mockedIdentity = new MockedMarketOperatorIdentity("fake_value");
@@ -48,7 +46,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<DequeueCommand>(), default))
                 .ReturnsAsync(new DequeueResponse(true));
 
-            var target = new DequeueFunction(mockedMediator.Object, mockedIdentity);
+            var target = new DequeueFunction(mockedMediator.Object, mockedIdentity, new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -61,10 +59,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         public async Task Run_DidNotDequeue_ReturnsStatusNotFound()
         {
             // Arrange
-            var mockedRequestData = new MockedHttpRequestData(new MockedFunctionContext());
-            mockedRequestData.HttpRequestDataMock
-                .Setup(x => x.Url)
-                .Returns(_functionRoute);
+            var mockedRequestData = MockHelpers.CreateHttpRequestData(url: _functionRoute);
 
             var mockedMediator = new Mock<IMediator>();
             var mockedIdentity = new MockedMarketOperatorIdentity("fake_value");
@@ -73,7 +68,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<DequeueCommand>(), default))
                 .ReturnsAsync(new DequeueResponse(false));
 
-            var target = new DequeueFunction(mockedMediator.Object, mockedIdentity);
+            var target = new DequeueFunction(mockedMediator.Object, mockedIdentity, new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -86,10 +81,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         public async Task Run_InvalidInput_IsHandled()
         {
             // Arrange
-            var mockedRequestData = new MockedHttpRequestData(new MockedFunctionContext());
-            mockedRequestData.HttpRequestDataMock
-                .Setup(x => x.Url)
-                .Returns(_functionRoute);
+            var mockedRequestData = MockHelpers.CreateHttpRequestData(url: _functionRoute);
 
             var mockedMediator = new Mock<IMediator>();
             var mockedIdentity = new MockedMarketOperatorIdentity("fake_value");
@@ -98,7 +90,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<DequeueCommand>(), default))
                 .ThrowsAsync(new ValidationException("test"));
 
-            var target = new DequeueFunction(mockedMediator.Object, mockedIdentity);
+            var target = new DequeueFunction(mockedMediator.Object, mockedIdentity, new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -111,10 +103,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
         public async Task Run_HandlerException_IsHandled()
         {
             // Arrange
-            var mockedRequestData = new MockedHttpRequestData(new MockedFunctionContext());
-            mockedRequestData.HttpRequestDataMock
-                .Setup(x => x.Url)
-                .Returns(_functionRoute);
+            var mockedRequestData = MockHelpers.CreateHttpRequestData(url: _functionRoute);
 
             var mockedMediator = new Mock<IMediator>();
             var mockedIdentity = new MockedMarketOperatorIdentity("fake_value");
@@ -123,7 +112,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<DequeueCommand>(), default))
                 .ThrowsAsync(new InvalidOperationException("test"));
 
-            var target = new DequeueFunction(mockedMediator.Object, mockedIdentity);
+            var target = new DequeueFunction(mockedMediator.Object, mockedIdentity, new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);

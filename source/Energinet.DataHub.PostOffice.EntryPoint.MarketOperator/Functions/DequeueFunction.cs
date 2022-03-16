@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Common.Auth;
 using Energinet.DataHub.PostOffice.Common.Extensions;
+using Energinet.DataHub.PostOffice.Domain.Services;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -25,15 +26,18 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
 {
     public sealed class DequeueFunction
     {
-        private const string BundleIdQueryName = "bundleId";
-
         private readonly IMediator _mediator;
         private readonly IMarketOperatorIdentity _operatorIdentity;
+        private readonly ICorrelationIdProvider _correlationIdProvider;
 
-        public DequeueFunction(IMediator mediator, IMarketOperatorIdentity operatorIdentity)
+        public DequeueFunction(
+            IMediator mediator,
+            IMarketOperatorIdentity operatorIdentity,
+            ICorrelationIdProvider correlationIdProvider)
         {
             _mediator = mediator;
             _operatorIdentity = operatorIdentity;
+            _correlationIdProvider = correlationIdProvider;
         }
 
         [Function("Dequeue")]
@@ -43,11 +47,16 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
         {
             return request.ProcessAsync(async () =>
             {
-                var command = new DequeueCommand(_operatorIdentity.Gln, request.Url.GetQueryValue(BundleIdQueryName));
+                var command = new DequeueCommand(_operatorIdentity.Gln, request.Url.GetQueryValue(Constants.BundleIdQueryName));
                 var response = await _mediator.Send(command).ConfigureAwait(false);
-                return response.IsDequeued
+
+                var httpResponse = response.IsDequeued
                     ? request.CreateResponse(HttpStatusCode.OK)
                     : request.CreateResponse(HttpStatusCode.NotFound);
+
+                httpResponse.Headers.Add(Constants.CorrelationIdHeaderName, _correlationIdProvider.CorrelationId);
+
+                return httpResponse;
             });
         }
     }
