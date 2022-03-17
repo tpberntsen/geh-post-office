@@ -19,8 +19,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
-using Energinet.DataHub.PostOffice.Domain.Model.Logging;
-using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
@@ -35,58 +33,40 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
         IRequestHandler<PeekAggregationsCommand, PeekResponse>
     {
         private readonly IMarketOperatorDataDomainService _marketOperatorDataDomainService;
-        private readonly ILogRepository _log;
         private readonly ILogger _logger;
         private readonly ICorrelationIdProvider _correlationIdProvider;
 
         public PeekHandler(
             IMarketOperatorDataDomainService marketOperatorDataDomainService,
-            ILogRepository log,
             ILogger logger,
             ICorrelationIdProvider correlationIdProvider)
         {
             _marketOperatorDataDomainService = marketOperatorDataDomainService;
-            _log = log;
             _logger = logger;
             _correlationIdProvider = correlationIdProvider;
         }
 
         public Task<PeekResponse> Handle(PeekCommand request, CancellationToken cancellationToken)
         {
-            return HandleAsync(
-                request,
-                _marketOperatorDataDomainService.GetNextUnacknowledgedAsync,
-                (processId, bundleContent) => new PeekLog(processId, bundleContent));
+            return HandleAsync(request, _marketOperatorDataDomainService.GetNextUnacknowledgedAsync);
         }
 
         public Task<PeekResponse> Handle(PeekTimeSeriesCommand request, CancellationToken cancellationToken)
         {
-            return HandleAsync(
-                request,
-                _marketOperatorDataDomainService.GetNextUnacknowledgedTimeSeriesAsync,
-                (processId, bundleContent) => new PeekTimeseriesLog(processId, bundleContent));
+            return HandleAsync(request, _marketOperatorDataDomainService.GetNextUnacknowledgedTimeSeriesAsync);
         }
 
         public Task<PeekResponse> Handle(PeekMasterDataCommand request, CancellationToken cancellationToken)
         {
-            return HandleAsync(
-                request,
-                _marketOperatorDataDomainService.GetNextUnacknowledgedMasterDataAsync,
-                (processId, bundleContent) => new PeekMasterDataLog(processId, bundleContent));
+            return HandleAsync(request, _marketOperatorDataDomainService.GetNextUnacknowledgedMasterDataAsync);
         }
 
         public Task<PeekResponse> Handle(PeekAggregationsCommand request, CancellationToken cancellationToken)
         {
-            return HandleAsync(
-                request,
-                _marketOperatorDataDomainService.GetNextUnacknowledgedAggregationsAsync,
-                (processId, bundleContent) => new PeekAggregationsLog(processId, bundleContent));
+            return HandleAsync(request, _marketOperatorDataDomainService.GetNextUnacknowledgedAggregationsAsync);
         }
 
-        private async Task<PeekResponse> HandleAsync(
-            PeekCommandBase request,
-            Func<MarketOperator, Uuid?, Task<Bundle?>> requestHandler,
-            Func<ProcessId, IBundleContent, PeekLog> logProvider)
+        private async Task<PeekResponse> HandleAsync(PeekCommandBase request, Func<MarketOperator, Uuid?, Task<Bundle?>> requestHandler)
         {
             Guard.ThrowIfNull(request, nameof(request));
 
@@ -104,9 +84,6 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
             {
                 if (bundle.TryGetContent(out var bundleContent))
                 {
-                    var peekLog = logProvider(bundle.ProcessId, bundleContent);
-                    await _log.SavePeekLogOccurrenceAsync(peekLog).ConfigureAwait(false);
-
                     _logger.LogProcess("Peek", "HasContent", _correlationIdProvider.CorrelationId, request.MarketOperator, bundle.BundleId.ToString(), bundle.NotificationIds.Select(x => x.ToString()));
 
                     return new PeekResponse(

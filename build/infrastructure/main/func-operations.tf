@@ -38,8 +38,6 @@ module "func_operations" {
     ServiceBusConnectionString                = data.azurerm_key_vault_secret.sb_domain_relay_transceiver_connection_string.value
     BlobStorageConnectionString               = data.azurerm_key_vault_secret.st_market_operator_response_primary_connection_string.value
     BlobStorageContainerName                  = data.azurerm_key_vault_secret.st_market_operator_response_postofficereply_container_name.value
-    LOG_DB_NAME                               = azurerm_cosmosdb_sql_database.log_db.name
-    LOG_DB_CONTAINER                          = azurerm_cosmosdb_sql_container.collection_logs.name
     RequestResponseLogConnectionString        = data.azurerm_key_vault_secret.st_market_operator_logs_primary_connection_string.value
     RequestResponseLogContainerName           = data.azurerm_key_vault_secret.st_market_operator_logs_container_name.value
     B2C_TENANT_ID                             = data.azurerm_key_vault_secret.b2c_tenant_id.value
