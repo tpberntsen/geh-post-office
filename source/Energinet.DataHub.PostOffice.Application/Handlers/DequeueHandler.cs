@@ -18,8 +18,6 @@ using Energinet.DataHub.MessageHub.Core.Dequeue;
 using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Domain.Model;
-using Energinet.DataHub.PostOffice.Domain.Model.Logging;
-using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.Utilities;
 using MediatR;
@@ -28,26 +26,23 @@ using DomainOrigin = Energinet.DataHub.MessageHub.Model.Model.DomainOrigin;
 
 namespace Energinet.DataHub.PostOffice.Application.Handlers
 {
-    public class DequeueHandler : IRequestHandler<DequeueCommand, DequeueResponse>
+    public sealed class DequeueHandler : IRequestHandler<DequeueCommand, DequeueResponse>
     {
         private readonly IMarketOperatorDataDomainService _marketOperatorDataDomainService;
         private readonly IDequeueNotificationSender _dequeueNotificationSender;
         private readonly ILogger _logger;
         private readonly ICorrelationIdProvider _correlationIdProvider;
-        private readonly ILogRepository _log;
 
         public DequeueHandler(
             IMarketOperatorDataDomainService marketOperatorDataDomainService,
             IDequeueNotificationSender dequeueNotificationSender,
             ILogger logger,
-            ICorrelationIdProvider correlationIdProvider,
-            ILogRepository log)
+            ICorrelationIdProvider correlationIdProvider)
         {
             _marketOperatorDataDomainService = marketOperatorDataDomainService;
             _dequeueNotificationSender = dequeueNotificationSender;
             _logger = logger;
             _correlationIdProvider = correlationIdProvider;
-            _log = log;
         }
 
         public async Task<DequeueResponse> Handle(DequeueCommand request, CancellationToken cancellationToken)
@@ -75,10 +70,6 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
             await _dequeueNotificationSender
                 .SendAsync(bundle.ProcessId.ToString(), dequeueNotification, (DomainOrigin)bundle.Origin)
-                .ConfigureAwait(false);
-
-            await _log
-                .SaveDequeueLogOccurrenceAsync(new DequeueLog(bundle.ProcessId))
                 .ConfigureAwait(false);
 
             await _marketOperatorDataDomainService

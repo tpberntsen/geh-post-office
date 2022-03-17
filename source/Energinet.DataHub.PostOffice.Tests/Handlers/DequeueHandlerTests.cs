@@ -21,8 +21,6 @@ using Energinet.DataHub.MessageHub.Model.Model;
 using Energinet.DataHub.PostOffice.Application.Commands;
 using Energinet.DataHub.PostOffice.Application.Handlers;
 using Energinet.DataHub.PostOffice.Domain.Model;
-using Energinet.DataHub.PostOffice.Domain.Model.Logging;
-using Energinet.DataHub.PostOffice.Domain.Repositories;
 using Energinet.DataHub.PostOffice.Domain.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -41,13 +39,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             // Arrange
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             var dequeueNotificationSenderMock = new Mock<IDequeueNotificationSender>();
-            var logRepositoryMock = new Mock<ILogRepository>();
             var target = new DequeueHandler(
                 warehouseDomainServiceMock.Object,
                 dequeueNotificationSenderMock.Object,
                 new Mock<ILogger>().Object,
-                new Mock<ICorrelationIdProvider>().Object,
-                logRepositoryMock.Object);
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act + Assert
             await Assert
@@ -59,8 +55,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         public async Task Handle_WithData_ReturnsTrue()
         {
             // Arrange
-            var logRepositoryMock = new Mock<ILogRepository>();
-
             var request = new DequeueCommand("fake_value", "9FB4753A-0E2C-4F42-BA10-D38128DDA877");
             var bundleContentMock = new Mock<IBundleContent>();
             var bundle = new Bundle(
@@ -88,8 +82,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 warehouseDomainServiceMock.Object,
                 dequeueNotificationSenderMock.Object,
                 new Mock<ILogger>().Object,
-                new Mock<ICorrelationIdProvider>().Object,
-                logRepositoryMock.Object);
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             var response = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
@@ -109,7 +102,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
         public async Task Handle_WithoutData_ReturnsFalse()
         {
             // Arrange
-            var logRepositoryMock = new Mock<ILogRepository>();
             var request = new DequeueCommand("fake_value", "E3A22C4F-BA71-4BC0-9571-85F7F906D20D");
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
@@ -122,8 +114,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 warehouseDomainServiceMock.Object,
                 dequeueNotificationSenderMock.Object,
                 new Mock<ILogger>().Object,
-                new Mock<ICorrelationIdProvider>().Object,
-                logRepositoryMock.Object);
+                new Mock<ICorrelationIdProvider>().Object);
 
             // Act
             var response = await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
@@ -131,74 +122,6 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
             // Assert
             Assert.NotNull(response);
             Assert.False(response.IsDequeued);
-        }
-
-        [Fact]
-        public async Task SaveDequeueLogOccurrenceAsync_IsMethodCalled_IsCalled()
-        {
-            // Arrange
-            var logRepositoryMock = new Mock<ILogRepository>();
-            var request = new DequeueCommand("fake_value", "E3A22C4F-BA71-4BC0-9571-85F7F906D20D");
-
-            var bundleContentMock = new Mock<IBundleContent>();
-            var bundle = new Bundle(
-                new Uuid(Guid.NewGuid()),
-                new MarketOperator(new GlobalLocationNumber("fake_value")),
-                DomainOrigin.TimeSeries,
-                new ContentType("fake_value"),
-                Array.Empty<Uuid>(),
-                bundleContentMock.Object,
-                Enumerable.Empty<string>());
-
-            var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
-            warehouseDomainServiceMock.Setup(x => x.CanAcknowledgeAsync(
-                    It.Is<MarketOperator>(r => string.Equals(r.Gln.Value, request.MarketOperator, StringComparison.OrdinalIgnoreCase)),
-                    It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleId, StringComparison.OrdinalIgnoreCase))))
-                .ReturnsAsync((true, bundle));
-
-            var dequeueNotificationSenderMock = new Mock<IDequeueNotificationSender>();
-            var target = new DequeueHandler(
-                warehouseDomainServiceMock.Object,
-                dequeueNotificationSenderMock.Object,
-                new Mock<ILogger>().Object,
-                new Mock<ICorrelationIdProvider>().Object,
-                logRepositoryMock.Object);
-
-            // Act
-            await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
-
-            // Assert
-            logRepositoryMock.Verify(m => m.SaveDequeueLogOccurrenceAsync(It.IsAny<DequeueLog>()), Times.Once);
-        }
-
-        [Fact]
-        public async Task SaveDequeueLogOccurrenceAsync_IsMethodCalled_NotCalled()
-        {
-            // Arrange
-            var logRepositoryMock = new Mock<ILogRepository>();
-            var request = new DequeueCommand("fake_value", "E3A22C4F-BA71-4BC0-9571-85F7F906D20D");
-
-            Bundle bundle = null!;
-
-            var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
-            warehouseDomainServiceMock.Setup(x => x.CanAcknowledgeAsync(
-                    It.Is<MarketOperator>(r => string.Equals(r.Gln.Value, request.MarketOperator, StringComparison.OrdinalIgnoreCase)),
-                    It.Is<Uuid>(id => string.Equals(id.ToString(), request.BundleId, StringComparison.OrdinalIgnoreCase))))
-                .ReturnsAsync((false, bundle));
-
-            var dequeueNotificationSenderMock = new Mock<IDequeueNotificationSender>();
-            var target = new DequeueHandler(
-                warehouseDomainServiceMock.Object,
-                dequeueNotificationSenderMock.Object,
-                new Mock<ILogger>().Object,
-                new Mock<ICorrelationIdProvider>().Object,
-                logRepositoryMock.Object);
-
-            // Act
-            await target.Handle(request, CancellationToken.None).ConfigureAwait(false);
-
-            // Assert
-            logRepositoryMock.Verify(m => m.SaveDequeueLogOccurrenceAsync(It.IsAny<DequeueLog>()), Times.Never);
         }
     }
 }
