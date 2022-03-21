@@ -56,7 +56,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 mockedMediator.Object,
                 mockedIdentity,
                 new Mock<IFeatureFlags>().Object,
-                new ExternalBundleIdProvider());
+                new ExternalBundleIdProvider(),
+                new BundleReturnTypeProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -85,7 +86,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 mockedMediator.Object,
                 mockedIdentity,
                 new Mock<IFeatureFlags>().Object,
-                new ExternalBundleIdProvider());
+                new ExternalBundleIdProvider(),
+                new BundleReturnTypeProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -111,7 +113,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 mockedMediator.Object,
                 mockedIdentity,
                 new Mock<IFeatureFlags>().Object,
-                new ExternalBundleIdProvider());
+                new ExternalBundleIdProvider(),
+                new BundleReturnTypeProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -137,7 +140,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 mockedMediator.Object,
                 mockedIdentity,
                 new Mock<IFeatureFlags>().Object,
-                new ExternalBundleIdProvider());
+                new ExternalBundleIdProvider(),
+                new BundleReturnTypeProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);

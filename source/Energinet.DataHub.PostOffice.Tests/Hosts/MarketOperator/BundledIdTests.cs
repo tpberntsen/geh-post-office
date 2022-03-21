@@ -48,7 +48,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 mediator.Object,
                 identifier,
                 new Mock<IFeatureFlags>().Object,
-                new ExternalBundleIdProvider());
+                new ExternalBundleIdProvider(),
+                new BundleReturnTypeProvider());
 
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
@@ -76,7 +77,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 mediator.Object,
                 identifier,
                 new Mock<IFeatureFlags>().Object,
-                new ExternalBundleIdProvider());
+                new ExternalBundleIdProvider(),
+                new BundleReturnTypeProvider());
 
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
@@ -104,7 +106,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 mediator.Object,
                 identifier,
                 new Mock<IFeatureFlags>().Object,
-                new ExternalBundleIdProvider());
+                new ExternalBundleIdProvider(),
+                new BundleReturnTypeProvider());
 
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
@@ -132,7 +135,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 mediator.Object,
                 identifier,
                 new Mock<IFeatureFlags>().Object,
-                new ExternalBundleIdProvider());
+                new ExternalBundleIdProvider(),
+                new BundleReturnTypeProvider());
             var response = await sut.RunAsync(request).ConfigureAwait(false);
 
             // Assert

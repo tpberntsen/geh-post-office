@@ -16,7 +16,6 @@ using System.Net;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
-using Energinet.DataHub.PostOffice.Application.Enums;
 using Energinet.DataHub.PostOffice.Common.Auth;
 using Energinet.DataHub.PostOffice.Common.Extensions;
 using Energinet.DataHub.PostOffice.Utilities;
@@ -32,20 +31,20 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
         private readonly IMarketOperatorIdentity _operatorIdentity;
         private readonly IFeatureFlags _featureFlags;
         private readonly ExternalBundleIdProvider _bundleIdProvider;
-        private readonly PeekReturnTypeProvider _peekReturnTypeProvider;
+        private readonly BundleReturnTypeProvider _bundleReturnTypeProvider;
 
         public PeekFunction(
             IMediator mediator,
             IMarketOperatorIdentity operatorIdentity,
             IFeatureFlags featureFlags,
             ExternalBundleIdProvider bundleIdProvider,
-            PeekReturnTypeProvider peekReturnTypeProvider)
+            BundleReturnTypeProvider bundleReturnTypeProvider)
         {
             _mediator = mediator;
             _operatorIdentity = operatorIdentity;
             _featureFlags = featureFlags;
             _bundleIdProvider = bundleIdProvider;
-            _peekReturnTypeProvider = peekReturnTypeProvider;
+            _bundleReturnTypeProvider = bundleReturnTypeProvider;
         }
 
         [Function("Peek")]
@@ -58,7 +57,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
                 var command = new PeekCommand(
                     _operatorIdentity.Gln,
                     _bundleIdProvider.TryGetBundleId(request),
-                    _peekReturnTypeProvider.GetReturnType(request));
+                    _bundleReturnTypeProvider.GetReturnType(request));
 
                 var (hasContent, bundleId, stream, documentTypes) = await _mediator.Send(command).ConfigureAwait(false);
                 var response = hasContent

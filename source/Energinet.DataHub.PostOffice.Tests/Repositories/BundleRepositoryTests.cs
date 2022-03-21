@@ -161,7 +161,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Repositories
                 DomainOrigin.Aggregations,
                 null!,
                 Array.Empty<Uuid>(),
-                Enumerable.Empty<string>());
+                Enumerable.Empty<string>(),
+                BundleReturnType.Xml);
 
             // Act + Assert
             await Assert

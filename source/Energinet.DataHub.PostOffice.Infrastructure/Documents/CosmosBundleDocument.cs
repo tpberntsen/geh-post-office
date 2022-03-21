@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Collections.Generic;
+using Energinet.DataHub.PostOffice.Domain.Model;
 using Newtonsoft.Json;
 
 namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
@@ -31,6 +32,7 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
             AffectedDrawers = new List<CosmosCabinetDrawerChanges>();
             ContentPath = null!;
             DocumentTypes = null!;
+            ReturnType = BundleReturnType.Xml.ToString();
         }
 
         public string Id { get; init; }
@@ -53,5 +55,6 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Documents
 
         [JsonProperty(PropertyName = "_ts")]
         public long Timestamp { get; init; }
+        public string ReturnType { get; init; }
     }
 }

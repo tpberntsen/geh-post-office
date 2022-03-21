@@ -78,7 +78,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
 
         private async Task<PeekResponse> HandleAsync(
             PeekCommandBase request,
-            Func<MarketOperator, Uuid?, Task<Bundle?>> requestHandler,
+            Func<MarketOperator, Uuid?, BundleReturnType, Task<Bundle?>> requestHandler,
             Func<ProcessId, IBundleContent, PeekLog> logProvider)
         {
             Guard.ThrowIfNull(request, nameof(request));
@@ -89,7 +89,7 @@ namespace Energinet.DataHub.PostOffice.Application.Handlers
                 ? new Uuid(request.BundleId)
                 : null;
 
-            var bundle = await requestHandler(marketOperator, suggestedBundleId).ConfigureAwait(false);
+            var bundle = await requestHandler(marketOperator, suggestedBundleId, request.ReturnType).ConfigureAwait(false);
 
             if (bundle != null && bundle.TryGetContent(out var bundleContent))
             {

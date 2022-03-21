@@ -67,7 +67,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object,
-                Enumerable.Empty<string>());
+                Enumerable.Empty<string>(),
+                BundleReturnType.Xml);
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock.Setup(x => x.CanAcknowledgeAsync(
@@ -141,7 +142,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Handlers
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object,
-                Enumerable.Empty<string>());
+                Enumerable.Empty<string>(),
+                BundleReturnType.Xml);
 
             var warehouseDomainServiceMock = new Mock<IMarketOperatorDataDomainService>();
             warehouseDomainServiceMock.Setup(x => x.CanAcknowledgeAsync(

@@ -46,7 +46,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                Enumerable.Empty<string>());
+                Enumerable.Empty<string>(),
+                BundleReturnType.Xml);
 
             dataBundleRequestSenderMock
                 .Setup(x => x.SendAsync(It.IsAny<DataBundleRequestDto>(), MessageHub.Model.Model.DomainOrigin.TimeSeries))
@@ -73,7 +74,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                Enumerable.Empty<string>());
+                Enumerable.Empty<string>(),
+                BundleReturnType.Xml);
 
             var contentUri = new Uri("https://test.test.dk");
             var response = new DataBundleResponseDto(

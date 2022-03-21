@@ -35,7 +35,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 new Mock<IBundleContent>().Object,
-                Enumerable.Empty<string>());
+                Enumerable.Empty<string>(),
+                BundleReturnType.Xml);
 
             // Act
             target.Dequeue();
@@ -55,7 +56,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 new Mock<IBundleContent>().Object,
-                Enumerable.Empty<string>());
+                Enumerable.Empty<string>(),
+                BundleReturnType.Xml);
 
             // Act
             var actual = target.TryGetContent(out var actualContent);
@@ -75,7 +77,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                Enumerable.Empty<string>());
+                Enumerable.Empty<string>(),
+                BundleReturnType.Xml);
 
             // Act
             var actual = target.TryGetContent(out var actualContent);
@@ -96,7 +99,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                Enumerable.Empty<string>());
+                Enumerable.Empty<string>(),
+                BundleReturnType.Xml);
 
             // Act
             target.AssignContent(bundleContentMock.Object);
@@ -118,7 +122,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Model
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
                 bundleContentMock.Object,
-                Enumerable.Empty<string>());
+                Enumerable.Empty<string>(),
+                BundleReturnType.Xml);
 
             // Act + Assert
             Assert.Throws<InvalidOperationException>(() => target.AssignContent(bundleContentMock.Object));

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Energinet.DataHub.PostOffice.Application.Enums;
+using Energinet.DataHub.PostOffice.Domain.Model;
 using MediatR;
 
 namespace Energinet.DataHub.PostOffice.Application.Commands
 {
-    public abstract record PeekCommandBase(string MarketOperator, string? BundleId, PeekReturnType ReturnType) : IRequest<PeekResponse>;
+    public abstract record PeekCommandBase(string MarketOperator, string? BundleId, BundleReturnType ReturnType) : IRequest<PeekResponse>;
 }

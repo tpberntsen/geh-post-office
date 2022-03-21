@@ -28,7 +28,8 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             DomainOrigin origin,
             ContentType contentType,
             IEnumerable<Uuid> notificationIds,
-            IEnumerable<string> documentTypes)
+            IEnumerable<string> documentTypes,
+            BundleReturnType returnType)
         {
             BundleId = bundleId;
             Origin = origin;
@@ -37,6 +38,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             NotificationIds = notificationIds;
             DocumentTypes = documentTypes;
             ProcessId = new ProcessId(bundleId, recipient);
+            ReturnType = returnType;
         }
 
         public Bundle(
@@ -46,7 +48,8 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             ContentType contentType,
             IEnumerable<Uuid> notificationIds,
             IBundleContent? bundleContent,
-            IEnumerable<string> documentTypes)
+            IEnumerable<string> documentTypes,
+            BundleReturnType returnType)
         {
             BundleId = bundleId;
             Origin = origin;
@@ -56,6 +59,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
             _bundleContent = bundleContent;
             DocumentTypes = documentTypes;
             ProcessId = new ProcessId(bundleId, recipient);
+            ReturnType = returnType;
         }
 
         public Uuid BundleId { get; }
@@ -70,6 +74,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Model
         public IEnumerable<Uuid> NotificationIds { get; }
         public IEnumerable<string> DocumentTypes { get; }
 
+        public BundleReturnType ReturnType { get; }
         public bool TryGetContent([NotNullWhen(true)] out IBundleContent? bundleContent)
         {
             bundleContent = _bundleContent;

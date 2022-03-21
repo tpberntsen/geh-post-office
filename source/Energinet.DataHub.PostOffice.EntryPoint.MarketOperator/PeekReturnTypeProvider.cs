@@ -13,27 +13,27 @@
 // limitations under the License.
 
 using System;
-using Energinet.DataHub.PostOffice.Application.Enums;
 using Energinet.DataHub.PostOffice.Common.Extensions;
+using Energinet.DataHub.PostOffice.Domain.Model;
 using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Azure.Functions.Worker.Http;
 
 namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator
 {
-    public sealed class PeekReturnTypeProvider
+    public sealed class BundleReturnTypeProvider
     {
         /// <summary>
-        /// Get the return type you want for this peek request id from the request, or returns <see cref="PeekReturnType.Xml"/> if no return type was provided.
+        /// Get the return type you want for this peek request id from the request, or returns <see cref="BundleReturnType.Xml"/> if no return type was provided.
         /// </summary>
         /// <param name="request">The request to probe for the return type.</param>
-        /// <returns>The return type requested, or <see cref="PeekReturnType.Xml"/> if none was provided</returns>
+        /// <returns>The return type requested, or <see cref="BundleReturnType.Xml"/> if none was provided</returns>
 #pragma warning disable CA1822 // Mark members as static
-        public PeekReturnType GetReturnType(HttpRequestData request)
+        public BundleReturnType GetReturnType(HttpRequestData request)
 #pragma warning restore CA1822 // Mark members as static
         {
             Guard.ThrowIfNull(request, nameof(request));
 
-            Enum.TryParse<PeekReturnType>(request.Url.GetQueryValue(Constants.ReturnTypeQueryName), true, out var returnType);
+            Enum.TryParse<BundleReturnType>(request.Url.GetQueryValue(Constants.ReturnTypeQueryName), true, out var returnType);
             return returnType;
         }
     }

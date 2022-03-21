@@ -25,7 +25,8 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         /// Maps a given <see cref="DomainOrigin"/> to its maximum <see cref="Weight"/>.
         /// </summary>
         /// <param name="domainOrigin">The <see cref="DomainOrigin"/> for which a maximum <see cref="Weight"/> is found and returned.</param>
+        /// <param name="returnType">The <see cref="BundleReturnType"/> for which a maximum <see cref="Weight"/> is found and returned.</param>
         /// <returns>The maximum <see cref="Weight"/>.</returns>
-        Weight CalculateMaxWeight(DomainOrigin domainOrigin);
+        Weight CalculateMaxWeight(DomainOrigin domainOrigin, BundleReturnType returnType);
     }
 }

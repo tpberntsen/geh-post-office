@@ -354,7 +354,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 notifications[0].Origin,
                 notifications[0].ContentType,
                 new[] { notifications[0].NotificationId },
-                Enumerable.Empty<string>());
+                Enumerable.Empty<string>(),
+                BundleReturnType.Xml);
 
             await bundleRepository
                 .TryAddNextUnacknowledgedAsync(bundle, readForBundle)
@@ -421,7 +422,8 @@ namespace Energinet.DataHub.PostOffice.IntegrationTests.Repositories
                 notifications[0].Origin,
                 notifications[0].ContentType,
                 new[] { notifications[0].NotificationId },
-                Enumerable.Empty<string>());
+                Enumerable.Empty<string>(),
+                BundleReturnType.Xml);
 
             await bundleRepository
                 .TryAddNextUnacknowledgedAsync(bundle, readForBundle!)

@@ -16,8 +16,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
-using Energinet.DataHub.PostOffice.Application.Enums;
 using Energinet.DataHub.PostOffice.Application.Validation;
+using Energinet.DataHub.PostOffice.Domain.Model;
 using Xunit;
 using Xunit.Categories;
 
@@ -43,7 +43,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
             var command = new PeekCommand(
                 ValidRecipient,
                 value,
-                PeekReturnType.Xml);
+                BundleReturnType.Xml);
 
             // Act
             var result = await target.ValidateAsync(command).ConfigureAwait(false);
@@ -75,7 +75,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Validation
             var command = new PeekCommand(
                 value,
                 Guid.NewGuid().ToString(),
-                PeekReturnType.Xml);
+                BundleReturnType.Xml);
 
             // Act
             var result = await target.ValidateAsync(command).ConfigureAwait(false);

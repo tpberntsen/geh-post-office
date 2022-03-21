@@ -38,7 +38,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                Enumerable.Empty<string>());
+                Enumerable.Empty<string>(),
+                BundleReturnType.Xml);
 
             bundleContentRequestServiceMock
                 .Setup(x => x.WaitForBundleContentFromSubDomainAsync(bundle))
@@ -64,7 +65,8 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
                 DomainOrigin.TimeSeries,
                 new ContentType("fake_value"),
                 Array.Empty<Uuid>(),
-                Enumerable.Empty<string>());
+                Enumerable.Empty<string>(),
+                BundleReturnType.Xml);
 
             bundleContentRequestServiceMock
                 .Setup(x => x.WaitForBundleContentFromSubDomainAsync(bundle))

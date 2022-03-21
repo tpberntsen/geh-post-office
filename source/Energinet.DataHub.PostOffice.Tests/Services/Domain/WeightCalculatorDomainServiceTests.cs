@@ -35,7 +35,9 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var target = new WeightCalculatorDomainService();
 
             // act
-            var actual = target.CalculateMaxWeight(domainOrigin);
+            var actual = target.CalculateMaxWeight(
+                domainOrigin,
+                BundleReturnType.Xml);
 
             // assert
             Assert.Equal(new Weight(expectedWeight), actual);
@@ -48,7 +50,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var target = new WeightCalculatorDomainService();
 
             // act, assert
-            Assert.Throws<InvalidOperationException>(() => target.CalculateMaxWeight(default));
+            Assert.Throws<InvalidOperationException>(() => target.CalculateMaxWeight(default, BundleReturnType.Xml));
         }
 
         [Fact]
@@ -58,7 +60,7 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Domain
             var target = new WeightCalculatorDomainService();
 
             // act, assert
-            Assert.Throws<ArgumentOutOfRangeException>(() => target.CalculateMaxWeight((DomainOrigin)(-1)));
+            Assert.Throws<ArgumentOutOfRangeException>(() => target.CalculateMaxWeight((DomainOrigin)(-1), BundleReturnType.Xml));
         }
     }
 }

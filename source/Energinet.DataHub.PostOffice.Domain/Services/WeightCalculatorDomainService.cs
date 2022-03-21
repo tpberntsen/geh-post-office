@@ -19,7 +19,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
 {
     public class WeightCalculatorDomainService : IWeightCalculatorDomainService
     {
-        public Weight CalculateMaxWeight(DomainOrigin domainOrigin)
+        public Weight CalculateMaxWeight(DomainOrigin domainOrigin, BundleReturnType returnType)
         {
             switch (domainOrigin)
             {
@@ -28,7 +28,10 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 case DomainOrigin.MeteringPoints:
                 case DomainOrigin.MarketRoles:
                 case DomainOrigin.Charges:
-                    return new Weight(50 * 1024);
+                    // TODO: Should be refactored to better handle return types
+                    return returnType == BundleReturnType.Xml
+                        ? new Weight(50 * 1024)
+                        : new Weight(75 * 1024);
                 case DomainOrigin.Unknown:
                     throw new InvalidOperationException($"Mapping of enum {nameof(DomainOrigin)}.{nameof(DomainOrigin.Unknown)} to type {nameof(Weight)} is undefined.");
                 default:

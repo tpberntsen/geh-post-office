@@ -41,26 +41,32 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             _weightCalculatorDomainService = weightCalculatorDomainService;
         }
 
-        public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid? suggestedBundleId)
+        public Task<Bundle?> GetNextUnacknowledgedAsync(MarketOperator recipient, Uuid? suggestedBundleId, BundleReturnType returnType)
         {
-            return GetNextUnacknowledgedForDomainsAsync(recipient, suggestedBundleId);
+            return GetNextUnacknowledgedForDomainsAsync(recipient, suggestedBundleId, returnType);
         }
 
-        public Task<Bundle?> GetNextUnacknowledgedTimeSeriesAsync(MarketOperator recipient, Uuid? suggestedBundleId)
+        public Task<Bundle?> GetNextUnacknowledgedTimeSeriesAsync(MarketOperator recipient, Uuid? suggestedBundleId, BundleReturnType returnType)
         {
-            return GetNextUnacknowledgedForDomainsAsync(recipient, suggestedBundleId, DomainOrigin.TimeSeries);
+            return GetNextUnacknowledgedForDomainsAsync(recipient, suggestedBundleId, returnType, DomainOrigin.TimeSeries);
         }
 
-        public Task<Bundle?> GetNextUnacknowledgedAggregationsAsync(MarketOperator recipient, Uuid? suggestedBundleId)
+        public Task<Bundle?> GetNextUnacknowledgedAggregationsAsync(MarketOperator recipient, Uuid? suggestedBundleId, BundleReturnType returnType)
         {
-            return GetNextUnacknowledgedForDomainsAsync(recipient, suggestedBundleId, DomainOrigin.Aggregations);
+            return GetNextUnacknowledgedForDomainsAsync(recipient, suggestedBundleId, returnType, DomainOrigin.Aggregations);
         }
 
-        public Task<Bundle?> GetNextUnacknowledgedMasterDataAsync(MarketOperator recipient, Uuid? suggestedBundleId)
+        public Task<(bool CanAcknowledge, Bundle? Bundle)> CanAcknowledgeAsync(MarketOperator recipient, Uuid bundleId, BundleReturnType returnType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Bundle?> GetNextUnacknowledgedMasterDataAsync(MarketOperator recipient, Uuid? suggestedBundleId, BundleReturnType returnType)
         {
             return GetNextUnacknowledgedForDomainsAsync(
                 recipient,
                 suggestedBundleId,
+                returnType,
                 DomainOrigin.MarketRoles,
                 DomainOrigin.MeteringPoints,
                 DomainOrigin.Charges);
@@ -90,6 +96,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
         private async Task<Bundle?> GetNextUnacknowledgedForDomainsAsync(
             MarketOperator recipient,
             Uuid? suggestedBundleId,
+            BundleReturnType returnType,
             params DomainOrigin[] domains)
         {
             var existingBundle = await _bundleRepository
@@ -105,6 +112,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                         $"The specified bundle id was rejected, as the current bundle {existingBundle.BundleId} is yet to be acknowledged.");
                 }
 
+                // TODO: Add validation for return types here
                 return await AskSubDomainForContentAsync(existingBundle).ConfigureAwait(false);
             }
 
@@ -116,7 +124,7 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             if (cabinetReader == null)
                 return null;
 
-            var newBundle = await CreateNextBundleAsync(suggestedBundleId, cabinetReader).ConfigureAwait(false);
+            var newBundle = await CreateNextBundleAsync(suggestedBundleId, cabinetReader, returnType).ConfigureAwait(false);
 
             var bundleCreatedResponse = await _bundleRepository
                 .TryAddNextUnacknowledgedAsync(newBundle, cabinetReader)
@@ -148,12 +156,12 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
             return bundle;
         }
 
-        private async Task<Bundle> CreateNextBundleAsync(Uuid? suggestedBundleId, ICabinetReader cabinetReader)
+        private async Task<Bundle> CreateNextBundleAsync(Uuid? suggestedBundleId, ICabinetReader cabinetReader, BundleReturnType returnType)
         {
             var cabinetKey = cabinetReader.Key;
 
             var weight = new Weight(0);
-            var maxWeight = _weightCalculatorDomainService.CalculateMaxWeight(cabinetKey.Origin);
+            var maxWeight = _weightCalculatorDomainService.CalculateMaxWeight(cabinetKey.Origin, returnType);
 
             var notificationIds = new List<Uuid>();
             var documentTypes = new HashSet<string>();
@@ -199,7 +207,8 @@ namespace Energinet.DataHub.PostOffice.Domain.Services
                 cabinetKey.Origin,
                 cabinetKey.ContentType,
                 notificationIds,
-                documentTypes);
+                documentTypes,
+                returnType);
         }
     }
 }

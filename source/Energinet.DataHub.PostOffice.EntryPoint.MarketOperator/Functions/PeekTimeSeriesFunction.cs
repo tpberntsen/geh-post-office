@@ -31,20 +31,20 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
         private readonly IMarketOperatorIdentity _operatorIdentity;
         private readonly IFeatureFlags _featureFlags;
         private readonly ExternalBundleIdProvider _bundleIdProvider;
-        private readonly PeekReturnTypeProvider _peekReturnTypeProvider;
+        private readonly BundleReturnTypeProvider _bundleReturnTypeProvider;
 
         public PeekTimeSeriesFunction(
             IMediator mediator,
             IMarketOperatorIdentity operatorIdentity,
             IFeatureFlags featureFlags,
             ExternalBundleIdProvider bundleIdProvider,
-            PeekReturnTypeProvider peekReturnTypeProvider)
+            BundleReturnTypeProvider bundleReturnTypeProvider)
         {
             _mediator = mediator;
             _operatorIdentity = operatorIdentity;
             _featureFlags = featureFlags;
             _bundleIdProvider = bundleIdProvider;
-            _peekReturnTypeProvider = peekReturnTypeProvider;
+            _bundleReturnTypeProvider = bundleReturnTypeProvider;
         }
 
         [Function("PeekTimeSeries")]
@@ -57,7 +57,7 @@ namespace Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions
                 var command = new PeekTimeSeriesCommand(
                     _operatorIdentity.Gln,
                     _bundleIdProvider.TryGetBundleId(request),
-                    _peekReturnTypeProvider.GetReturnType(request));
+                    _bundleReturnTypeProvider.GetReturnType(request));
 
                 var (hasContent, bundleId, stream, documentTypes) = await _mediator.Send(command).ConfigureAwait(false);
                 var response = hasContent

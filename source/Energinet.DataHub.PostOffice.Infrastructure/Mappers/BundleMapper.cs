@@ -38,6 +38,9 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 notificationIds.Add(new Uuid(new Guid(guidBytes)));
             }
 
+            if (!Enum.TryParse<BundleReturnType>(bundleDocument.ReturnType, out var returnType))
+                returnType = BundleReturnType.Xml;
+
             var bundle = new Bundle(
                 new Uuid(bundleDocument.Id),
                 new MarketOperator(new GlobalLocationNumber(bundleDocument.Recipient)),
@@ -45,7 +48,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 new ContentType(bundleDocument.ContentType),
                 notificationIds,
                 bundleContent,
-                bundleDocument.DocumentTypes == null ? Enumerable.Empty<string>() : bundleDocument.DocumentTypes.Split(',', StringSplitOptions.RemoveEmptyEntries));
+                bundleDocument.DocumentTypes == null ? Enumerable.Empty<string>() : bundleDocument.DocumentTypes.Split(',', StringSplitOptions.RemoveEmptyEntries),
+                returnType);
 
             if (bundleDocument.Dequeued)
                 bundle.Dequeue();
@@ -77,7 +81,8 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Mappers
                 NotificationIdsBase64 = toBase64,
                 AffectedDrawers = changes.ToList(),
                 ContentPath = MapBundleContent(source),
-                DocumentTypes = string.Join(',', source.DocumentTypes)
+                DocumentTypes = string.Join(',', source.DocumentTypes),
+                ReturnType = source.ReturnType.ToString()
             };
         }
 
