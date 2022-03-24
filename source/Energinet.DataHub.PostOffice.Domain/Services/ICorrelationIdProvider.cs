@@ -12,17 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Energinet.DataHub.PostOffice.Domain.Model.Logging
+namespace Energinet.DataHub.PostOffice.Domain.Services
 {
-    public class PeekLog : Log
+    /// <summary>
+    /// Provider that returns a correlation ID for the current request scope.
+    /// </summary>
+    public interface ICorrelationIdProvider
     {
-        public PeekLog(ProcessId processId, IBundleContent bundleReference)
-            : base(processId)
-        {
-            BundleReference = bundleReference;
-        }
-
-        public override string EndpointType => "Peek";
-        public IBundleContent BundleReference { get; }
+        /// <summary>
+        /// The correlation ID.
+        /// </summary>
+        string CorrelationId { get; }
     }
 }

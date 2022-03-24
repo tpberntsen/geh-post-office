@@ -11,16 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-resource "azurerm_cosmosdb_sql_database" "log_db" {
-  name                = "Log"
-  resource_group_name = azurerm_resource_group.this.name
-  account_name        = module.cosmos_messages.name
-}
-
-resource "azurerm_cosmosdb_sql_container" "collection_logs" {
-  name                = "Logs"
-  resource_group_name = azurerm_resource_group.this.name
-  account_name        = module.cosmos_messages.name
-  database_name       = azurerm_cosmosdb_sql_database.log_db.name
-  partition_key_path  = "/marketOperator"
+locals {
+  feature_send_messagetype_header = true
 }

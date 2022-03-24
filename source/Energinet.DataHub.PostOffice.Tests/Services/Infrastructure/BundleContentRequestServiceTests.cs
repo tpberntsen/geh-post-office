@@ -38,7 +38,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
             // Arrange
             var marketOperatorDataStorageServiceMock = new Mock<IMarketOperatorDataStorageService>();
             var dataBundleRequestSenderMock = new Mock<IDataBundleRequestSender>();
-            var target = new BundleContentRequestService(new Mock<ILogger>().Object, marketOperatorDataStorageServiceMock.Object, dataBundleRequestSenderMock.Object);
+            var target = new BundleContentRequestService(
+                new Mock<ILogger>().Object,
+                marketOperatorDataStorageServiceMock.Object,
+                dataBundleRequestSenderMock.Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),
@@ -65,7 +69,11 @@ namespace Energinet.DataHub.PostOffice.Tests.Services.Infrastructure
             // Arrange
             var marketOperatorDataStorageServiceMock = new Mock<IMarketOperatorDataStorageService>();
             var dataBundleRequestSenderMock = new Mock<IDataBundleRequestSender>();
-            var target = new BundleContentRequestService(new Mock<ILogger>().Object, marketOperatorDataStorageServiceMock.Object, dataBundleRequestSenderMock.Object);
+            var target = new BundleContentRequestService(
+                new Mock<ILogger>().Object,
+                marketOperatorDataStorageServiceMock.Object,
+                dataBundleRequestSenderMock.Object,
+                new Mock<ICorrelationIdProvider>().Object);
 
             var bundle = new Bundle(
                 new Uuid(Guid.NewGuid()),

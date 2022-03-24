@@ -19,9 +19,11 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Energinet.DataHub.PostOffice.Application.Commands;
+using Energinet.DataHub.PostOffice.Domain.Services;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator;
 using Energinet.DataHub.PostOffice.EntryPoint.MarketOperator.Functions;
 using Energinet.DataHub.PostOffice.Tests.Common.Auth;
+using Energinet.DataHub.PostOffice.Utilities;
 using FluentValidation;
 using MediatR;
 using Microsoft.Azure.Functions.Isolated.TestDoubles;
@@ -51,7 +53,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekMasterDataCommand>(), default))
                 .ReturnsAsync(new PeekResponse(true, "A431EF1A-BEE3-4378-A3E7-639706691C63", new MemoryStream(Encoding.ASCII.GetBytes(expectedData)), Enumerable.Empty<string>()));
 
-            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, new ExternalBundleIdProvider());
+            var target = new PeekMasterDataFunction(
+                mockedMediator.Object,
+                mockedIdentity,
+                new Mock<ICorrelationIdProvider>().Object,
+                new Mock<IFeatureFlags>().Object,
+                new ExternalBundleIdProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -76,7 +83,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekMasterDataCommand>(), default))
                 .ReturnsAsync(new PeekResponse(false, string.Empty, Stream.Null, Enumerable.Empty<string>()));
 
-            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, new ExternalBundleIdProvider());
+            var target = new PeekMasterDataFunction(
+                mockedMediator.Object,
+                mockedIdentity,
+                new Mock<ICorrelationIdProvider>().Object,
+                new Mock<IFeatureFlags>().Object,
+                new ExternalBundleIdProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -98,7 +110,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekMasterDataCommand>(), default))
                 .ThrowsAsync(new ValidationException("test"));
 
-            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, new ExternalBundleIdProvider());
+            var target = new PeekMasterDataFunction(
+                mockedMediator.Object,
+                mockedIdentity,
+                new Mock<ICorrelationIdProvider>().Object,
+                new Mock<IFeatureFlags>().Object,
+                new ExternalBundleIdProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);
@@ -120,7 +137,12 @@ namespace Energinet.DataHub.PostOffice.Tests.Hosts.MarketOperator
                 .Setup(x => x.Send(It.IsAny<PeekMasterDataCommand>(), default))
                 .ThrowsAsync(new InvalidOperationException("test"));
 
-            var target = new PeekMasterDataFunction(mockedMediator.Object, mockedIdentity, new ExternalBundleIdProvider());
+            var target = new PeekMasterDataFunction(
+                mockedMediator.Object,
+                mockedIdentity,
+                new Mock<ICorrelationIdProvider>().Object,
+                new Mock<IFeatureFlags>().Object,
+                new ExternalBundleIdProvider());
 
             // Act
             var response = await target.RunAsync(mockedRequestData).ConfigureAwait(false);

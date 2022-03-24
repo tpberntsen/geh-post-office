@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 locals {
-  MESSAGES_DB_CONNECTION_STRING   = "AccountEndpoint=${module.cosmos_messages.endpoint}/;AccountKey=${module.cosmos_messages.primary_key};"
-  SQL_ACTOR_DB_CONNECTION_STRING  = "Server=tcp:${data.azurerm_key_vault_secret.mssql_data_url.value},1433;Initial Catalog=${data.azurerm_key_vault_secret.mssql_market_participant_database_name.value};Persist Security Info=False;User ID=${data.azurerm_key_vault_secret.mssql_data_admin_name.value};Password=${data.azurerm_key_vault_secret.mssql_data_admin_password.value};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+  message_db_connection_string    = "AccountEndpoint=${module.cosmos_messages.endpoint}/;AccountKey=${module.cosmos_messages.primary_key};"
+  sql_actor_db_connection_string  = "Server=tcp:${data.azurerm_key_vault_secret.mssql_data_url.value},1433;Initial Catalog=${data.azurerm_key_vault_secret.mssql_market_participant_database_name.value};Persist Security Info=False;User ID=${data.azurerm_key_vault_secret.mssql_data_admin_name.value};Password=${data.azurerm_key_vault_secret.mssql_data_admin_password.value};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+  feature_send_messagetype_header = false
 }

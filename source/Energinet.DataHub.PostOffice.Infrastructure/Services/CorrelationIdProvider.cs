@@ -12,15 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Energinet.DataHub.PostOffice.Domain.Model.Logging
+using Energinet.DataHub.PostOffice.Domain.Services;
+using Energinet.DataHub.PostOffice.Infrastructure.Correlation;
+
+namespace Energinet.DataHub.PostOffice.Infrastructure.Services
 {
-    public class PeekAggregationsLog : PeekLog
+    public sealed class CorrelationIdProvider : ICorrelationIdProvider
     {
-        public PeekAggregationsLog(ProcessId processId, IBundleContent bundleReference)
-            : base(processId, bundleReference)
+        private readonly ICorrelationContext _correlationContext;
+
+        public CorrelationIdProvider(ICorrelationContext correlationContext)
         {
+            _correlationContext = correlationContext;
         }
 
-        public override string EndpointType => "PeekAggregations";
+        public string CorrelationId => _correlationContext.Id;
     }
 }

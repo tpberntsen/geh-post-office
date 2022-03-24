@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Energinet.DataHub.MessageHub.Core.Peek;
 using Energinet.DataHub.MessageHub.Model.Model;
@@ -31,47 +30,52 @@ namespace Energinet.DataHub.PostOffice.Infrastructure.Services
         private readonly ILogger _logger;
         private readonly IMarketOperatorDataStorageService _marketOperatorDataStorageService;
         private readonly IDataBundleRequestSender _dataBundleRequestSender;
+        private readonly ICorrelationIdProvider _correlationIdProvider;
 
         public BundleContentRequestService(
             ILogger logger,
             IMarketOperatorDataStorageService marketOperatorDataStorageService,
-            IDataBundleRequestSender dataBundleRequestSender)
+            IDataBundleRequestSender dataBundleRequestSender,
+            ICorrelationIdProvider correlationIdProvider)
         {
             _logger = logger;
             _marketOperatorDataStorageService = marketOperatorDataStorageService;
             _dataBundleRequestSender = dataBundleRequestSender;
+            _correlationIdProvider = correlationIdProvider;
         }
 
         public async Task<IBundleContent?> WaitForBundleContentFromSubDomainAsync(Bundle bundle)
         {
             Guard.ThrowIfNull(bundle, nameof(bundle));
 
-            var sw = Stopwatch.StartNew();
             var request = new DataBundleRequestDto(
                 Guid.NewGuid(),
                 bundle.ProcessId.ToString(),
                 bundle.ProcessId.ToString(),
                 bundle.ContentType.Value);
 
-            _logger.LogInformation("Requesting bundle from domain {0}.\n", bundle.Origin);
+            _logger.LogProcess("Peek", "WaitForContent", _correlationIdProvider.CorrelationId, bundle.Recipient.ToString(), bundle.BundleId.ToString(), bundle.Origin.ToString());
 
             var response = await _dataBundleRequestSender.SendAsync(request, (DomainOrigin)bundle.Origin).ConfigureAwait(false);
             if (response == null)
             {
-                _logger.LogInformation("No response received (within allowed time).\n");
+                _logger.LogProcess("Peek", "NoDomainResponse", _correlationIdProvider.CorrelationId, bundle.Recipient.ToString(), bundle.BundleId.ToString(), bundle.Origin.ToString());
                 return null;
             }
 
             if (response.IsErrorResponse)
             {
+                _logger.LogProcess("Peek", "DomainErrorResponse", _correlationIdProvider.CorrelationId, bundle.Recipient.ToString(), bundle.BundleId.ToString(), bundle.Origin.ToString());
                 _logger.LogError(
-                    "Domain returned an error {0}.\nDescription: {1}",
+                    "Domain returned an error {0}. Correlation ID: {1}.\nDescription: {2}",
                     response.ResponseError.Reason,
+                    _correlationIdProvider.CorrelationId,
                     response.ResponseError.FailureDescription);
                 return null;
             }
 
-            _logger.LogInformation("Response received in {0} ms.\n", sw.ElapsedMilliseconds);
+            _logger.LogProcess("Peek", "DomainResponse", _correlationIdProvider.CorrelationId, bundle.Recipient.ToString(), bundle.BundleId.ToString(), bundle.Origin.ToString());
+
             return new AzureBlobBundleContent(_marketOperatorDataStorageService, response.ContentUri);
         }
     }

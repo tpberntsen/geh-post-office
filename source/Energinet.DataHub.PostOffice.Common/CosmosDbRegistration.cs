@@ -39,9 +39,8 @@ namespace Energinet.DataHub.PostOffice.Common
                     var configuration = container.GetService<IConfiguration>();
                     var connectionString = configuration.GetConnectionStringOrSetting("MESSAGES_DB_CONNECTION_STRING");
                     var messageHubDatabaseId = configuration.GetValue<string>("MESSAGES_DB_NAME");
-                    var logDatabaseId = configuration.GetValue<string>("LOG_DB_NAME");
 
-                    return new CosmosDatabaseConfig(connectionString, messageHubDatabaseId, logDatabaseId);
+                    return new CosmosDatabaseConfig(connectionString, messageHubDatabaseId);
                 });
         }
 

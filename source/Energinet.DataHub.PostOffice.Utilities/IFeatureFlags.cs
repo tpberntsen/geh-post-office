@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Energinet.DataHub.PostOffice.Domain.Model.Logging
+namespace Energinet.DataHub.PostOffice.Utilities
 {
-    public class PeekTimeseriesLog : PeekLog
+    /// <summary>
+    /// Provides access to feature flags.
+    /// </summary>
+    public interface IFeatureFlags
     {
-        public PeekTimeseriesLog(ProcessId processId, IBundleContent bundleReference)
-            : base(processId, bundleReference)
-        {
-        }
-
-        public override string EndpointType => "PeekTimeseries";
+        /// <summary>
+        /// Returns true if the specified feature is currently active.
+        /// </summary>
+        bool IsFeatureActive(Feature feature);
     }
 }

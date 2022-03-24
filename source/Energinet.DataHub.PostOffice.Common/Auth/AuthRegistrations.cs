@@ -13,10 +13,12 @@
 // limitations under the License.
 
 using System;
-using Energinet.DataHub.Core.FunctionApp.Common.Abstractions.Identity;
-using Energinet.DataHub.Core.FunctionApp.Common.Identity;
-using Energinet.DataHub.Core.FunctionApp.Common.Middleware;
-using Energinet.DataHub.Core.FunctionApp.Common.SimpleInjector;
+using Energinet.DataHub.Core.App.Common.Abstractions.Identity;
+using Energinet.DataHub.Core.App.Common.Abstractions.Security;
+using Energinet.DataHub.Core.App.Common.Identity;
+using Energinet.DataHub.Core.App.Common.Security;
+using Energinet.DataHub.Core.App.FunctionApp.Middleware;
+using Energinet.DataHub.Core.App.FunctionApp.SimpleInjector;
 using Energinet.DataHub.PostOffice.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,6 +56,7 @@ namespace Energinet.DataHub.PostOffice.Common.Auth
         private static void RegisterJwt(Container container)
         {
             container.Register<JwtTokenMiddleware>(Lifestyle.Scoped);
+            container.Register<IJwtTokenValidator, JwtTokenValidator>(Lifestyle.Scoped);
             container.Register<IClaimsPrincipalAccessor, ClaimsPrincipalAccessor>(Lifestyle.Scoped);
             container.Register<ClaimsPrincipalContext>(Lifestyle.Scoped);
             container.Register(() =>

@@ -14,18 +14,11 @@
 
 using System;
 
-namespace Energinet.DataHub.PostOffice.Domain.Model.Logging
+namespace Energinet.DataHub.PostOffice.Utilities
 {
-    public abstract class Log
+    [Flags]
+    public enum Feature
     {
-        protected Log(ProcessId processId)
-        {
-            ProcessId = processId;
-        }
-
-        public Guid Id { get; } = Guid.NewGuid();
-        public DateTime Timestamp { get; } = DateTime.Now;
-        public abstract string EndpointType { get; }
-        public ProcessId ProcessId { get; }
+        SendMessageTypeHeader = 1
     }
 }
